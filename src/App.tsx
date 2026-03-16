@@ -6,7 +6,6 @@ import { VocabularyPage } from './pages/VocabularyPage';
 import { GeneratorPage } from './pages/GeneratorPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
-import WorldPage from './pages/WorldPage';
 import { AuthProvider, useAuth } from './AuthContext';
 
 function AppContent() {
@@ -37,7 +36,6 @@ function AppContent() {
             <Route path="/" element={<HomePage />} />
             <Route path="/vocabulary" element={<VocabularyPage />} />
             <Route path="/generator" element={<GeneratorPage />} />
-            <Route path="/world" element={<WorldPage />} />
             <Route path="/login" element={<Navigate to="/" />} />
             <Route path="/signup" element={<Navigate to="/" />} />
           </>

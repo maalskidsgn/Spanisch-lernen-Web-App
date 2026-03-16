@@ -13,7 +13,6 @@ export const Navbar: React.FC = () => {
   const navItems = [
     { path: '/vocabulary', label: 'Vokabeltrainer' },
     { path: '/generator', label: 'KI Video Generator' },
-    { path: '/world', label: 'Spanische Welt' },
   ];
 
   const handleLogout = async () => {
