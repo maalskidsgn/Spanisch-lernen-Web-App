@@ -6,18 +6,29 @@ import { db } from '../config';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
 
+interface QuizQuestion {
+  vocabId: string;
+  spanish: string;
+  icon: string;
+  correctAnswer: string;
+  options: string[]; // 5 Optionen mit korrekter Antwort gemischt
+}
+
 export const VocabularyQuizPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [currentBatch, setCurrentBatch] = useState(0);
   const [batchSize] = useState(10);
-  const [currentVocabIndex, setCurrentVocabIndex] = useState(0);
-  const [showTranslation, setShowTranslation] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [progress, setProgress] = useState<Map<string, VocabularyProgress>>(new Map());
   const [sessionStats, setSessionStats] = useState({ correct: 0, total: 0 });
   const [batchComplete, setBatchComplete] = useState(false);
   const [allComplete, setAllComplete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [answered, setAnswered] = useState(false);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
   // Lade Fortschritt vom Firestore
   useEffect(() => {
@@ -54,15 +65,53 @@ export const VocabularyQuizPage: React.FC = () => {
           });
           setProgress(newProgress);
         }
+
+        // Generiere Quiz Fragen für aktuelle Batch
+        generateQuestions(currentBatch);
+        setLoading(false);
       } catch (error) {
         console.error('Fehler beim Laden des Fortschritts:', error);
-      } finally {
+        generateQuestions(currentBatch);
         setLoading(false);
       }
     };
 
     loadProgress();
-  }, [user]);
+  }, [user, currentBatch]);
+
+  // Generiere Multiple-Choice Fragen
+  const generateQuestions = (batchNum: number) => {
+    const batchStart = batchNum * batchSize;
+    const batchEnd = Math.min(batchStart + batchSize, VOCABULARY_LIST.length);
+    const batchVocab = VOCABULARY_LIST.slice(batchStart, batchEnd);
+
+    const newQuestions = batchVocab.map((vocab) => {
+      // Sammle 4 weitere falsche Antworten
+      const wrongAnswers = VOCABULARY_LIST.filter(
+        (v) => v.id !== vocab.id
+      )
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4)
+        .map((v) => v.german);
+
+      const allOptions = [vocab.german, ...wrongAnswers];
+      const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
+
+      return {
+        vocabId: vocab.id,
+        spanish: vocab.spanish,
+        icon: vocab.icon,
+        correctAnswer: vocab.german,
+        options: shuffledOptions,
+      };
+    });
+
+    setQuestions(newQuestions);
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
+    setAnswered(false);
+    setIsCorrect(null);
+  };
 
   if (loading) {
     return (
@@ -71,12 +120,6 @@ export const VocabularyQuizPage: React.FC = () => {
       </div>
     );
   }
-
-  // Berechne aktuelle Batch
-  const batchVocab = VOCABULARY_LIST.slice(
-    currentBatch * batchSize,
-    (currentBatch + 1) * batchSize
-  );
 
   if (allComplete) {
     return (
@@ -93,7 +136,7 @@ export const VocabularyQuizPage: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Deine Statistiken
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 mb-2">
               Gesamt gelernt: <span className="text-orange-500 font-bold">100</span> Vokabeln
             </p>
             <p className="text-lg text-gray-600">
@@ -125,7 +168,7 @@ export const VocabularyQuizPage: React.FC = () => {
             Batch {currentBatch + 1} abgeschlossen!
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Du hast {batchSize} Vokabeln gelernt. Diese sind jetzt im Lernalgorithmus!
+            Du hast {questions.length} Vokabeln gelernt. Diese sind jetzt im Lernalgorithmus!
           </p>
 
           <div className="bg-white rounded-2xl p-8 mb-8 shadow-lg">
@@ -143,14 +186,17 @@ export const VocabularyQuizPage: React.FC = () => {
             <p className="text-lg text-gray-600">
               {currentBatch * batchSize} / {VOCABULARY_LIST.length} Vokabeln
             </p>
+            <p className="text-lg text-gray-600 mt-4">
+              Erfolgsrate: <span className="text-orange-500 font-bold">
+                {Math.round((sessionStats.correct / sessionStats.total) * 100)}%
+              </span>
+            </p>
           </div>
 
           {nextBatchNum <= totalBatches ? (
             <button
               onClick={() => {
                 setBatchComplete(false);
-                setCurrentVocabIndex(0);
-                setShowTranslation(false);
                 setCurrentBatch(nextBatchNum - 1);
               }}
               className="bg-orange-500 text-white px-12 py-5 rounded-lg font-bold text-xl hover:bg-orange-600 transition shadow-lg"
@@ -170,7 +216,7 @@ export const VocabularyQuizPage: React.FC = () => {
     );
   }
 
-  if (batchVocab.length === 0) {
+  if (questions.length === 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center">
         <h2 className="text-2xl font-bold text-gray-900">Keine Vokabeln verfügbar</h2>
@@ -178,12 +224,23 @@ export const VocabularyQuizPage: React.FC = () => {
     );
   }
 
-  const currentVocab = batchVocab[currentVocabIndex];
-  const isLastInBatch = currentVocabIndex === batchVocab.length - 1;
+  const currentQuestion = questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
 
-  const handleAnswer = (quality: number) => {
-    const currentProgress = progress.get(currentVocab.id) || 
-      SpaceRepetitionManager.createNewProgress(currentVocab.id);
+  const handleAnswer = (selectedOption: string) => {
+    if (answered) return; // Verhindere mehrfaches Klicken
+
+    const isAnswerCorrect = selectedOption === currentQuestion.correctAnswer;
+    setSelectedAnswer(selectedOption);
+    setAnswered(true);
+    setIsCorrect(isAnswerCorrect);
+
+    // Update Progress mit SM-2
+    const currentProgress = progress.get(currentQuestion.vocabId) ||
+      SpaceRepetitionManager.createNewProgress(currentQuestion.vocabId);
+
+    // Quality Score basierend auf Antwort
+    const quality = isAnswerCorrect ? 5 : 0; // 5 = korrekt, 0 = falsch
 
     const updatedProgress = SpaceRepetitionManager.updateProgress(
       currentProgress,
@@ -191,7 +248,7 @@ export const VocabularyQuizPage: React.FC = () => {
     );
 
     const newProgress = new Map(progress);
-    newProgress.set(currentVocab.id, updatedProgress);
+    newProgress.set(currentQuestion.vocabId, updatedProgress);
     setProgress(newProgress);
 
     // Update Firestore
@@ -205,20 +262,26 @@ export const VocabularyQuizPage: React.FC = () => {
         };
       });
 
-      setDoc(doc(db, `users/${user.uid}/learning/progress`), progressObj);
+      setDoc(doc(db, `users/${user.uid}/learning/progress`), progressObj).catch(
+        (error) => console.error('Fehler beim Speichern:', error)
+      );
     }
 
     // Update stats
     const newStats = { ...sessionStats };
     newStats.total += 1;
-    if (quality >= 3) newStats.correct += 1;
+    if (isAnswerCorrect) newStats.correct += 1;
     setSessionStats(newStats);
+  };
 
-    if (isLastInBatch) {
+  const handleNext = () => {
+    if (isLastQuestion) {
       setBatchComplete(true);
     } else {
-      setCurrentVocabIndex(currentVocabIndex + 1);
-      setShowTranslation(false);
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setSelectedAnswer(null);
+      setAnswered(false);
+      setIsCorrect(null);
     }
   };
 
@@ -229,92 +292,89 @@ export const VocabularyQuizPage: React.FC = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
             <span className="text-lg font-bold text-gray-900">
-              Batch {currentBatch + 1}: {currentVocabIndex + 1}/{batchVocab.length}
+              Batch {currentBatch + 1}: {currentQuestionIndex + 1}/{questions.length}
+            </span>
+            <span className="text-lg font-bold text-orange-500">
+              {Math.round((sessionStats.correct / (sessionStats.total || 1)) * 100)}%
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3">
             <div
               className="bg-orange-500 h-3 rounded-full transition-all"
-              style={{ width: `${((currentVocabIndex + 1) / batchVocab.length) * 100}%` }}
+              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Quiz Card */}
-        <div className="bg-white rounded-3xl shadow-2xl p-12 mb-8 text-center">
-          {/* Icon & Word */}
-          <div className="text-7xl mb-6">{currentVocab.icon}</div>
-          <h1 className="text-5xl font-bold text-gray-900 mb-3">
-            {currentVocab.spanish}
-          </h1>
-          <p className="text-lg text-gray-500 mb-8 italic">
-            [{currentVocab.pronunciation}]
+        <div className="bg-white rounded-3xl shadow-2xl p-12 mb-8">
+          {/* Icon & Spanish Word */}
+          <div className="text-center mb-8">
+            <div className="text-7xl mb-4">{currentQuestion.icon}</div>
+            <h1 className="text-5xl font-bold text-gray-900">
+              {currentQuestion.spanish}
+            </h1>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-200 my-8" />
+
+          {/* Question */}
+          <p className="text-center text-lg text-gray-600 mb-8">
+            Was bedeutet das auf Deutsch?
           </p>
 
-          {/* Translation & Example */}
-          <div
-            className={`transition-all duration-300 ${
-              showTranslation ? 'opacity-100' : 'opacity-0 hidden'
-            }`}
-          >
-            <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-2xl p-8 mb-8">
-              <p className="text-3xl font-bold text-gray-900 mb-4">
-                {currentVocab.german}
-              </p>
-              <div className="border-t border-orange-300 pt-4">
-                <p className="text-sm text-gray-600 mb-2">Beispiel:</p>
-                <p className="text-lg text-gray-700 italic">
-                  &quot;{currentVocab.example}&quot;
-                </p>
-              </div>
+          {/* Answer Options */}
+          <div className="space-y-3 mb-8">
+            {currentQuestion.options.map((option, index) => {
+              const isSelected = selectedAnswer === option;
+              const isCorrectOption = option === currentQuestion.correctAnswer;
+              
+              let buttonClass = 'bg-white border-2 border-gray-300 text-gray-900 hover:border-orange-500 hover:bg-orange-50';
+              
+              if (answered) {
+                if (isCorrectOption) {
+                  buttonClass = 'bg-green-100 border-2 border-green-500 text-green-900';
+                } else if (isSelected && !isCorrect) {
+                  buttonClass = 'bg-red-100 border-2 border-red-500 text-red-900';
+                }
+              }
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => !answered && handleAnswer(option)}
+                  disabled={answered}
+                  className={`w-full px-6 py-4 rounded-xl font-semibold text-lg transition ${buttonClass} ${
+                    answered ? 'cursor-default' : 'cursor-pointer'
+                  }`}
+                >
+                  {option}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Feedback */}
+          {answered && (
+            <div className={`p-4 rounded-xl mb-8 text-center font-semibold text-lg ${
+              isCorrect
+                ? 'bg-green-100 text-green-900'
+                : 'bg-red-100 text-red-900'
+            }`}>
+              {isCorrect ? '✅ Richtig!' : '❌ Falsch!'}
             </div>
-          </div>
+          )}
 
-          {/* Show/Hide Button */}
-          {!showTranslation ? (
+          {/* Next Button */}
+          {answered && (
             <button
-              onClick={() => setShowTranslation(true)}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 px-8 py-4 rounded-xl font-bold text-lg transition mb-8"
+              onClick={handleNext}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg"
             >
-              Antwort anzeigen
+              {isLastQuestion ? 'Batch abschließen' : 'Weiter →'}
             </button>
-          ) : null}
-        </div>
-
-        {/* Answer Buttons */}
-        {showTranslation && (
-          <div className="space-y-3">
-            <button
-              onClick={() => handleAnswer(0)}
-              className="w-full bg-red-500 hover:bg-red-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg"
-            >
-              ❌ Falsch
-            </button>
-            <button
-              onClick={() => handleAnswer(2)}
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg"
-            >
-              🤔 Schwer
-            </button>
-            <button
-              onClick={() => handleAnswer(5)}
-              className="w-full bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition shadow-lg"
-            >
-              ✅ Richtig
-            </button>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="mt-8 bg-white rounded-2xl p-6 text-center shadow-lg">
-          <p className="text-gray-600">
-            Erfolgsrate: <span className="font-bold text-orange-500">
-              {sessionStats.total > 0
-                ? Math.round((sessionStats.correct / sessionStats.total) * 100)
-                : 0}
-              %
-            </span>
-          </p>
+          )}
         </div>
       </div>
     </div>
