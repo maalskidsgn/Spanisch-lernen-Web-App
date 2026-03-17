@@ -28,17 +28,41 @@ export const ReviewPage: React.FC = () => {
   // Laden des Fortschritts aus Firestore
   useEffect(() => {
     const loadProgress = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       try {
-        const progressDoc = await getDoc(
-          doc(db, 'users', user.uid, 'learning', 'progress')
-        );
-
+        // Initialisiere mit allen Vokabeln
         let allProgress: Record<string, VocabularyProgress> = {};
 
-        if (progressDoc.exists()) {
-          allProgress = progressDoc.data() as Record<string, VocabularyProgress>;
+        // Versuche aus Firestore zu laden
+        try {
+          const progressDoc = await getDoc(
+            doc(db, 'users', user.uid, 'learning', 'progress')
+          );
+
+          if (progressDoc.exists()) {
+            const data = progressDoc.data();
+            if (data) {
+              // Konvertiere Dates richtig zurück
+              Object.keys(data).forEach((key) => {
+                const item = data[key];
+                allProgress[key] = {
+                  ...item,
+                  nextReviewDate: item.nextReviewDate
+                    ? new Date(item.nextReviewDate)
+                    : new Date(),
+                  lastReviewDate: item.lastReviewDate
+                    ? new Date(item.lastReviewDate)
+                    : new Date(),
+                };
+              });
+            }
+          }
+        } catch (firestoreError) {
+          console.log('Firestore nicht verfügbar, verwende lokale Daten');
         }
 
         // Stelle sicher, dass alle Vokabeln einen Progress-Eintrag haben
@@ -58,6 +82,18 @@ export const ReviewPage: React.FC = () => {
         setLoading(false);
       } catch (error) {
         console.error('Fehler beim Laden des Fortschritts:', error);
+        
+        // Fallback: Initialisiere alle Vokabeln mit Standard-Progress
+        let allProgress: Record<string, VocabularyProgress> = {};
+        VOCABULARY_LIST.forEach((vocab) => {
+          allProgress[vocab.id] = SpaceRepetitionManager.createNewProgress(vocab.id);
+        });
+        
+        setProgress(allProgress);
+        const dueVocabs = SpaceRepetitionManager.getDueVocabulary(
+          Object.values(allProgress)
+        );
+        setDueVocabIds(dueVocabs);
         setLoading(false);
       }
     };
@@ -71,7 +107,23 @@ export const ReviewPage: React.FC = () => {
 
     try {
       const progressRef = doc(db, 'users', user.uid, 'learning', 'progress');
-      await setDoc(progressRef, progress, { merge: true });
+      
+      // Konvertiere zu speicherbarem Format (Dates zu Strings)
+      const dataToSave: Record<string, any> = {};
+      Object.keys(progress).forEach((key) => {
+        const item = progress[key];
+        dataToSave[key] = {
+          vocabId: item.vocabId,
+          repetitions: item.repetitions,
+          easeFactor: item.easeFactor,
+          interval: item.interval,
+          nextReviewDate: item.nextReviewDate.toISOString(),
+          lastReviewDate: item.lastReviewDate.toISOString(),
+          difficulty: item.difficulty,
+        };
+      });
+      
+      await setDoc(progressRef, dataToSave, { merge: true });
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
     }
