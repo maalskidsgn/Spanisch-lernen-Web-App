@@ -34,6 +34,26 @@ export const VocabularyQuizPage: React.FC = () => {
   const [answered, setAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
+  // Generiere 4 wirklich ZUFÄLLIGE falsche Antworten für jede Frage
+  const getRandomWrongAnswers = (correctAnswer: string): string[] => {
+    const wrongAnswers: string[] = [];
+    const seen = new Set<string>([correctAnswer]);
+
+    // Wähle aus ALLEN 100 Vokabeln - nicht nur aus der Batch
+    const allGermanWords = VOCABULARY_LIST.map(v => v.german);
+
+    while (wrongAnswers.length < 4) {
+      const randomIdx = Math.floor(Math.random() * allGermanWords.length);
+      const candidate = allGermanWords[randomIdx];
+      if (!seen.has(candidate)) {
+        wrongAnswers.push(candidate);
+        seen.add(candidate);
+      }
+    }
+
+    return wrongAnswers;
+  };
+
   // Generiere Multiple-Choice Fragen - SCHNELL und DIREKT
   const generateQuestionsForBatch = (batchNum: number) => {
     const batchStart = batchNum * batchSize;
@@ -41,21 +61,8 @@ export const VocabularyQuizPage: React.FC = () => {
     const batchVocab = VOCABULARY_LIST.slice(batchStart, batchEnd);
 
     return batchVocab.map((vocab) => {
-      // Sammle 4 falsche Antworten - SCHNELL
-      const wrongAnswers: string[] = [];
-      const seen = new Set<string>([vocab.german]);
-      let attempts = 0;
-
-      while (wrongAnswers.length < 4 && attempts < 20) {
-        const randomIdx = Math.floor(Math.random() * VOCABULARY_LIST.length);
-        const candidate = VOCABULARY_LIST[randomIdx].german;
-        if (!seen.has(candidate)) {
-          wrongAnswers.push(candidate);
-          seen.add(candidate);
-        }
-        attempts++;
-      }
-
+      // Für JEDE Frage neu zufällige falsche Antworten generieren
+      const wrongAnswers = getRandomWrongAnswers(vocab.german);
       const allOptions = [vocab.german, ...wrongAnswers];
       const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
 
@@ -157,6 +164,33 @@ export const VocabularyQuizPage: React.FC = () => {
       setIsCorrect(null);
     }
   }, [currentBatch, progress]);
+
+  // Regeneriere Fragen dynamisch bei jedem Next-Klick (für neue Variationen)
+  const regenerateCurrentQuestion = () => {
+    if (questions.length === 0) return;
+    
+    const batchStart = currentBatch * batchSize;
+    const batchEnd = Math.min(batchStart + batchSize, VOCABULARY_LIST.length);
+    const currentVocab = VOCABULARY_LIST[batchStart + currentQuestionIndex];
+    
+    if (!currentVocab) return;
+
+    const wrongAnswers = getRandomWrongAnswers(currentVocab.german);
+    const allOptions = [currentVocab.german, ...wrongAnswers];
+    const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
+
+    const newQuestion: QuizQuestion = {
+      vocabId: currentVocab.id,
+      spanish: currentVocab.spanish,
+      icon: currentVocab.icon,
+      correctAnswer: currentVocab.german,
+      options: shuffledOptions,
+    };
+
+    const updatedQuestions = [...questions];
+    updatedQuestions[currentQuestionIndex] = newQuestion;
+    setQuestions(updatedQuestions);
+  };
 
   if (loading) {
     return (
@@ -323,10 +357,36 @@ export const VocabularyQuizPage: React.FC = () => {
     if (isLastQuestion) {
       setBatchComplete(true);
     } else {
+      // Gehe zur nächsten Frage
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(null);
       setAnswered(false);
       setIsCorrect(null);
+      
+      // Nach state update die nächste Frage regenerieren
+      setTimeout(() => {
+        const batchStart = currentBatch * batchSize;
+        const nextQuestionIdx = currentQuestionIndex + 1;
+        const nextVocab = VOCABULARY_LIST[batchStart + nextQuestionIdx];
+        
+        if (nextVocab && questions.length > 0) {
+          const wrongAnswers = getRandomWrongAnswers(nextVocab.german);
+          const allOptions = [nextVocab.german, ...wrongAnswers];
+          const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
+
+          const newQuestion: QuizQuestion = {
+            vocabId: nextVocab.id,
+            spanish: nextVocab.spanish,
+            icon: nextVocab.icon,
+            correctAnswer: nextVocab.german,
+            options: shuffledOptions,
+          };
+
+          const updatedQuestions = [...questions];
+          updatedQuestions[nextQuestionIdx] = newQuestion;
+          setQuestions(updatedQuestions);
+        }
+      }, 0);
     }
   };
 
