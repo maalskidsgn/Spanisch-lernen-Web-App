@@ -22,7 +22,7 @@ export const VocabularyQuizPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [currentBatch, setCurrentBatch] = useState(0);
-  const [batchSize] = useState(10);
+  const batchSize = 10; // Direkt hier definieren
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [progress, setProgress] = useState<Map<string, VocabularyProgress>>(new Map());
