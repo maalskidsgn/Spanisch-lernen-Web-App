@@ -89,9 +89,9 @@ export const LandingPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-white font-sans">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100">
+      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b border-gray-100 font-sans">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <img src="/logo.svg" alt="Logo" className="h-8" />
           <div className="flex gap-6 items-center">
