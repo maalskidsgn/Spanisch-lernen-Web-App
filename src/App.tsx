@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Navbar } from './components/layout/Navbar';
 import { HomePage } from './pages/HomePage';
 import { VocabularyPage } from './pages/VocabularyPage';
+import { ReviewPage } from './pages/ReviewPage';
 import { GeneratorPage } from './pages/GeneratorPage';
 import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
@@ -35,6 +36,7 @@ function AppContent() {
           <>
             <Route path="/" element={<HomePage />} />
             <Route path="/vocabulary" element={<VocabularyPage />} />
+            <Route path="/review" element={<ReviewPage />} />
             <Route path="/generator" element={<GeneratorPage />} />
             <Route path="/login" element={<Navigate to="/" />} />
             <Route path="/signup" element={<Navigate to="/" />} />

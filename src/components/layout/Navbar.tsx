@@ -12,6 +12,7 @@ export const Navbar: React.FC = () => {
 
   const navItems = [
     { path: '/vocabulary', label: 'Vokabeltrainer' },
+    { path: '/review', label: '📖 Üben', badge: true },
     { path: '/generator', label: 'KI Video Generator' },
   ];
 
