@@ -14,6 +14,10 @@ interface QuizQuestion {
   options: string[]; // 5 Optionen mit korrekter Antwort gemischt
 }
 
+// Global Cache für Firestore-Daten
+let progressCache: Map<string, VocabularyProgress> | null = null;
+let cacheLoaded = false;
+
 export const VocabularyQuizPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -30,69 +34,27 @@ export const VocabularyQuizPage: React.FC = () => {
   const [answered, setAnswered] = useState(false);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
-  // Lade Fortschritt vom Firestore
-  useEffect(() => {
-    if (!user) return;
-
-    const loadProgress = async () => {
-      try {
-        const docRef = doc(db, `users/${user.uid}/learning/progress`);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const progressMap = new Map<string, VocabularyProgress>();
-
-          Object.entries(data).forEach(([key, value]: [string, any]) => {
-            progressMap.set(key, {
-              ...value,
-              nextReviewDate: new Date(value.nextReviewDate),
-              lastReviewDate: value.lastReviewDate
-                ? new Date(value.lastReviewDate)
-                : undefined,
-            });
-          });
-
-          setProgress(progressMap);
-        } else {
-          // Initialize mit allen Vokabeln
-          const newProgress = new Map<string, VocabularyProgress>();
-          VOCABULARY_LIST.forEach((vocab) => {
-            newProgress.set(
-              vocab.id,
-              SpaceRepetitionManager.createNewProgress(vocab.id)
-            );
-          });
-          setProgress(newProgress);
-        }
-
-        // Generiere Quiz Fragen für aktuelle Batch
-        generateQuestions(currentBatch);
-        setLoading(false);
-      } catch (error) {
-        console.error('Fehler beim Laden des Fortschritts:', error);
-        generateQuestions(currentBatch);
-        setLoading(false);
-      }
-    };
-
-    loadProgress();
-  }, [user, currentBatch]);
-
-  // Generiere Multiple-Choice Fragen
-  const generateQuestions = (batchNum: number) => {
+  // Generiere Multiple-Choice Fragen - SCHNELL und DIREKT
+  const generateQuestionsForBatch = (batchNum: number) => {
     const batchStart = batchNum * batchSize;
     const batchEnd = Math.min(batchStart + batchSize, VOCABULARY_LIST.length);
     const batchVocab = VOCABULARY_LIST.slice(batchStart, batchEnd);
 
-    const newQuestions = batchVocab.map((vocab) => {
-      // Sammle 4 weitere falsche Antworten
-      const wrongAnswers = VOCABULARY_LIST.filter(
-        (v) => v.id !== vocab.id
-      )
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 4)
-        .map((v) => v.german);
+    return batchVocab.map((vocab) => {
+      // Sammle 4 falsche Antworten - SCHNELL
+      const wrongAnswers: string[] = [];
+      const seen = new Set<string>([vocab.german]);
+      let attempts = 0;
+
+      while (wrongAnswers.length < 4 && attempts < 20) {
+        const randomIdx = Math.floor(Math.random() * VOCABULARY_LIST.length);
+        const candidate = VOCABULARY_LIST[randomIdx].german;
+        if (!seen.has(candidate)) {
+          wrongAnswers.push(candidate);
+          seen.add(candidate);
+        }
+        attempts++;
+      }
 
       const allOptions = [vocab.german, ...wrongAnswers];
       const shuffledOptions = allOptions.sort(() => Math.random() - 0.5);
@@ -105,13 +67,96 @@ export const VocabularyQuizPage: React.FC = () => {
         options: shuffledOptions,
       };
     });
-
-    setQuestions(newQuestions);
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setAnswered(false);
-    setIsCorrect(null);
   };
+
+  // Lade Progress vom Firestore - NUR einmal beim Mount
+  useEffect(() => {
+    if (!user || cacheLoaded) return;
+
+    const loadProgressAsync = async () => {
+      try {
+        const docRef = doc(db, `users/${user.uid}/learning/progress`);
+        
+        // Mit Timeout - wenn zu lange dauert, verwende Fallback
+        const timeoutPromise = new Promise<any>((_, reject) =>
+          setTimeout(() => reject(new Error('Firestore timeout')), 3000)
+        );
+
+        let docSnap;
+        try {
+          docSnap = await Promise.race([getDoc(docRef), timeoutPromise]);
+        } catch (timeoutError) {
+          console.warn('Firestore zu langsam, verwende Fallback');
+          docSnap = null;
+        }
+
+        const progressMap = new Map<string, VocabularyProgress>();
+
+        if (docSnap?.exists()) {
+          const data = docSnap.data();
+          Object.entries(data).forEach(([key, value]: [string, any]) => {
+            progressMap.set(key, {
+              ...value,
+              nextReviewDate: new Date(value.nextReviewDate),
+              lastReviewDate: value.lastReviewDate
+                ? new Date(value.lastReviewDate)
+                : undefined,
+            });
+          });
+        } else {
+          // Initialize schnell lokal
+          VOCABULARY_LIST.forEach((vocab) => {
+            progressMap.set(
+              vocab.id,
+              SpaceRepetitionManager.createNewProgress(vocab.id)
+            );
+          });
+        }
+
+        // Cache speichern
+        progressCache = progressMap;
+        cacheLoaded = true;
+        setProgress(progressMap);
+
+        // Generiere Fragen für Batch 0
+        const newQuestions = generateQuestionsForBatch(0);
+        setQuestions(newQuestions);
+        setLoading(false);
+      } catch (error) {
+        console.error('Fehler beim Laden des Fortschritts:', error);
+
+        // Schneller Fallback
+        const fallbackProgress = new Map<string, VocabularyProgress>();
+        VOCABULARY_LIST.forEach((vocab) => {
+          fallbackProgress.set(
+            vocab.id,
+            SpaceRepetitionManager.createNewProgress(vocab.id)
+          );
+        });
+
+        progressCache = fallbackProgress;
+        cacheLoaded = true;
+        setProgress(fallbackProgress);
+        const newQuestions = generateQuestionsForBatch(0);
+        setQuestions(newQuestions);
+        setLoading(false);
+      }
+    };
+
+    loadProgressAsync();
+  }, [user]);
+
+  // Wenn Batch ändert - SCHNELL regeneriere Fragen
+  useEffect(() => {
+    if (progress.size > 0 && currentBatch >= 0) {
+      const newQuestions = generateQuestionsForBatch(currentBatch);
+      setQuestions(newQuestions);
+      setCurrentQuestionIndex(0);
+      setSelectedAnswer(null);
+      setAnswered(false);
+      setIsCorrect(null);
+    }
+  }, [currentBatch, progress]);
 
   if (loading) {
     return (
