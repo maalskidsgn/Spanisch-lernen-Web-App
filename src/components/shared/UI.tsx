@@ -1,10 +1,11 @@
 import React from 'react';
 
 export const Logo: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`text-2xl font-bold ${className}`}>
-    <span className="text-primary">Spanisch</span>
-    <span className="text-secondary">Lern</span>
-  </div>
+  <img 
+    src="/logo.svg" 
+    alt="SpanischLern Logo" 
+    className={`h-10 ${className}`}
+  />
 );
 
 export const ProgressCircle: React.FC<{ percentage: number; size?: number }> = ({ 
@@ -30,7 +31,7 @@ export const ProgressCircle: React.FC<{ percentage: number; size?: number }> = (
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#FF7A00"
+          stroke="#FF6C00"
           strokeWidth="4"
           fill="none"
           strokeDasharray={circumference}

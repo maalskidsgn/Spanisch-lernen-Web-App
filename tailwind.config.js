@@ -7,11 +7,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#FF7A00',
-        'primary-dark': '#E66E00',
-        'primary-light': '#FFB84D',
-        secondary: '#003366',
-        accent: '#00A8E8',
+        primary: '#FF6C00',      // Orange aus dem Logo
+        'primary-dark': '#E55A00',
+        'primary-light': '#FFB366',
+        secondary: '#000041',     // Navy/Dunkelblau aus dem Logo
+        accent: '#FF6C00',        // Orange als Akzent
         success: '#4CAF50',
         warning: '#FFC107',
         error: '#F44336',

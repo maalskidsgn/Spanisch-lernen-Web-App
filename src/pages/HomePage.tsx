@@ -6,7 +6,7 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex flex-col items-center justify-center px-4">
       {/* Hero Section - Minimalist */}
       <div className="text-center mb-16 max-w-2xl">
         <h1 className="text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary mb-6">

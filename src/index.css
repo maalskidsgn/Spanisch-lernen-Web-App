@@ -33,12 +33,12 @@ code {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #FF7A00;
+  background: #FF6C00;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #E66E00;
+  background: #E55A00;
 }
 
 code {
