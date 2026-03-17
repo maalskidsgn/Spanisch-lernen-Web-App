@@ -13,6 +13,7 @@
     "@types/node": "^16.18.126",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@types/three": "latest",
     "autoprefixer": "^10.4.20",
     "firebase": "^12.10.0",
     "postcss": "^8.4.47",
@@ -21,7 +22,8 @@
     "react-router-dom": "^7.13.1",
     "react-scripts": "5.0.1",
     "tailwindcss": "^3.4.19",
-    "three": "^0.183.2",
+    "three": "latest",
+    "typescript": "^5.3.3",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
