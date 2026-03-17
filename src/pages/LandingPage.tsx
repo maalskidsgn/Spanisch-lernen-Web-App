@@ -299,18 +299,6 @@ export const LandingPage: React.FC = () => {
               Starte heute kostenlos. Keine Kreditkarte erforderlich.
             </p>
 
-            {/* Scroll Progress */}
-            <div className="mb-12 flex justify-center">
-              <div className="w-24 h-24 rounded-full border-4 border-orange-500 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-500">
-                    {Math.round(scrollProgress * 100)}%
-                  </div>
-                  <div className="text-xs text-gray-400">Progress</div>
-                </div>
-              </div>
-            </div>
-
             <button
               onClick={() => navigate('/signup')}
               className="bg-orange-500 text-white px-12 py-5 rounded-lg font-bold text-xl hover:bg-orange-600 transition shadow-lg mb-6"

@@ -4,6 +4,7 @@ import { Navbar } from './components/layout/Navbar';
 import { LandingPage } from './pages/LandingPage';
 import { HomePage } from './pages/HomePage';
 import { VocabularyPage } from './pages/VocabularyPage';
+import { VocabularyQuizPage } from './pages/VocabularyQuizPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { GeneratorPage } from './pages/GeneratorPage';
 import { LoginPage } from './pages/LoginPage';
@@ -37,6 +38,7 @@ function AppContent() {
           <>
             <Route path="/" element={<HomePage />} />
             <Route path="/vocabulary" element={<VocabularyPage />} />
+            <Route path="/quiz" element={<VocabularyQuizPage />} />
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/generator" element={<GeneratorPage />} />
             <Route path="/login" element={<Navigate to="/" />} />

@@ -22,7 +22,28 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* Feature Cards - Grid with Hover Effects */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl mb-12">
+        {/* Babbel-Style Quiz Card */}
+        <button
+          onClick={() => navigate('/quiz')}
+          className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 border border-gray-100 hover:border-orange-500"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative">
+            <div className="text-6xl mb-4">🎓</div>
+            <h2 className="text-3xl font-bold text-secondary mb-3 group-hover:text-orange-500 transition-colors">
+              Lerne Vokabeln
+            </h2>
+            <p className="text-text-secondary mb-6 leading-relaxed">
+              Babbel-style: Lerne 10 Vokabeln pro Batch und meistere alle 100 Wörter.
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-orange-500">Interaktives Quiz</span>
+              <span className="text-2xl group-hover:translate-x-2 transition-transform">→</span>
+            </div>
+          </div>
+        </button>
+
         {/* Vokabeltrainer Card */}
         <button
           onClick={() => navigate('/vocabulary')}
@@ -67,7 +88,7 @@ export const HomePage: React.FC = () => {
       </div>
 
       {/* Stats Section - Minimal */}
-      <div className="bg-white rounded-2xl p-8 w-full max-w-4xl shadow-lg border border-gray-100">
+      <div className="bg-white rounded-2xl p-8 w-full max-w-6xl shadow-lg border border-gray-100">
         <h3 className="text-2xl font-bold text-secondary mb-8 text-center">Warum unser System?</h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
