@@ -1,3 +1,4 @@
+import { API_URL } from './api.js'
 import { useState, useEffect, useRef } from 'react'
 import Trainer from './Trainer.jsx'
 import Library from './Library.jsx'
@@ -262,7 +263,7 @@ export default function App() {
     setDeLines(null) // Übersetzung gehört zum alten Video
     setShowDe(false)
     try {
-      const res = await fetch('/api/transcript?url=' + encodeURIComponent(input))
+      const res = await fetch(API_URL + '/api/transcript?url=' + encodeURIComponent(input))
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
@@ -293,7 +294,7 @@ export default function App() {
     if (deLines || deLoading || !video) return
     setDeLoading(true)
     try {
-      const res = await fetch('/api/translate-batch', {
+      const res = await fetch(API_URL + '/api/translate-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lines: video.lines.map((l) => l.text) }),
@@ -350,7 +351,7 @@ export default function App() {
     setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
 
     try {
-      const res = await fetch('/api/translate?q=' + encodeURIComponent(word))
+      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(word))
       const data = await res.json()
       const translation = data.translation || '(keine Übersetzung gefunden)'
       setSelected({ word, translation, loading: false })

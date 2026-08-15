@@ -1,3 +1,4 @@
+import { API_URL } from './api.js'
 import { useState } from 'react'
 import { newEntry } from './srs.js'
 import { FREE_LIMIT, verbleibend, zaehleNutzung } from './limits.js'
@@ -22,7 +23,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
     setError('')
     setAdded(false)
     try {
-      const res = await fetch('/api/generate-vocab', {
+      const res = await fetch(API_URL + '/api/generate-vocab', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

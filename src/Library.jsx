@@ -1,3 +1,4 @@
+import { API_URL } from './api.js'
 import { useState, useEffect } from 'react'
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
@@ -64,7 +65,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
     setBuchLaden(true)
     setBuchFehler('')
     try {
-      const res = await fetch('/api/buch', {
+      const res = await fetch(API_URL + '/api/buch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ titel: buchTitel.trim() }),
@@ -113,7 +114,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
       const q = zufaellig
         ? EMPFEHLUNGS_SUCHEN[Math.floor(Math.random() * EMPFEHLUNGS_SUCHEN.length)]
         : EMPFEHLUNGS_SUCHEN[new Date().getDay() % EMPFEHLUNGS_SUCHEN.length]
-      const res = await fetch('/api/search?q=' + encodeURIComponent(q))
+      const res = await fetch(API_URL + '/api/search?q=' + encodeURIComponent(q))
       const data = await res.json()
       if (res.ok && data.results?.length) {
         const videos = data.results.slice(0, 6)
@@ -141,7 +142,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
     setResults(null)
     setQuery(q)
     try {
-      const res = await fetch('/api/search?q=' + encodeURIComponent(q))
+      const res = await fetch(API_URL + '/api/search?q=' + encodeURIComponent(q))
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setResults(data.results)

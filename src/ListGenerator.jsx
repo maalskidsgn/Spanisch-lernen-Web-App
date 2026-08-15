@@ -1,3 +1,4 @@
+import { API_URL } from './api.js'
 import { useState } from 'react'
 import { newEntry } from './srs.js'
 import { FREE_LIMIT, verbleibend, zaehleNutzung } from './limits.js'
@@ -20,7 +21,7 @@ export default function ListGenerator({ vocab, setVocab }) {
     setFehler('')
     setErfolg(false)
     try {
-      const res = await fetch('/api/vokabelliste', {
+      const res = await fetch(API_URL + '/api/vokabelliste', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ thema: thema.trim() }),

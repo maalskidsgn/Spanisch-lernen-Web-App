@@ -10,7 +10,20 @@ import Anthropic from '@anthropic-ai/sdk'
 
 const app = express()
 app.use(express.json({ limit: '2mb' }))
-const PORT = 8787
+const PORT = process.env.PORT || 8787
+
+// CORS: erlaubt dem Frontend (andere Domain, z.B. Vercel), diesen Server
+// anzusprechen. Ohne diese Kopfzeilen blockt der Browser solche Anfragen.
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  if (req.method === 'OPTIONS') return res.sendStatus(204)
+  next()
+})
+
+// Gesundheits-Check: damit sieht das Hosting, dass der Server lebt
+app.get('/health', (req, res) => res.json({ ok: true }))
 
 // Claude-KI nur nutzen, wenn ein API-Schlüssel hinterlegt ist —
 // sonst arbeitet der Vokabelgenerator mit Häufigkeits-Analyse + Übersetzung.
