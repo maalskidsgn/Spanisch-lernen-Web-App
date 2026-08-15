@@ -1,0 +1,488 @@
+import { useState, useEffect } from 'react'
+
+// Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
+// damit regelmäßig frische Videos auftauchen
+const EMPFEHLUNGS_SUCHEN = [
+  'spanish for beginners comprehensible input',
+  'easy spanish street interviews',
+  'slow spanish stories for beginners',
+  'español con juan learn spanish',
+  'dreaming spanish superbeginner',
+  'spanish listening practice beginner',
+  'easy spanish conversation basics',
+]
+
+// Gespeicherte Empfehlungen aus dem Browser-Speicher laden
+function ladeEmpfehlungsCache() {
+  try {
+    return JSON.parse(localStorage.getItem('vorschlaege2'))
+  } catch {
+    return null
+  }
+}
+
+// Fertige Suchvorschläge zum Entdecken neuer Spanisch-Videos
+const VORSCHLAEGE = [
+  { label: '🎵 Musik', query: 'canciones en español con letra' },
+  { label: '🐣 Für Anfänger', query: 'spanish for beginners comprehensible input' },
+  { label: '🎙️ Podcasts', query: 'podcast en español para estudiantes' },
+  { label: '📰 Langsame Nachrichten', query: 'noticias en español lento para estudiantes' },
+  { label: '🍳 Kochen', query: 'receta cocina española fácil' },
+  { label: '✈️ Reisen', query: 'viajar por españa vlog' },
+]
+
+function formatDuration(sec) {
+  if (!sec) return ''
+  const m = Math.floor(sec / 60)
+  const s = Math.floor(sec % 60)
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+// Gespeicherte Buchzusammenfassungen laden
+function ladeBuecher() {
+  try {
+    return JSON.parse(localStorage.getItem('buecher')) || []
+  } catch {
+    return []
+  }
+}
+
+// Die Bibliothek: Videos (Link laden, gespeichert, entdecken) und
+// Bücher (KI-Zusammenfassungen wie bei Blinkist)
+export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab }) {
+  const [bereich, setBereich] = useState('videos') // 'videos' oder 'buecher'
+  const [buecher, setBuecher] = useState(ladeBuecher)
+  const [buchTitel, setBuchTitel] = useState('')
+  const [buchLaden, setBuchLaden] = useState(false)
+  const [buchFehler, setBuchFehler] = useState('')
+  const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
+
+  // Eine neue Buchzusammenfassung generieren lassen
+  async function generiereBuch(e) {
+    e.preventDefault()
+    if (!buchTitel.trim()) return
+    setBuchLaden(true)
+    setBuchFehler('')
+    try {
+      const res = await fetch('/api/buch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titel: buchTitel.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      const buch = { ...data, id: Date.now(), erstellt: Date.now() }
+      const neu = [buch, ...buecher]
+      setBuecher(neu)
+      localStorage.setItem('buecher', JSON.stringify(neu))
+      setBuchTitel('')
+      setOffenesBuch(buch)
+    } catch (err) {
+      setBuchFehler(err.message)
+    } finally {
+      setBuchLaden(false)
+    }
+  }
+
+  function loescheBuch(id) {
+    const neu = buecher.filter((b) => b.id !== id)
+    setBuecher(neu)
+    localStorage.setItem('buecher', JSON.stringify(neu))
+  }
+  const [filter, setFilter] = useState('alle')
+  const [query, setQuery] = useState('')
+  const [searching, setSearching] = useState(false)
+  const [results, setResults] = useState(null)
+  const [error, setError] = useState('')
+  const [link, setLink] = useState('') // eingefügter YouTube-Link
+  const [empfehlungen, setEmpfehlungen] = useState(() => ladeEmpfehlungsCache()?.videos || null)
+  const [empfehlungenLaden, setEmpfehlungenLaden] = useState(false)
+
+  // Beim Öffnen: Empfehlungen holen, falls keine da oder älter als ein Tag
+  useEffect(() => {
+    const cache = ladeEmpfehlungsCache()
+    const frisch = cache && Date.now() - cache.zeit < 24 * 60 * 60 * 1000
+    if (!frisch) holeEmpfehlungen()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Holt 6 Video-Empfehlungen über die YouTube-Suche und merkt sie sich
+  async function holeEmpfehlungen(zufaellig = false) {
+    setEmpfehlungenLaden(true)
+    try {
+      const q = zufaellig
+        ? EMPFEHLUNGS_SUCHEN[Math.floor(Math.random() * EMPFEHLUNGS_SUCHEN.length)]
+        : EMPFEHLUNGS_SUCHEN[new Date().getDay() % EMPFEHLUNGS_SUCHEN.length]
+      const res = await fetch('/api/search?q=' + encodeURIComponent(q))
+      const data = await res.json()
+      if (res.ok && data.results?.length) {
+        const videos = data.results.slice(0, 6)
+        setEmpfehlungen(videos)
+        localStorage.setItem('vorschlaege2', JSON.stringify({ zeit: Date.now(), videos }))
+      }
+    } catch {
+      // klappt es nicht, bleibt der Bereich einfach leer
+    } finally {
+      setEmpfehlungenLaden(false)
+    }
+  }
+
+  // Alle Kategorien, die in den gespeicherten Videos vorkommen
+  const categories = [...new Set(savedVideos.map((v) => v.category).filter(Boolean))]
+
+  const filtered =
+    filter === 'alle'
+      ? savedVideos
+      : savedVideos.filter((v) => v.category === filter)
+
+  async function search(q) {
+    setSearching(true)
+    setError('')
+    setResults(null)
+    setQuery(q)
+    try {
+      const res = await fetch('/api/search?q=' + encodeURIComponent(q))
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setResults(data.results)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSearching(false)
+    }
+  }
+
+  function removeVideo(videoId) {
+    setSavedVideos((list) => list.filter((v) => v.videoId !== videoId))
+  }
+
+  // ---------- Geöffnete Buchzusammenfassung ----------
+  if (offenesBuch) {
+    return (
+      <BuchView
+        buch={offenesBuch}
+        onClose={() => setOffenesBuch(null)}
+        onAddVocab={onAddVocab}
+      />
+    )
+  }
+
+  return (
+    <div className="library">
+      <h1>
+        Deine <span className="accent">Bibliothek</span>
+      </h1>
+
+      {/* Umschalter: Videos oder Bücher */}
+      <div className="chips">
+        <button
+          className={'chip ' + (bereich === 'videos' ? 'chip-active' : '')}
+          onClick={() => setBereich('videos')}
+        >
+          🎬 Videos
+        </button>
+        <button
+          className={'chip ' + (bereich === 'buecher' ? 'chip-active' : '')}
+          onClick={() => setBereich('buecher')}
+        >
+          📚 Bücher
+        </button>
+      </div>
+
+      {/* ---------- Bücher: Zusammenfassungen wie bei Blinkist ---------- */}
+      {bereich === 'buecher' && (
+        <>
+          <p className="intro">
+            Lass dir Bücher in einfachem Spanisch zusammenfassen – lesen,
+            verstehen, Vokabeln mitnehmen.
+          </p>
+          <form className="url-form" onSubmit={generiereBuch}>
+            <input
+              type="text"
+              value={buchTitel}
+              onChange={(e) => setBuchTitel(e.target.value)}
+              placeholder="Buchtitel, z.B. 'Der kleine Prinz'"
+              required
+            />
+            <button type="submit" disabled={buchLaden}>
+              {buchLaden ? 'Claude liest…' : '✨ Erstellen'}
+            </button>
+          </form>
+
+          {/* Dieser Hinweis steht hier bewusst dauerhaft */}
+          <div className="plan-card plan-premium premium-teaser">
+            <div className="plan-name">
+              Premium-Funktion <span className="plan-badge badge-soon">Bald verfügbar</span>
+            </div>
+            <p className="row-hint">
+              Buchzusammenfassungen erstellt die Claude-KI – diese Funktion wird
+              mit dem Premium-Abo freigeschaltet.
+            </p>
+          </div>
+          {buchFehler && buchFehler !== 'premium' && (
+            <p className="error">{buchFehler}</p>
+          )}
+
+          {buecher.length === 0 && !buchFehler && (
+            <p className="empty-hint">
+              Noch keine Zusammenfassungen – gib oben einen Buchtitel ein!
+            </p>
+          )}
+          <div className="video-grid">
+            {buecher.map((b) => (
+              <div key={b.id} className="video-card buch-card">
+                <div className="buch-cover" onClick={() => setOffenesBuch(b)}>
+                  📖
+                </div>
+                <div className="video-card-body">
+                  <div className="video-card-title" onClick={() => setOffenesBuch(b)}>
+                    {b.titel}
+                  </div>
+                  <div className="video-card-meta">
+                    <span className="video-card-channel">
+                      {b.autor} · {b.niveau}
+                    </span>
+                    <button
+                      className="btn-delete"
+                      title="Zusammenfassung löschen"
+                      onClick={() => loescheBuch(b.id)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {bereich === 'videos' && (
+      <>
+      {/* Eigenen YouTube-Link direkt laden */}
+      <form
+        className="url-form"
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (link.trim()) onLoadUrl(link.trim())
+        }}
+      >
+        <input
+          type="text"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          placeholder="YouTube-Link einfügen…"
+          required
+        />
+        <button type="submit">Laden</button>
+      </form>
+
+      {/* ---------- Gespeicherte Videos ---------- */}
+      {savedVideos.length === 0 ? (
+        <p className="intro">
+          Noch keine Videos gespeichert. Lade ein Video im Lese-Modus und klicke
+          dort auf "Video speichern" – oder entdecke unten neue Videos.
+        </p>
+      ) : (
+        <>
+          <div className="chips">
+            <button
+              className={'chip ' + (filter === 'alle' ? 'chip-active' : '')}
+              onClick={() => setFilter('alle')}
+            >
+              Alle ({savedVideos.length})
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c}
+                className={'chip ' + (filter === c ? 'chip-active' : '')}
+                onClick={() => setFilter(c)}
+              >
+                {c} ({savedVideos.filter((v) => v.category === c).length})
+              </button>
+            ))}
+          </div>
+
+          <div className="video-grid">
+            {filtered.map((v) => (
+              <div key={v.videoId} className="video-card">
+                <img
+                  src={`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`}
+                  alt=""
+                  onClick={() => onOpenVideo(v.videoId)}
+                />
+                <div className="video-card-body">
+                  <div className="video-card-title" onClick={() => onOpenVideo(v.videoId)}>
+                    {v.title}
+                  </div>
+                  <div className="video-card-meta">
+                    {v.category && <span className="category-badge">{v.category}</span>}
+                    <button
+                      className="btn-delete"
+                      title="Aus der Bibliothek entfernen"
+                      onClick={() => removeVideo(v.videoId)}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* ---------- Für dich vorgeschlagen ---------- */}
+      <div className="section-row">
+        <h2 className="discover-title">
+          Für dich <span className="accent">vorgeschlagen</span>
+        </h2>
+        <button
+          className="btn-small"
+          onClick={() => holeEmpfehlungen(true)}
+          disabled={empfehlungenLaden}
+          title="Neue Vorschläge holen"
+        >
+          {empfehlungenLaden ? 'Lade…' : '🎲 Neue'}
+        </button>
+      </div>
+      {empfehlungenLaden && !empfehlungen && (
+        <p className="intro">Suche gute Videos für dich…</p>
+      )}
+      {empfehlungen && (
+        <div className="video-grid">
+          {empfehlungen.map((r) => (
+            <VideoKarte key={r.videoId} video={r} onOpen={onOpenVideo} />
+          ))}
+        </div>
+      )}
+
+      {/* ---------- Neue Videos entdecken ---------- */}
+      <h2 className="discover-title">
+        Neue Videos <span className="accent">entdecken</span>
+      </h2>
+      <div className="chips">
+        {VORSCHLAEGE.map((v) => (
+          <button key={v.label} className="chip" onClick={() => search(v.query)}>
+            {v.label}
+          </button>
+        ))}
+      </div>
+      <form
+        className="url-form"
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (query.trim()) search(query)
+        }}
+      >
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Oder selbst suchen, z.B. 'easy spanish'"
+        />
+        <button type="submit" disabled={searching}>
+          {searching ? 'Suche…' : 'Suchen'}
+        </button>
+      </form>
+
+      {error && <p className="error">{error}</p>}
+      {searching && <p className="intro">Suche auf YouTube…</p>}
+
+      {results && (
+        <div className="video-grid">
+          {results.map((r) => (
+            <VideoKarte key={r.videoId} video={r} onOpen={onOpenVideo} />
+          ))}
+        </div>
+      )}
+      </>
+      )}
+    </div>
+  )
+}
+
+// Die Lese-Ansicht einer Buchzusammenfassung: einfache spanische Absätze,
+// Übersetzung einblendbar, Vokabeln mit einem Klick in den Trainer
+function BuchView({ buch, onClose, onAddVocab }) {
+  const [zeigeDe, setZeigeDe] = useState(false)
+  const [uebernommen, setUebernommen] = useState(false)
+
+  function vokabelnUebernehmen() {
+    onAddVocab(
+      buch.vokabeln.map((v) => ({
+        wort: v.wort,
+        uebersetzung: v.uebersetzung,
+        quelle: 'Buch: ' + buch.titel,
+      }))
+    )
+    setUebernommen(true)
+  }
+
+  return (
+    <div className="library buch-view">
+      <button className="btn-plain back-link" onClick={onClose}>
+        ← Zur Bibliothek
+      </button>
+      <h1>{buch.titel}</h1>
+      <p className="intro">
+        {buch.autor} · Niveau {buch.niveau}
+      </p>
+
+      <label className="autoscroll-toggle">
+        <input
+          type="checkbox"
+          checked={zeigeDe}
+          onChange={(e) => setZeigeDe(e.target.checked)}
+        />
+        Deutsche Übersetzung einblenden
+      </label>
+
+      {buch.absaetze.map((a, i) => (
+        <div key={i} className="buch-absatz">
+          <p className="buch-es">{a.es}</p>
+          {zeigeDe && <p className="buch-de">{a.de}</p>}
+        </div>
+      ))}
+
+      <h2 className="settings-heading">Vokabeln aus diesem Buch</h2>
+      <div className="settings-card">
+        {buch.vokabeln.map((v) => (
+          <div key={v.wort} className="settings-row">
+            <div>
+              <div className="row-title">{v.wort}</div>
+              <div className="row-hint">{v.uebersetzung}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      {uebernommen ? (
+        <p className="gen-success">Vokabeln sind im Trainer! ✓</p>
+      ) : (
+        <button className="hero-cta" onClick={vokabelnUebernehmen}>
+          Alle {buch.vokabeln.length} Vokabeln in den Trainer übernehmen
+        </button>
+      )}
+    </div>
+  )
+}
+
+// Eine Video-Karte mit Vorschaubild, Titel und Kanal
+function VideoKarte({ video, onOpen }) {
+  return (
+    <div className="video-card">
+      <img src={video.thumbnail} alt="" onClick={() => onOpen(video.videoId)} />
+      <div className="video-card-body">
+        <div className="video-card-title" onClick={() => onOpen(video.videoId)}>
+          {video.title}
+        </div>
+        <div className="video-card-meta">
+          <span className="video-card-channel">
+            {video.channel}
+            {video.duration ? ' · ' + formatDuration(video.duration) : ''}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}

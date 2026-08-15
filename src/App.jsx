@@ -1,0 +1,758 @@
+import { useState, useEffect, useRef } from 'react'
+import Trainer from './Trainer.jsx'
+import Library from './Library.jsx'
+import VocabGenerator from './VocabGenerator.jsx'
+import Settings from './Settings.jsx'
+import Lessons from './Lessons.jsx'
+import Home from './Home.jsx'
+import { LEKTIONEN } from './lektionen.js'
+
+// Der Name der App – an dieser einen Stelle änderbar
+export const APP_NAME = 'Vamigo'
+import { newEntry, withSrsDefaults, isDue } from './srs.js'
+import {
+  XP,
+  loadProgress,
+  applyXp,
+  levelFromXp,
+  xpForLevel,
+  levelName,
+} from './gamification.js'
+import './App.css'
+
+// Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
+const ICONS = {
+  start: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M3 10.5L12 3l9 7.5" />
+      <path d="M5 9.5V21h5v-6h4v6h5V9.5" />
+    </svg>
+  ),
+  trainer: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="8" width="13" height="13" rx="2.5" />
+      <path d="M8 8V6a2.5 2.5 0 0 1 2.5-2.5h8A2.5 2.5 0 0 1 21 6v8a2.5 2.5 0 0 1-2.5 2.5H16" />
+    </svg>
+  ),
+  bibliothek: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 4v16" />
+      <path d="M9 4v16" />
+      <path d="M13.5 5.2l4.6 1.2-3.9 14.4-4.6-1.2z" />
+    </svg>
+  ),
+  lektionen: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22 9.5L12 4.5 2 9.5l10 5 10-5z" />
+      <path d="M6 11.8V17c0 1.7 2.7 3 6 3s6-1.3 6-3v-5.2" />
+    </svg>
+  ),
+  mehr: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  ),
+}
+
+// Lektions-Fortschritt aus dem Browser-Speicher laden
+function loadLessonProgress() {
+  try {
+    return JSON.parse(localStorage.getItem('lektionen')) || {}
+  } catch {
+    return {}
+  }
+}
+
+// Einstellungen aus dem Browser-Speicher laden (mit sinnvollen Standardwerten)
+function loadSettings() {
+  try {
+    return {
+      tagesziel: 30,
+      erinnerungen: true,
+      ...JSON.parse(localStorage.getItem('einstellungen')),
+    }
+  } catch {
+    return { tagesziel: 30, erinnerungen: true }
+  }
+}
+
+// Gespeicherte Videos aus dem Browser-Speicher laden
+function loadSavedVideos() {
+  try {
+    return JSON.parse(localStorage.getItem('videos')) || []
+  } catch {
+    return []
+  }
+}
+
+// Wörter werden im Browser gespeichert (localStorage), damit sie beim
+// nächsten Besuch noch da sind. Status: "neu" (blau), "lernen" (gelb), "gewusst".
+function loadVocab() {
+  try {
+    return JSON.parse(localStorage.getItem('vokabeln')) || {}
+  } catch {
+    return {}
+  }
+}
+
+// Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen,
+// damit "Hola," und "hola" als dasselbe Wort zählen.
+function cleanWord(word) {
+  return word.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
+}
+
+// Lädt die YouTube-Player-API (einmalig). Über sie erfahren wir,
+// an welcher Sekunde das Video gerade ist.
+let ytApiPromise = null
+function loadYouTubeApi() {
+  if (!ytApiPromise) {
+    ytApiPromise = new Promise((resolve) => {
+      if (window.YT?.Player) return resolve(window.YT)
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      document.head.appendChild(tag)
+      window.onYouTubeIframeAPIReady = () => resolve(window.YT)
+    })
+  }
+  return ytApiPromise
+}
+
+export default function App() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [video, setVideo] = useState(null) // { videoId, title, lines }
+  const [vocab, setVocab] = useState(loadVocab)
+  const [selected, setSelected] = useState(null) // { word, translation, loading }
+  const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
+  const [genOpen, setGenOpen] = useState(false) // Vokabelgenerator-Panel offen?
+  const [saveOpen, setSaveOpen] = useState(false) // Speichern-Panel offen?
+  const [showDe, setShowDe] = useState(false) // deutsche Übersetzung eingeblendet?
+  const [deLines, setDeLines] = useState(null) // die übersetzten Zeilen
+  const [deLoading, setDeLoading] = useState(false)
+  const [activeLine, setActiveLine] = useState(-1) // welche Zeile gerade gesprochen wird
+  const [autoScroll, setAutoScroll] = useState(true)
+  const [view, setView] = useState('start') // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
+  const [savedVideos, setSavedVideos] = useState(loadSavedVideos)
+  const [categoryInput, setCategoryInput] = useState('')
+  const [progress, setProgress] = useState(loadProgress) // XP, Streak, letzter Lerntag
+  const [settings, setSettings] = useState(loadSettings) // Tagesziel, Erinnerungen …
+  const [lessonProgress, setLessonProgress] = useState(loadLessonProgress) // welche Lektionen geschafft sind
+  const [levelUp, setLevelUp] = useState(null) // welches Level gerade erreicht wurde
+  const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
+
+  const playerRef = useRef(null) // der YouTube-Player
+  const lineRefs = useRef([]) // die Zeilen-Elemente, damit wir hinscrollen können
+  const textPaneRef = useRef(null) // der scrollbare Text-Kasten
+
+  // Bei jeder Änderung die Vokabeln speichern
+  useEffect(() => {
+    localStorage.setItem('vokabeln', JSON.stringify(vocab))
+  }, [vocab])
+
+  // Gespeicherte Videos ebenfalls im Browser sichern
+  useEffect(() => {
+    localStorage.setItem('videos', JSON.stringify(savedVideos))
+  }, [savedVideos])
+
+  // Einstellungen sichern
+  useEffect(() => {
+    localStorage.setItem('einstellungen', JSON.stringify(settings))
+  }, [settings])
+
+  // Lektions-Fortschritt sichern
+  useEffect(() => {
+    localStorage.setItem('lektionen', JSON.stringify(lessonProgress))
+  }, [lessonProgress])
+
+  // Eine Lektion wurde abgeschlossen: merken und die Wörter der Lektion
+  // in den Vokabeltrainer übernehmen (Status "Lernen")
+  function lektionGeschafft(lektion) {
+    setLessonProgress((p) => ({ ...p, [lektion.id]: { fertig: true } }))
+    setVocab((v) => {
+      const copy = { ...v }
+      for (const item of lektion.items) {
+        const key = item.es.toLowerCase()
+        if (!copy[key]) {
+          copy[key] = {
+            ...newEntry(item.de, 'Lektion: ' + lektion.titel),
+            status: 'lernen',
+          }
+        }
+      }
+      return copy
+    })
+  }
+
+  // Fortschritt (XP & Streak) sichern und Level-Aufstieg erkennen
+  useEffect(() => {
+    localStorage.setItem('fortschritt', JSON.stringify(progress))
+    const level = levelFromXp(progress.xp)
+    if (level > prevLevelRef.current) setLevelUp(level)
+    prevLevelRef.current = level
+  }, [progress])
+
+  // Level-Up-Feier nach ein paar Sekunden automatisch ausblenden
+  useEffect(() => {
+    if (!levelUp) return
+    const timer = setTimeout(() => setLevelUp(null), 3200)
+    return () => clearTimeout(timer)
+  }, [levelUp])
+
+  // XP gutschreiben (pflegt automatisch auch die Tagesserie)
+  function addXp(amount) {
+    setProgress((p) => applyXp(p, amount))
+  }
+
+  // Wenn ein Video geladen wurde: YouTube-Player erstellen
+  useEffect(() => {
+    if (!video) return
+    let cancelled = false
+    loadYouTubeApi().then((YT) => {
+      if (cancelled) return
+      playerRef.current = new YT.Player('yt-player', {
+        videoId: video.videoId,
+        playerVars: { rel: 0 },
+      })
+    })
+    return () => {
+      cancelled = true
+      playerRef.current?.destroy?.()
+      playerRef.current = null
+      setActiveLine(-1)
+    }
+  }, [video])
+
+  // Alle 300ms nachschauen, wo das Video gerade ist,
+  // und die passende Textzeile aktiv setzen
+  useEffect(() => {
+    if (!video) return
+    const timer = setInterval(() => {
+      const player = playerRef.current
+      if (!player?.getCurrentTime) return
+      const t = player.getCurrentTime()
+      // Die letzte Zeile finden, die schon angefangen hat
+      let idx = -1
+      for (let i = 0; i < video.lines.length; i++) {
+        if (video.lines[i].start <= t) idx = i
+        else break
+      }
+      setActiveLine(idx)
+    }, 300)
+    return () => clearInterval(timer)
+  }, [video])
+
+  // Wenn sich die aktive Zeile ändert: den Text-Kasten sanft dorthin scrollen
+  // (nur den Kasten, nicht die ganze Seite)
+  useEffect(() => {
+    if (!autoScroll || activeLine < 0) return
+    const el = lineRefs.current[activeLine]
+    const box = textPaneRef.current
+    if (!el || !box) return
+    const target = el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2
+    box.scrollTo({ top: target, behavior: 'smooth' })
+  }, [activeLine, autoScroll])
+
+  // Holt das Transkript zu einem Link oder einer Video-ID
+  async function fetchTranscript(input) {
+    setLoading(true)
+    setError('')
+    setVideo(null)
+    setSelected(null)
+    setDeLines(null) // Übersetzung gehört zum alten Video
+    setShowDe(false)
+    try {
+      const res = await fetch('/api/transcript?url=' + encodeURIComponent(input))
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setVideo(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Aus der Video-Bibliothek: Video öffnen und in den Lese-Modus wechseln
+  function openVideo(videoId) {
+    setView('lesen')
+    fetchTranscript('https://www.youtube.com/watch?v=' + videoId)
+  }
+
+  // Eingefügter YouTube-Link aus dem Videobereich
+  function openUrl(link) {
+    setView('lesen')
+    fetchTranscript(link)
+  }
+
+  // Übersetzung ein-/ausschalten – beim ersten Mal werden alle Zeilen
+  // auf einen Schlag vom Server übersetzt und dann wiederverwendet
+  async function toggleUebersetzung() {
+    if (showDe) return setShowDe(false)
+    setShowDe(true)
+    if (deLines || deLoading || !video) return
+    setDeLoading(true)
+    try {
+      const res = await fetch('/api/translate-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lines: video.lines.map((l) => l.text) }),
+      })
+      const data = await res.json()
+      if (res.ok) setDeLines(data.uebersetzungen)
+    } catch {
+      // klappt es nicht, bleibt einfach nur das Spanische sichtbar
+    } finally {
+      setDeLoading(false)
+    }
+  }
+
+  // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen
+  function addVocabWords(woerter) {
+    setVocab((v) => {
+      const copy = { ...v }
+      for (const w of woerter) {
+        const key = w.wort.toLowerCase()
+        if (!copy[key]) {
+          copy[key] = { ...newEntry(w.uebersetzung, w.quelle), status: 'lernen' }
+        }
+      }
+      return copy
+    })
+  }
+
+  // Aktuelles Video mit Kategorie in der Bibliothek speichern
+  function saveVideo() {
+    if (!video) return
+    setSavedVideos((list) => [
+      ...list.filter((v) => v.videoId !== video.videoId),
+      {
+        videoId: video.videoId,
+        title: video.title,
+        category: categoryInput.trim(),
+        addedAt: Date.now(),
+      },
+    ])
+  }
+
+  const currentSaved = video && savedVideos.find((v) => v.videoId === video.videoId)
+
+  // Wenn man ein Wort anklickt: Übersetzung holen und Wort als "neu" merken
+  async function clickWord(rawWord) {
+    const word = cleanWord(rawWord)
+    if (!word) return
+    setSelected({ word, translation: '…', loading: true })
+
+    // Wort merken, falls es noch nicht bekannt ist – mit dem Videotitel als Quelle,
+    // damit man im Trainer sieht, aus welchem Video/Song das Wort stammt.
+    // Für jedes neue Wort gibt es XP!
+    if (!vocab[word]) addXp(XP.WORT_NEU)
+    setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
+
+    try {
+      const res = await fetch('/api/translate?q=' + encodeURIComponent(word))
+      const data = await res.json()
+      const translation = data.translation || '(keine Übersetzung gefunden)'
+      setSelected({ word, translation, loading: false })
+      setVocab((v) => ({
+        ...v,
+        [word]: { ...(v[word] || newEntry('', video?.title)), translation },
+      }))
+    } catch {
+      setSelected({ word, translation: 'Übersetzung fehlgeschlagen', loading: false })
+    }
+  }
+
+  // "Lernen" oder "Gewusst" geklickt: Status setzen, XP feiern,
+  // Erfolgs-Animation zeigen und die Karte danach sanft ausblenden
+  function setStatus(word, status) {
+    if (cardExit) return // Animation läuft gerade schon
+    const entry = vocab[word]
+    // XP gibt es nur, wenn sich der Status wirklich ändert (kein Doppelt-Kassieren)
+    let earned = 0
+    if (entry && entry.status !== status) {
+      setVocab((v) => ({ ...v, [word]: { ...v[word], status } }))
+      earned = status === 'gewusst' ? XP.SCHON_GEWUSST : XP.SAMMELN
+      addXp(earned)
+    }
+    setCardExit({ status, earned })
+    setTimeout(() => {
+      setSelected(null)
+      setCardExit(null)
+    }, 1100) // so lange dauert die Erfolgs-Animation
+  }
+
+  // Klick auf die Zeit einer Zeile: Video an diese Stelle springen lassen
+  function jumpTo(seconds) {
+    playerRef.current?.seekTo?.(seconds, true)
+  }
+
+  const gelernt = Object.values(vocab).filter((v) => v.status === 'gewusst').length
+  // Wie viele Vokabeln sind gerade zum Üben fällig? (für das rote Punkt-Badge im Tab)
+  const faellig = Object.values(vocab).filter((v) => isDue(withSrsDefaults(v))).length
+
+  // Level-Fortschritt für die Anzeige oben berechnen
+  const level = levelFromXp(progress.xp)
+  const levelStartXp = xpForLevel(level)
+  const nextLevelXp = xpForLevel(level + 1)
+  const levelPercent = Math.round(
+    ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
+  )
+
+  return (
+    <div className="app">
+      {/* Feier-Einblendung beim Level-Aufstieg */}
+      {levelUp && (
+        <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
+          <div className="levelup-card">
+            <div className="levelup-emoji">🎉</div>
+            <h2>Level {levelUp} erreicht!</h2>
+            <p>Du bist jetzt: {levelName(levelUp)}</p>
+          </div>
+        </div>
+      )}
+
+      <header className="topbar">
+        {/* Klick aufs Logo führt immer zum Start */}
+        <button className="logo" onClick={() => setView('start')}>
+          <span className="logo-badge">¡</span>
+          {APP_NAME}
+        </button>
+        <nav className="tabs">
+          <button
+            className={'tab ' + (view === 'start' ? 'tab-active' : '')}
+            onClick={() => setView('start')}
+          >
+            <span className="tab-icon">{ICONS.start}</span>
+            <span className="tab-label">Start</span>
+          </button>
+          <button
+            className={'tab ' + (view === 'lektionen' ? 'tab-active' : '')}
+            onClick={() => setView('lektionen')}
+          >
+            <span className="tab-icon">{ICONS.lektionen}</span>
+            <span className="tab-label">Lektionen</span>
+          </button>
+          <button
+            className={'tab ' + (view === 'trainer' ? 'tab-active' : '')}
+            onClick={() => setView('trainer')}
+          >
+            <span className="tab-icon">
+              {ICONS.trainer}
+              {faellig > 0 && <span className="due-badge">{faellig}</span>}
+            </span>
+            <span className="tab-label">Trainer</span>
+          </button>
+          <button
+            className={'tab ' + (view === 'videos' || view === 'lesen' ? 'tab-active' : '')}
+            onClick={() => setView('videos')}
+          >
+            <span className="tab-icon">{ICONS.bibliothek}</span>
+            <span className="tab-label">Bibliothek</span>
+          </button>
+          <button
+            className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}
+            onClick={() => setView('mehr')}
+          >
+            <span className="tab-icon">{ICONS.mehr}</span>
+            <span className="tab-label">Mehr</span>
+          </button>
+        </nav>
+        <div className="stats">
+          {progress.streak > 0 && (
+            <span className="streak" title={`${progress.streak} Tage in Folge gelernt`}>
+              🔥 {progress.streak}
+            </span>
+          )}
+          <div
+            className="level-pill"
+            title={`${Object.keys(vocab).length} Wörter · ${gelernt} gewusst · ${levelName(level)}`}
+          >
+            {/* key={xp} lässt den Kreis bei jedem XP-Gewinn kurz hüpfen */}
+            <span className="level-circle" key={progress.xp}>
+              {level}
+            </span>
+            <div className="xp-bar">
+              <div className="xp-bar-fill" style={{ width: levelPercent + '%' }} />
+            </div>
+            <span className="xp-text">
+              {progress.xp - levelStartXp}/{nextLevelXp - levelStartXp} XP
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {view === 'start' && (
+        <main>
+          <Home
+            progress={progress}
+            settings={settings}
+            counts={{
+              faellig,
+              woerter: Object.keys(vocab).length,
+              videos: savedVideos.length,
+            }}
+            nextLesson={LEKTIONEN.find((l) => !lessonProgress[l.id]?.fertig) || null}
+            lessonProgress={lessonProgress}
+            onNavigate={setView}
+          />
+        </main>
+      )}
+
+      {view === 'trainer' && (
+        <main>
+          <Trainer vocab={vocab} setVocab={setVocab} addXp={addXp} />
+        </main>
+      )}
+
+      {view === 'videos' && (
+        <main>
+          <Library
+            savedVideos={savedVideos}
+            setSavedVideos={setSavedVideos}
+            onOpenVideo={openVideo}
+            onLoadUrl={openUrl}
+            onAddVocab={addVocabWords}
+          />
+        </main>
+      )}
+
+      {view === 'lektionen' && (
+        <main>
+          <Lessons
+            lessonProgress={lessonProgress}
+            addXp={addXp}
+            onLessonComplete={lektionGeschafft}
+          />
+        </main>
+      )}
+
+      {view === 'mehr' && (
+        <main>
+          <Settings
+            progress={progress}
+            settings={settings}
+            setSettings={setSettings}
+            counts={{
+              woerter: Object.keys(vocab).length,
+              gelernt,
+              videos: savedVideos.length,
+            }}
+          />
+        </main>
+      )}
+
+      {view === 'lesen' && (
+      <main>
+        <button className="btn-plain back-link" onClick={() => setView('videos')}>
+          ← Zu den Videos
+        </button>
+
+        {loading && <p className="intro">Lade Transkript…</p>}
+        {error && <p className="error">{error}</p>}
+        {!video && !loading && !error && (
+          <div className="empty-reader">
+            <h1>
+              Kein Video <span className="accent">geladen</span>
+            </h1>
+            <p className="intro">
+              Such dir im Videobereich ein Video aus oder füge dort einen
+              YouTube-Link ein.
+            </p>
+            <button onClick={() => setView('videos')}>Zu den Videos</button>
+          </div>
+        )}
+
+        {video && (
+          <div className="reader">
+            <div className="video-pane">
+              <div className="player-wrap">
+                <div id="yt-player" />
+              </div>
+              <h2>{video.title}</h2>
+
+              <div className="toggle-row">
+                <label className="autoscroll-toggle">
+                  <input
+                    type="checkbox"
+                    checked={autoScroll}
+                    onChange={(e) => setAutoScroll(e.target.checked)}
+                  />
+                  Text läuft mit
+                </label>
+                {/* Ein Klick übersetzt das ganze Transkript ins Deutsche */}
+                <button
+                  className={'de-toggle' + (showDe ? ' de-an' : '')}
+                  onClick={toggleUebersetzung}
+                  disabled={deLoading}
+                >
+                  {deLoading ? 'Übersetze…' : showDe ? '🇩🇪 Übersetzung an' : '🇩🇪 Übersetzen'}
+                </button>
+              </div>
+
+              {currentSaved?.category && (
+                <p className="saved-note">
+                  <span className="category-badge">{currentSaved.category}</span>
+                </p>
+              )}
+
+              {selected && (
+                <div className={'word-card' + (cardExit ? ' word-card-exit' : '')}>
+                  {cardExit ? (
+                    /* Erfolgs-Ansicht: Häkchen/Stern + XP, dann verschwindet die Karte */
+                    <div className="card-success">
+                      <span className="success-icon">
+                        {cardExit.status === 'gewusst' ? '⭐' : '✓'}
+                      </span>
+                      <div>
+                        <div className="success-text">
+                          {cardExit.status === 'gewusst'
+                            ? 'Stark, das kannst du schon!'
+                            : 'Gespeichert – ab in den Trainer!'}
+                        </div>
+                        {cardExit.earned > 0 && (
+                          <div className="success-xp">+{cardExit.earned} XP</div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="word-es">{selected.word}</div>
+                      <div className="word-de">{selected.translation}</div>
+                      <div className="word-actions">
+                        <button onClick={() => setStatus(selected.word, 'lernen')}>
+                          Lernen
+                        </button>
+                        <button
+                          className="btn-right"
+                          onClick={() => setStatus(selected.word, 'gewusst')}
+                        >
+                          Gewusst ✓
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="text-pane" ref={textPaneRef}>
+              {video.lines.map((line, i) => (
+                <p
+                  key={i}
+                  ref={(el) => (lineRefs.current[i] = el)}
+                  className={'line ' + (i === activeLine ? 'active' : '')}
+                >
+                  <span className="time" onClick={() => jumpTo(line.start)}>
+                    {Math.floor(line.start / 60)}:{String(Math.floor(line.start % 60)).padStart(2, '0')}
+                  </span>
+                  {line.text.split(/\s+/).map((w, j) => {
+                    const status = vocab[cleanWord(w)]?.status
+                    // Das gerade angeklickte Wort bekommt eine kleine Plopp-Animation
+                    const isActive = selected && cleanWord(w) === selected.word
+                    return (
+                      <span
+                        key={j}
+                        className={'word ' + (status || '') + (isActive ? ' word-active' : '')}
+                        onClick={() => clickWord(w)}
+                      >
+                        {w}{' '}
+                      </span>
+                    )
+                  })}
+                  {/* Die deutsche Übersetzung der Zeile (per Klick zuschaltbar) */}
+                  {showDe && deLines?.[i] && (
+                    <span className="line-de">{deLines[i]}</span>
+                  )}
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Schwebende Aktions-Knöpfe unten rechts: Generator & Speichern */}
+        {video && (
+          <>
+            <div className="fab-stack">
+              <button
+                className="fab"
+                title="Vokabeln aus dem Video generieren"
+                onClick={() => {
+                  setGenOpen(!genOpen)
+                  setSaveOpen(false)
+                }}
+              >
+                ✨
+              </button>
+              <button
+                className={'fab fab-secondary' + (currentSaved ? ' fab-done' : '')}
+                title={currentSaved ? 'Video ist gespeichert' : 'Video speichern & kategorisieren'}
+                onClick={() => {
+                  setSaveOpen(!saveOpen)
+                  setGenOpen(false)
+                }}
+              >
+                {currentSaved ? '✓' : '💾'}
+              </button>
+            </div>
+
+            {saveOpen && (
+              <div className="fab-panel">
+                <div className="fab-panel-head">
+                  <b>{currentSaved ? 'In deiner Bibliothek ✓' : 'Video speichern'}</b>
+                  <button className="btn-plain" onClick={() => setSaveOpen(false)}>
+                    ✕
+                  </button>
+                </div>
+                {currentSaved ? (
+                  <p className="row-hint">
+                    Dieses Video ist gespeichert
+                    {currentSaved.category ? ` – Kategorie „${currentSaved.category}“` : ''}.
+                  </p>
+                ) : (
+                  <div className="save-form">
+                    <input
+                      type="text"
+                      list="kategorien"
+                      value={categoryInput}
+                      onChange={(e) => setCategoryInput(e.target.value)}
+                      placeholder="Kategorie, z.B. Musik"
+                    />
+                    <datalist id="kategorien">
+                      {[...new Set(savedVideos.map((v) => v.category).filter(Boolean))].map(
+                        (c) => (
+                          <option key={c} value={c} />
+                        )
+                      )}
+                    </datalist>
+                    <button
+                      onClick={() => {
+                        saveVideo()
+                        setSaveOpen(false)
+                      }}
+                    >
+                      💾 Speichern
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {genOpen && (
+              <div className="fab-panel">
+                <div className="fab-panel-head">
+                  <b>✨ Vokabelgenerator</b>
+                  <button className="btn-plain" onClick={() => setGenOpen(false)}>
+                    ✕
+                  </button>
+                </div>
+                <VocabGenerator video={video} vocab={vocab} setVocab={setVocab} />
+              </div>
+            )}
+          </>
+        )}
+      </main>
+      )}
+    </div>
+  )
+}

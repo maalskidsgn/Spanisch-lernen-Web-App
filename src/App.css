@@ -1,38 +1,1865 @@
-.App {
-  text-align: center;
+/* Runde, freundliche Schrift wie bei Lern-Apps (Duolingo-Stil) */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* Vamigo-Branding "Sol y Noche" – Manuels Original-Farben, eigenständig gemacht:
+   Orange als Energie-Farbe, aber das tiefe Nachtblau als gleichberechtigter
+   Co-Star (Tabs, Logo, Profilkarte) – das unterscheidet uns klar von Babbel,
+   das nur flaches Orange kennt. Dazu Smaragd für Erfolge und Gold-Akzente. */
+:root {
+  --primary: #ff6c00; /* Sol – Manuels Original-Orange */
+  --primary-dark: #e05f00;
+  --primary-press: #bf5200; /* dunkle "3D-Kante" unter den Knöpfen */
+  --success: #2aae5f; /* Esmeralda – Grün für "richtig" und Erfolge */
+  --success-press: #1f9450;
+  --red: #ff4b4b;
+  --red-press: #d33131;
+  --navy: #000041;
+  --bg: #faf7f1;
+  --card: #ffffff;
+  --line: #f0e5d8; /* zarte Trennlinien */
+  --radius: 18px;
+  --blau-neu: #d6e8ff;
+  --gelb-lernen: #ffe9a8;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Nunito', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--navy);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.app { min-height: 100vh; }
+
+/* ---------- Animations-Bausteine ---------- */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.85); }
+  60% { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounce-in {
+  0% { opacity: 0; transform: scale(0.5); }
+  70% { transform: scale(1.06); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes xp-float {
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); }
+  20% { opacity: 1; transform: translate(-50%, 0) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -46px) scale(1); }
+}
+
+@keyframes xp-bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3) rotate(-6deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-12deg); }
+  75% { transform: rotate(12deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes word-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* Richtige Antwort: Karte färbt sich grün und fliegt nach rechts davon */
+@keyframes card-fly-out {
+  0% { transform: translateX(0) rotate(0); opacity: 1; }
+  100% { transform: translateX(110%) rotate(6deg); opacity: 0; }
+}
+
+/* Falsche Antwort: Karte schüttelt den Kopf */
+@keyframes card-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-12px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(6px); }
+}
+
+/* Übersetzung klappt wie eine Kartenrückseite auf */
+@keyframes flip-in {
+  0% { opacity: 0; transform: perspective(600px) rotateX(70deg); }
+  100% { opacity: 1; transform: perspective(600px) rotateX(0); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translateY(-10px) rotate(0); opacity: 1; }
+  100% { transform: translateY(180px) rotate(320deg); opacity: 0; }
+}
+
+/* Jede Ansicht gleitet sanft herein */
+main {
+  animation: fade-up 0.35s ease;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 20px 60px;
+}
+
+/* Wer Animationen im System reduziert hat, bekommt sie auch hier nicht */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* ---------- Kopfzeile ---------- */
+
+.topbar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Das Logo ist ein Knopf: Klick führt zum Start */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: #fff0e3; /* der zarte Türkis-Hintergrund gehört fest zum Logo */
+  color: var(--navy);
+  padding: 4px 10px 4px 6px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.logo:hover { background: #ffe4cc; filter: none; }
+.logo:active { transform: scale(0.96); box-shadow: none; }
+.logo-badge {
+  background: var(--navy);
+  color: #fff;
+  width: 30px;
+  height: 30px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  border-radius: 10px;
+  font-size: 1.25rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 65, 0.3);
 }
 
-.App-link {
-  color: #61dafb;
+/* Menüleiste: oben am Desktop, unten als App-Leiste auf dem Handy */
+.tabs { display: flex; gap: 4px; }
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  color: var(--navy);
+  font-weight: 800;
+  padding: 9px 16px;
+  border-radius: 999px;
+  box-shadow: none;
+}
+.tab svg { width: 20px; height: 20px; display: block; }
+.tab-icon { position: relative; display: inline-flex; }
+.tab:hover { background: #fff0e3; transform: none; box-shadow: none; filter: none; }
+.tab:active { transform: scale(0.95); }
+.tab-active { background: var(--navy); color: #fff; }
+.tab-active:hover { background: #1a1a6e; }
+
+/* Zähler für fällige Vokabeln sitzt als Punkt auf dem Icon */
+.due-badge {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  border-radius: 999px;
+  padding: 0 5px;
+  animation: pulse 2.2s ease infinite;
+}
+.tab-active .due-badge { background: #fff; color: var(--primary-dark); }
+
+/* ---------- Punkte, Level & Streak (wie Duolingo) ---------- */
+
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.9rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.streak {
+  font-weight: 900;
+  color: #e25822;
+  animation: pop-in 0.4s ease;
+}
+
+.level-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px 4px 4px;
+}
+
+.level-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #ff9a40);
+  color: #fff;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(255, 108, 0, 0.4);
+  animation: xp-bump 0.4s ease; /* hüpft bei jedem XP-Gewinn (key-Wechsel) */
+}
+
+.xp-bar {
+  width: 90px;
+  height: 9px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #ff9a40);
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xp-text {
+  font-size: 0.75rem;
+  color: #a89d8d;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---------- Überschriften & Grundelemente ---------- */
+
+h1 { font-size: 2.1rem; font-weight: 900; margin: 0 0 8px; letter-spacing: -0.02em; }
+.accent { color: var(--primary); }
+.intro { color: #7d7263; margin-bottom: 24px; }
+
+.url-form { display: flex; gap: 10px; margin-bottom: 24px; }
+.url-form input {
+  flex: 1;
+  padding: 13px 18px;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.url-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(255, 108, 0, 0.12);
+}
+
+/* Duolingo-Stil: Knöpfe mit "3D-Kante", die sich beim Klicken eindrückt */
+button {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--primary-press);
+  transition: filter 0.12s ease, transform 0.08s ease, box-shadow 0.08s ease;
+}
+button:hover { filter: brightness(1.06); }
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--primary-press);
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+  box-shadow: 0 4px 0 var(--primary-press);
+}
+
+.error {
+  background: #ffe5e5;
+  color: #a33;
+  padding: 12px 16px;
+  border-radius: 12px;
+}
+
+/* ---------- Lese-Ansicht ---------- */
+
+.reader {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.video-pane { position: sticky; top: 76px; }
+.player-wrap {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 8px 24px rgba(0, 0, 65, 0.14);
+}
+.player-wrap iframe,
+.player-wrap #yt-player {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-pane h2 { font-size: 1.05rem; margin: 14px 0 10px; }
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.autoscroll-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7d7263;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.autoscroll-toggle input { accent-color: var(--primary); }
+
+/* Der 🇩🇪-Schalter: übersetzt das ganze Transkript mit einem Klick */
+.de-toggle {
+  background: var(--card);
+  color: var(--navy);
+  border: 2px solid var(--line);
+  padding: 7px 14px;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  box-shadow: none;
+}
+.de-toggle:hover { border-color: var(--primary); background: #fff0e3; filter: none; }
+.de-toggle:active { transform: scale(0.95); box-shadow: none; }
+.de-an { background: var(--primary); border-color: var(--primary); color: #fff; }
+.de-an:hover { background: var(--primary-dark); }
+
+/* Die deutsche Übersetzung unter einer Transkript-Zeile */
+.line-de {
+  display: block;
+  color: #a89d8d;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: -2px;
+  animation: fade-up 0.25s ease;
+}
+
+/* Video speichern */
+.save-form { display: flex; gap: 8px; margin-bottom: 10px; }
+.save-form input {
+  flex: 1;
+  padding: 9px 14px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+.save-form input:focus { outline: none; border-color: var(--primary); }
+.save-form button { padding: 9px 14px; font-size: 0.9rem; }
+
+.saved-note {
+  color: #1e8a4c;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.category-badge {
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+/* Wortkarte (Übersetzung nach Klick) */
+.word-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-top: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.1);
+  animation: pop-in 0.3s ease;
+  border: 2px solid transparent;
+}
+
+/* Erfolgs-Animation: Karte feiert kurz und schrumpft dann weg */
+@keyframes card-done {
+  0% { transform: scale(1); opacity: 1; }
+  12% { transform: scale(1.05); }
+  75% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.85) translateY(12px); opacity: 0; }
+}
+@keyframes success-pop {
+  0% { transform: scale(0) rotate(-30deg); }
+  60% { transform: scale(1.35); }
+  100% { transform: scale(1) rotate(0); }
+}
+.word-card-exit {
+  border-color: var(--success);
+  background: #e7f8ee;
+  animation: card-done 1.1s ease forwards;
+  pointer-events: none;
+}
+.card-success { display: flex; align-items: center; gap: 14px; }
+.success-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(42, 174, 95, 0.45);
+  animation: success-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.success-text { font-weight: 800; }
+.success-xp {
+  color: var(--primary-dark);
+  font-weight: 900;
+  animation: fade-up 0.4s ease 0.15s backwards;
+}
+.word-es { font-size: 1.3rem; font-weight: 900; }
+.word-de { color: #7d7263; margin: 4px 0 12px; }
+.word-actions { display: flex; gap: 8px; }
+.word-actions button { padding: 8px 14px; font-size: 0.9rem; }
+
+/* Der Text scrollt in seinem eigenen Kasten, nicht die ganze Seite.
+   "position: relative" ist wichtig: Nur so messen die Zeilen ihre Position
+   am Kasten statt an der ganzen Seite – sonst scrollt das Karaoke falsch. */
+.text-pane {
+  position: relative;
+  line-height: 2;
+  font-size: 1.1rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 30vh 12px;
+  scrollbar-width: thin;
+}
+
+/* Nicht-aktive Zeilen sind abgedunkelt, die aktive springt hervor */
+.line {
+  margin: 0 0 6px;
+  opacity: 0.35;
+  transition: opacity 0.4s ease;
+  border-left: 4px solid transparent;
+  padding-left: 10px;
+  border-radius: 4px;
+}
+.line.active {
+  opacity: 1;
+  border-left-color: var(--primary);
+  font-weight: 700;
+}
+.line:hover { opacity: 1; }
+
+.time {
+  color: #d5c9b8;
+  font-size: 0.75rem;
+  margin-right: 10px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  font-weight: 700;
+}
+.time:hover { color: var(--primary); }
+
+.word {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 1px 3px;
+  display: inline-block;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.word:hover { background: #ffdcbd; }
+.word.neu { background: var(--blau-neu); }
+.word.lernen { background: var(--gelb-lernen); }
+.word.gewusst { background: none; }
+.word-active {
+  background: var(--primary) !important;
+  color: #fff;
+  animation: word-pop 0.3s ease;
+}
+
+/* ---------- Vokabelgenerator ---------- */
+
+.vocab-gen { margin-bottom: 10px; }
+.vocab-gen > button { width: 100%; }
+.gen-success { color: #1e8a4c; font-weight: 800; }
+.gen-hint { color: #7d7263; font-size: 0.9rem; margin: 0 0 8px; }
+.gen-list {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.1);
+  animation: pop-in 0.3s ease;
+}
+.gen-item {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 8px;
+  align-items: baseline;
+  padding: 7px 4px;
+  border-bottom: 1px solid #f7efe4;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.12s ease;
+}
+.gen-item:hover { background: #fdf6ee; }
+.gen-item:last-of-type { border-bottom: none; }
+.gen-item input { accent-color: var(--primary); }
+.gen-word { font-weight: 800; }
+.gen-translation { color: #7d7263; }
+.gen-example {
+  grid-column: 2 / 4;
+  color: #b3a898;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+.gen-actions { display: flex; gap: 8px; margin-top: 12px; }
+.gen-actions button { font-size: 0.9rem; padding: 9px 14px; }
+
+/* ---------- Vokabeltrainer ---------- */
+
+.trainer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.trainer-head h1 { margin: 0; }
+
+/* Filter-Knöpfe für die Spaced-Repetition-Stufen */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; }
+.chip {
+  background: var(--card);
+  color: var(--navy);
+  border: 2px solid var(--line);
+  padding: 7px 14px;
+  font-size: 0.88rem;
+  border-radius: 999px;
+  font-weight: 800;
+  box-shadow: none;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+.chip:hover { border-color: var(--primary); background: #fff0e3; filter: none; }
+.chip:active { transform: scale(0.94); box-shadow: none; }
+.chip-active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.chip-active:hover { background: var(--primary-dark); }
+
+.empty-hint { color: #a89d8d; padding: 24px 0; }
+
+/* Tabelle mit allen Vokabeln */
+.vocab-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+  animation: fade-up 0.3s ease;
+}
+.vocab-table th {
+  text-align: left;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #b3a898;
+  padding: 14px 16px 10px;
+  border-bottom: 2px solid #f7efe4;
+}
+.vocab-table td { padding: 11px 16px; border-bottom: 1px solid #f7efe4; }
+.vocab-table tbody tr { transition: background 0.12s ease; }
+.vocab-table tbody tr:hover { background: #fdf6ee; }
+.vocab-table tr:last-child td { border-bottom: none; }
+.cell-word { font-weight: 800; }
+.cell-source { color: #b3a898; font-size: 0.85rem; max-width: 220px; }
+
+/* Farbige Stufen-Abzeichen: von blau (neu) nach grün (lange Intervalle) */
+.level-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.lvl-0 { background: var(--blau-neu); color: #1d4f8c; }
+.lvl-1 { background: var(--gelb-lernen); color: #8c6a00; }
+.lvl-2 { background: #ffd98a; color: #8c5a00; }
+.lvl-3 { background: #ffc46b; color: #7a4a00; }
+.lvl-4 { background: #c8ecd4; color: #1c6b3c; }
+.lvl-5 { background: #a6e2bc; color: #155a31; }
+.lvl-6 { background: #7fd8a3; color: #0f4a27; }
+
+.btn-delete {
+  background: none;
+  color: #d8cdbc;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  box-shadow: none;
+}
+.btn-delete:hover { background: #ffe5e5; color: #a33; filter: none; }
+.btn-delete:active { transform: scale(0.9); box-shadow: none; }
+
+/* ---------- Karteikarten-Training ---------- */
+
+.training-stage { position: relative; }
+.training-progress { color: #a89d8d; font-weight: 700; }
+
+.flashcard {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 52px 28px;
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto 16px;
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+  box-shadow: 0 10px 30px rgba(0, 0, 65, 0.12);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Antwort-Animationen: grün davonfliegen bzw. rot schütteln */
+.card-richtig {
+  border-color: var(--success);
+  background: #e7f8ee;
+  animation: card-fly-out 0.38s ease-in forwards;
+}
+.card-falsch {
+  border-color: var(--red);
+  background: #fff2f2;
+  animation: card-shake 0.38s ease;
+}
+
+.flash-word { font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; }
+
+/* Die "Rückseite" der Karte klappt auf */
+.flash-back { animation: flip-in 0.35s ease; transform-origin: top center; }
+.flash-translation { font-size: 1.3rem; color: #7d7263; margin-bottom: 24px; }
+.flash-actions { display: flex; gap: 12px; justify-content: center; }
+
+.btn-right { background: var(--success); box-shadow: 0 4px 0 var(--success-press); }
+.btn-right:active { box-shadow: 0 0 0 var(--success-press); }
+.btn-right:disabled { box-shadow: 0 4px 0 var(--success-press); }
+.btn-wrong { background: var(--red); box-shadow: 0 4px 0 var(--red-press); }
+.btn-wrong:active { box-shadow: 0 0 0 var(--red-press); }
+.btn-wrong:disabled { box-shadow: 0 4px 0 var(--red-press); }
+
+.btn-plain {
+  background: none;
+  color: #a89d8d;
+  font-weight: 800;
+  display: block;
+  margin: 0 auto;
+  box-shadow: none;
+}
+.btn-plain:hover { background: #f5eee3; filter: none; }
+.btn-plain:active { transform: scale(0.96); box-shadow: none; }
+
+.flashcard.done h2 { margin-top: 0; }
+.bonus-note { color: var(--primary-dark); font-weight: 800; }
+
+/* Schwebende "+10 XP"-Anzeige im Training */
+.xp-popup {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+  pointer-events: none;
+  z-index: 10;
+  animation: xp-float 1.1s ease-out forwards;
+}
+
+/* Konfetti auf der "Runde geschafft"-Karte */
+.confetti-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.confetti {
+  position: absolute;
+  top: 0;
+  left: calc(4% + var(--i) * 7%);
+  width: 9px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--primary);
+  animation: confetti-fall 1.6s ease-in calc(var(--i) * 0.09s) forwards;
+}
+.confetti:nth-child(3n) { background: var(--success); }
+.confetti:nth-child(4n) { background: #4aa3ff; }
+.confetti:nth-child(5n) { background: var(--red); }
+
+/* Feier beim Level-Aufstieg */
+.levelup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 65, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fade-in 0.25s ease;
+  cursor: pointer;
+}
+.levelup-card {
+  background: #fff;
+  border-radius: 26px;
+  padding: 40px 56px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: bounce-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.levelup-emoji { font-size: 3.5rem; animation: wiggle 0.8s ease 0.3s; }
+.levelup-card h2 { margin: 10px 0 4px; color: var(--primary-dark); }
+.levelup-card p { color: #7d7263; margin: 0; }
+
+/* ---------- Video-Bibliothek ---------- */
+
+.library h1 { margin-bottom: 16px; }
+.discover-title { margin-top: 44px; font-weight: 900; }
+
+/* Überschrift mit Knopf daneben (z.B. "Für dich vorgeschlagen" + 🎲) */
+.section-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.section-row .discover-title { margin-bottom: 0; }
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.video-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  animation: fade-up 0.3s ease;
+}
+.video-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 10px 26px rgba(0, 0, 65, 0.14);
+}
+.video-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  cursor: pointer;
+  display: block;
+}
+.video-card-body { padding: 11px 14px 12px; }
+.video-card-title {
+  font-weight: 800;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.12s ease;
+}
+.video-card-title:hover { color: var(--primary-dark); }
+.video-card-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+.video-card-channel { color: #b3a898; font-size: 0.8rem; font-weight: 700; }
+
+/* ---------- Start-Bereich ---------- */
+
+.home { max-width: 640px; margin: 0 auto; }
+
+.home-hero {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 65, 0.09);
+  animation: pop-in 0.3s ease;
+}
+.hero-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+.hero-chip {
+  background: #fff0e3;
+  color: var(--primary-dark);
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+.hero-cta { width: 100%; margin-top: 6px; }
+
+.home-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.home-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  background: var(--card);
+  color: var(--navy);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: fade-up 0.3s ease;
+}
+.home-card:hover {
+  transform: translateY(-3px);
+  filter: none;
+  box-shadow: 0 8px 22px rgba(0, 0, 65, 0.13);
+}
+.home-card:active { transform: scale(0.97); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
+.home-emoji {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #fff0e3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.home-title { font-weight: 900; font-size: 1rem; }
+.home-sub { color: #a89d8d; font-size: 0.82rem; font-weight: 700; }
+
+.back-link { margin: 0 0 14px; padding: 8px 14px; }
+.empty-reader { text-align: center; padding: 40px 0; }
+
+/* ---------- Lektionen (Grundlagen wie bei Babbel) ---------- */
+
+.lessons { max-width: 640px; margin: 0 auto; }
+
+.lesson-list { display: flex; flex-direction: column; gap: 12px; }
+
+.lesson-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+  background: var(--card);
+  color: var(--navy);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  animation: fade-up 0.3s ease;
+}
+.lesson-card:hover {
+  transform: translateY(-2px);
+  filter: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 65, 0.12);
+}
+.lesson-card:active { transform: scale(0.98); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
+
+.lesson-emoji {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #fff0e3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+.lesson-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.lesson-title { font-weight: 900; font-size: 1.02rem; }
+.lesson-sub { color: #a89d8d; font-size: 0.85rem; font-weight: 700; }
+
+.lesson-done .lesson-emoji { background: #dcf5e7; }
+.lesson-done .lesson-sub { color: #1e8a4c; }
+.lesson-check {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--success);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+}
+
+.lesson-locked { opacity: 0.55; }
+.lesson-locked:hover { transform: none; }
+/* :disabled schlägt sonst die Karten-Optik (orange Knopf-Kante) */
+.lesson-card:disabled {
+  cursor: not-allowed;
+  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.05);
+  transform: none;
+}
+
+/* Lektions-Player */
+.player-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.player-top .btn-plain { margin: 0; font-size: 1.1rem; padding: 6px 12px; }
+.player-bar { flex: 1; height: 12px; width: auto; }
+
+.lesson-hint {
+  color: #a89d8d;
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 10px;
+}
+.lesson-done-emoji { font-size: 3rem; animation: wiggle 0.8s ease 0.3s; }
+
+/* Einleitung: Lernziele der Lektion */
+.intro-goals {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  text-align: left;
+  display: inline-block;
+  font-weight: 700;
+  color: #6d6152;
+  line-height: 1.9;
+}
+
+/* Beispielsatz unter einem neuen Wort */
+.flash-example {
+  font-style: italic;
+  color: #6d6152;
+  font-weight: 600;
+  margin: -8px 0 22px;
+  line-height: 1.5;
+}
+.flash-example-de {
+  display: block;
+  font-style: normal;
+  font-size: 0.85rem;
+  color: #b3a898;
+}
+
+/* ---------- Neues Wort: Ton-Knöpfe, Übersetzungs-Pille, Beispiel-Box ---------- */
+
+.word-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.word-row .flash-word { margin-bottom: 0; }
+.word-step .word-row { margin-bottom: 16px; }
+
+/* Der runde Vorlese-Knopf */
+.speak-btn {
+  background: #fff0e3;
+  color: var(--primary-dark);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+}
+.speak-btn:hover { background: #ffe4cc; filter: none; }
+.speak-btn:active { transform: scale(0.88); box-shadow: none; }
+.speak-btn-mini {
+  width: 28px;
+  height: 28px;
+  font-size: 0.8rem;
+  margin-left: 8px;
+  vertical-align: middle;
+  background: #fff;
+}
+
+/* Übersetzung als freundliche Pille */
+.word-step .flash-translation {
+  display: inline-block;
+  background: #fff0e3;
+  color: var(--primary-dark);
+  font-size: 1.05rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 7px 20px;
+  margin-bottom: 24px;
+}
+
+/* Beispielsatz-Box mit hervorgehobenem Lernwort */
+.example-box {
+  background: #fdf6ee;
+  border-left: 4px solid #ffc94d;
+  border-radius: 12px;
+  padding: 13px 16px;
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto 24px;
+}
+.example-es { font-weight: 700; line-height: 1.5; }
+.example-hit {
+  color: var(--primary-dark);
+  text-decoration: underline;
+  text-decoration-color: #ffc94d;
+  text-decoration-thickness: 3px;
+  text-underline-offset: 3px;
+}
+.example-de { color: #a89d8d; font-size: 0.88rem; font-weight: 600; margin-top: 4px; }
+
+/* ---------- "Gut zu wissen": strukturierte Tipp-Karten ---------- */
+
+.info-card .lesson-hint { text-align: center; color: #b8860b; }
+.info-card button { display: block; margin: 0 auto; }
+.info-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  background: linear-gradient(135deg, #ffd76e, #ffbe3d);
+  box-shadow: 0 4px 14px rgba(255, 190, 61, 0.45);
+  animation: wiggle 0.8s ease 0.3s;
+}
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+  text-align: left;
+}
+.info-tip {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #fdf6ee;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 14px 16px;
+  animation: fade-up 0.4s ease backwards;
+  animation-delay: calc(var(--i) * 0.15s);
+}
+.info-emoji {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+.info-title { font-weight: 900; margin-bottom: 3px; }
+.info-text {
+  font-weight: 600;
+  color: #6d6152;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* Hervorgehobene Wörter in den Tipps */
+.wort-chip {
+  background: #fff0e3;
+  color: var(--primary-dark);
+  font-weight: 800;
+  padding: 1px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* Dialog zum Mitlesen */
+.dialog-card { text-align: left; }
+.dialog-card .lesson-hint { text-align: center; }
+.dialog-line {
+  margin-bottom: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.dialog-speaker { color: var(--primary); font-weight: 900; }
+.dialog-de {
+  color: #b3a898;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: fade-up 0.25s ease;
+}
+.dialog-actions { margin-top: 20px; }
+
+/* Lückentext */
+.gap-sentence {
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+.gap-help {
+  color: #b3a898;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+
+/* ---------- Dialog als animierter Chat ---------- */
+
+.chat-card { text-align: left; padding: 28px 20px; }
+.chat-card .lesson-hint { text-align: center; }
+.chat { display: flex; flex-direction: column; gap: 10px; min-height: 220px; }
+
+.chat-row { display: flex; align-items: flex-end; gap: 8px; }
+.chat-row.chat-rechts { flex-direction: row-reverse; }
+
+/* Runder Avatar mit dem Anfangsbuchstaben: links Hibisco, rechts Mar */
+.chat-avatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.95rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #ff9a40);
+  box-shadow: 0 2px 6px rgba(255, 108, 0, 0.35);
+}
+.chat-rechts .chat-avatar {
+  background: linear-gradient(135deg, var(--success), #5ecf8a);
+  box-shadow: 0 2px 6px rgba(42, 174, 95, 0.4);
+}
+
+@keyframes bubble-in-links {
+  0% { opacity: 0; transform: translateX(-24px) scale(0.85); }
+  60% { transform: translateX(3px) scale(1.02); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes bubble-in-rechts {
+  0% { opacity: 0; transform: translateX(24px) scale(0.85); }
+  60% { transform: translateX(-3px) scale(1.02); }
+  100% { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+/* Sprechblasen: die Ecke zum Avatar hin ist "angespitzt" */
+.chat-bubble {
+  max-width: 82%;
+  text-align: left;
+  background: #fff0e3;
+  color: var(--navy);
+  border-radius: 16px 16px 16px 4px;
+  padding: 9px 14px 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+  box-shadow: 0 2px 8px rgba(0, 0, 65, 0.07);
+  animation: bubble-in-links 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
+  cursor: pointer;
+}
+.chat-rechts .chat-bubble {
+  background: #e3f7ec;
+  border-radius: 16px 16px 4px 16px;
+  animation: bubble-in-rechts 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.chat-bubble:hover { filter: brightness(0.98); }
+.chat-bubble:active { transform: scale(0.97); }
+
+.chat-name {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--primary-dark);
+  margin-bottom: 2px;
+}
+.chat-rechts .chat-name { color: #1e8a4c; }
+.chat-de {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(0, 0, 65, 0.18);
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.7;
+  animation: fade-up 0.25s ease;
+}
+.dialog-actions {
+  justify-content: space-between;
+  margin-top: 18px;
+  animation: fade-up 0.35s ease;
+}
+
+/* "tippt gerade…"-Punkte */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+.chat-typing {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 14px 16px;
+  cursor: default;
+}
+.chat-typing span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  animation: typing-bounce 1.1s ease infinite;
+}
+.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+.chat-weiter {
+  display: block;
+  margin: 18px auto 0;
+  animation: fade-up 0.35s ease;
+}
+
+/* Hinweis auf die kostenlosen Generierungen */
+.free-hint {
+  text-align: center;
+  color: #b3a898;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin: 6px 0 0;
+}
+.list-gen .free-hint { text-align: left; margin: -16px 0 12px 4px; }
+
+/* Quiz-Antworten */
+.quiz-options { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.quiz-option {
+  background: var(--card);
+  color: var(--navy);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 13px 16px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  box-shadow: 0 3px 0 var(--line);
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+}
+.quiz-option:hover { border-color: var(--primary); background: #fff7ef; filter: none; }
+.quiz-option:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
+
+.option-richtig {
+  background: var(--success) !important;
+  border-color: var(--success) !important;
+  color: #fff;
+  box-shadow: 0 3px 0 var(--success-press);
+  animation: pop-in 0.3s ease;
+}
+.option-falsch {
+  background: var(--red) !important;
+  border-color: var(--red) !important;
+  color: #fff;
+  box-shadow: 0 3px 0 var(--red-press);
+  animation: card-shake 0.4s ease;
+}
+.option-inaktiv { opacity: 0.45; }
+
+/* ---------- Schwebende Aktions-Knöpfe im Lese-Modus ---------- */
+
+.fab-stack {
+  position: fixed;
+  right: 16px;
+  bottom: 100px; /* über der unteren Menüleiste */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 65;
+}
+.fab {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  font-size: 1.35rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(255, 108, 0, 0.4);
+  animation: pop-in 0.3s ease;
+}
+.fab:active { transform: scale(0.9); }
+.fab-secondary {
+  background: var(--navy);
+  box-shadow: 0 6px 18px rgba(0, 0, 65, 0.35);
+}
+.fab-secondary:hover { background: #1a1a6e; }
+.fab-done {
+  background: var(--success);
+  box-shadow: 0 6px 18px rgba(42, 174, 95, 0.4);
+}
+
+/* Panel, das sich neben den FABs öffnet */
+.fab-panel {
+  position: fixed;
+  right: 16px;
+  left: 16px;
+  bottom: 170px;
+  max-width: 420px;
+  margin-left: auto;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 65, 0.25);
+  z-index: 66;
+  animation: pop-in 0.25s ease;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.fab-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.fab-panel-head .btn-plain { padding: 4px 10px; margin: 0; }
+
+/* ---------- Module & Sprach-Reise ---------- */
+
+.modul-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.modul-bar .goal-bar { width: 120px; height: 8px; display: block; }
+.modul-count { font-size: 0.78rem; font-weight: 800; color: #a89d8d; }
+
+.journey-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.journey-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0, 0, 65, 0.12);
+}
+.journey-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+}
+.journey-emoji { font-size: 1.1rem; }
+.journey-name { flex: 1; font-weight: 800; font-size: 0.9rem; }
+.journey-bar { width: 90px; height: 8px; display: block; }
+.journey-count {
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--success);
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ---------- Bücher in der Bibliothek ---------- */
+
+.buch-cover {
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  background: linear-gradient(135deg, #fff0e3, #ffe4cc);
+  cursor: pointer;
+}
+.premium-teaser { margin-bottom: 18px; }
+
+.buch-view { max-width: 640px; }
+.buch-absatz { margin-bottom: 14px; }
+.buch-es {
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.8;
+  margin: 0;
+}
+.buch-de {
+  color: #a89d8d;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 4px 0 0;
+  animation: fade-up 0.25s ease;
+}
+.buch-view .hero-cta { margin-top: 14px; }
+
+/* ---------- Mini-Spiele im Trainer ---------- */
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  text-align: left;
+  background: var(--card);
+  color: var(--navy);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.game-card:hover {
+  transform: translateY(-3px);
+  filter: none;
+  box-shadow: 0 8px 22px rgba(0, 0, 65, 0.13);
+}
+.game-card:active { transform: scale(0.97); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
+
+.game-title { margin: 0; font-size: 1.15rem; }
+
+/* Memory */
+.memory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.memory-card {
+  min-height: 74px;
+  padding: 8px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  border-radius: 14px;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--primary-press);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.memory-card:hover { filter: brightness(1.05); }
+.memory-offen {
+  background: var(--card);
+  color: var(--navy);
+  box-shadow: 0 4px 0 var(--line);
+  animation: pop-in 0.25s ease;
+}
+.memory-gefunden {
+  background: #e7f8ee;
+  color: #1e8a4c;
+  box-shadow: 0 4px 0 #bfe8cd;
+  cursor: default;
+}
+
+/* Wortpaare */
+.pairs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.pairs-col { display: flex; flex-direction: column; gap: 10px; }
+.pair-gewaehlt {
+  border-color: var(--primary) !important;
+  background: #fff0e3 !important;
+  transform: scale(0.98);
+}
+
+/* Kreuzworträtsel */
+.kw-scroll { overflow-x: auto; padding-bottom: 6px; }
+.kw-grid { display: grid; gap: 3px; width: max-content; margin: 0 auto; }
+.kw-leer { width: 36px; height: 36px; }
+.kw-zelle {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+}
+.kw-zelle input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: none;
+  text-align: center;
+  font-family: inherit;
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--navy);
+  text-transform: uppercase;
+  border-radius: 6px;
+}
+.kw-zelle input:focus { outline: 3px solid var(--primary); }
+.kw-nummer {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 0.55rem;
+  font-style: normal;
+  font-weight: 800;
+  color: #b3a898;
+}
+.kw-geloest { background: #e7f8ee; border-color: var(--success); }
+.kw-geloest input { color: #1e8a4c; }
+.kw-hinweise {
+  max-width: 520px;
+  margin: 16px auto 0;
+  padding-left: 0;
+  list-style: none;
+  font-weight: 700;
+  line-height: 1.9;
+  color: #6d6152;
+}
+.kw-hinweis-geloest { color: #1e8a4c; }
+
+/* ---------- Einstellungen ("Mehr") ---------- */
+
+.settings { max-width: 640px; margin: 0 auto; }
+
+/* Profilkarte oben */
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--navy), #1a1a6e);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 65, 0.25);
+  animation: pop-in 0.3s ease;
+}
+.profile-level {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #ff9a40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 900;
+  box-shadow: 0 4px 12px rgba(255, 108, 0, 0.45);
+}
+.profile-name { font-size: 1.2rem; font-weight: 900; }
+.profile-stats { opacity: 0.85; font-size: 0.88rem; font-weight: 700; }
+
+.settings-heading {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #a89d8d;
+  margin: 26px 0 8px 4px;
+}
+
+/* Abo-Karten */
+.plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.plan-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+  display: flex;
+  flex-direction: column;
+}
+.plan-active { border: 2px solid var(--line); }
+.plan-premium {
+  border: 2px solid var(--primary);
+  background: linear-gradient(180deg, #fff7ef, #fff);
+}
+.plan-name {
+  font-weight: 900;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.plan-badge {
+  background: var(--success);
+  color: #fff;
+  font-size: 0.68rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+.badge-soon { background: var(--primary); }
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  font-size: 0.88rem;
+  color: #6d6152;
+  font-weight: 700;
+  flex: 1;
+}
+.plan-features li { margin-bottom: 7px; }
+.plan-price { font-weight: 900; color: var(--primary-dark); margin-bottom: 10px; }
+
+/* Die drei Abo-Preis-Optionen */
+.price-options {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 13px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #6d6152;
+}
+.price-row b { color: var(--navy); font-size: 0.98rem; }
+.price-best {
+  border-color: var(--primary);
+  background: #fff0e3;
+}
+.spar-badge {
+  font-style: normal;
+  background: var(--success);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 1px 8px;
+  border-radius: 999px;
+  margin-left: 4px;
+}
+.plan-card button { padding: 9px 16px; font-size: 0.9rem; }
+
+/* Karten mit Einstellungs-Zeilen */
+.settings-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 6px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid #f7efe4;
+}
+.settings-row:last-child { border-bottom: none; }
+.row-title { font-weight: 800; }
+.row-hint { color: #a89d8d; font-size: 0.82rem; font-weight: 600; }
+
+.btn-small { padding: 8px 14px; font-size: 0.85rem; flex-shrink: 0; }
+.btn-danger { background: var(--red); box-shadow: 0 4px 0 var(--red-press); }
+.btn-danger:active { box-shadow: 0 0 0 var(--red-press); }
+
+/* Tagesziel */
+.goal-row { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 0 4px; }
+.goal-progress { display: flex; align-items: center; gap: 12px; padding: 10px 0 14px; }
+.goal-bar { width: 140px; height: 12px; }
+.goal-text { font-size: 0.85rem; font-weight: 800; color: #6d6152; }
+
+/* Moderner Ein/Aus-Schalter */
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #e0d6c6;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 65, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.switch input:checked + .slider { background: var(--success); }
+.switch input:checked + .slider::before { transform: translateX(20px); }
+
+.about-note {
+  text-align: center;
+  color: #b3a898;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-top: 30px;
+}
+
+/* ---------- Kleine Bildschirme (Mobile-Optimierung) ---------- */
+
+/* Die Wortkarte gleitet auf dem Handy als Bottom-Sheet von unten herein */
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@media (max-width: 800px) {
+  main { padding: 20px 14px 44px; }
+  h1 { font-size: 1.55rem; }
+  .intro { font-size: 0.92rem; margin-bottom: 16px; }
+
+  /* Kompakte Kopfzeile: nur Logo + Fortschritt (die Menüleiste ist unten).
+     Wichtig: kein backdrop-filter, sonst "fängt" die Kopfzeile die fixierte
+     Menüleiste ein und sie klebt oben statt unten am Bildschirm. */
+  .topbar { padding: 9px 14px; backdrop-filter: none; background: #fff; }
+  .logo { font-size: 1.05rem; }
+  .stats { gap: 8px; margin-left: auto; }
+  .xp-text { display: none; }
+  .xp-bar { width: 54px; }
+  .level-circle { width: 26px; height: 26px; font-size: 0.85rem; }
+
+  /* Menüleiste als moderne App-Leiste fest am unteren Rand */
+  .tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 24px rgba(0, 0, 65, 0.08);
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    gap: 0;
   }
-  to {
-    transform: rotate(360deg);
+  .tab {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    padding: 4px 0;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #a89d8d;
+    border-radius: 12px;
   }
+  .tab svg { width: 26px; height: 26px; }
+  .tab:hover { background: none; }
+  .tab-active { background: none; color: var(--primary); }
+  .tab-active:hover { background: none; }
+  .tab-active .due-badge { background: var(--red); color: #fff; }
+
+  /* Platz lassen, damit die untere Leiste nichts verdeckt */
+  main { padding-bottom: 110px; }
+
+  /* Lese-Ansicht untereinander, Text-Kasten kompakt */
+  .reader { grid-template-columns: 1fr; gap: 16px; }
+  .video-pane { position: static; }
+  .text-pane { max-height: 56vh; padding: 14vh 4px; font-size: 1rem; }
+
+  /* Wortkarte als festes Bottom-Sheet – immer im Blick, nie versteckt */
+  .word-card {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -10px 34px rgba(0, 0, 65, 0.28);
+    padding: 20px 20px calc(22px + env(safe-area-inset-bottom));
+    z-index: 80; /* liegt über der unteren Menüleiste */
+    animation: sheet-up 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .word-card-exit { animation: card-done 1.1s ease forwards; }
+
+  /* Trainer & Bibliothek */
+  .trainer-head { gap: 10px; }
+  .vocab-table { display: block; overflow-x: auto; }
+  .flashcard { padding: 38px 18px; }
+  .flash-word { font-size: 1.7rem; }
+  .flash-actions { flex-wrap: wrap; }
+  .video-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+  .levelup-card { padding: 30px 34px; margin: 0 16px; }
+  .plan-grid { grid-template-columns: 1fr; }
+  .game-grid { grid-template-columns: 1fr; }
+  .memory-card { font-size: 0.8rem; min-height: 64px; }
 }
