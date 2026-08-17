@@ -1,7 +1,7 @@
 /* Runde, freundliche Schrift wie bei Lern-Apps (Duolingo-Stil) */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
-/* Vamigo-Branding "Sol y Noche" – Manuels Original-Farben, eigenständig gemacht:
+/* Habloo-Branding "Sol y Noche" – Manuels Original-Farben, eigenständig gemacht:
    Orange als Energie-Farbe, aber das tiefe Nachtblau als gleichberechtigter
    Co-Star (Tabs, Logo, Profilkarte) – das unterscheidet uns klar von Babbel,
    das nur flaches Orange kennt. Dazu Smaragd für Erfolge und Gold-Akzente. */
@@ -161,7 +161,7 @@ main {
 .logo:hover { background: #ffe4cc; filter: none; }
 .logo:active { transform: scale(0.96); box-shadow: none; }
 .logo-badge {
-  background: var(--primary); /* das ¡ leuchtet wieder in Vamigo-Orange */
+  background: var(--primary); /* das ¡ leuchtet wieder in Habloo-Orange */
   color: #fff;
   width: 30px;
   height: 30px;

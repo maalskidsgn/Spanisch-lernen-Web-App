@@ -9,7 +9,7 @@ import Home from './Home.jsx'
 import { LEKTIONEN } from './lektionen.js'
 
 // Der Name der App – an dieser einen Stelle änderbar
-export const APP_NAME = 'Vamigo'
+export const APP_NAME = 'Habloo'
 import { newEntry, withSrsDefaults, isDue } from './srs.js'
 import {
   XP,
