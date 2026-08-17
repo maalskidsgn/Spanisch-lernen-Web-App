@@ -271,35 +271,54 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           </span>
         </div>
 
-        <div className="lesson-list">
+        {/* Lernpfad im Duolingo-Stil: die Knoten schlängeln sich nach unten */}
+        <div className="lernpfad">
           {liste.map((l, i) => {
             const geschafft = lessonProgress[l.id]?.fertig
             // Die erste Lektion ist offen, danach muss die vorherige geschafft sein
             const offen = i === 0 || lessonProgress[liste[i - 1].id]?.fertig
+            const aktuell = offen && !geschafft // hier geht es weiter
+            // Sanfter Zickzack nach links und rechts
+            const versatz = Math.round(Math.sin(i * 0.95) * 64)
+
             return (
-              <button
+              <div
                 key={l.id}
-                className={
-                  'lesson-card' +
-                  (geschafft ? ' lesson-done' : '') +
-                  (!offen ? ' lesson-locked' : '')
-                }
-                disabled={!offen}
-                onClick={() => starten(l)}
+                className="pfad-halt"
+                style={{ '--versatz': `${versatz}px` }}
               >
-                <span className="lesson-emoji">{offen ? l.emoji : '🔒'}</span>
-                <span className="lesson-text">
-                  <span className="lesson-title">
-                    {i + 1}. {l.titel}
+                {aktuell && <span className="pfad-hinweis">Los geht's!</span>}
+
+                <button
+                  className={
+                    'pfad-knoten' +
+                    (geschafft ? ' knoten-fertig' : '') +
+                    (aktuell ? ' knoten-aktuell' : '') +
+                    (!offen ? ' knoten-zu' : '')
+                  }
+                  disabled={!offen}
+                  onClick={() => starten(l)}
+                  aria-label={`Lektion ${i + 1}: ${l.titel}`}
+                >
+                  <span className="knoten-symbol">
+                    {geschafft ? '✓' : offen ? l.emoji : '🔒'}
                   </span>
-                  <span className="lesson-sub">
-                    {geschafft ? 'Geschafft ✓ – nochmal üben?' : l.beschreibung}
-                  </span>
-                </span>
-                {geschafft && <span className="lesson-check">✓</span>}
-              </button>
+                </button>
+
+                <span className="pfad-name">{l.titel}</span>
+              </div>
             )
           })}
+
+          {/* Ziel am Ende des Pfades */}
+          <div className="pfad-halt pfad-ziel" style={{ '--versatz': '0px' }}>
+            <div className={'pfad-knoten knoten-ziel' + (modulFertig === gesamt ? ' knoten-fertig' : '')}>
+              <span className="knoten-symbol">🏆</span>
+            </div>
+            <span className="pfad-name">
+              {modulFertig === gesamt ? 'Modul geschafft!' : 'Modul-Abschluss'}
+            </span>
+          </div>
         </div>
       </div>
     )

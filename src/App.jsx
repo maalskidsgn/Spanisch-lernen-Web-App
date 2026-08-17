@@ -1,5 +1,14 @@
 import { API_URL } from './api.js'
+import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useState, useEffect, useRef } from 'react'
+
+/** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
+function videoIdAusEingabe(eingabe) {
+  const text = String(eingabe).trim()
+  if (/^[\w-]{11}$/.test(text)) return text
+  const treffer = text.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([\w-]{11})/)
+  return treffer ? treffer[1] : null
+}
 import Trainer from './Trainer.jsx'
 import Library from './Library.jsx'
 import VocabGenerator from './VocabGenerator.jsx'
@@ -254,7 +263,9 @@ export default function App() {
     box.scrollTo({ top: target, behavior: 'smooth' })
   }, [activeLine, autoScroll])
 
-  // Holt das Transkript zu einem Link oder einer Video-ID
+  // Holt das Transkript zu einem Link oder einer Video-ID.
+  // Erst wird in der Habloo-Bibliothek nachgesehen (schnell und überall
+  // verfügbar); nur wenn das Video dort fehlt, wird YouTube gefragt.
   async function fetchTranscript(input) {
     setLoading(true)
     setError('')
@@ -262,9 +273,38 @@ export default function App() {
     setSelected(null)
     setDeLines(null) // Übersetzung gehört zum alten Video
     setShowDe(false)
+
     try {
+      // 1) Bibliothek
+      const id = videoIdAusEingabe(input)
+      if (id && supabaseBereit) {
+        const treffer = await holeVideoMitTranskript(id).catch(() => null)
+        if (treffer?.transkript?.length) {
+          setVideo({
+            videoId: treffer.youtube_id,
+            title: treffer.titel,
+            lines: treffer.transkript.map((z) => ({
+              text: z.text,
+              start: z.start,
+              end: z.start + (z.dauer ?? 0),
+            })),
+          })
+          return
+        }
+      }
+
+      // 2) Sonst direkt bei YouTube nachfragen (klappt nur lokal)
       const res = await fetch(API_URL + '/api/transcript?url=' + encodeURIComponent(input))
-      const data = await res.json()
+      const text = await res.text()
+      let data
+      try {
+        data = JSON.parse(text)
+      } catch {
+        throw new Error(
+          'Dieses Video ist noch nicht in der Habloo-Bibliothek und der ' +
+          'Transkript-Dienst ist gerade nicht erreichbar.'
+        )
+      }
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
     } catch (err) {

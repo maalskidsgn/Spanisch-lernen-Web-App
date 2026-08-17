@@ -1,5 +1,14 @@
 import { API_URL } from './api.js'
+import { holeBibliothek, supabaseBereit } from './supabase.js'
 import { useState, useEffect } from 'react'
+
+// Die Niveau-Stufen der kuratierten Bibliothek
+const NIVEAUS = [
+  { wert: 'alle', label: 'Alle' },
+  { wert: 'A1', label: 'A1 · Anfang' },
+  { wert: 'A2', label: 'A2 · Aufbau' },
+  { wert: 'B1', label: 'B1 · Fortgeschritten' },
+]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
 // damit regelmäßig frische Videos auftauchen
@@ -57,6 +66,38 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
   const [buchLaden, setBuchLaden] = useState(false)
   const [buchFehler, setBuchFehler] = useState('')
   const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
+
+  // ---------- Kuratierte Bibliothek aus der Datenbank ----------
+  const [bibliothek, setBibliothek] = useState(null)
+  const [niveau, setNiveau] = useState('alle')
+  const [bibliothekFehler, setBibliothekFehler] = useState('')
+
+  useEffect(() => {
+    if (!supabaseBereit) return
+    let abgebrochen = false
+
+    setBibliothekFehler('')
+    holeBibliothek(niveau)
+      .then((videos) => {
+        if (abgebrochen) return
+        // Auf das Format bringen, das VideoKarte erwartet
+        setBibliothek(
+          videos.map((v) => ({
+            videoId: v.youtube_id,
+            title: v.titel,
+            channel: v.kanal,
+            duration: v.dauer_sek,
+            thumbnail: v.thumbnail,
+            niveau: v.niveau,
+          }))
+        )
+      })
+      .catch((f) => {
+        if (!abgebrochen) setBibliothekFehler(f.message)
+      })
+
+    return () => { abgebrochen = true }
+  }, [niveau])
 
   // Eine neue Buchzusammenfassung generieren lassen
   async function generiereBuch(e) {
@@ -330,6 +371,53 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
               </div>
             ))}
           </div>
+        </>
+      )}
+
+      {/* ---------- Kuratierte Habloo-Bibliothek ---------- */}
+      {supabaseBereit && (
+        <>
+          <div className="section-row">
+            <h2 className="discover-title">
+              Habloo-<span className="accent">Bibliothek</span>
+            </h2>
+            {bibliothek && (
+              <span className="biblio-anzahl">{bibliothek.length} Videos</span>
+            )}
+          </div>
+          <p className="intro">
+            Handverlesene Videos mit fertigem Transkript – laufen sofort, ohne Wartezeit.
+          </p>
+
+          <div className="chips">
+            {NIVEAUS.map((n) => (
+              <button
+                key={n.wert}
+                className={'chip' + (niveau === n.wert ? ' chip-aktiv' : '')}
+                onClick={() => setNiveau(n.wert)}
+              >
+                {n.label}
+              </button>
+            ))}
+          </div>
+
+          {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
+          {!bibliothek && !bibliothekFehler && (
+            <p className="intro">Lade Bibliothek…</p>
+          )}
+          {bibliothek && bibliothek.length === 0 && (
+            <p className="intro">Für dieses Niveau ist noch nichts dabei.</p>
+          )}
+          {bibliothek && bibliothek.length > 0 && (
+            <div className="video-grid">
+              {bibliothek.map((v) => (
+                <div key={v.videoId} className="biblio-karte">
+                  <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
+                  <VideoKarte video={v} onOpen={onOpenVideo} />
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
 

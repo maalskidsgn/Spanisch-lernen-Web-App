@@ -1863,3 +1863,204 @@ button:disabled {
   .game-grid { grid-template-columns: 1fr; }
   .memory-card { font-size: 0.8rem; min-height: 64px; }
 }
+
+/* ============================================================
+   LERNPFAD – Lektionen als Karte im Duolingo-Stil
+   Die Knoten schlängeln sich nach unten; erledigt = grün,
+   aktuell = orange mit Puls, noch zu = grau.
+   ============================================================ */
+
+.lernpfad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 0 40px;
+  position: relative;
+}
+
+.pfad-halt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  /* --versatz kommt aus dem JSX und erzeugt den Zickzack */
+  transform: translateX(var(--versatz, 0px));
+  padding-bottom: 26px;
+  position: relative;
+  animation: pfad-auf 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.pfad-halt:nth-child(1) { animation-delay: 0.02s; }
+.pfad-halt:nth-child(2) { animation-delay: 0.09s; }
+.pfad-halt:nth-child(3) { animation-delay: 0.16s; }
+.pfad-halt:nth-child(4) { animation-delay: 0.23s; }
+.pfad-halt:nth-child(5) { animation-delay: 0.30s; }
+.pfad-halt:nth-child(6) { animation-delay: 0.37s; }
+
+@keyframes pfad-auf {
+  from { opacity: 0; transform: translateX(var(--versatz, 0px)) translateY(18px) scale(0.9); }
+  to   { opacity: 1; transform: translateX(var(--versatz, 0px)) scale(1); }
+}
+
+/* Gepunktete Verbindung zum nächsten Halt */
+.pfad-halt:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  width: 4px;
+  height: 20px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--line) 0 5px,
+    transparent 5px 10px
+  );
+}
+
+/* ---------- Der runde Knopf ---------- */
+
+.pfad-knoten {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 1.9rem;
+  background: var(--line);
+  color: #fff;
+  /* Der 3D-Rand unten – Duolingos Markenzeichen */
+  box-shadow: 0 6px 0 #ded0be;
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.15s;
+}
+.pfad-knoten:not(:disabled):hover { filter: brightness(1.06); }
+.pfad-knoten:not(:disabled):active {
+  transform: translateY(6px);
+  box-shadow: 0 0 0 currentColor;
+}
+
+.knoten-symbol { line-height: 1; }
+
+/* Erledigt – smaragdgrün mit Häkchen */
+.knoten-fertig {
+  background: var(--success);
+  box-shadow: 0 6px 0 #1f9450;
+  font-size: 2.1rem;
+  font-weight: 900;
+}
+
+/* Aktuell – orange, größer, mit pulsierendem Ring */
+.knoten-aktuell {
+  background: var(--primary);
+  box-shadow: 0 6px 0 var(--primary-press, #bf5200);
+  width: 84px;
+  height: 84px;
+  font-size: 2.2rem;
+  position: relative;
+}
+.knoten-aktuell::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 3px solid var(--primary);
+  opacity: 0.55;
+  animation: knoten-puls 2s ease-out infinite;
+}
+@keyframes knoten-puls {
+  0%   { transform: scale(1);    opacity: 0.55; }
+  70%  { transform: scale(1.22); opacity: 0; }
+  100% { transform: scale(1.22); opacity: 0; }
+}
+
+/* Noch gesperrt */
+.knoten-zu {
+  background: #ece2d5;
+  box-shadow: 0 6px 0 #ded0be;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+  opacity: 0.75;
+  font-size: 1.6rem;
+}
+
+/* Der Trophäen-Knoten am Ende */
+.knoten-ziel {
+  background: linear-gradient(150deg, #ffc94d, #ffbe3d);
+  box-shadow: 0 6px 0 #d99f1f;
+  cursor: default;
+}
+.knoten-ziel:not(.knoten-fertig) { filter: grayscale(0.55); opacity: 0.7; }
+.pfad-ziel::after { display: none; }
+
+/* ---------- Beschriftung & Hinweis ---------- */
+
+.pfad-name {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: var(--muted, #7d7263);
+  text-align: center;
+  max-width: 150px;
+  line-height: 1.3;
+}
+
+.pfad-hinweis {
+  background: #fff;
+  color: var(--primary-dark, #e05f00);
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(0, 0, 65, 0.14);
+  position: relative;
+  margin-bottom: 2px;
+  animation: hinweis-wippen 1.6s ease-in-out infinite;
+}
+/* kleines Dreieck als Sprechblasen-Spitze */
+.pfad-hinweis::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #fff;
+}
+@keyframes hinweis-wippen {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+@media (max-width: 800px) {
+  .pfad-halt { transform: translateX(calc(var(--versatz, 0px) * 0.62)); }
+  @keyframes pfad-auf {
+    from { opacity: 0; transform: translateX(calc(var(--versatz,0px)*0.62)) translateY(18px) scale(0.9); }
+    to   { opacity: 1; transform: translateX(calc(var(--versatz,0px)*0.62)) scale(1); }
+  }
+  .pfad-knoten { width: 66px; height: 66px; font-size: 1.7rem; }
+  .knoten-aktuell { width: 76px; height: 76px; font-size: 2rem; }
+}
+
+/* ---------- Kuratierte Bibliothek ---------- */
+.biblio-karte { position: relative; }
+.biblio-anzahl {
+  font-size: 0.82rem; font-weight: 800; color: var(--muted);
+  background: #fff; padding: 5px 12px; border-radius: 999px;
+}
+.niveau-badge {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  font-size: 0.68rem; font-weight: 900; letter-spacing: 0.03em;
+  padding: 4px 9px; border-radius: 8px; color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,65,.25);
+}
+.niveau-A1 { background: var(--success); }
+.niveau-A2 { background: var(--primary); }
+.niveau-B1 { background: var(--navy); }
+.chip-aktiv {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
