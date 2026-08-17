@@ -55,6 +55,7 @@ function runYtDlp(args) {
         }
       } else {
         resolve(stdout)
+      }
     })
   })
 }

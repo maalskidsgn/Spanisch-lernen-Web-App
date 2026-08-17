@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "server": "node server/index.js",
-    "dev:all": "node server/index.js & vite --port ${PORT:-5173}"
+    "dev:all": "PORT=8787 node server/index.js & vite --port ${PORT:-5173}"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

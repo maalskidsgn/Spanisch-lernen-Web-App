@@ -8,6 +8,7 @@ import {
   speichereFortschritt,
 } from './sync.js'
 import Login from './Login.jsx'
+import Willkommen from './Willkommen.jsx'
 import { useState, useEffect, useRef } from 'react'
 
 /** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
@@ -160,8 +161,9 @@ export default function App() {
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
 
   // ---------- Konto & Abgleich ----------
-  const { nutzer } = useNutzer()
+  const { nutzer, laedt: nutzerLaedt } = useNutzer()
   const [loginOffen, setLoginOffen] = useState(false)
+  const [loginStart, setLoginStart] = useState('anmelden') // womit der Dialog aufgeht
   const [syncStatus, setSyncStatus] = useState('') // '' | 'laeuft' | 'fertig' | Fehlertext
   const angemeldetRef = useRef(null) // verhindert doppeltes Zusammenführen
 
@@ -518,6 +520,25 @@ export default function App() {
   const levelPercent = Math.round(
     ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
   )
+
+  // ---------- Zugang: ohne Konto geht es nicht weiter ----------
+  if (supabaseBereit && !nutzer) {
+    // Solange noch geprüft wird, ob eine Sitzung besteht: nichts zeigen,
+    // damit die Willkommensseite nicht kurz aufblitzt
+    if (nutzerLaedt) return <div className="app app-laedt" />
+
+    return (
+      <>
+        <Willkommen
+          onStarten={() => { setLoginStart('registrieren'); setLoginOffen(true) }}
+          onAnmelden={() => { setLoginStart('anmelden'); setLoginOffen(true) }}
+        />
+        {loginOffen && (
+          <Login startModus={loginStart} onSchliessen={() => setLoginOffen(false)} />
+        )}
+      </>
+    )
+  }
 
   return (
     <div className="app">

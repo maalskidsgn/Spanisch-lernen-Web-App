@@ -7,8 +7,8 @@ import { registrieren, anmelden, passwortVergessen } from './auth.js'
  * Drei Ansichten in einem: Anmelden, Registrieren und Passwort vergessen.
  * Schließen ist immer möglich, denn die App läuft auch ohne Konto.
  */
-export default function Login({ onSchliessen, onFertig }) {
-  const [modus, setModus] = useState('anmelden') // anmelden | registrieren | vergessen
+export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' }) {
+  const [modus, setModus] = useState(startModus) // anmelden | registrieren | vergessen
   const [email, setEmail] = useState('')
   const [passwort, setPasswort] = useState('')
   const [name, setName] = useState('')
@@ -148,8 +148,8 @@ export default function Login({ onSchliessen, onFertig }) {
         </div>
 
         <p className="login-fuss">
-          Ohne Konto lernst du ganz normal weiter – deine Daten bleiben dann nur
-          auf diesem Gerät.
+          Mit dem Anlegen eines Kontos wird dein Lernfortschritt gesichert und
+          steht dir auf allen Geräten zur Verfügung.
         </p>
       </div>
     </div>
