@@ -370,6 +370,11 @@ export default function App() {
               end: z.start + (z.dauer ?? 0),
             })),
           })
+          // Die deutsche Fassung liegt fertig in der Datenbank – dadurch
+          // lässt sie sich ohne Wartezeit ein- und ausblenden.
+          if (treffer.transkript_de?.length === treffer.transkript.length) {
+            setDeLines(treffer.transkript_de)
+          }
           return
         }
       }
@@ -730,13 +735,18 @@ export default function App() {
                   />
                   Text läuft mit
                 </label>
-                {/* Ein Klick übersetzt das ganze Transkript ins Deutsche */}
+                {/* Blendet die deutsche Fassung ein. Bei Videos aus der
+                    Bibliothek liegt sie fertig vor und erscheint sofort. */}
                 <button
                   className={'de-toggle' + (showDe ? ' de-an' : '')}
                   onClick={toggleUebersetzung}
                   disabled={deLoading}
                 >
-                  {deLoading ? 'Übersetze…' : showDe ? '🇩🇪 Übersetzung an' : '🇩🇪 Übersetzen'}
+                  {deLoading
+                    ? 'Übersetze…'
+                    : showDe
+                      ? '🇩🇪 Übersetzung aus'
+                      : '🇩🇪 Übersetzung an'}
                 </button>
               </div>
 

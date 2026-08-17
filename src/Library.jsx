@@ -219,12 +219,12 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
   return (
     <div className="library">
-      <h1>
+      <h1 className="lib-kopf">
         Deine <span className="accent">Bibliothek</span>
       </h1>
 
       {/* Umschalter: Videos oder Bücher */}
-      <div className="chips">
+      <div className="chips bereich-schalter">
         <button
           className={'chip ' + (bereich === 'videos' ? 'chip-active' : '')}
           onClick={() => setBereich('videos')}
@@ -244,29 +244,11 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
       {bereich === 'videos' && (
       <>
-      {/* Eigenen YouTube-Link direkt laden */}
-      <form
-        className="url-form"
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (link.trim()) onLoadUrl(link.trim())
-        }}
-      >
-        <input
-          type="text"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="YouTube-Link einfügen…"
-          required
-        />
-        <button type="submit">Laden</button>
-      </form>
-
       {/* ---------- Gespeicherte Videos ---------- */}
       {savedVideos.length === 0 ? (
         <p className="intro">
-          Noch keine Videos gespeichert. Lade ein Video im Lese-Modus und klicke
-          dort auf "Video speichern" – oder entdecke unten neue Videos.
+          Noch keine Videos gemerkt. Öffne unten ein Video aus der Bibliothek
+          und speichere es dort, um es hier wiederzufinden.
         </p>
       ) : (
         <>
@@ -366,70 +348,6 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
         </>
       )}
 
-      {/* ---------- Für dich vorgeschlagen ---------- */}
-      <div className="section-row">
-        <h2 className="discover-title">
-          Für dich <span className="accent">vorgeschlagen</span>
-        </h2>
-        <button
-          className="btn-small"
-          onClick={() => holeEmpfehlungen(true)}
-          disabled={empfehlungenLaden}
-          title="Neue Vorschläge holen"
-        >
-          {empfehlungenLaden ? 'Lade…' : '🎲 Neue'}
-        </button>
-      </div>
-      {empfehlungenLaden && !empfehlungen && (
-        <p className="intro">Suche gute Videos für dich…</p>
-      )}
-      {empfehlungen && (
-        <div className="video-grid">
-          {empfehlungen.map((r) => (
-            <VideoKarte key={r.videoId} video={r} onOpen={onOpenVideo} />
-          ))}
-        </div>
-      )}
-
-      {/* ---------- Neue Videos entdecken ---------- */}
-      <h2 className="discover-title">
-        Neue Videos <span className="accent">entdecken</span>
-      </h2>
-      <div className="chips">
-        {VORSCHLAEGE.map((v) => (
-          <button key={v.label} className="chip" onClick={() => search(v.query)}>
-            {v.label}
-          </button>
-        ))}
-      </div>
-      <form
-        className="url-form"
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (query.trim()) search(query)
-        }}
-      >
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Oder selbst suchen, z.B. 'easy spanish'"
-        />
-        <button type="submit" disabled={searching}>
-          {searching ? 'Suche…' : 'Suchen'}
-        </button>
-      </form>
-
-      {error && <p className="error">{error}</p>}
-      {searching && <p className="intro">Suche auf YouTube…</p>}
-
-      {results && (
-        <div className="video-grid">
-          {results.map((r) => (
-            <VideoKarte key={r.videoId} video={r} onOpen={onOpenVideo} />
-          ))}
-        </div>
-      )}
       </>
       )}
     </div>

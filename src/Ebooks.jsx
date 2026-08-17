@@ -227,7 +227,54 @@ function BuchLeser({ buch, onZurueck, onAddVocab }) {
   const [sprache, setSprache] = useState('es') // 'es' | 'de'
   const [kapitelNr, setKapitelNr] = useState(0) // -1 wäre Vokabel-Seite
   const [uebernommen, setUebernommen] = useState(false)
+  const [wort, setWort] = useState(null) // angetipptes Wort { text, de, laedt }
   const textRef = useRef(null)
+
+  // Beim Lesen die App-Navigation ausblenden – nur das Buch zählt
+  useEffect(() => {
+    document.body.classList.add('liest-buch')
+    return () => document.body.classList.remove('liest-buch')
+  }, [])
+
+  /** Ein angetipptes Wort übersetzen lassen. */
+  async function wortAntippen(rohesWort) {
+    const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
+    if (!sauber) return
+
+    setWort({ text: sauber, de: '', laedt: true })
+    try {
+      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const daten = await res.json()
+      setWort({ text: sauber, de: daten.translation || '', laedt: false })
+    } catch {
+      setWort({ text: sauber, de: '', laedt: false })
+    }
+  }
+
+  /** Ein einzelnes Wort in den Trainer legen. */
+  function wortSammeln() {
+    if (!wort?.text) return
+    onAddVocab?.([
+      { wort: wort.text, uebersetzung: wort.de, quelle: 'Buch: ' + buch.titel },
+    ])
+    setWort(null)
+  }
+
+  /**
+   * Macht aus einem Absatz einzeln antippbare Wörter.
+   * Nur im spanischen Text – im deutschen wäre es sinnlos.
+   */
+  function alsWoerter(absatz) {
+    return absatz.split(/(\s+)/).map((teil, i) =>
+      teil.trim() ? (
+        <span key={i} className="lese-wort" onClick={() => wortAntippen(teil)}>
+          {teil}
+        </span>
+      ) : (
+        teil
+      )
+    )
+  }
 
   const kapitel = buch.kapitel ?? []
   const aktuelles = kapitel[kapitelNr]
@@ -284,8 +331,15 @@ function BuchLeser({ buch, onZurueck, onAddVocab }) {
           {(sprache === 'es' ? aktuelles.text_es : aktuelles.text_de)
             .split(/\n\n+/)
             .map((absatz, i) => (
-              <p key={i} className="leser-absatz">{absatz}</p>
+              <p key={i} className="leser-absatz">
+                {sprache === 'es' ? alsWoerter(absatz) : absatz}
+              </p>
             ))}
+          {sprache === 'es' && (
+            <p className="lese-tipp">
+              Tipp: Tippe ein Wort an, um es zu übersetzen und zu sammeln.
+            </p>
+          )}
         </div>
       )}
 
@@ -311,6 +365,26 @@ function BuchLeser({ buch, onZurueck, onAddVocab }) {
           <button className="btn" onClick={vokabelnUebernehmen} disabled={uebernommen}>
             {uebernommen ? '✓ Im Trainer' : '＋ Alle in den Vokabeltrainer'}
           </button>
+        </div>
+      )}
+
+      {/* Angetipptes Wort: Übersetzung und ab in den Trainer */}
+      {wort && (
+        <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
+          <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
+            <div className="wortkarte-wort">{wort.text}</div>
+            <div className="wortkarte-de">
+              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+            </div>
+            <div className="wortkarte-knoepfe">
+              <button className="btn-outline" onClick={() => setWort(null)}>
+                Schließen
+              </button>
+              <button className="btn" onClick={wortSammeln} disabled={wort.laedt}>
+                ＋ Sammeln
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
