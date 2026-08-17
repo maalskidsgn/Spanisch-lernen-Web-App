@@ -4,11 +4,17 @@ import Ebooks from './Ebooks.jsx'
 import { useState, useEffect } from 'react'
 
 // Die Niveau-Stufen der kuratierten Bibliothek
-const NIVEAUS = [
-  { wert: 'alle', label: 'Alle' },
-  { wert: 'A1', label: 'A1 · Anfang' },
-  { wert: 'A2', label: 'A2 · Aufbau' },
-  { wert: 'B1', label: 'B1 · Fortgeschritten' },
+// Die Themen der Bibliothek – man lernt Spanisch nebenbei,
+// während man etwas Interessantes schaut.
+const KATEGORIEN = [
+  { wert: 'alle', label: 'Alle', emoji: '✨' },
+  { wert: 'sprache', label: 'Spanisch lernen', emoji: '🎓' },
+  { wert: 'gesundheit', label: 'Gesundheit', emoji: '🩺' },
+  { wert: 'sport', label: 'Sport', emoji: '🏃' },
+  { wert: 'ernaehrung', label: 'Ernährung', emoji: '🥗' },
+  { wert: 'produktivitaet', label: 'Produktivität', emoji: '⚡' },
+  { wert: 'stoizismus', label: 'Stoizismus', emoji: '🏛' },
+  { wert: 'psychologie', label: 'Psychologie', emoji: '🧠' },
 ]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
@@ -70,7 +76,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
   // ---------- Kuratierte Bibliothek aus der Datenbank ----------
   const [bibliothek, setBibliothek] = useState(null)
-  const [niveau, setNiveau] = useState('alle')
+  const [kategorie, setKategorie] = useState('alle')
   const [bibliothekFehler, setBibliothekFehler] = useState('')
 
   useEffect(() => {
@@ -78,7 +84,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
     let abgebrochen = false
 
     setBibliothekFehler('')
-    holeBibliothek(niveau)
+    holeBibliothek(kategorie)
       .then((videos) => {
         if (abgebrochen) return
         // Auf das Format bringen, das VideoKarte erwartet
@@ -90,6 +96,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
             duration: v.dauer_sek,
             thumbnail: v.thumbnail,
             niveau: v.niveau,
+            kategorie: v.kategorie,
           }))
         )
       })
@@ -98,7 +105,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
       })
 
     return () => { abgebrochen = true }
-  }, [niveau])
+  }, [kategorie])
 
   // Eine neue Buchzusammenfassung generieren lassen
   async function generiereBuch(e) {
@@ -322,17 +329,19 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
             )}
           </div>
           <p className="intro">
-            Handverlesene Videos mit fertigem Transkript – laufen sofort, ohne Wartezeit.
+            Spanisch lernen, während du etwas Spannendes schaust – jedes Video
+            mit fertigem Transkript, ohne Wartezeit.
           </p>
 
-          <div className="chips">
-            {NIVEAUS.map((n) => (
+          <div className="themen-leiste">
+            {KATEGORIEN.map((k) => (
               <button
-                key={n.wert}
-                className={'chip' + (niveau === n.wert ? ' chip-aktiv' : '')}
-                onClick={() => setNiveau(n.wert)}
+                key={k.wert}
+                className={'thema' + (kategorie === k.wert ? ' thema-aktiv' : '')}
+                onClick={() => setKategorie(k.wert)}
               >
-                {n.label}
+                <span className="thema-emoji">{k.emoji}</span>
+                {k.label}
               </button>
             ))}
           </div>
@@ -342,7 +351,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
             <p className="intro">Lade Bibliothek…</p>
           )}
           {bibliothek && bibliothek.length === 0 && (
-            <p className="intro">Für dieses Niveau ist noch nichts dabei.</p>
+            <p className="intro">Zu diesem Thema ist noch nichts dabei.</p>
           )}
           {bibliothek && bibliothek.length > 0 && (
             <div className="video-grid">

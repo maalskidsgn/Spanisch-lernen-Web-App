@@ -275,8 +275,13 @@ export function modulFortschritt(modul, lessonProgress) {
 }
 
 // Ein Modul ist offen, wenn das vorherige komplett geschafft ist
+// Auf true setzen, um beim Entwickeln alle Module und Lektionen
+// sofort öffnen zu können (ohne sie der Reihe nach abzuschließen).
+export const ALLES_OFFEN = true
+
 export function modulOffen(index, lessonProgress) {
   if (MODULE[index].kommtBald) return false
+  if (ALLES_OFFEN) return true
   if (index === 0) return true
   const vorher = MODULE[index - 1]
   if (vorher.kommtBald) return false

@@ -197,22 +197,35 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       {/* Vokabelliste zu einem Wunsch-Thema mit KI erstellen */}
       <ListGenerator vocab={vocab} setVocab={setVocab} />
 
-      {/* Filter nach Spaced-Repetition-Stufen */}
-      <div className="chips">
-        <Chip active={filter === 'faellig'} onClick={() => setFilter('faellig')}>
-          Fällig ({dueEntries.length})
-        </Chip>
-        <Chip active={filter === 'alle'} onClick={() => setFilter('alle')}>
-          Alle ({entries.length})
-        </Chip>
-        {LEVEL_LABELS.map((label, lvl) => (
-          <Chip key={lvl} active={filter === lvl} onClick={() => setFilter(lvl)}>
-            {label} ({levelCounts[lvl]})
+      {/* Filter: die drei wichtigsten als Knöpfe, die sieben
+          Karteikasten-Stufen zusammengefasst in einem Auswahlfeld */}
+      <div className="filter-zeile">
+        <div className="filter-haupt">
+          <Chip active={filter === 'faellig'} onClick={() => setFilter('faellig')}>
+            Fällig ({dueEntries.length})
           </Chip>
-        ))}
-        <Chip active={filter === 'gewusst'} onClick={() => setFilter('gewusst')}>
-          Gewusst ✓ ({knownCount})
-        </Chip>
+          <Chip active={filter === 'alle'} onClick={() => setFilter('alle')}>
+            Alle ({entries.length})
+          </Chip>
+          <Chip active={filter === 'gewusst'} onClick={() => setFilter('gewusst')}>
+            Gewusst ({knownCount})
+          </Chip>
+        </div>
+
+        <select
+          className={'filter-stufe' + (typeof filter === 'number' ? ' filter-stufe-aktiv' : '')}
+          value={typeof filter === 'number' ? filter : ''}
+          onChange={(e) =>
+            setFilter(e.target.value === '' ? 'alle' : Number(e.target.value))
+          }
+        >
+          <option value="">Stufe wählen …</option>
+          {LEVEL_LABELS.map((label, lvl) => (
+            <option key={lvl} value={lvl}>
+              {label} ({levelCounts[lvl]})
+            </option>
+          ))}
+        </select>
       </div>
 
       {filtered.length === 0 ? (

@@ -190,8 +190,8 @@ main {
 .tab-icon { position: relative; display: inline-flex; }
 .tab:hover { background: #fff0e3; transform: none; box-shadow: none; filter: none; }
 .tab:active { transform: scale(0.95); }
-.tab-active { background: var(--navy); color: #fff; }
-.tab-active:hover { background: #1a1a6e; }
+.tab-active { background: var(--primary); color: #fff; }
+.tab-active:hover { background: var(--primary-dark, #e05f00); }
 
 /* Zähler für fällige Vokabeln sitzt als Punkt auf dem Icon */
 .due-badge {
@@ -2973,4 +2973,66 @@ button:disabled {
   .wk-punkt { font-size: .8rem; padding: 7px 12px; }
   .wk-zahlen { grid-template-columns: 1fr 1fr; }
   .wk-zahl { padding: 16px; }
+}
+
+/* ---------- Vokabel-Filter: kompakte Zeile ---------- */
+.filter-zeile {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.filter-haupt { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.filter-stufe {
+  font-family: inherit; font-size: .87rem; font-weight: 800;
+  color: var(--muted); background: #fff;
+  border: 2px solid var(--line); border-radius: 999px;
+  padding: 8px 34px 8px 15px; cursor: pointer;
+  appearance: none;
+  /* kleiner Pfeil rechts */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%237d7263' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 11px;
+  transition: border-color .15s, color .15s;
+}
+.filter-stufe:hover { border-color: var(--primary); }
+.filter-stufe:focus { outline: none; border-color: var(--primary); }
+.filter-stufe-aktiv {
+  background-color: var(--primary); color: #fff; border-color: var(--primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%23ffffff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+@media (max-width: 600px) {
+  .filter-zeile { flex-direction: column; align-items: stretch; }
+  .filter-stufe { width: 100%; }
+}
+
+/* ---------- Themen-Leiste in der Bibliothek ---------- */
+.themen-leiste {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.thema {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: inherit; font-size: .88rem; font-weight: 800;
+  color: var(--navy); background: #fff;
+  border: 2px solid var(--line); border-radius: 999px;
+  padding: 9px 16px; cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.thema:hover { border-color: var(--primary); }
+.thema:active { transform: scale(.97); }
+.thema-aktiv {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
+.thema-emoji { font-size: 1rem; line-height: 1; }
+
+@media (max-width: 600px) {
+  .themen-leiste {
+    flex-wrap: nowrap; overflow-x: auto;
+    padding-bottom: 6px; margin-left: -4px; padding-left: 4px;
+    scrollbar-width: none;
+  }
+  .themen-leiste::-webkit-scrollbar { display: none; }
+  .thema { flex-shrink: 0; }
 }

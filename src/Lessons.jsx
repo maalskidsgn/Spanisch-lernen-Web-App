@@ -6,6 +6,7 @@ import {
   lektionenVon,
   modulFortschritt,
   modulOffen,
+  ALLES_OFFEN,
 } from './lektionen.js'
 import { XP } from './gamification.js'
 import { sprich } from './sprich.js'
@@ -276,7 +277,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           {liste.map((l, i) => {
             const geschafft = lessonProgress[l.id]?.fertig
             // Die erste Lektion ist offen, danach muss die vorherige geschafft sein
-            const offen = i === 0 || lessonProgress[liste[i - 1].id]?.fertig
+            const offen =
+              ALLES_OFFEN || i === 0 || lessonProgress[liste[i - 1].id]?.fertig
             const aktuell = offen && !geschafft // hier geht es weiter
             // Sanfter Zickzack nach links und rechts
             const versatz = Math.round(Math.sin(i * 0.95) * 64)

@@ -29,16 +29,17 @@ export const db = supabaseBereit
 
 /**
  * Holt die kuratierte Video-Bibliothek.
- * @param {string} [niveau] – optional auf "A1" | "A2" | "B1" einschränken
+ * @param {string} [kategorie] – optional auf ein Thema einschränken
+ *   ("sprache", "gesundheit", "sport", …); "alle" liefert alles.
  */
-export async function holeBibliothek(niveau) {
+export async function holeBibliothek(kategorie) {
   let abfrage = db
     .from('videos')
     .select('id,youtube_id,titel,kanal,dauer_sek,thumbnail,niveau,kategorie')
     .eq('aktiv', true)
-    .order('niveau', { ascending: true })
+    .order('kategorie', { ascending: true })
 
-  if (niveau && niveau !== 'alle') abfrage = abfrage.eq('niveau', niveau)
+  if (kategorie && kategorie !== 'alle') abfrage = abfrage.eq('kategorie', kategorie)
 
   const { data, error } = await abfrage
   if (error) throw new Error(error.message)
