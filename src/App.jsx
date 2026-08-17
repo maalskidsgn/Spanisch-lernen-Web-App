@@ -765,79 +765,6 @@ export default function App() {
               </div>
               <h2>{video.title}</h2>
 
-              {/* ---------- Werkzeugleiste zum Video ---------- */}
-              <div className="werkzeuge">
-                {/* Abspielen und Tempo */}
-                <div className="werkzeug-gruppe">
-                  <button
-                    className="werkzeug-knopf werkzeug-gross"
-                    onClick={spielPause}
-                    title={laeuft ? 'Pause' : 'Abspielen'}
-                  >
-                    {laeuft ? '⏸' : '▶'}
-                  </button>
-                  <button className="werkzeug-knopf" onClick={() => springe(-5)} title="5 Sekunden zurück">
-                    ↺ 5s
-                  </button>
-                  <button className="werkzeug-knopf" onClick={() => springe(5)} title="5 Sekunden vor">
-                    5s ↻
-                  </button>
-                </div>
-
-                <div className="werkzeug-gruppe">
-                  <span className="werkzeug-titel">Tempo</span>
-                  <div className="tempo-reihe">
-                    {[0.5, 0.75, 1, 1.25].map((t) => (
-                      <button
-                        key={t}
-                        className={'tempo-knopf' + (tempo === t ? ' tempo-aktiv' : '')}
-                        onClick={() => setzeTempo(t)}
-                      >
-                        {t === 1 ? 'Normal' : t + '×'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Anzeige-Einstellungen */}
-                <div className="werkzeug-gruppe">
-                  <label className="werkzeug-schalter">
-                    <input
-                      type="checkbox"
-                      checked={autoScroll}
-                      onChange={(e) => setAutoScroll(e.target.checked)}
-                    />
-                    <span>Text läuft mit</span>
-                  </label>
-                  {/* Bei Videos aus der Bibliothek liegt die deutsche
-                      Fassung fertig vor und erscheint ohne Wartezeit. */}
-                  <label className="werkzeug-schalter">
-                    <input
-                      type="checkbox"
-                      checked={showDe}
-                      onChange={toggleUebersetzung}
-                      disabled={deLoading}
-                    />
-                    <span>{deLoading ? 'Übersetze …' : '🇩🇪 Übersetzung'}</span>
-                  </label>
-                </div>
-
-                {/* Aktionen */}
-                <div className="werkzeug-gruppe">
-                  <button
-                    className="werkzeug-aktion"
-                    onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
-                  >
-                    ✨ Vokabeln generieren
-                  </button>
-                  <button
-                    className={'werkzeug-aktion' + (currentSaved ? ' aktion-fertig' : '')}
-                    onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
-                  >
-                    {currentSaved ? '✓ Gemerkt' : '💾 Video merken'}
-                  </button>
-                </div>
-              </div>
 
               {currentSaved?.category && (
                 <p className="saved-note">
@@ -919,7 +846,77 @@ export default function App() {
           </div>
         )}
 
-        {/* Schwebende Aktions-Knöpfe unten rechts: Generator & Speichern */}
+        {/* ---------- Feste Fußzeile mit allen Bedienelementen ---------- */}
+        {video && (
+          <div className="reader-fuss">
+            {/* Abspielen und Springen */}
+            <div className="fuss-gruppe">
+              <button className="fuss-knopf fuss-spiel" onClick={spielPause}
+                title={laeuft ? 'Pause' : 'Abspielen'}>
+                {laeuft ? '⏸' : '▶'}
+              </button>
+              <button className="fuss-knopf" onClick={() => springe(-5)} title="5 Sekunden zurück">
+                ↺&nbsp;5s
+              </button>
+              <button className="fuss-knopf" onClick={() => springe(5)} title="5 Sekunden vor">
+                5s&nbsp;↻
+              </button>
+            </div>
+
+            {/* Tempo */}
+            <div className="fuss-gruppe">
+              {[0.5, 0.75, 1, 1.25].map((wert) => (
+                <button
+                  key={wert}
+                  className={'fuss-tempo' + (tempo === wert ? ' fuss-tempo-an' : '')}
+                  onClick={() => setzeTempo(wert)}
+                  title={`Tempo ${wert}×`}
+                >
+                  {wert === 1 ? '1×' : wert + '×'}
+                </button>
+              ))}
+            </div>
+
+            {/* Anzeige */}
+            <div className="fuss-gruppe">
+              <button
+                className={'fuss-knopf' + (autoScroll ? ' fuss-an' : '')}
+                onClick={() => setAutoScroll(!autoScroll)}
+                title="Text läuft mit dem Video mit"
+              >
+                ↕ Mitlaufen
+              </button>
+              <button
+                className={'fuss-knopf' + (showDe ? ' fuss-an' : '')}
+                onClick={toggleUebersetzung}
+                disabled={deLoading}
+                title="Deutsche Übersetzung einblenden"
+              >
+                {deLoading ? 'Übersetze …' : '🇩🇪 Deutsch'}
+              </button>
+            </div>
+
+            {/* Aktionen */}
+            <div className="fuss-gruppe fuss-rechts">
+              <button
+                className="fuss-knopf"
+                onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
+                title="Vokabeln aus diesem Video sammeln"
+              >
+                ✨ Vokabeln
+              </button>
+              <button
+                className={'fuss-knopf' + (currentSaved ? ' fuss-fertig' : '')}
+                onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
+                title="Video merken"
+              >
+                {currentSaved ? '✓ Gemerkt' : '💾 Merken'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Ein- und ausklappbare Bereiche zu den Fußzeilen-Aktionen */}
         {video && (
           <>
 

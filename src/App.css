@@ -3248,3 +3248,147 @@ body.liest-video .app > main { padding-top: 14px; }
   .werkzeuge { padding: 15px; }
   .werkzeug-gruppe:first-child { flex-wrap: wrap; }
 }
+
+/* ============================================================
+   LESE-MODUS im Fokus: Video oben, Text groß in der Mitte,
+   alle Bedienelemente unten in einer festen Fußzeile.
+   ============================================================ */
+
+body.liest-video .reader {
+  display: block;
+  max-width: 780px;
+  margin: 0 auto;
+  /* Platz für die Fußzeile freihalten */
+  padding-bottom: 96px;
+}
+
+/* Video oben – kompakt, damit der Text die Hauptrolle spielt */
+body.liest-video .video-pane {
+  position: static;
+  max-width: 500px;
+  margin: 0 auto 6px;
+}
+body.liest-video .video-pane h2 {
+  font-size: .95rem;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  margin: 12px 0 0;
+}
+
+/* Der Lesetext: groß, mittig, läuft mit */
+body.liest-video .text-pane {
+  max-width: 680px;
+  margin: 0 auto;
+  max-height: none;
+  overflow: visible;
+  padding: 22px 8px 0;
+  font-size: 1.22rem;
+  line-height: 2.1;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+body.liest-video .text-pane .line {
+  opacity: .38;
+  transition: opacity .3s, color .3s;
+}
+body.liest-video .text-pane .line.active {
+  opacity: 1;
+  font-weight: 700;
+}
+
+/* ---------- Die Fußzeile ---------- */
+.reader-fuss {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, .96);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 20px rgba(0, 0, 65, .07);
+}
+
+.fuss-gruppe { display: flex; align-items: center; gap: 7px; }
+
+.fuss-knopf {
+  font-family: inherit;
+  font-size: .84rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.fuss-knopf:hover { border-color: var(--primary); }
+.fuss-knopf:active { transform: scale(.95); }
+.fuss-knopf:disabled { opacity: .55; cursor: wait; }
+
+/* Aktiver Schalter */
+.fuss-an {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.fuss-fertig {
+  background: #e8f7ee;
+  border-color: var(--success);
+  color: #1f7a45;
+}
+
+/* Der große Abspiel-Knopf */
+.fuss-spiel {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-size: 1.05rem;
+  padding: 9px 20px;
+}
+.fuss-spiel:hover { filter: brightness(1.07); border-color: var(--primary); }
+
+/* Tempo-Knöpfe: klein und kompakt */
+.fuss-tempo {
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.fuss-tempo:hover { border-color: var(--primary); }
+.fuss-tempo-an {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+/* Die Panels sollen über der Fußzeile liegen */
+body.liest-video .fab-panel {
+  position: fixed;
+  bottom: 84px;
+  right: 20px;
+  z-index: 70;
+  max-width: 380px;
+}
+
+@media (max-width: 800px) {
+  .reader-fuss { gap: 10px; padding: 10px 12px; }
+  .fuss-knopf { font-size: .78rem; padding: 8px 12px; }
+  .fuss-rechts { width: 100%; justify-content: center; }
+  body.liest-video .reader { padding-bottom: 150px; }
+  body.liest-video .text-pane { font-size: 1.08rem; line-height: 1.95; }
+  body.liest-video .fab-panel { left: 12px; right: 12px; max-width: none; bottom: 140px; }
+}
