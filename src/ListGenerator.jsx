@@ -24,7 +24,12 @@ export default function ListGenerator({ vocab, setVocab }) {
       const res = await fetch(API_URL + '/api/vokabelliste', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thema: thema.trim() }),
+        // Die schon gesammelten Wörter mitschicken: so kommen keine
+        // Dopplungen zurück und die Liste passt zum eigenen Stand.
+        body: JSON.stringify({
+          thema: thema.trim(),
+          bekannt: Object.keys(vocab),
+        }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)

@@ -14,6 +14,7 @@ import {
   speichereEbook,
   FREI_PRO_MONAT,
   erzeugeVokabelliste,
+  erzeugeVideoVokabeln,
 } from './ebooks.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
@@ -220,87 +221,16 @@ const STOPWORDS = new Set(
 // Ohne: Häufigkeits-Analyse + automatische Übersetzung.
 app.post('/api/generate-vocab', async (req, res) => {
   const text = (req.body.text || '').slice(0, 8000)
-  const exclude = new Set((req.body.exclude || []).map((w) => w.toLowerCase()))
+  // "exclude" sind die Wörter, die der Nutzer schon gesammelt hat
+  const bekannt = Array.isArray(req.body.exclude) ? req.body.exclude : []
   if (!text.trim()) return res.status(400).json({ error: 'Kein Text übergeben.' })
 
   try {
-    if (anthropic) {
-      // KI-Weg: Claude wählt die nützlichsten Vokabeln aus
-      const response = await anthropic.messages.create({
-        model: 'claude-opus-5',
-        max_tokens: 16000,
-        output_config: {
-          format: {
-            type: 'json_schema',
-            schema: {
-              type: 'object',
-              properties: {
-                vokabeln: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      wort: { type: 'string' },
-                      uebersetzung: { type: 'string' },
-                      beispiel: { type: 'string' },
-                    },
-                    required: ['wort', 'uebersetzung', 'beispiel'],
-                    additionalProperties: false,
-                  },
-                },
-              },
-              required: ['vokabeln'],
-              additionalProperties: false,
-            },
-          },
-        },
-        messages: [
-          {
-            role: 'user',
-            content:
-              `Du bist Spanischlehrer. Wähle aus diesem Transkript die 12 nützlichsten spanischen Vokabeln für Anfänger (keine Eigennamen, keine Füllwörter${exclude.size ? ', nicht diese bereits bekannten Wörter: ' + [...exclude].join(', ') : ''}). ` +
-              'Gib jeweils das Wort in Grundform, die deutsche Übersetzung und einen kurzen Beispielsatz aus dem Transkript.\n\nTranskript:\n' +
-              text,
-          },
-        ],
-      })
-      const textBlock = response.content.find((b) => b.type === 'text')
-      const data = JSON.parse(textBlock.text)
-      return res.json({ quelle: 'ki', vokabeln: data.vokabeln })
-    }
-
-    // Fallback ohne KI: häufigste sinnvolle Wörter finden und übersetzen
-    const counts = new Map()
-    for (const raw of text.toLowerCase().split(/[^a-záéíóúüñ]+/i)) {
-      if (raw.length < 4 || STOPWORDS.has(raw) || exclude.has(raw)) continue
-      counts.set(raw, (counts.get(raw) || 0) + 1)
-    }
-    const top = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12)
-      .map(([w]) => w)
-
-    const vokabeln = []
-    for (const wort of top) {
-      try {
-        const r = await fetch(
-          'https://translate.googleapis.com/translate_a/single?client=gtx&sl=es&tl=de&dt=t&q=' +
-            encodeURIComponent(wort)
-        )
-        const d = await r.json()
-        const uebersetzung = (d?.[0] || []).map((p) => p?.[0] || '').join('').trim()
-        // Beispielsatz: die Transkript-Zeile, in der das Wort vorkommt
-        const beispiel =
-          text.split('\n').find((l) => l.toLowerCase().includes(wort)) || ''
-        if (uebersetzung) vokabeln.push({ wort, uebersetzung, beispiel: beispiel.trim() })
-      } catch {
-        // einzelnes Wort überspringen, wenn die Übersetzung klemmt
-      }
-    }
-    res.json({ quelle: 'analyse', vokabeln })
+    const vokabeln = await erzeugeVideoVokabeln(text, bekannt)
+    res.json({ quelle: 'ki', vokabeln })
   } catch (err) {
-    console.error(err.message)
-    res.status(500).json({ error: 'Vokabeln konnten nicht erstellt werden: ' + err.message })
+    console.error('Video-Vokabeln:', err.message)
+    res.status(500).json({ error: err.message })
   }
 })
 
@@ -346,10 +276,13 @@ app.post('/api/translate-batch', async (req, res) => {
 // Erstellt eine Vokabelliste zu einem frei gewählten Thema (nur mit KI).
 app.post('/api/vokabelliste', async (req, res) => {
   const thema = (req.body.thema || '').trim().slice(0, 80)
+  // Die schon gesammelten Wörter: verhindern Dopplungen und verraten
+  // dem Modell, auf welchem Stand die Person ist.
+  const bekannt = Array.isArray(req.body.bekannt) ? req.body.bekannt : []
   if (!thema) return res.status(400).json({ error: 'Kein Thema angegeben.' })
 
   try {
-    const vokabeln = await erzeugeVokabelliste(thema)
+    const vokabeln = await erzeugeVokabelliste(thema, bekannt)
     res.json({ vokabeln })
   } catch (err) {
     console.error('Vokabelliste:', err.message)

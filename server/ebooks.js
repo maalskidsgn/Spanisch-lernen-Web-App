@@ -177,8 +177,54 @@ const LISTEN_SCHEMA = {
   additionalProperties: false,
 }
 
-/** Lässt OpenAI eine Themen-Vokabelliste zusammenstellen. */
-export async function erzeugeVokabelliste(thema) {
+/**
+ * Vergleichbare Form eines Wortes: klein geschrieben, ohne Artikel
+ * und Satzzeichen. So gilt "el menú" als dasselbe Wort wie "Menú".
+ */
+function wortKern(wort) {
+  return String(wort)
+    .toLowerCase()
+    .replace(/^(el|la|los|las|un|una|unos|unas)\s+/, '')
+    .replace(/[¿?¡!.,;:()"]/g, '')
+    .trim()
+}
+
+/**
+ * Beschreibt dem Modell, was die Person schon kann.
+ * Die Liste wird gekürzt, damit die Anfrage nicht unnötig groß wird.
+ */
+function bekanntesAlsHinweis(bekannt) {
+  const woerter = [...new Set((bekannt ?? []).map(wortKern).filter(Boolean))]
+  if (!woerter.length) return ''
+
+  // Die zuletzt gesammelten Wörter sagen am meisten über den Stand aus
+  const auswahl = woerter.slice(-600)
+  return (
+    `\n\nDiese ${woerter.length} Wörter kennt die Person bereits – nimm KEINES davon ` +
+    `noch einmal auf, sondern wähle Wörter, die inhaltlich darauf aufbauen ` +
+    `und etwas anspruchsvoller sind:\n${auswahl.join(', ')}`
+  )
+}
+
+/** Entfernt Vorschläge, die die Person schon kennt oder die doppelt sind. */
+function ohneBekannte(vorschlaege, bekannt) {
+  const gesperrt = new Set((bekannt ?? []).map(wortKern))
+  const gesehen = new Set()
+
+  return (vorschlaege ?? []).filter((v) => {
+    const kern = wortKern(v.wort)
+    if (!kern || gesperrt.has(kern) || gesehen.has(kern)) return false
+    gesehen.add(kern)
+    return true
+  })
+}
+
+/**
+ * Lässt OpenAI eine Themen-Vokabelliste zusammenstellen.
+ * @param {string}   thema   – z. B. "Restaurant"
+ * @param {string[]} bekannt – Wörter, die die Person schon gesammelt hat
+ */
+export async function erzeugeVokabelliste(thema, bekannt = []) {
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -198,7 +244,7 @@ export async function erzeugeVokabelliste(thema) {
             'die 12 nützlichsten Wörter zum gewünschten Thema, Alltagsniveau, ' +
             'Nomen mit Artikel, jedes Wort mit einem einfachen Beispielsatz.',
         },
-        { role: 'user', content: `Thema: ${thema}` },
+        { role: 'user', content: `Thema: ${thema}` + bekanntesAlsHinweis(bekannt) },
       ],
       response_format: {
         type: 'json_schema',
@@ -213,7 +259,58 @@ export async function erzeugeVokabelliste(thema) {
   }
 
   const daten = await antwort.json()
-  return JSON.parse(daten.choices[0].message.content).vokabeln
+  const vorschlaege = JSON.parse(daten.choices[0].message.content).vokabeln
+  // Sicherheitsnetz: das Modell hält sich nicht immer an die Vorgabe
+  return ohneBekannte(vorschlaege, bekannt)
+}
+
+/**
+ * Wählt aus einem Video-Transkript die lernenswertesten Wörter aus.
+ * @param {string}   text    – das Transkript
+ * @param {string[]} bekannt – schon gesammelte Wörter
+ */
+export async function erzeugeVideoVokabeln(text, bekannt = []) {
+  const schluessel = process.env.OPENAI_API_KEY
+  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+
+  const antwort = await fetch(OPENAI_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${schluessel}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: MODELL,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Du wählst aus einem spanischen Video-Transkript die 12 Wörter aus, ' +
+            'die sich für deutschsprachige Lernende am meisten zu lernen lohnen: ' +
+            'häufig gebraucht, alltagstauglich, keine Eigennamen und keine ' +
+            'Allerweltswörter wie "y", "de" oder "que". Nomen mit Artikel, ' +
+            'Verben im Infinitiv. Der Beispielsatz stammt möglichst aus dem Text.',
+        },
+        {
+          role: 'user',
+          content: `Transkript:\n${text.slice(0, 8000)}` + bekanntesAlsHinweis(bekannt),
+        },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: 'vokabelliste', schema: LISTEN_SCHEMA, strict: true },
+      },
+    }),
+  })
+
+  if (!antwort.ok) {
+    if (antwort.status === 429) throw new Error('OpenAI-Kontingent erschöpft. Bitte später erneut versuchen.')
+    throw new Error(`OpenAI antwortet mit ${antwort.status}`)
+  }
+
+  const daten = await antwort.json()
+  const vorschlaege = JSON.parse(daten.choices[0].message.content).vokabeln
+  return ohneBekannte(vorschlaege, bekannt)
 }
 
 // ---------------------------------------------------------------
