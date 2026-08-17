@@ -1,6 +1,7 @@
 import { API_URL } from './api.js'
 import { holeBibliothek, supabaseBereit } from './supabase.js'
 import Ebooks from './Ebooks.jsx'
+import { ladeVideoFortschritt } from './App.jsx'
 import { useState, useEffect } from 'react'
 
 // Die Niveau-Stufen der kuratierten Bibliothek
@@ -76,6 +77,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
   // ---------- Kuratierte Bibliothek aus der Datenbank ----------
   const [bibliothek, setBibliothek] = useState(null)
+  const [fortschritt] = useState(ladeVideoFortschritt) // wie weit pro Video
   const [kategorie, setKategorie] = useState('alle')
   const [bibliothekFehler, setBibliothekFehler] = useState('')
 
@@ -340,7 +342,12 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
               {bibliothek.map((v) => (
                 <div key={v.videoId} className="biblio-karte">
                   <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
-                  <VideoKarte video={v} onOpen={onOpenVideo} />
+                  {/* fortschritt zeigt, wie weit man im Video schon ist */}
+                  <VideoKarte
+                    video={v}
+                    onOpen={onOpenVideo}
+                    fortschritt={fortschritt[v.videoId] ?? 0}
+                  />
                 </div>
               ))}
             </div>
@@ -420,10 +427,20 @@ function BuchView({ buch, onClose, onAddVocab }) {
 }
 
 // Eine Video-Karte mit Vorschaubild, Titel und Kanal
-function VideoKarte({ video, onOpen }) {
+function VideoKarte({ video, onOpen, fortschritt = 0 }) {
   return (
     <div className="video-card">
-      <img src={video.thumbnail} alt="" onClick={() => onOpen(video.videoId)} />
+      <div className="video-bild" onClick={() => onOpen(video.videoId)}>
+        <img src={video.thumbnail} alt="" />
+        {fortschritt > 0 && (
+          <div className="video-fortschritt" title={`${fortschritt} % geschaut`}>
+            <div
+              className={'video-fortschritt-balken' + (fortschritt >= 95 ? ' fertig' : '')}
+              style={{ width: fortschritt + '%' }}
+            />
+          </div>
+        )}
+      </div>
       <div className="video-card-body">
         <div className="video-card-title" onClick={() => onOpen(video.videoId)}>
           {video.title}

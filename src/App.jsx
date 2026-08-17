@@ -96,6 +96,28 @@ function loadSettings() {
   }
 }
 
+// ---------------------------------------------------------------
+//  Wie weit man in einem Video schon gekommen ist (in Prozent)
+// ---------------------------------------------------------------
+export function ladeVideoFortschritt() {
+  try {
+    return JSON.parse(localStorage.getItem('videoFortschritt')) || {}
+  } catch {
+    return {}
+  }
+}
+
+// Wird beim Abspielen laufend aufgerufen – deshalb nur schreiben,
+// wenn sich der Wert um mindestens einen Prozentpunkt geändert hat.
+let letzterFortschritt = {}
+function merkeFortschritt(videoId, prozent) {
+  if (letzterFortschritt[videoId] === prozent) return
+  letzterFortschritt[videoId] = prozent
+  const alle = ladeVideoFortschritt()
+  alle[videoId] = prozent
+  localStorage.setItem('videoFortschritt', JSON.stringify(alle))
+}
+
 // Gespeicherte Videos aus dem Browser-Speicher laden
 function loadSavedVideos() {
   try {
@@ -337,6 +359,12 @@ export default function App() {
         else break
       }
       setActiveLine(idx)
+
+      // Fortschritt merken, damit die Video-Kachel zeigt, wie weit man ist
+      const dauer = player.getDuration?.() ?? 0
+      if (dauer > 0) {
+        merkeFortschritt(video.videoId, Math.min(100, Math.round((t / dauer) * 100)))
+      }
     }, 300)
     return () => clearInterval(timer)
   }, [video])
@@ -763,7 +791,30 @@ export default function App() {
               <div className="player-wrap">
                 <div id="yt-player" />
               </div>
-              <h2>{video.title}</h2>
+              <div className="video-kopf">
+                <h2 className="video-titel">{video.title}</h2>
+                <div className="video-aktionen">
+                  <button
+                    className={'video-aktion' + (showDe ? ' aktion-an' : '')}
+                    onClick={toggleUebersetzung}
+                    disabled={deLoading}
+                  >
+                    {deLoading ? 'Übersetze …' : '🇩🇪 Übersetzung'}
+                  </button>
+                  <button
+                    className="video-aktion"
+                    onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
+                  >
+                    ✨ Vokabeln
+                  </button>
+                  <button
+                    className={'video-aktion' + (currentSaved ? ' aktion-fertig' : '')}
+                    onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
+                  >
+                    {currentSaved ? '✓ Gemerkt' : '💾 Merken'}
+                  </button>
+                </div>
+              </div>
 
 
               {currentSaved?.category && (
@@ -846,73 +897,45 @@ export default function App() {
           </div>
         )}
 
-        {/* ---------- Feste Fußzeile mit allen Bedienelementen ---------- */}
+        {/* ---------- Fußzeile: nur Abspielen und Tempo ---------- */}
         {video && (
           <div className="reader-fuss">
-            {/* Abspielen und Springen */}
-            <div className="fuss-gruppe">
-              <button className="fuss-knopf fuss-spiel" onClick={spielPause}
-                title={laeuft ? 'Pause' : 'Abspielen'}>
-                {laeuft ? '⏸' : '▶'}
+            <button
+              className="fuss-spiel"
+              onClick={spielPause}
+              title={laeuft ? 'Pause' : 'Abspielen'}
+            >
+              {laeuft ? '⏸' : '▶'}
+            </button>
+
+            {/* Tempo in kleinen Schritten – langsamer hilft beim Verstehen */}
+            <div className="tempo-steller">
+              <button
+                className="tempo-schritt"
+                onClick={() => setzeTempo(Math.max(0.5, Math.round((tempo - 0.25) * 100) / 100))}
+                disabled={tempo <= 0.5}
+                title="Langsamer"
+              >
+                −
               </button>
-              <button className="fuss-knopf" onClick={() => springe(-5)} title="5 Sekunden zurück">
-                ↺&nbsp;5s
-              </button>
-              <button className="fuss-knopf" onClick={() => springe(5)} title="5 Sekunden vor">
-                5s&nbsp;↻
+              <span className="tempo-wert">{tempo}×</span>
+              <button
+                className="tempo-schritt"
+                onClick={() => setzeTempo(Math.min(2, Math.round((tempo + 0.25) * 100) / 100))}
+                disabled={tempo >= 2}
+                title="Schneller"
+              >
+                +
               </button>
             </div>
 
-            {/* Tempo */}
-            <div className="fuss-gruppe">
-              {[0.5, 0.75, 1, 1.25].map((wert) => (
-                <button
-                  key={wert}
-                  className={'fuss-tempo' + (tempo === wert ? ' fuss-tempo-an' : '')}
-                  onClick={() => setzeTempo(wert)}
-                  title={`Tempo ${wert}×`}
-                >
-                  {wert === 1 ? '1×' : wert + '×'}
-                </button>
-              ))}
-            </div>
-
-            {/* Anzeige */}
-            <div className="fuss-gruppe">
-              <button
-                className={'fuss-knopf' + (autoScroll ? ' fuss-an' : '')}
-                onClick={() => setAutoScroll(!autoScroll)}
-                title="Text läuft mit dem Video mit"
-              >
-                ↕ Mitlaufen
-              </button>
-              <button
-                className={'fuss-knopf' + (showDe ? ' fuss-an' : '')}
-                onClick={toggleUebersetzung}
-                disabled={deLoading}
-                title="Deutsche Übersetzung einblenden"
-              >
-                {deLoading ? 'Übersetze …' : '🇩🇪 Deutsch'}
-              </button>
-            </div>
-
-            {/* Aktionen */}
-            <div className="fuss-gruppe fuss-rechts">
-              <button
-                className="fuss-knopf"
-                onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
-                title="Vokabeln aus diesem Video sammeln"
-              >
-                ✨ Vokabeln
-              </button>
-              <button
-                className={'fuss-knopf' + (currentSaved ? ' fuss-fertig' : '')}
-                onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
-                title="Video merken"
-              >
-                {currentSaved ? '✓ Gemerkt' : '💾 Merken'}
-              </button>
-            </div>
+            <button
+              className={'fuss-knopf' + (autoScroll ? ' fuss-an' : '')}
+              onClick={() => setAutoScroll(!autoScroll)}
+              title="Text läuft mit dem Video mit"
+            >
+              ↕ Mitlaufen
+            </button>
           </div>
         )}
 
