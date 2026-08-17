@@ -2462,53 +2462,115 @@ button:disabled {
 }
 .ebook-karte:hover .ebook-loeschen { opacity: 1; }
 
-/* ---------- Der Leser ---------- */
-.buch-leser { animation: fade-up .3s ease; }
-.buch-kopf { margin: 14px 0 18px; }
-.buch-kopf h1 { font-size: 1.7rem; margin-bottom: 5px; }
-.buch-untertitel { color: var(--muted); font-weight: 700; font-size: .93rem; }
-
-.buch-leiste {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 14px; flex-wrap: wrap;
-  padding: 12px 0 18px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 22px;
-}
-
-.buch-text { display: grid; gap: 22px; max-width: 680px; }
-.buch-absatz {
-  padding-left: 15px;
-  border-left: 3px solid var(--line);
-  transition: border-color .2s;
-}
-.buch-absatz:hover { border-left-color: var(--primary); }
-.absatz-es {
-  font-size: 1.08rem; line-height: 1.75; font-weight: 600;
-  color: var(--navy); margin-bottom: 7px;
-}
-.absatz-de {
-  font-size: .96rem; line-height: 1.6;
-  color: var(--muted);
-}
-
-.buch-vokabel-titel { font-size: 1.2rem; margin: 34px 0 14px; }
-.buch-vokabeln {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 9px;
-  margin-bottom: 30px;
-}
-.buch-vokabel {
-  background: #fff; border-radius: 12px; padding: 11px 14px;
-  box-shadow: 0 3px 10px rgba(0,0,65,.06);
-  display: flex; flex-direction: column; gap: 2px;
-}
-.buch-vokabel b { color: var(--primary-dark, #e05f00); font-size: .96rem; }
-.buch-vokabel span { font-size: .87rem; color: var(--muted); }
-
 @media (max-width: 600px) {
   .ebook-grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 14px; }
   .ebook-form-zeile { flex-direction: column; align-items: stretch; }
   .ebook-form-zeile .btn { width: 100%; justify-content: center; }
+}
+
+/* ============================================================
+   E-BOOK-LESER im Blinkist-Stil
+   Ein Kapitel pro Seite, unten Sprachwahl + Fortschritt.
+   ============================================================ */
+
+/* Cover als "richtiges" Buch mit Titel darauf */
+.ebook-cover-titel {
+  font-size: .88rem; font-weight: 900; color: #fff;
+  text-align: center; line-height: 1.3;
+  padding: 0 14px; margin-top: 6px;
+  display: -webkit-box; -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.ebook-cover-autor {
+  font-size: .7rem; font-weight: 700; color: rgba(255,255,255,.8);
+  margin-top: 8px;
+}
+.ebook-cover { flex-direction: column; display: flex; align-items: center; justify-content: center; }
+
+.leser { animation: fade-up .3s ease; padding-bottom: 130px; }
+
+.leser-kopf {
+  display: flex; align-items: flex-start; gap: 14px;
+  margin-bottom: 8px;
+}
+.leser-kopf-titel { display: grid; gap: 2px; min-width: 0; }
+.leser-kopf-titel b { font-size: .95rem; line-height: 1.3; }
+.leser-kopf-titel span { font-size: .8rem; color: var(--muted); font-weight: 700; }
+
+.leser-text {
+  max-width: 640px; margin: 0 auto;
+  padding: 26px 4px 10px;
+  animation: fade-up .35s ease;
+}
+.leser-label {
+  font-size: .85rem; font-weight: 800;
+  color: var(--primary-dark, #e05f00);
+  margin-bottom: 10px;
+}
+.leser-titel {
+  font-size: clamp(1.5rem, 4.5vw, 2.1rem);
+  font-weight: 900; line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 22px;
+}
+.leser-absatz {
+  font-size: 1.07rem; line-height: 1.85;
+  color: var(--navy);
+  margin-bottom: 18px;
+}
+
+/* ---------- Fußleiste ---------- */
+.leser-fuss {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -8px 24px rgba(0, 0, 65, .08);
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 16px;
+  justify-content: space-between;
+}
+
+.leser-sprachen { display: flex; gap: 7px; }
+.sprach-knopf {
+  font-family: inherit; font-size: .9rem; font-weight: 800;
+  padding: 9px 18px; border-radius: 999px;
+  border: 2px solid var(--line); background: #fff;
+  color: var(--muted); cursor: pointer;
+  transition: all .15s;
+}
+.sprach-knopf.sprach-aktiv {
+  background: var(--primary); border-color: var(--primary); color: #fff;
+  box-shadow: 0 3px 0 var(--primary-press, #bf5200);
+}
+.sprach-knopf.sprach-navy.sprach-aktiv {
+  background: var(--navy); border-color: var(--navy);
+  box-shadow: 0 3px 0 #00002a;
+}
+
+.leser-fortschritt {
+  flex: 1; display: grid; gap: 5px; min-width: 0; max-width: 380px;
+}
+.leser-balken { display: flex; gap: 4px; }
+.balken-teil {
+  flex: 1; height: 5px; border-radius: 3px;
+  background: var(--line); cursor: pointer;
+  transition: background .2s;
+}
+.balken-voll { background: var(--success); }
+.balken-halb { background: var(--primary); }
+.leser-stand {
+  font-size: .74rem; font-weight: 800; color: var(--muted);
+  text-align: right;
+}
+
+.leser-pfeile { display: flex; gap: 8px; }
+.pfeil { padding: 10px 18px !important; font-size: 1.05rem; }
+.pfeil:disabled { opacity: .4; cursor: not-allowed; }
+
+@media (max-width: 700px) {
+  .leser-fuss { flex-wrap: wrap; gap: 10px; padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .leser-fortschritt { order: -1; width: 100%; max-width: none; }
+  .leser { padding-bottom: 210px; }
 }

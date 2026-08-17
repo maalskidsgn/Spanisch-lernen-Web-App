@@ -22,18 +22,38 @@ export const FREI_PRO_MONAT = 3
 const SCHEMA = {
   type: 'object',
   properties: {
-    titel: { type: 'string', description: 'Spanischer Titel des Buches' },
-    autor: { type: 'string', description: 'Erfundener Autorenname' },
+    titel_es: { type: 'string', description: 'Spanischer Titel' },
+    titel_de: { type: 'string', description: 'Deutscher Titel' },
+    autor: { type: 'string', description: 'Name der Autorin oder des Autors' },
+    untertitel_es: { type: 'string', description: 'Kurzer spanischer Untertitel, ein Satz' },
+    untertitel_de: { type: 'string', description: 'Derselbe Untertitel auf Deutsch' },
     kapitel: {
       type: 'array',
-      description: 'Die Absätze der Geschichte, jeweils spanisch und deutsch',
+      description: 'Die Kapitel – jedes kurz und in sich abgeschlossen',
       items: {
         type: 'object',
         properties: {
-          es: { type: 'string', description: 'Ein Absatz auf Spanisch' },
-          de: { type: 'string', description: 'Die deutsche Übersetzung desselben Absatzes' },
+          label_es: {
+            type: 'string',
+            description: 'Kurze Einordnung, z. B. "Introducción", "Capítulo 1", "Conclusión"',
+          },
+          label_de: { type: 'string', description: 'Dieselbe Einordnung auf Deutsch' },
+          titel_es: {
+            type: 'string',
+            description:
+              'Die Kernaussage des Kapitels als Überschrift auf Spanisch – eine Aussage, kein Etikett',
+          },
+          titel_de: { type: 'string', description: 'Dieselbe Überschrift auf Deutsch' },
+          text_es: {
+            type: 'string',
+            description: 'Der Kapiteltext auf Spanisch, 100–150 Wörter, 2–3 Absätze mit \\n\\n getrennt',
+          },
+          text_de: {
+            type: 'string',
+            description: 'Derselbe Text auf Deutsch, natürlich formuliert, gleiche Absatzaufteilung',
+          },
         },
-        required: ['es', 'de'],
+        required: ['label_es', 'label_de', 'titel_es', 'titel_de', 'text_es', 'text_de'],
         additionalProperties: false,
       },
     },
@@ -51,7 +71,9 @@ const SCHEMA = {
       },
     },
   },
-  required: ['titel', 'autor', 'kapitel', 'vokabeln'],
+  required: [
+    'titel_es', 'titel_de', 'autor', 'untertitel_es', 'untertitel_de', 'kapitel', 'vokabeln',
+  ],
   additionalProperties: false,
 }
 
@@ -69,11 +91,11 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
   const vorgaben = {
-    A1: 'sehr einfache Sätze, Präsens, Grundwortschatz, 6 kurze Absätze',
-    A2: 'einfache Sätze, Präsens und Vergangenheit, Alltagswortschatz, 8 Absätze',
-    B1: 'natürliche Sprache, verschiedene Zeiten, 10 Absätze',
-    B2: 'anspruchsvolle Sprache, Redewendungen, 10 längere Absätze',
-  }[niveau] ?? 'einfache Sätze, 8 Absätze'
+    A1: 'sehr einfache Sätze, nur Präsens, Grundwortschatz; 4 Kapitel',
+    A2: 'einfache Sätze, Präsens und einfache Vergangenheit, Alltagswortschatz; 5 Kapitel',
+    B1: 'natürliche Sprache, verschiedene Zeiten; 5 Kapitel',
+    B2: 'anspruchsvolle Sprache mit Redewendungen; 6 Kapitel',
+  }[niveau] ?? 'einfache Sätze; 5 Kapitel'
 
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
@@ -87,17 +109,23 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
         {
           role: 'system',
           content:
-            'Du schreibst zweisprachige Lesetexte für deutschsprachige Spanischlernende. ' +
-            'Der spanische Text steht im Mittelpunkt; die deutsche Übersetzung ist ' +
-            'natürlich formuliert, nicht Wort für Wort. Jeder Absatz erscheint genau ' +
-            'einmal auf Spanisch und einmal auf Deutsch.',
+            'Du schreibst kurze Sachbuch-Zusammenfassungen im Stil von Blinkist für ' +
+            'deutschsprachige Spanischlernende – Lesedauer insgesamt etwa 10 Minuten. ' +
+            'Aufbau: eine Einführung ("Introducción"), dann Kapitel, zum Schluss eine ' +
+            'knappe Schlussfolgerung ("Conclusión"). Jede Kapitelüberschrift ist eine ' +
+            'Kernaussage, kein Etikett. Alles liegt vollständig auf Spanisch UND ' +
+            'Deutsch vor; die deutsche Fassung ist natürlich formuliert, nicht Wort ' +
+            'für Wort übersetzt.',
         },
         {
           role: 'user',
           content:
-            `Schreibe eine zusammenhängende Geschichte zum Thema "${thema}" ` +
-            `für Niveau ${niveau}: ${vorgaben}. ` +
-            'Wähle zum Schluss die 10 nützlichsten Vokabeln aus dem Text aus.',
+            `Schreibe eine solche Zusammenfassung zum Thema "${thema}" ` +
+            `für Sprachniveau ${niveau}: ${vorgaben}, je Kapitel 100–150 Wörter. ` +
+            'Existiert zum Thema ein bekanntes Sachbuch, fasse dessen Kernideen ' +
+            'zusammen und nenne den echten Autor. Sonst schreibe einen eigenen ' +
+            'Ratgebertext und erfinde einen passenden Autorennamen. ' +
+            'Wähle zum Schluss die 10 nützlichsten Vokabeln aus dem Text.',
         },
       ],
       response_format: {
@@ -176,7 +204,10 @@ export async function speichereEbook(nutzerId, buch) {
     headers: { ...supabaseKopf(), Prefer: 'return=representation' },
     body: JSON.stringify({
       nutzer_id: nutzerId,
-      titel: buch.titel,
+      titel: buch.titel_es,
+      titel_de: buch.titel_de,
+      untertitel_es: buch.untertitel_es,
+      untertitel_de: buch.untertitel_de,
       autor: buch.autor,
       thema: buch.thema,
       niveau: buch.niveau,
