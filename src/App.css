@@ -2589,3 +2589,139 @@ button:disabled {
 }
 .buch-vokabel b { color: var(--primary-dark, #e05f00); font-size: .96rem; }
 .buch-vokabel span { font-size: .87rem; color: var(--muted); }
+
+/* ============================================================
+   STUDIO-KARTEN – die KI-Generatoren als "Mini-Apps"
+   (KI-Vokabelliste im Trainer, E-Book-Studio in der Bibliothek)
+   ============================================================ */
+
+.studio {
+  position: relative;
+  background: #fff;
+  border-radius: 22px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 65, 0.08);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+/* Feiner Farbverlauf oben – signalisiert "hier passiert Magie" */
+.studio::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary), #ffc94d, var(--primary-light));
+}
+
+.studio-kopf {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 18px;
+}
+.studio-icon {
+  width: 46px; height: 46px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.45rem;
+  border-radius: 14px;
+  background: linear-gradient(140deg, #fff0e3, #ffe3c7);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 108, 0, 0.25);
+}
+.studio-titel { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.studio-titel b { font-size: 1.05rem; letter-spacing: -0.01em; }
+.studio-titel span { font-size: 0.83rem; color: var(--muted); font-weight: 700; }
+
+.studio-zaehler {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: var(--success);
+  background: #e8f7ee;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+.studio-zaehler.zaehler-leer { color: #c0392b; background: #ffeceb; }
+
+.studio-form { display: grid; gap: 13px; }
+
+.studio-feld { display: grid; gap: 6px; }
+.studio-feld > span {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.studio-feld input {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 16px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--navy);
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.studio-feld input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #fff;
+}
+.studio-feld input:disabled { opacity: 0.55; }
+
+.studio-vorschlaege { display: flex; gap: 7px; flex-wrap: wrap; }
+
+.studio-zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.studio-optionen {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.studio-option-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.studio-los { justify-content: center; }
+
+.studio-leer-hinweis {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c0392b;
+  background: #ffeceb;
+  padding: 11px 14px;
+  border-radius: 12px;
+}
+
+/* Drei hüpfende Punkte, solange die KI arbeitet */
+.studio-punkte::after {
+  content: '…';
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  animation: studio-tippen 1.2s steps(4, end) infinite;
+}
+@keyframes studio-tippen {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+}
+
+@media (max-width: 640px) {
+  .studio { padding: 18px; }
+  .studio-zeile { flex-direction: column; align-items: stretch; }
+  .studio-los { width: 100%; }
+}

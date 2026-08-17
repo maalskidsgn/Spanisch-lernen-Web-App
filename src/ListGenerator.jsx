@@ -4,7 +4,7 @@ import { newEntry } from './srs.js'
 import { FREE_LIMIT, verbleibend, zaehleNutzung } from './limits.js'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
-// "Fußball"), Claude schlägt 12 passende Vokabeln vor, du wählst aus.
+// "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
 export default function ListGenerator({ vocab, setVocab }) {
   const [thema, setThema] = useState('')
   const [fertigThema, setFertigThema] = useState('') // Thema der fertigen Liste
@@ -78,21 +78,54 @@ export default function ListGenerator({ vocab, setVocab }) {
 
   return (
     <div className="list-gen">
-      <form className="url-form" onSubmit={generieren}>
-        <input
-          type="text"
-          value={thema}
-          onChange={(e) => setThema(e.target.value)}
-          placeholder="Thema, z.B. 'Restaurant' oder 'Fußball'"
-          required
-        />
-        <button type="submit" disabled={laden}>
-          {laden ? 'Claude denkt…' : '✨ Erstellen'}
-        </button>
-      </form>
-      <p className="free-hint">
-        Noch {uebrig} von {FREE_LIMIT} kostenlos
-      </p>
+      {/* Die Mini-App: Thema rein, fertige Liste raus */}
+      <div className="studio">
+        <div className="studio-kopf">
+          <span className="studio-icon">🪄</span>
+          <div className="studio-titel">
+            <b>KI-Vokabelliste</b>
+            <span>Dein Thema → 12 Wörter mit Beispielsätzen</span>
+          </div>
+          <span className="studio-zaehler" title="Kostenlose Generierungen diesen Monat">
+            {uebrig}/{FREE_LIMIT}
+          </span>
+        </div>
+
+        <form className="studio-form" onSubmit={generieren}>
+          <label className="studio-feld">
+            <span>Worüber möchtest du Vokabeln lernen?</span>
+            <input
+              type="text"
+              value={thema}
+              onChange={(e) => setThema(e.target.value)}
+              placeholder="z.B. Restaurant, Fußball, Arztbesuch…"
+              disabled={laden}
+              required
+            />
+          </label>
+
+          <div className="studio-vorschlaege">
+            {['🍽 Restaurant', '✈️ Reisen', '💼 Arbeit', '🛒 Einkaufen'].map((v) => (
+              <button
+                key={v}
+                type="button"
+                className="chip"
+                onClick={() => setThema(v.slice(v.indexOf(' ') + 1))}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+
+          <button type="submit" className="btn studio-los" disabled={laden}>
+            {laden ? (
+              <>Stellt deine Liste zusammen<span className="studio-punkte" /></>
+            ) : (
+              '✨ Liste erstellen'
+            )}
+          </button>
+        </form>
+      </div>
 
       {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}
 
@@ -102,9 +135,8 @@ export default function ListGenerator({ vocab, setVocab }) {
             Premium-Funktion <span className="plan-badge badge-soon">Bald verfügbar</span>
           </div>
           <p className="row-hint">
-            Themen-Vokabellisten erstellt die Claude-KI – diese Funktion wird
-            mit dem Premium-Abo freigeschaltet. (Für Entwickler: einen
-            ANTHROPIC_API_KEY am Server hinterlegen, dann läuft es sofort.)
+            Themen-Vokabellisten erstellt die KI – diese Funktion wird
+            mit dem Premium-Abo freigeschaltet.
           </p>
         </div>
       ) : (

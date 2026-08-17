@@ -195,7 +195,6 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       </div>
 
       {/* Vokabelliste zu einem Wunsch-Thema mit KI erstellen */}
-      <h2 className="settings-heading">Vokabelliste mit KI erstellen</h2>
       <ListGenerator vocab={vocab} setVocab={setVocab} />
 
       {/* Filter nach Spaced-Repetition-Stufen */}

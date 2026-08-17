@@ -13,6 +13,7 @@ import {
   anzahlDiesenMonat,
   speichereEbook,
   FREI_PRO_MONAT,
+  erzeugeVokabelliste,
 } from './ebooks.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
@@ -346,51 +347,13 @@ app.post('/api/translate-batch', async (req, res) => {
 app.post('/api/vokabelliste', async (req, res) => {
   const thema = (req.body.thema || '').trim().slice(0, 80)
   if (!thema) return res.status(400).json({ error: 'Kein Thema angegeben.' })
-  if (!anthropic) return res.status(402).json({ error: 'premium' })
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 16000,
-      output_config: {
-        format: {
-          type: 'json_schema',
-          schema: {
-            type: 'object',
-            properties: {
-              vokabeln: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    wort: { type: 'string' },
-                    uebersetzung: { type: 'string' },
-                    beispiel: { type: 'string' },
-                  },
-                  required: ['wort', 'uebersetzung', 'beispiel'],
-                  additionalProperties: false,
-                },
-              },
-            },
-            required: ['vokabeln'],
-            additionalProperties: false,
-          },
-        },
-      },
-      messages: [
-        {
-          role: 'user',
-          content:
-            `Erstelle eine spanische Vokabelliste zum Thema "${thema}" für deutschsprachige Anfänger (Niveau A1–A2): ` +
-            '12 besonders nützliche Wörter (Nomen mit Artikel el/la), jeweils mit deutscher Übersetzung und einem kurzen, einfachen Beispielsatz.',
-        },
-      ],
-    })
-    const textBlock = response.content.find((b) => b.type === 'text')
-    res.json(JSON.parse(textBlock.text))
+    const vokabeln = await erzeugeVokabelliste(thema)
+    res.json({ vokabeln })
   } catch (err) {
-    console.error(err.message)
-    res.status(500).json({ error: 'Liste konnte nicht erstellt werden.' })
+    console.error('Vokabelliste:', err.message)
+    res.status(500).json({ error: err.message })
   }
 })
 

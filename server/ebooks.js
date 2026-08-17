@@ -152,6 +152,71 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
 }
 
 // ---------------------------------------------------------------
+//  Themen-Vokabellisten (für den Trainer)
+// ---------------------------------------------------------------
+
+const LISTEN_SCHEMA = {
+  type: 'object',
+  properties: {
+    vokabeln: {
+      type: 'array',
+      description: '12 nützliche Vokabeln zum Thema',
+      items: {
+        type: 'object',
+        properties: {
+          wort: { type: 'string', description: 'Das spanische Wort, bei Nomen mit Artikel' },
+          uebersetzung: { type: 'string', description: 'Die deutsche Übersetzung' },
+          beispiel: { type: 'string', description: 'Ein kurzer spanischer Beispielsatz' },
+        },
+        required: ['wort', 'uebersetzung', 'beispiel'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['vokabeln'],
+  additionalProperties: false,
+}
+
+/** Lässt OpenAI eine Themen-Vokabelliste zusammenstellen. */
+export async function erzeugeVokabelliste(thema) {
+  const schluessel = process.env.OPENAI_API_KEY
+  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+
+  const antwort = await fetch(OPENAI_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${schluessel}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: MODELL,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Du stellst Vokabellisten für deutschsprachige Spanischlernende zusammen: ' +
+            'die 12 nützlichsten Wörter zum gewünschten Thema, Alltagsniveau, ' +
+            'Nomen mit Artikel, jedes Wort mit einem einfachen Beispielsatz.',
+        },
+        { role: 'user', content: `Thema: ${thema}` },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: 'vokabelliste', schema: LISTEN_SCHEMA, strict: true },
+      },
+    }),
+  })
+
+  if (!antwort.ok) {
+    if (antwort.status === 429) throw new Error('OpenAI-Kontingent erschöpft. Bitte später erneut versuchen.')
+    throw new Error(`OpenAI antwortet mit ${antwort.status}`)
+  }
+
+  const daten = await antwort.json()
+  return JSON.parse(daten.choices[0].message.content).vokabeln
+}
+
+// ---------------------------------------------------------------
 //  Zugriff auf die Datenbank (mit service_role, umgeht RLS)
 // ---------------------------------------------------------------
 

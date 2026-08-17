@@ -108,41 +108,68 @@ export default function Ebooks({ onAddVocab }) {
         zum Umschalten. Ein Buch in etwa 10 Minuten.
       </p>
 
-      <form className="ebook-form" onSubmit={erstellen}>
-        <input
-          type="text"
-          value={thema}
-          onChange={(e) => setThema(e.target.value)}
-          placeholder="Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“"
-          disabled={aufgebraucht}
-          required
-        />
-        <div className="ebook-form-zeile">
-          <div className="ebook-niveaus">
-            {NIVEAUS.map((n) => (
-              <button
-                key={n}
-                type="button"
-                className={'chip' + (niveau === n ? ' chip-aktiv' : '')}
-                onClick={() => setNiveau(n)}
-              >
-                {n}
-              </button>
-            ))}
+      {/* ---------- Das E-Book-Studio ---------- */}
+      <div className="studio">
+        <div className="studio-kopf">
+          <span className="studio-icon">📖</span>
+          <div className="studio-titel">
+            <b>E-Book-Studio</b>
+            <span>Dein Thema → kurzes zweisprachiges Buch in ~10 Sekunden</span>
           </div>
-          <button type="submit" className="btn" disabled={laedt || aufgebraucht}>
-            {laedt ? 'Schreibt…' : '✨ Buch erstellen'}
-          </button>
+          {kontingent && (
+            <span
+              className={'studio-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
+              title="Kostenlose Bücher diesen Monat"
+            >
+              {kontingent.frei}/{kontingent.gesamt}
+            </span>
+          )}
         </div>
-      </form>
 
-      {kontingent && (
-        <p className={'kontingent' + (aufgebraucht ? ' kontingent-leer' : '')}>
-          {aufgebraucht
-            ? `Dein Monatskontingent ist aufgebraucht (${kontingent.gesamt} Bücher).`
-            : `Noch ${kontingent.frei} von ${kontingent.gesamt} Büchern diesen Monat`}
-        </p>
-      )}
+        <form className="studio-form" onSubmit={erstellen}>
+          <label className="studio-feld">
+            <span>Welches Buch soll die KI für dich schreiben?</span>
+            <input
+              type="text"
+              value={thema}
+              onChange={(e) => setThema(e.target.value)}
+              placeholder="Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“"
+              disabled={aufgebraucht || laedt}
+              required
+            />
+          </label>
+
+          <div className="studio-zeile">
+            <div className="studio-optionen">
+              <span className="studio-option-label">Niveau</span>
+              {NIVEAUS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={'chip' + (niveau === n ? ' chip-aktiv' : '')}
+                  onClick={() => setNiveau(n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+            <button type="submit" className="btn studio-los" disabled={laedt || aufgebraucht}>
+              {laedt ? (
+                <>Schreibt dein Buch<span className="studio-punkte" /></>
+              ) : (
+                '✨ Buch erstellen'
+              )}
+            </button>
+          </div>
+
+          {aufgebraucht && (
+            <p className="studio-leer-hinweis">
+              Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du
+              unbegrenzt viele Bücher.
+            </p>
+          )}
+        </form>
+      </div>
 
       {aufgebraucht && (
         <div className="plan-card plan-premium premium-teaser">
@@ -217,9 +244,13 @@ function BuchLeser({ buch, onZurueck, onAddVocab }) {
   }, [kapitelNr])
 
   function vokabelnUebernehmen() {
+    // Format, das der Trainer erwartet: { wort, uebersetzung, quelle }
     onAddVocab?.(
-      (buch.vokabeln ?? []).map((v) => ({ es: v.es, de: v.de })),
-      'Buch: ' + buch.titel
+      (buch.vokabeln ?? []).map((v) => ({
+        wort: v.es,
+        uebersetzung: v.de,
+        quelle: 'Buch: ' + buch.titel,
+      }))
     )
     setUebernommen(true)
   }
