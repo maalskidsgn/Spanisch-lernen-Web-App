@@ -2064,3 +2064,164 @@ button:disabled {
 .chip-aktiv {
   background: var(--primary); color: #fff; border-color: var(--primary);
 }
+
+/* ============================================================
+   ANMELDUNG – Overlay mit Anmelden / Registrieren
+   ============================================================ */
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 65, 0.42);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  animation: login-auf 0.2s ease;
+}
+@keyframes login-auf { from { opacity: 0; } to { opacity: 1; } }
+
+.login-box {
+  background: #fff;
+  border-radius: 26px;
+  padding: 34px 30px 26px;
+  width: 100%;
+  max-width: 410px;
+  position: relative;
+  box-shadow: 0 24px 60px rgba(0, 0, 65, 0.3);
+  animation: login-rein 0.32s cubic-bezier(0.34, 1.3, 0.64, 1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+@keyframes login-rein {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.login-schliessen {
+  position: absolute;
+  top: 14px; right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.7rem;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.login-schliessen:hover { background: var(--bg); color: var(--navy); }
+
+.login-kopf { text-align: center; margin-bottom: 22px; }
+.login-badge {
+  width: 46px; height: 46px;
+  font-size: 1.8rem;
+  margin: 0 auto 12px;
+  display: grid;
+  place-items: center;
+}
+.login-kopf h2 { font-size: 1.45rem; margin-bottom: 6px; }
+.login-kopf p { color: var(--muted); font-size: 0.93rem; line-height: 1.5; }
+
+.login-form { display: grid; gap: 14px; }
+
+.login-feld { display: grid; gap: 6px; }
+.login-feld span {
+  font-size: 0.83rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+.login-feld input {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 13px 15px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--navy);
+  transition: border-color 0.15s, background 0.15s;
+}
+.login-feld input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #fff;
+}
+
+.login-absenden { width: 100%; justify-content: center; margin-top: 4px; }
+.login-absenden:disabled { opacity: 0.6; cursor: wait; }
+
+.login-fehler {
+  background: #ffeceb;
+  color: #c0392b;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 11px 14px;
+  border-radius: 12px;
+}
+.login-hinweis {
+  background: #e8f7ee;
+  color: #1f7a45;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 11px 14px;
+  border-radius: 12px;
+  line-height: 1.45;
+}
+
+.login-wechsel {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  margin: 18px 0 14px;
+}
+.login-wechsel .btn-plain { font-size: 0.92rem; color: var(--muted); }
+.login-wechsel .btn-plain b { color: var(--primary); }
+.login-klein { font-size: 0.85rem !important; }
+
+.login-fuss {
+  font-size: 0.78rem;
+  color: var(--muted-light, #a89d8d);
+  text-align: center;
+  line-height: 1.5;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+/* ---------- Konto-Bereich in den Einstellungen ---------- */
+
+.konto-karte {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+}
+.konto-avatar {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 900;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.konto-text { flex: 1; min-width: 0; }
+.konto-name { font-weight: 800; }
+.konto-mail {
+  font-size: 0.85rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.konto-sync {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--success);
+}

@@ -1,5 +1,13 @@
 import { API_URL } from './api.js'
 import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
+import { useNutzer } from './auth.js'
+import {
+  zusammenfuehren,
+  speichereVokabeln,
+  speichereStatistik,
+  speichereFortschritt,
+} from './sync.js'
+import Login from './Login.jsx'
 import { useState, useEffect, useRef } from 'react'
 
 /** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
@@ -151,14 +159,65 @@ export default function App() {
   const [levelUp, setLevelUp] = useState(null) // welches Level gerade erreicht wurde
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
 
+  // ---------- Konto & Abgleich ----------
+  const { nutzer } = useNutzer()
+  const [loginOffen, setLoginOffen] = useState(false)
+  const [syncStatus, setSyncStatus] = useState('') // '' | 'laeuft' | 'fertig' | Fehlertext
+  const angemeldetRef = useRef(null) // verhindert doppeltes Zusammenführen
+
+  // Nach dem Anmelden: lokale und gespeicherte Daten zusammenführen
+  useEffect(() => {
+    if (!nutzer || angemeldetRef.current === nutzer.id) return
+    angemeldetRef.current = nutzer.id
+
+    let abgebrochen = false
+    setSyncStatus('laeuft')
+
+    zusammenfuehren(nutzer.id, {
+      vokabeln: vocab,
+      stats: progress,
+      fortschritt: lessonProgress,
+    })
+      .then((vereint) => {
+        if (abgebrochen) return
+        setVocab(vereint.vokabeln)
+        setProgress((p) => ({ ...p, ...vereint.stats }))
+        setLessonProgress(vereint.fortschritt)
+        setSyncStatus('fertig')
+      })
+      .catch((f) => {
+        if (!abgebrochen) setSyncStatus(f.message)
+      })
+
+    return () => { abgebrochen = true }
+  }, [nutzer])
+
+  // Beim Abmelden wieder auf reinen Browser-Betrieb umstellen
+  useEffect(() => {
+    if (!nutzer) {
+      angemeldetRef.current = null
+      setSyncStatus('')
+    }
+  }, [nutzer])
+
   const playerRef = useRef(null) // der YouTube-Player
   const lineRefs = useRef([]) // die Zeilen-Elemente, damit wir hinscrollen können
   const textPaneRef = useRef(null) // der scrollbare Text-Kasten
 
-  // Bei jeder Änderung die Vokabeln speichern
+  // Bei jeder Änderung die Vokabeln speichern – im Browser sofort,
+  // in der Datenbank kurz verzögert (damit nicht bei jedem Tastendruck
+  // eine Anfrage rausgeht)
   useEffect(() => {
     localStorage.setItem('vokabeln', JSON.stringify(vocab))
-  }, [vocab])
+
+    if (!nutzer || syncStatus === 'laeuft') return
+    const timer = setTimeout(() => {
+      speichereVokabeln(nutzer.id, vocab).catch((f) =>
+        console.warn('Vokabeln konnten nicht gesichert werden:', f.message)
+      )
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [vocab, nutzer, syncStatus])
 
   // Gespeicherte Videos ebenfalls im Browser sichern
   useEffect(() => {
@@ -175,10 +234,30 @@ export default function App() {
     localStorage.setItem('lektionen', JSON.stringify(lessonProgress))
   }, [lessonProgress])
 
+  // Statistik (XP, Level, Serie) in der Datenbank nachziehen
+  useEffect(() => {
+    if (!nutzer || syncStatus === 'laeuft') return
+    const timer = setTimeout(() => {
+      speichereStatistik(nutzer.id, {
+        xp: progress.xp,
+        level: levelFromXp(progress.xp),
+        streak: progress.streak,
+        lastDay: progress.lastDay,
+        xpToday: progress.xpToday,
+      }).catch((f) => console.warn('Statistik nicht gesichert:', f.message))
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [progress, nutzer, syncStatus])
+
   // Eine Lektion wurde abgeschlossen: merken und die Wörter der Lektion
   // in den Vokabeltrainer übernehmen (Status "Lernen")
   function lektionGeschafft(lektion) {
     setLessonProgress((p) => ({ ...p, [lektion.id]: { fertig: true } }))
+    if (nutzer) {
+      speichereFortschritt(nutzer.id, lektion.id).catch((f) =>
+        console.warn('Lektion nicht gesichert:', f.message)
+      )
+    }
     setVocab((v) => {
       const copy = { ...v }
       for (const item of lektion.items) {
@@ -579,6 +658,9 @@ export default function App() {
               gelernt,
               videos: savedVideos.length,
             }}
+            nutzer={nutzer}
+            syncStatus={syncStatus}
+            onLoginOeffnen={() => setLoginOffen(true)}
           />
         </main>
       )}
@@ -794,6 +876,8 @@ export default function App() {
         )}
       </main>
       )}
+
+      {loginOffen && <Login onSchliessen={() => setLoginOffen(false)} />}
     </div>
   )
 }

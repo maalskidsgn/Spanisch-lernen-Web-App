@@ -1,9 +1,29 @@
 import { useRef } from 'react'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
+import { supabaseBereit } from './supabase.js'
+import { abmelden, anzeigename } from './auth.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
-export default function Settings({ progress, settings, setSettings, counts }) {
+export default function Settings({
+  progress,
+  settings,
+  setSettings,
+  counts,
+  nutzer,
+  syncStatus,
+  onLoginOeffnen,
+}) {
+  // Abmelden – die lokalen Daten bleiben erhalten
+  async function abmeldenKlick() {
+    if (!confirm('Wirklich abmelden? Deine Daten bleiben gesichert.')) return
+    try {
+      await abmelden()
+    } catch (f) {
+      alert('Abmelden hat nicht geklappt: ' + f.message)
+    }
+  }
+
   const fileInputRef = useRef(null)
 
   const level = levelFromXp(progress.xp)
@@ -73,6 +93,47 @@ export default function Settings({ progress, settings, setSettings, counts }) {
           </div>
         </div>
       </div>
+
+      {/* ---------- Konto ---------- */}
+      {supabaseBereit && (
+        <>
+          <h2 className="settings-heading">Dein Konto</h2>
+          {nutzer ? (
+            <>
+              <div className="konto-karte">
+                <div className="konto-avatar">
+                  {anzeigename(nutzer).charAt(0).toUpperCase()}
+                </div>
+                <div className="konto-text">
+                  <div className="konto-name">{anzeigename(nutzer)}</div>
+                  <div className="konto-mail">{nutzer.email}</div>
+                </div>
+                <span className="konto-sync">
+                  {syncStatus === 'laeuft' ? '⏳ Gleicht ab…' : '✓ Gesichert'}
+                </span>
+              </div>
+              <p className="settings-hint">
+                Dein Fortschritt wird automatisch gesichert und steht auf allen
+                Geräten zur Verfügung.
+              </p>
+              <button className="btn-outline" onClick={abmeldenKlick}>
+                Abmelden
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="settings-hint">
+                Ohne Konto liegen deine Vokabeln nur auf diesem Gerät. Mit Konto
+                sind sie gesichert und du lernst auf Handy und Rechner am
+                gleichen Stand weiter.
+              </p>
+              <button className="btn" onClick={onLoginOeffnen}>
+                Anmelden oder Konto anlegen
+              </button>
+            </>
+          )}
+        </>
+      )}
 
       {/* ---------- Abo ---------- */}
       <h2 className="settings-heading">Dein Abo</h2>
