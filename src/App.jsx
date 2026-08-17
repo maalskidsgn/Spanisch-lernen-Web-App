@@ -533,8 +533,14 @@ export default function App() {
           onStarten={() => { setLoginStart('registrieren'); setLoginOffen(true) }}
           onAnmelden={() => { setLoginStart('anmelden'); setLoginOffen(true) }}
         />
+        {/* key sorgt dafür, dass der Dialog bei jedem Öffnen frisch
+            startet – sonst bliebe der zuletzt gewählte Modus stehen */}
         {loginOffen && (
-          <Login startModus={loginStart} onSchliessen={() => setLoginOffen(false)} />
+          <Login
+            key={loginStart}
+            startModus={loginStart}
+            onSchliessen={() => setLoginOffen(false)}
+          />
         )}
       </>
     )
