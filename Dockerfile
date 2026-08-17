@@ -1,4 +1,4 @@
-# Bauanleitung für den Vamigo-Server als Docker-Container.
+# Bauanleitung für den Habloo-Server als Docker-Container.
 # Enthält Node.js für den Express-Server und yt-dlp für die YouTube-Transkripte.
 
 FROM node:22-slim
@@ -12,6 +12,10 @@ RUN apt-get update \
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
     -o /usr/local/bin/yt-dlp \
   && chmod +x /usr/local/bin/yt-dlp
+
+# YouTube verlangt inzwischen eine JavaScript-Laufzeit. Node ist hier ohnehin
+# an Bord, also sagen wir yt-dlp dauerhaft, dass es Node benutzen soll.
+RUN printf -- "--js-runtimes node\n" > /etc/yt-dlp.conf
 
 WORKDIR /app
 
