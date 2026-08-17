@@ -1,5 +1,6 @@
 import { API_URL } from './api.js'
 import { holeBibliothek, supabaseBereit } from './supabase.js'
+import Ebooks from './Ebooks.jsx'
 import { useState, useEffect } from 'react'
 
 // Die Niveau-Stufen der kuratierten Bibliothek
@@ -232,72 +233,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
       </div>
 
       {/* ---------- Bücher: Zusammenfassungen wie bei Blinkist ---------- */}
-      {bereich === 'buecher' && (
-        <>
-          <p className="intro">
-            Lass dir Bücher in einfachem Spanisch zusammenfassen – lesen,
-            verstehen, Vokabeln mitnehmen.
-          </p>
-          <form className="url-form" onSubmit={generiereBuch}>
-            <input
-              type="text"
-              value={buchTitel}
-              onChange={(e) => setBuchTitel(e.target.value)}
-              placeholder="Buchtitel, z.B. 'Der kleine Prinz'"
-              required
-            />
-            <button type="submit" disabled={buchLaden}>
-              {buchLaden ? 'Claude liest…' : '✨ Erstellen'}
-            </button>
-          </form>
-
-          {/* Dieser Hinweis steht hier bewusst dauerhaft */}
-          <div className="plan-card plan-premium premium-teaser">
-            <div className="plan-name">
-              Premium-Funktion <span className="plan-badge badge-soon">Bald verfügbar</span>
-            </div>
-            <p className="row-hint">
-              Buchzusammenfassungen erstellt die Claude-KI – diese Funktion wird
-              mit dem Premium-Abo freigeschaltet.
-            </p>
-          </div>
-          {buchFehler && buchFehler !== 'premium' && (
-            <p className="error">{buchFehler}</p>
-          )}
-
-          {buecher.length === 0 && !buchFehler && (
-            <p className="empty-hint">
-              Noch keine Zusammenfassungen – gib oben einen Buchtitel ein!
-            </p>
-          )}
-          <div className="video-grid">
-            {buecher.map((b) => (
-              <div key={b.id} className="video-card buch-card">
-                <div className="buch-cover" onClick={() => setOffenesBuch(b)}>
-                  📖
-                </div>
-                <div className="video-card-body">
-                  <div className="video-card-title" onClick={() => setOffenesBuch(b)}>
-                    {b.titel}
-                  </div>
-                  <div className="video-card-meta">
-                    <span className="video-card-channel">
-                      {b.autor} · {b.niveau}
-                    </span>
-                    <button
-                      className="btn-delete"
-                      title="Zusammenfassung löschen"
-                      onClick={() => loescheBuch(b.id)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </>
-      )}
+      {bereich === 'buecher' && <Ebooks onAddVocab={onAddVocab} />}
 
       {bereich === 'videos' && (
       <>

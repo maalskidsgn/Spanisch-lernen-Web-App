@@ -2377,3 +2377,138 @@ button:disabled {
 }
 .btn-outline:hover { border-color: var(--primary); }
 .btn-outline:active { transform: scale(0.97); }
+
+/* ============================================================
+   BILINGUALE E-BOOKS
+   ============================================================ */
+
+.ebook-form { display: grid; gap: 12px; margin-bottom: 14px; }
+.ebook-form input {
+  font-family: inherit; font-size: 1rem; font-weight: 600;
+  padding: 14px 16px; border: 2px solid var(--line);
+  border-radius: 14px; background: #fff; color: var(--navy);
+}
+.ebook-form input:focus { outline: none; border-color: var(--primary); }
+.ebook-form input:disabled { background: var(--bg); opacity: .6; }
+.ebook-form-zeile {
+  display: flex; gap: 12px; align-items: center;
+  justify-content: space-between; flex-wrap: wrap;
+}
+.ebook-niveaus { display: flex; gap: 6px; }
+
+.kontingent {
+  font-size: .87rem; font-weight: 800; color: var(--muted);
+  margin-bottom: 16px;
+}
+.kontingent-leer { color: var(--primary-dark, #e05f00); }
+
+/* ---------- Bücherregal ---------- */
+.ebook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+.ebook-karte {
+  position: relative; cursor: pointer;
+  transition: transform .2s;
+}
+.ebook-karte:hover { transform: translateY(-4px); }
+
+.ebook-cover {
+  aspect-ratio: 3 / 4;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  box-shadow: 0 8px 22px rgba(0,0,65,.16);
+  /* Buchrücken links */
+  border-left: 7px solid rgba(0,0,0,.18);
+  background: linear-gradient(145deg, var(--navy), #2a2a7a);
+}
+.ebook-cover-A1 { background: linear-gradient(145deg, #2aae5f, #48c97a); }
+.ebook-cover-A2 { background: linear-gradient(145deg, #ff6c00, #ff9a40); }
+.ebook-cover-B1 { background: linear-gradient(145deg, #000041, #2a2a7a); }
+.ebook-cover-B2 { background: linear-gradient(145deg, #7d1a33, #a83350); }
+
+.ebook-cover-symbol { font-size: 2.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,.25)); }
+.ebook-cover-niveau {
+  position: absolute; top: 10px; right: 10px;
+  background: rgba(255,255,255,.9); color: var(--navy);
+  font-size: .7rem; font-weight: 900;
+  padding: 3px 8px; border-radius: 7px;
+}
+.ebook-marke {
+  position: absolute; bottom: 10px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,.92); color: var(--navy);
+  font-size: .68rem; font-weight: 800;
+  padding: 3px 10px; border-radius: 999px;
+  white-space: nowrap;
+}
+
+.ebook-info { padding: 10px 2px 0; }
+.ebook-titel {
+  font-weight: 800; font-size: .93rem; line-height: 1.3;
+  margin-bottom: 3px;
+}
+.ebook-meta { font-size: .78rem; color: var(--muted); font-weight: 700; }
+
+.ebook-loeschen {
+  position: absolute; top: 8px; left: 12px;
+  background: rgba(255,255,255,.9);
+  border-radius: 7px; padding: 2px 7px;
+  opacity: 0; transition: opacity .15s;
+}
+.ebook-karte:hover .ebook-loeschen { opacity: 1; }
+
+/* ---------- Der Leser ---------- */
+.buch-leser { animation: fade-up .3s ease; }
+.buch-kopf { margin: 14px 0 18px; }
+.buch-kopf h1 { font-size: 1.7rem; margin-bottom: 5px; }
+.buch-untertitel { color: var(--muted); font-weight: 700; font-size: .93rem; }
+
+.buch-leiste {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap;
+  padding: 12px 0 18px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+
+.buch-text { display: grid; gap: 22px; max-width: 680px; }
+.buch-absatz {
+  padding-left: 15px;
+  border-left: 3px solid var(--line);
+  transition: border-color .2s;
+}
+.buch-absatz:hover { border-left-color: var(--primary); }
+.absatz-es {
+  font-size: 1.08rem; line-height: 1.75; font-weight: 600;
+  color: var(--navy); margin-bottom: 7px;
+}
+.absatz-de {
+  font-size: .96rem; line-height: 1.6;
+  color: var(--muted);
+}
+
+.buch-vokabel-titel { font-size: 1.2rem; margin: 34px 0 14px; }
+.buch-vokabeln {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 9px;
+  margin-bottom: 30px;
+}
+.buch-vokabel {
+  background: #fff; border-radius: 12px; padding: 11px 14px;
+  box-shadow: 0 3px 10px rgba(0,0,65,.06);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.buch-vokabel b { color: var(--primary-dark, #e05f00); font-size: .96rem; }
+.buch-vokabel span { font-size: .87rem; color: var(--muted); }
+
+@media (max-width: 600px) {
+  .ebook-grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 14px; }
+  .ebook-form-zeile { flex-direction: column; align-items: stretch; }
+  .ebook-form-zeile .btn { width: 100%; justify-content: center; }
+}

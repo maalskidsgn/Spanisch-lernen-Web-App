@@ -7,6 +7,28 @@ import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
+import {
+  erzeugeEbook,
+  nutzerAusToken,
+  anzahlDiesenMonat,
+  speichereEbook,
+  FREI_PRO_MONAT,
+} from './ebooks.js'
+
+// Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
+// In der Produktion (Coolify/Docker) kommen sie als echte Umgebungsvariablen.
+try {
+  const { readFileSync } = await import('fs')
+  const datei = new URL('../.env.local', import.meta.url)
+  for (const zeile of readFileSync(datei, 'utf8').split('\n')) {
+    const treffer = zeile.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/)
+    if (treffer && !process.env[treffer[1]]) {
+      process.env[treffer[1]] = treffer[2].trim()
+    }
+  }
+} catch {
+  // Keine .env.local vorhanden – das ist im Betrieb der Normalfall.
+}
 
 const app = express()
 app.use(express.json({ limit: '2mb' }))
@@ -16,7 +38,7 @@ const PORT = process.env.PORT || 8787
 // anzusprechen. Ohne diese Kopfzeilen blockt der Browser solche Anfragen.
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   if (req.method === 'OPTIONS') return res.sendStatus(204)
   next()
@@ -438,6 +460,56 @@ app.post('/api/buch', async (req, res) => {
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Zusammenfassung konnte nicht erstellt werden.' })
+  }
+})
+
+// ============================================================
+//  Bilinguale E-Books
+// ============================================================
+
+// Wie viele Bücher darf der Nutzer diesen Monat noch erzeugen?
+app.get('/api/ebook/kontingent', async (req, res) => {
+  try {
+    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    const genutzt = await anzahlDiesenMonat(nutzer.id)
+    res.json({ genutzt, frei: Math.max(0, FREI_PRO_MONAT - genutzt), gesamt: FREI_PRO_MONAT })
+  } catch (err) {
+    console.error(err.message)
+    res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })
+  }
+})
+
+// Ein neues E-Book erzeugen
+app.post('/api/ebook', async (req, res) => {
+  const thema = (req.body?.thema || '').trim()
+  const niveau = req.body?.niveau || 'A2'
+
+  if (!thema) return res.status(400).json({ error: 'Bitte gib ein Thema an.' })
+
+  try {
+    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    // Freemium-Grenze prüfen
+    const genutzt = await anzahlDiesenMonat(nutzer.id)
+    if (genutzt >= FREI_PRO_MONAT) {
+      return res.status(402).json({
+        error: 'premium',
+        nachricht:
+          `Du hast diesen Monat schon ${FREI_PRO_MONAT} E-Books erstellt. ` +
+          'Mit Premium sind es unbegrenzt viele.',
+      })
+    }
+
+    const buch = await erzeugeEbook(thema, niveau)
+    const gespeichert = await speichereEbook(nutzer.id, buch)
+
+    res.json({ buch: gespeichert, frei: Math.max(0, FREI_PRO_MONAT - genutzt - 1) })
+  } catch (err) {
+    console.error('E-Book:', err.message)
+    res.status(500).json({ error: err.message })
   }
 })
 
