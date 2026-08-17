@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Habloo – Spanisch lernen mit echten Videos</title>
+<meta name="description" content="Lerne Spanisch mit YouTube-Videos, geführten Lektionen und einem Vokabeltrainer, der sich merkt, wann du wiederholen musst. Kostenlos starten." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/* =========================================================
+   HABLOO – Landing Page
+   Farben: Orange #FF6C00 (Energie) + Navy #000041 (Anker)
+   Aufbau: Hero → Beweis → So geht's → Features → Gamification
+           → Preise → FAQ → Abschluss
+   ========================================================= */
+
+:root {
+  --primary: #ff6c00;
+  --primary-dark: #e05f00;
+  --primary-press: #bf5200;
+  --primary-light: #ff9a40;
+  --navy: #000041;
+  --navy-soft: #1a1a6e;
+  --success: #2aae5f;
+  --bg: #faf7f1;
+  --card: #ffffff;
+  --line: #f0e5d8;
+  --muted: #7d7263;
+  --muted-light: #a89d8d;
+  --radius: 24px;
+  --shadow-sm: 0 4px 16px rgba(0, 0, 65, 0.07);
+  --shadow-md: 0 12px 32px rgba(0, 0, 65, 0.12);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 65, 0.18);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Nunito', -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--navy);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+/* ---------- Animations-Bausteine ---------- */
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes floatSoft {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-18px) rotate(2deg); }
+}
+@keyframes blobDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-30px, 20px) scale(0.95); }
+}
+@keyframes pulseRing {
+  0% { box-shadow: 0 0 0 0 rgba(255, 108, 0, 0.4); }
+  70% { box-shadow: 0 0 0 18px rgba(255, 108, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 108, 0, 0); }
+}
+@keyframes tickerScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes shimmer {
+  from { background-position: 200% center; }
+  to { background-position: -200% center; }
+}
+
+/* Elemente, die beim Scrollen hereingleiten */
+.reveal {
+  opacity: 0;
+  transform: translateY(34px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.d3 { transition-delay: 0.24s; }
+.reveal.d4 { transition-delay: 0.32s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ---------- Grundelemente ---------- */
+
+h1, h2, h3 { line-height: 1.15; letter-spacing: -0.03em; font-weight: 900; }
+h2 { font-size: clamp(2rem, 4.5vw, 3rem); }
+h3 { font-size: 1.25rem; }
+
+.accent { color: var(--primary); }
+
+/* Textverlauf für Hero-Wörter */
+.gradient-text {
+  background: linear-gradient(100deg, var(--primary), #ffb347 40%, var(--primary));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 5s linear infinite;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 5px 0 var(--primary-press);
+  transition: filter 0.15s, transform 0.1s, box-shadow 0.1s;
+}
+.btn:hover { filter: brightness(1.07); }
+.btn:active { transform: translateY(5px); box-shadow: 0 0 0 var(--primary-press); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--navy);
+  border: 2px solid var(--line);
+  box-shadow: none;
+}
+.btn-ghost:hover { background: #fff; border-color: var(--primary); filter: none; }
+.btn-ghost:active { transform: scale(0.97); box-shadow: none; }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff0e3;
+  color: var(--primary-dark);
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 7px 16px;
+  border-radius: 999px;
+  margin-bottom: 20px;
+}
+
+.section { padding: 110px 0; }
+.section-head { max-width: 680px; margin: 0 auto 56px; text-align: center; }
+.section-head p { color: var(--muted); font-size: 1.1rem; margin-top: 14px; }
+
+/* ---------- Kopfzeile ---------- */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250, 247, 241, 0.82);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s, background 0.3s;
+}
+header.scrolled { border-bottom-color: var(--line); }
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 74px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  color: var(--navy);
+}
+.logo-badge {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 11px;
+  font-size: 1.35rem;
+  box-shadow: 0 3px 10px rgba(255, 108, 0, 0.4);
+}
+.nav-links { display: flex; align-items: center; gap: 32px; }
+.nav-links a {
+  color: var(--navy);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.98rem;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+.nav-links a:hover { opacity: 1; }
+.nav .btn { padding: 11px 22px; font-size: 0.95rem; box-shadow: 0 4px 0 var(--primary-press); }
+@media (max-width: 860px) { .nav-links a { display: none; } }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  padding: 84px 0 100px;
+  overflow: hidden;
+}
+/* Weiche Farbwolken im Hintergrund */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+.blob-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, #ffcf9e, transparent 70%);
+  top: -160px; right: -120px;
+  animation: blobDrift 18s ease-in-out infinite;
+}
+.blob-2 {
+  width: 460px; height: 460px;
+  background: radial-gradient(circle, #c9d4ff, transparent 70%);
+  bottom: -180px; left: -140px;
+  animation: blobDrift 22s ease-in-out infinite reverse;
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 60px;
+  align-items: center;
+}
+.hero h1 {
+  font-size: clamp(2.6rem, 6vw, 4.2rem);
+  margin-bottom: 22px;
+}
+.hero-sub {
+  font-size: 1.2rem;
+  color: var(--muted);
+  max-width: 520px;
+  margin-bottom: 34px;
+}
+.hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }
+.hero-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted-light);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.check { color: var(--success); font-weight: 900; }
+
+/* ---------- Handy-Mockup mit Live-Demo ---------- */
+
+.phone-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  animation: floatSoft 7s ease-in-out infinite;
+}
+.phone {
+  width: 320px;
+  background: var(--navy);
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow: var(--shadow-lg);
+}
+.phone-screen {
+  background: var(--bg);
+  border-radius: 34px;
+  overflow: hidden;
+  height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+.phone-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.phone-streak { color: var(--primary-dark); }
+.phone-video {
+  margin: 0 14px;
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--navy), var(--navy-soft));
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+/* Platzhalter: hier kommt später dein Video-Screenshot rein */
+.phone-video::after {
+  content: '▶';
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 2rem;
+  animation: pulseRing 2.4s ease-out infinite;
+  border-radius: 50%;
+  width: 54px; height: 54px;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Die mitlaufenden Untertitel – das Herzstück der Demo */
+.demo-lines { padding: 18px 18px 0; flex: 1; }
+.demo-line {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.9;
+  opacity: 0.3;
+  transition: opacity 0.45s, transform 0.45s;
+  padding-left: 12px;
+  border-left: 3px solid transparent;
+}
+.demo-line.active {
+  opacity: 1;
+  border-left-color: var(--primary);
+  transform: translateX(3px);
+}
+.demo-line .w {
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 0 2px;
+  transition: background 0.3s;
+}
+.demo-line .w.known { background: #d4f5df; }
+.demo-line .w.learn { background: #ffe9a8; }
+.demo-line .w.tapped { background: var(--primary); color: #fff; }
+
+/* Die Wortkarte, die von unten hereinfährt */
+.demo-card {
+  margin: 0 14px 16px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.4s, transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.demo-card.show { opacity: 1; transform: translateY(0); }
+.demo-card-word { font-size: 1.15rem; font-weight: 900; }
+.demo-card-de { color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
+.demo-card-btns { display: flex; gap: 8px; }
+.demo-pill {
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+}
+.demo-pill.green { background: var(--success); }
+
+/* Schwebende XP-Anzeige am Mockup */
+.xp-float {
+  position: absolute;
+  top: 22%;
+  right: -18px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow-md);
+  font-weight: 900;
+  color: var(--primary-dark);
+  animation: floatSoft 5s ease-in-out infinite 0.6s;
+}
+.streak-float {
+  position: absolute;
+  bottom: 18%;
+  left: -22px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-shadow: var(--shadow-md);
+  font-weight: 900;
+  animation: floatSoft 6s ease-in-out infinite 1.2s;
+}
+
+@media (max-width: 940px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+  .hero-sub { margin-left: auto; margin-right: auto; }
+  .hero-grid > div:first-child { text-align: center; }
+  .hero-cta, .hero-note { justify-content: center; }
+  .xp-float, .streak-float { display: none; }
+}
+
+/* ---------- Laufband ---------- */
+
+.ticker-wrap {
+  background: var(--navy);
+  padding: 18px 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.ticker {
+  display: inline-flex;
+  gap: 46px;
+  animation: tickerScroll 32s linear infinite;
+}
+.ticker span {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  opacity: 0.85;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.ticker span::before { content: '✦'; color: var(--primary); }
+
+/* ---------- Drei Schritte ---------- */
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.step {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.step:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+.step-num {
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 1.2rem;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.35);
+}
+.step h3 { margin-bottom: 8px; }
+.step p { color: var(--muted); font-size: 0.98rem; }
+@media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+
+/* ---------- Bento-Grid ---------- */
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.tile {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 30px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.tile:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+.tile-wide { grid-column: span 2; }
+.tile-dark {
+  background: linear-gradient(140deg, var(--navy), var(--navy-soft));
+  color: #fff;
+}
+.tile-dark p { color: rgba(255, 255, 255, 0.72); }
+.tile-icon {
+  width: 52px; height: 52px;
+  display: grid; place-items: center;
+  background: #fff0e3;
+  border-radius: 15px;
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+}
+.tile-dark .tile-icon { background: rgba(255, 255, 255, 0.12); }
+.tile h3 { margin-bottom: 8px; }
+.tile p { color: var(--muted); font-size: 0.97rem; }
+
+/* Platzhalter für deine eigenen Grafiken */
+.img-slot {
+  margin-top: 20px;
+  border: 2px dashed var(--line);
+  border-radius: 16px;
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  color: var(--muted-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 16px;
+  background: #fffdf9;
+}
+.tile-dark .img-slot {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Karteikasten-Miniatur in der Kachel */
+.srs-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 18px; }
+.srs-chip {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #f5eee3;
+  color: var(--muted);
+}
+.srs-chip.on { background: var(--primary); color: #fff; }
+
+@media (max-width: 940px) {
+  .bento { grid-template-columns: 1fr; }
+  .tile-wide { grid-column: span 1; }
+}
+
+/* ---------- Gamification-Band ---------- */
+
+.game-band {
+  background: linear-gradient(140deg, var(--navy), #12124f 60%, var(--navy-soft));
+  color: #fff;
+  border-radius: 32px;
+  padding: 64px 48px;
+  position: relative;
+  overflow: hidden;
+}
+.game-band::before {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(255, 108, 0, 0.35), transparent 70%);
+  top: -120px; right: -80px;
+  filter: blur(60px);
+}
+.game-inner { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.game-band h2 { margin-bottom: 16px; }
+.game-band > .game-inner > div > p { color: rgba(255, 255, 255, 0.75); font-size: 1.05rem; }
+
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.stat {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 22px;
+  backdrop-filter: blur(8px);
+}
+.stat-num {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: var(--primary-light);
+  line-height: 1;
+}
+.stat-label { font-size: 0.88rem; color: rgba(255, 255, 255, 0.7); font-weight: 700; margin-top: 6px; }
+@media (max-width: 860px) {
+  .game-inner { grid-template-columns: 1fr; }
+  .game-band { padding: 44px 26px; }
+}
+
+/* ---------- Preise ---------- */
+
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: start; }
+.plan {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+  box-shadow: var(--shadow-sm);
+  border: 2px solid transparent;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.plan:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+.plan-best {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+.plan-flag {
+  position: absolute;
+  top: -13px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 5px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.plan-name { font-weight: 900; font-size: 1.15rem; }
+.plan-price { font-size: 2.4rem; font-weight: 900; margin: 10px 0 4px; }
+.plan-price small { font-size: 0.95rem; font-weight: 700; color: var(--muted); }
+.plan-hint { color: var(--muted); font-size: 0.9rem; min-height: 22px; }
+.plan ul { list-style: none; margin: 22px 0; display: grid; gap: 10px; }
+.plan li { font-size: 0.95rem; font-weight: 700; display: flex; gap: 10px; }
+.plan .btn { width: 100%; justify-content: center; }
+@media (max-width: 860px) { .plans { grid-template-columns: 1fr; } }
+
+/* ---------- FAQ ---------- */
+
+.faq { max-width: 760px; margin: 0 auto; display: grid; gap: 12px; }
+.faq details {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.faq summary {
+  font-weight: 800;
+  font-size: 1.02rem;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; color: var(--primary); font-size: 1.5rem; line-height: 1; }
+.faq details[open] summary::after { content: '−'; }
+.faq p { color: var(--muted); margin-top: 12px; font-size: 0.97rem; }
+
+/* ---------- Abschluss & Fußzeile ---------- */
+
+.final {
+  text-align: center;
+  background: var(--card);
+  border-radius: 32px;
+  padding: 72px 32px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.final h2 { margin-bottom: 14px; }
+.final p { color: var(--muted); font-size: 1.1rem; max-width: 520px; margin: 0 auto 30px; }
+
+footer { padding: 50px 0 40px; border-top: 1px solid var(--line); margin-top: 90px; }
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: var(--muted-light);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.foot a { color: var(--muted); text-decoration: none; margin-left: 20px; }
+.foot a:hover { color: var(--primary); }
+</style>
+</head>
+<body>
+
+<!-- ============ KOPFZEILE ============ -->
+<header id="head">
+  <div class="wrap nav">
+    <a class="logo" href="#top"><span class="logo-badge">¡</span>Habloo</a>
+    <nav class="nav-links">
+      <a href="#how">So geht's</a>
+      <a href="#features">Funktionen</a>
+      <a href="#plans">Preise</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn" href="#plans">Kostenlos starten</a>
+  </div>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow reveal">🎬 Lernen mit echten Videos</span>
+      <h1 class="reveal d1">
+        Spanisch lernen mit dem, was du <span class="gradient-text">sowieso schaust</span>
+      </h1>
+      <p class="hero-sub reveal d2">
+        Habloo verwandelt YouTube-Videos in deinen Sprachkurs: Untertitel laufen
+        mit, jedes unbekannte Wort ist einen Tipp entfernt – und landet automatisch
+        in deinem Vokabeltrainer.
+      </p>
+      <div class="hero-cta reveal d3">
+        <a class="btn" href="#plans">Jetzt kostenlos starten</a>
+        <a class="btn btn-ghost" href="#how">So funktioniert's</a>
+      </div>
+      <div class="hero-note reveal d4">
+        <span class="check">✓</span> Ohne Anmeldung testen
+        <span class="check" style="margin-left:14px">✓</span> Für Anfänger geeignet
+      </div>
+    </div>
+
+    <!-- Live-Demo im Handy-Rahmen -->
+    <div class="phone-stage reveal d2">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-bar">
+            <span>¡ Habloo</span>
+            <span class="phone-streak">🔥 12 · ⭐ Level 4</span>
+          </div>
+          <!-- PLATZHALTER: hier passt später dein Video-Screenshot rein -->
+          <div class="phone-video"></div>
+          <div class="demo-lines" id="demoLines">
+            <div class="demo-line"><span class="w known">Hola</span>, ¿<span class="w">qué</span> tal?</div>
+            <div class="demo-line">Hoy vamos a <span class="w learn">cocinar</span> algo rico.</div>
+            <div class="demo-line">Necesitamos <span class="w">huevos</span> y <span class="w learn">harina</span>.</div>
+            <div class="demo-line">¿Te <span class="w" id="demoWord">apetece</span> probarlo?</div>
+            <div class="demo-line">¡Vamos a la <span class="w known">cocina</span>!</div>
+          </div>
+          <div class="demo-card" id="demoCard">
+            <div class="demo-card-word">apetece</div>
+            <div class="demo-card-de">Lust haben auf</div>
+            <div class="demo-card-btns">
+              <span class="demo-pill">Lernen</span>
+              <span class="demo-pill green">Gewusst ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="xp-float">+10 XP</div>
+      <div class="streak-float">🔥 12 Tage</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LAUFBAND ============ -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span>YouTube-Videos</span><span>Karaoke-Untertitel</span><span>Vokabeltrainer</span>
+    <span>Geführte Lektionen</span><span>Memory & Rätsel</span><span>KI-Vokabellisten</span>
+    <span>Buchzusammenfassungen</span><span>XP & Level</span>
+    <span>YouTube-Videos</span><span>Karaoke-Untertitel</span><span>Vokabeltrainer</span>
+    <span>Geführte Lektionen</span><span>Memory & Rätsel</span><span>KI-Vokabellisten</span>
+    <span>Buchzusammenfassungen</span><span>XP & Level</span>
+  </div>
+</div>
+
+<!-- ============ SO GEHT'S ============ -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">In 3 Schritten</span>
+      <h2>Vom Video zur Vokabel – ganz nebenbei</h2>
+      <p>Kein Vokabelheft, kein Abtippen. Du schaust, tippst an, und der Rest passiert automatisch.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h3>Video aussuchen</h3>
+        <p>Link einfügen oder aus unseren Empfehlungen wählen – Musik, Podcasts,
+           Kochvideos, langsame Nachrichten. Alles, was dich wirklich interessiert.</p>
+      </div>
+      <div class="step reveal d1">
+        <div class="step-num">2</div>
+        <h3>Mitlesen &amp; antippen</h3>
+        <p>Die Untertitel laufen automatisch mit dem Video mit. Unbekanntes Wort?
+           Einmal tippen – Übersetzung erscheint, Wort ist gespeichert.</p>
+      </div>
+      <div class="step reveal d2">
+        <div class="step-num">3</div>
+        <h3>Behalten statt vergessen</h3>
+        <p>Dein Trainer fragt jede Vokabel genau dann ab, wenn du sie zu vergessen
+           drohst. Wissenschaftlich bewährt, spielerisch verpackt.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUNKTIONEN (BENTO) ============ -->
+<section class="section" id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Alles drin</span>
+      <h2>Eine App, dein kompletter Sprachkurs</h2>
+      <p>Vom ersten „Hola" bis zum Podcast ohne Untertitel – Habloo begleitet dich auf jeder Stufe.</p>
+    </div>
+
+    <div class="bento">
+      <div class="tile tile-wide reveal">
+        <div class="tile-icon">🎬</div>
+        <h3>Videos, die mitlesen</h3>
+        <p>Untertitel laufen synchron zum Video, die aktuelle Zeile leuchtet auf.
+           Ein Klick übersetzt den ganzen Text – oder nur das eine Wort, das dir fehlt.</p>
+        <div class="img-slot">📷 Platz für deinen Screenshot:<br />Lese-Ansicht mit laufenden Untertiteln</div>
+      </div>
+
+      <div class="tile reveal d1">
+        <div class="tile-icon">🎓</div>
+        <h3>Geführte Lektionen</h3>
+        <p>Module vom Begrüßen bis Reisen: neue Wörter mit Ton, kurze Erklärungen,
+           animierte Dialoge und Übungen.</p>
+      </div>
+
+      <div class="tile reveal">
+        <div class="tile-icon">🃏</div>
+        <h3>Vokabeltrainer mit Gedächtnis</h3>
+        <p>Spaced Repetition sorgt dafür, dass du im richtigen Moment wiederholst –
+           von „neu" bis „sitzt für immer".</p>
+        <div class="srs-row">
+          <span class="srs-chip on">Neu</span>
+          <span class="srs-chip">1 Tag</span>
+          <span class="srs-chip">3 Tage</span>
+          <span class="srs-chip">1 Woche</span>
+          <span class="srs-chip">1 Monat</span>
+        </div>
+      </div>
+
+      <div class="tile tile-dark tile-wide reveal d1">
+        <div class="tile-icon">🎮</div>
+        <h3>Wiederholen, das Spaß macht</h3>
+        <p>Memory, Wortpaare und Kreuzworträtsel – automatisch aus deinen eigenen
+           Vokabeln gebaut. Jede richtige Antwort bringt XP.</p>
+        <div class="img-slot">📷 Platz für deinen Screenshot:<br />Mini-Spiele im Trainer</div>
+      </div>
+
+      <div class="tile reveal">
+        <div class="tile-icon">✨</div>
+        <h3>KI als Lernpartner</h3>
+        <p>Vokabellisten zu jedem Thema, die wichtigsten Wörter aus einem Video,
+           Buchzusammenfassungen in einfachem Spanisch.</p>
+      </div>
+
+      <div class="tile reveal d1">
+        <div class="tile-icon">📚</div>
+        <h3>Deine Bibliothek</h3>
+        <p>Videos speichern, in Kategorien sortieren und jederzeit weiterlernen –
+           dein persönlicher Kursplan.</p>
+      </div>
+
+      <div class="tile tile-wide reveal d2">
+        <div class="tile-icon">📈</div>
+        <h3>Fortschritt, den du siehst</h3>
+        <p>Level, Tagesziel und eine Serie, die du nicht abreißen lassen willst.
+           Lernen fühlt sich an wie ein Spiel – nur dass du danach wirklich sprichst.</p>
+        <div class="img-slot">📷 Platz für deinen Screenshot:<br />Startseite mit Sprach-Reise &amp; XP</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GAMIFICATION ============ -->
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="game-band reveal">
+      <div class="game-inner">
+        <div>
+          <span class="eyebrow" style="background:rgba(255,255,255,.12);color:#ffb37a">🔥 Dranbleiben leicht gemacht</span>
+          <h2>Der Trick: Du willst weitermachen</h2>
+          <p>Punkte für jedes gelernte Wort, Level mit Titeln, ein Tagesziel und eine
+             Serie, die wächst. Kleine Erfolge, die aus Vorsätzen Gewohnheiten machen.</p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-num" data-count="10">0</div><div class="stat-label">XP pro gewusster Vokabel</div></div>
+          <div class="stat"><div class="stat-num" data-count="9">0</div><div class="stat-label">Level bis zur Legende</div></div>
+          <div class="stat"><div class="stat-num" data-count="6">0</div><div class="stat-label">Stufen im Karteikasten</div></div>
+          <div class="stat"><div class="stat-num" data-count="3">0</div><div class="stat-label">Mini-Spiele zum Üben</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PREISE ============ -->
+<section class="section" id="plans" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Fair &amp; flexibel</span>
+      <h2>Starte kostenlos. Bleib, wenn's dir gefällt.</h2>
+      <p>Alle Lernfunktionen sind gratis. Premium schaltet die KI-Werkzeuge und die Synchronisation frei.</p>
+    </div>
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="plan-name">Kostenlos</div>
+        <div class="plan-price">0 €</div>
+        <div class="plan-hint">Für immer</div>
+        <ul>
+          <li><span class="check">✓</span> Unbegrenzt Videos lernen</li>
+          <li><span class="check">✓</span> Alle Lektionen &amp; Mini-Spiele</li>
+          <li><span class="check">✓</span> Vokabeltrainer mit XP &amp; Level</li>
+          <li><span class="check">✓</span> 10 KI-Generierungen</li>
+        </ul>
+        <a class="btn btn-ghost" href="#">Loslegen</a>
+      </div>
+
+      <div class="plan plan-best reveal d1">
+        <span class="plan-flag">Beliebteste Wahl · 30 % sparen</span>
+        <div class="plan-name">Premium Jahr</div>
+        <div class="plan-price">50 €<small> / Jahr</small></div>
+        <div class="plan-hint">entspricht 4,17 € pro Monat</div>
+        <ul>
+          <li><span class="check">✓</span> Alles aus Kostenlos</li>
+          <li><span class="check">✓</span> Unbegrenzte KI-Vokabellisten</li>
+          <li><span class="check">✓</span> Buchzusammenfassungen</li>
+          <li><span class="check">✓</span> Sync auf allen Geräten</li>
+          <li><span class="check">✓</span> Offline-Modus &amp; Erinnerungen</li>
+        </ul>
+        <a class="btn" href="#">Premium holen</a>
+      </div>
+
+      <div class="plan reveal d2">
+        <div class="plan-name">Premium Monat</div>
+        <div class="plan-price">5,99 €<small> / Monat</small></div>
+        <div class="plan-hint">Monatlich kündbar · oder 89 € einmalig für immer</div>
+        <ul>
+          <li><span class="check">✓</span> Alle Premium-Funktionen</li>
+          <li><span class="check">✓</span> Jederzeit kündbar</li>
+          <li><span class="check">✓</span> Lifetime-Option verfügbar</li>
+        </ul>
+        <a class="btn btn-ghost" href="#">Monatlich starten</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="section" id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="eyebrow">Gute Fragen</span>
+      <h2>Häufig gefragt</h2>
+    </div>
+    <div class="faq">
+      <details class="reveal" open>
+        <summary>Brauche ich Vorkenntnisse?</summary>
+        <p>Nein. Die Lektionen starten bei „Hola" und bauen aufeinander auf. Für die
+           Videos empfehlen wir Anfängern unsere langsamen Empfehlungen – mit
+           Untertiteln und Übersetzung verstehst du vom ersten Tag an mehr, als du denkst.</p>
+      </details>
+      <details class="reveal">
+        <summary>Was kostet mich das wirklich?</summary>
+        <p>Der komplette Lernbereich – Videos, Lektionen, Vokabeltrainer, Spiele – ist
+           dauerhaft kostenlos. Premium brauchst du nur für die KI-Werkzeuge und die
+           Geräte-Synchronisation.</p>
+      </details>
+      <details class="reveal">
+        <summary>Woher kommen die Videos?</summary>
+        <p>Von YouTube. Du fügst einen Link ein oder wählst aus unseren Empfehlungen.
+           Abgespielt wird immer im offiziellen YouTube-Player – die Creator behalten
+           ihre Aufrufe.</p>
+      </details>
+      <details class="reveal">
+        <summary>Wie lange sollte ich täglich lernen?</summary>
+        <p>15 Minuten reichen. Setz dir in der App ein Tagesziel und halte deine Serie
+           am Leben – Regelmäßigkeit schlägt lange Lerneinheiten.</p>
+      </details>
+      <details class="reveal">
+        <summary>Gibt es eine App fürs Handy?</summary>
+        <p>Habloo läuft im Browser auf jedem Gerät – auch auf dem Handy. Die Apps für
+           iOS und Android sind in Arbeit.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABSCHLUSS ============ -->
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="final reveal">
+      <div class="blob blob-1" style="opacity:.35"></div>
+      <h2>¿Empezamos?</h2>
+      <p>Such dir ein Video aus, das dich interessiert – den Rest übernimmt Habloo.</p>
+      <a class="btn" href="#">Kostenlos loslegen</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FUSSZEILE ============ -->
+<footer>
+  <div class="wrap foot">
+    <div><a class="logo" href="#top" style="font-size:1.1rem"><span class="logo-badge" style="width:28px;height:28px;font-size:1.1rem">¡</span>Habloo</a></div>
+    <div>
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+      <a href="#">Kontakt</a>
+    </div>
+    <div>Mit Herz entwickelt von Klarwerk Digital</div>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   Kleine Skripte – alles ohne fremde Bibliotheken
+   ========================================================= */
+
+// 1) Elemente einblenden, sobald sie in den Blick scrollen
+const beobachter = new IntersectionObserver((eintraege) => {
+  eintraege.forEach((e) => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      beobachter.unobserve(e.target); // nur einmal animieren
+    }
+  });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach((el) => beobachter.observe(el));
+
+// 2) Kopfzeile bekommt beim Scrollen eine feine Trennlinie
+const kopf = document.getElementById('head');
+addEventListener('scroll', () => {
+  kopf.classList.toggle('scrolled', scrollY > 10);
+});
+
+// 3) Zahlen zählen hoch, wenn sie sichtbar werden
+const zaehlerBeobachter = new IntersectionObserver((eintraege) => {
+  eintraege.forEach((e) => {
+    if (!e.isIntersecting) return;
+    const el = e.target;
+    const ziel = Number(el.dataset.count);
+    let wert = 0;
+    const schritt = Math.max(1, Math.round(ziel / 24));
+    const timer = setInterval(() => {
+      wert = Math.min(ziel, wert + schritt);
+      el.textContent = wert;
+      if (wert >= ziel) clearInterval(timer);
+    }, 40);
+    zaehlerBeobachter.unobserve(el);
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach((el) => zaehlerBeobachter.observe(el));
+
+// 4) Die Live-Demo im Handy: Untertitel laufen mit, Wort wird angetippt
+const zeilen = document.querySelectorAll('#demoLines .demo-line');
+const karte = document.getElementById('demoCard');
+const demoWort = document.getElementById('demoWord');
+let index = 0;
+
+function demoSchritt() {
+  zeilen.forEach((z, i) => z.classList.toggle('active', i === index));
+
+  // Bei der Zeile mit dem Beispielwort: Wort "antippen" und Karte zeigen
+  if (index === 3) {
+    setTimeout(() => {
+      demoWort.classList.add('tapped');
+      karte.classList.add('show');
+    }, 700);
+  } else {
+    demoWort.classList.remove('tapped');
+    karte.classList.remove('show');
+  }
+
+  index = (index + 1) % zeilen.length;
+}
+
+demoSchritt();
+setInterval(demoSchritt, 2600);
+</script>
+</body>
+</html>
