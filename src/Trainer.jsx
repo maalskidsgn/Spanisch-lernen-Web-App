@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  vorschau,
   LEVEL_LABELS,
   INTERVALS_DAYS,
   review,
@@ -54,30 +55,33 @@ export default function Trainer({ vocab, setVocab, addXp }) {
     setResult({ richtig: 0, falsch: 0 })
   }
 
-  // Antwort im Training: erst die Karten-Animation abspielen (wegfliegen bzw.
-  // wackeln), dann Vokabel neu einstufen, XP gutschreiben und zur nächsten Karte
-  function answer(known) {
-    if (exiting) return // nicht doppelt klicken, während die Karte animiert
-    setExiting(known ? 'richtig' : 'falsch')
+  // Antwort im Training: die Karte fliegt in die passende Richtung weg,
+  // dann wird die Vokabel neu eingestuft und die nächste Karte gezeigt.
+  // "nochmal" links, "schwer" schräg links, "gut" rechts, "einfach" weit rechts.
+  function answer(bewertung) {
+    if (exiting) return // nicht doppelt klicken, während die Karte fliegt
+    setExiting(bewertung)
 
     setTimeout(() => {
       const word = queue[0]
-      setVocab((v) => ({ ...v, [word]: review(withSrsDefaults(v[word]), known) }))
+      const gewusst = bewertung !== 'nochmal'
+
+      setVocab((v) => ({ ...v, [word]: review(withSrsDefaults(v[word]), bewertung) }))
       setResult((r) => ({
-        richtig: r.richtig + (known ? 1 : 0),
-        falsch: r.falsch + (known ? 0 : 1),
+        richtig: r.richtig + (gewusst ? 1 : 0),
+        falsch: r.falsch + (gewusst ? 0 : 1),
       }))
-      // Falsche Wörter kommen ans Ende der Runde und werden gleich nochmal gefragt
-      const nextQueue = known ? queue.slice(1) : [...queue.slice(1), word]
+      // Nicht gewusste Wörter kommen ans Ende der Runde und werden gleich nochmal gefragt
+      const nextQueue = gewusst ? queue.slice(1) : [...queue.slice(1), word]
       // XP: fürs Antworten – und Bonus, wenn damit die Runde geschafft ist
-      let earned = known ? XP.RICHTIG : XP.FALSCH
+      let earned = gewusst ? XP.RICHTIG : XP.FALSCH
       if (nextQueue.length === 0) earned += XP.RUNDE
       addXp(earned)
       setXpPopup({ amount: earned, key: Date.now() }) // key sorgt dafür, dass die Animation neu startet
       setQueue(nextQueue)
       setRevealed(false)
       setExiting(null)
-    }, 380) // so lange dauert die Karten-Animation
+    }, 420) // so lange fliegt die Karte
   }
 
   function removeWord(word) {
@@ -127,23 +131,33 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         )}
         <p className="training-progress">Noch {queue.length} Karten</p>
         <div
-          className={
-            'flashcard ' +
-            (exiting === 'richtig' ? 'card-richtig' : exiting === 'falsch' ? 'card-falsch' : '')
-          }
+          className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
           key={queue[0] + queue.length}
         >
           <div className="flash-word">{queue[0]}</div>
           {revealed ? (
             <div className="flash-back">
               <div className="flash-translation">{current?.translation || '(keine Übersetzung gespeichert)'}</div>
-              <div className="flash-actions">
-                <button className="btn-wrong" onClick={() => answer(false)}>
-                  Nicht gewusst
-                </button>
-                <button className="btn-right" onClick={() => answer(true)}>
-                  Gewusst ✓
-                </button>
+              {/* Vier Bewertungen wie bei Anki – darunter steht,
+                  wann die Vokabel dadurch wieder drankommt */}
+              <div className="bewertungen">
+                {[
+                  { wert: 'nochmal', text: 'Nochmal' },
+                  { wert: 'schwer', text: 'Schwer' },
+                  { wert: 'gut', text: 'Gut' },
+                  { wert: 'einfach', text: 'Einfach' },
+                ].map((b) => (
+                  <button
+                    key={b.wert}
+                    className={'bewertung bewertung-' + b.wert}
+                    onClick={() => answer(b.wert)}
+                  >
+                    <span className="bewertung-text">{b.text}</span>
+                    <span className="bewertung-zeit">
+                      {vorschau(withSrsDefaults(current ?? {}), b.wert)}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
           ) : (
@@ -169,9 +183,9 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         </button>
       </div>
       <p className="intro">
-        {entries.length} Wörter gesamt · {dueEntries.length} jetzt fällig. Richtig
-        beantwortete Wörter rücken eine Stufe hoch und kommen seltener dran –
-        falsche fallen zurück auf "Neu".
+        {entries.length} Wörter gesamt · {dueEntries.length} jetzt fällig. Nach
+        jeder Antwort wächst der Abstand bis zur nächsten Abfrage – bei „Gut"
+        aus einem Tag drei, daraus eine Woche. „Nochmal" setzt zurück.
       </p>
 
       {/* Mini-Spiele mit den eigenen Vokabeln */}

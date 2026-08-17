@@ -36,23 +36,112 @@ export function withSrsDefaults(entry) {
   }
 }
 
-// Das Herzstück: Was passiert nach einer Antwort im Training?
-export function review(entry, known) {
-  if (!known) {
-    // Falsch: zurück auf Stufe 0, in 10 Minuten wieder fällig
-    return { ...entry, level: 0, due: Date.now() + 10 * 60 * 1000, status: 'neu' }
+// ---------------------------------------------------------------
+//  Das Herzstück: die vier Bewertungen (wie bei Anki)
+// ---------------------------------------------------------------
+//
+// Statt fester Fächer wächst der Abstand mit jeder guten Antwort:
+// aus 1 Tag werden 3, daraus 8, daraus 20 … Wie stark er wächst,
+// steuert die "Leichtigkeit" – sie sinkt bei schweren Karten und
+// steigt bei einfachen. Genau so arbeitet auch Anki.
+
+export const BEWERTUNGEN = ['nochmal', 'schwer', 'gut', 'einfach']
+
+const START_LEICHTIGKEIT = 2.5   // Standard-Multiplikator
+const MIN_LEICHTIGKEIT = 1.3     // darunter wird es nicht zäher
+const ERSTES_INTERVALL = 1       // erste gute Antwort: morgen wieder
+const MAX_TAGE = 365             // ein Jahr ist genug
+
+/** Leitet aus dem Abstand in Tagen die Karteikasten-Stufe ab (für Filter und Anzeige). */
+export function stufeAusIntervall(tage) {
+  let stufe = 0
+  for (let i = 0; i < INTERVALS_DAYS.length; i++) {
+    if (tage >= INTERVALS_DAYS[i]) stufe = i
   }
-  const nextLevel = (entry.level ?? 0) + 1
-  if (nextLevel > MAX_LEVEL) {
-    // Auch die letzte Stufe (3 Monate) bestanden -> gilt als gewusst
-    return { ...entry, level: MAX_LEVEL, status: 'gewusst' }
+  return stufe
+}
+
+/** Holt Abstand und Leichtigkeit – auch bei alten Einträgen, die nur "level" haben. */
+function zustand(entry) {
+  return {
+    intervall: entry.intervall ?? INTERVALS_DAYS[entry.level ?? 0] ?? 0,
+    leichtigkeit: entry.leichtigkeit ?? START_LEICHTIGKEIT,
   }
+}
+
+function fertig(entry, intervall, leichtigkeit) {
+  const tage = Math.min(Math.round(intervall * 10) / 10, MAX_TAGE)
   return {
     ...entry,
-    level: nextLevel,
-    due: Date.now() + INTERVALS_DAYS[nextLevel] * DAY_MS,
-    status: 'lernen',
+    intervall: tage,
+    leichtigkeit: Math.round(leichtigkeit * 100) / 100,
+    level: stufeAusIntervall(tage),
+    due: Date.now() + tage * DAY_MS,
+    status: tage >= 90 ? 'gewusst' : 'lernen',
   }
+}
+
+/**
+ * Berechnet aus einer Bewertung den nächsten Termin.
+ *
+ * nochmal – gar nicht gewusst: in 15 Minuten erneut, Abstand zurück auf 0
+ * schwer  – mit Mühe erinnert: nur wenig längerer Abstand
+ * gut     – sicher gewusst: Abstand mal Leichtigkeit
+ * einfach – sofort klar: noch etwas mehr Abstand
+ *
+ * @param {object} entry     – die Vokabel
+ * @param {string} bewertung – 'nochmal' | 'schwer' | 'gut' | 'einfach'
+ *   (true/false aus älteren Aufrufen werden weiter verstanden)
+ */
+export function review(entry, bewertung) {
+  if (bewertung === true) bewertung = 'gut'
+  if (bewertung === false) bewertung = 'nochmal'
+
+  const { intervall, leichtigkeit } = zustand(entry)
+
+  if (bewertung === 'nochmal') {
+    // Von vorn anfangen und in 15 Minuten noch einmal zeigen
+    return {
+      ...entry,
+      intervall: 0,
+      leichtigkeit: Math.max(MIN_LEICHTIGKEIT, leichtigkeit - 0.2),
+      level: 0,
+      due: Date.now() + 15 * 60 * 1000,
+      status: 'neu',
+    }
+  }
+
+  if (bewertung === 'schwer') {
+    // Kaum längerer Abstand, und die Karte gilt künftig als zäher
+    const tage = intervall === 0 ? 0.5 : intervall * 1.2
+    return fertig(entry, tage, Math.max(MIN_LEICHTIGKEIT, leichtigkeit - 0.15))
+  }
+
+  if (bewertung === 'einfach') {
+    const tage = intervall === 0 ? ERSTES_INTERVALL * 3 : intervall * leichtigkeit * 1.3
+    return fertig(entry, tage, leichtigkeit + 0.15)
+  }
+
+  // 'gut'
+  const tage = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
+  return fertig(entry, tage, leichtigkeit)
+}
+
+/** Wie lange dauert es bei dieser Bewertung bis zur Wiederholung? Für die Knöpfe. */
+export function vorschau(entry, bewertung) {
+  if (bewertung === 'nochmal') return '15 Min'
+
+  const { intervall, leichtigkeit } = zustand(entry)
+  let tage
+  if (bewertung === 'schwer') tage = intervall === 0 ? 0.5 : intervall * 1.2
+  else if (bewertung === 'einfach') tage = intervall === 0 ? 3 : intervall * leichtigkeit * 1.3
+  else tage = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
+
+  tage = Math.min(tage, MAX_TAGE)
+  if (tage < 1) return Math.round(tage * 24) + ' Std'
+  if (tage < 30) return Math.round(tage) + (Math.round(tage) === 1 ? ' Tag' : ' Tage')
+  if (tage < 365) return Math.round(tage / 30) + ' Mon.'
+  return '1 Jahr'
 }
 
 // Ist die Vokabel gerade zum Üben fällig?
