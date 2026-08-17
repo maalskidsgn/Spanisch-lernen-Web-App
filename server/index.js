@@ -46,8 +46,15 @@ function extractVideoId(url) {
 function runYtDlp(args) {
   return new Promise((resolve, reject) => {
     execFile('yt-dlp', args, { timeout: 60000 }, (err, stdout, stderr) => {
-      if (err) reject(new Error(stderr || err.message))
-      else resolve(stdout)
+      if (err) {
+        // Besser: YouTube-Blockade erkennen und verständlich erklären
+        if (stderr?.includes('Sign in to confirm you\'re not a bot') || stderr?.includes('429')) {
+          reject(new Error('YouTube hat diese Anfrage blockiert (zu viele Zugriffe von diesem Server). Das ist bei Rechenzentrums-IPs häufig. Lokal (auf der Mac) funktioniert es.'))
+        } else {
+          reject(new Error(stderr || err.message))
+        }
+      } else {
+        resolve(stdout)
     })
   })
 }
