@@ -3101,3 +3101,150 @@ body.liest-buch .library { padding-top: 8px; }
   .wortkarte-hintergrund { place-items: center; }
   .wortkarte { margin-bottom: 0; }
 }
+
+/* ============================================================
+   LESE-MODUS: Fokus aufs Video, Werkzeuge als Menü daneben
+   ============================================================ */
+
+/* Im Fokus: Navigation weg, nur Video und Text */
+body.liest-video .topbar,
+body.liest-video .bottom-nav { display: none !important; }
+body.liest-video .app > main { padding-top: 14px; }
+
+/* Der Zurück-Knopf – orange und deutlich sichtbar,
+   sowohl bei Videos als auch bei E-Books */
+.zurueck-knopf,
+.leser-kopf .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 800;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 10px rgba(255, 108, 0, .3);
+  transition: filter .15s, transform .1s;
+}
+.zurueck-knopf:hover,
+.leser-kopf .back-link:hover { filter: brightness(1.07); }
+.zurueck-knopf:active,
+.leser-kopf .back-link:active { transform: scale(.97); }
+
+/* ---------- Werkzeugleiste neben dem Video ---------- */
+.werkzeuge {
+  display: grid;
+  gap: 16px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 6px 22px rgba(0, 0, 65, .07);
+}
+
+.werkzeug-gruppe { display: grid; gap: 8px; }
+.werkzeug-gruppe:not(:last-child) {
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--line);
+}
+.werkzeug-titel {
+  font-size: .76rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* Abspielen, Springen */
+.werkzeug-gruppe:first-child {
+  grid-auto-flow: column;
+  justify-content: start;
+  align-items: center;
+  gap: 9px;
+}
+.werkzeug-knopf {
+  font-family: inherit;
+  font-size: .84rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: border-color .15s, transform .1s;
+}
+.werkzeug-knopf:hover { border-color: var(--primary); }
+.werkzeug-knopf:active { transform: scale(.95); }
+.werkzeug-gross {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  font-size: 1.1rem;
+  padding: 8px 18px;
+}
+.werkzeug-gross:hover { filter: brightness(1.07); border-color: var(--primary); }
+
+/* Tempo */
+.tempo-reihe { display: flex; gap: 6px; flex-wrap: wrap; }
+.tempo-knopf {
+  font-family: inherit;
+  font-size: .8rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.tempo-knopf:hover { border-color: var(--primary); }
+.tempo-aktiv {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+/* Schalter */
+.werkzeug-schalter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.werkzeug-schalter input { width: 17px; height: 17px; accent-color: var(--primary); cursor: pointer; }
+.werkzeug-schalter input:disabled { cursor: wait; }
+
+/* Aktionen */
+.werkzeug-aktion {
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 13px;
+  padding: 11px 15px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s, background .15s;
+}
+.werkzeug-aktion:hover { border-color: var(--primary); background: #fff; }
+.aktion-fertig {
+  background: #e8f7ee;
+  border-color: var(--success);
+  color: #1f7a45;
+}
+
+@media (max-width: 900px) {
+  .werkzeuge { padding: 15px; }
+  .werkzeug-gruppe:first-child { flex-wrap: wrap; }
+}

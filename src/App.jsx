@@ -151,6 +151,8 @@ export default function App() {
   const [deLoading, setDeLoading] = useState(false)
   const [activeLine, setActiveLine] = useState(-1) // welche Zeile gerade gesprochen wird
   const [autoScroll, setAutoScroll] = useState(true)
+  const [laeuft, setLaeuft] = useState(false) // spielt das Video gerade?
+  const [tempo, setTempo] = useState(1) // Abspielgeschwindigkeit
   const [view, setView] = useState('start') // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
   const [savedVideos, setSavedVideos] = useState(loadSavedVideos)
   const [categoryInput, setCategoryInput] = useState('')
@@ -304,6 +306,12 @@ export default function App() {
       playerRef.current = new YT.Player('yt-player', {
         videoId: video.videoId,
         playerVars: { rel: 0 },
+        events: {
+          // Damit der Pause-Knopf immer das richtige Symbol zeigt –
+          // auch wenn direkt im Player geklickt wird (1 = läuft)
+          onStateChange: (e) => setLaeuft(e.data === 1),
+          onReady: () => { setLaeuft(false); setTempo(1) },
+        },
       })
     })
     return () => {
@@ -399,6 +407,37 @@ export default function App() {
       setLoading(false)
     }
   }
+
+  // ---------- Steuerung des YouTube-Players ----------
+
+  /** Startet oder pausiert das Video. */
+  function spielPause() {
+    const p = playerRef.current
+    if (!p) return
+    // 1 = läuft (YouTube-Zustandscode)
+    if (p.getPlayerState?.() === 1) p.pauseVideo()
+    else p.playVideo()
+  }
+
+  /** Springt um einige Sekunden vor oder zurück. */
+  function springe(sekunden) {
+    const p = playerRef.current
+    if (!p?.getCurrentTime) return
+    p.seekTo(Math.max(0, p.getCurrentTime() + sekunden), true)
+  }
+
+  /** Ändert die Abspielgeschwindigkeit (langsamer = leichter zu verstehen). */
+  function setzeTempo(wert) {
+    playerRef.current?.setPlaybackRate?.(wert)
+    setTempo(wert)
+  }
+
+  // Beim Lesen eines Videos die Navigation ausblenden
+  useEffect(() => {
+    const liest = view === 'lesen' && Boolean(video)
+    document.body.classList.toggle('liest-video', liest)
+    return () => document.body.classList.remove('liest-video')
+  }, [view, video])
 
   // Aus der Video-Bibliothek: Video öffnen und in den Lese-Modus wechseln
   function openVideo(videoId) {
@@ -699,7 +738,7 @@ export default function App() {
 
       {view === 'lesen' && (
       <main>
-        <button className="btn-plain back-link" onClick={() => setView('videos')}>
+        <button className="zurueck-knopf" onClick={() => setView('videos')}>
           ← Zu den Videos
         </button>
 
@@ -726,28 +765,78 @@ export default function App() {
               </div>
               <h2>{video.title}</h2>
 
-              <div className="toggle-row">
-                <label className="autoscroll-toggle">
-                  <input
-                    type="checkbox"
-                    checked={autoScroll}
-                    onChange={(e) => setAutoScroll(e.target.checked)}
-                  />
-                  Text läuft mit
-                </label>
-                {/* Blendet die deutsche Fassung ein. Bei Videos aus der
-                    Bibliothek liegt sie fertig vor und erscheint sofort. */}
-                <button
-                  className={'de-toggle' + (showDe ? ' de-an' : '')}
-                  onClick={toggleUebersetzung}
-                  disabled={deLoading}
-                >
-                  {deLoading
-                    ? 'Übersetze…'
-                    : showDe
-                      ? '🇩🇪 Übersetzung aus'
-                      : '🇩🇪 Übersetzung an'}
-                </button>
+              {/* ---------- Werkzeugleiste zum Video ---------- */}
+              <div className="werkzeuge">
+                {/* Abspielen und Tempo */}
+                <div className="werkzeug-gruppe">
+                  <button
+                    className="werkzeug-knopf werkzeug-gross"
+                    onClick={spielPause}
+                    title={laeuft ? 'Pause' : 'Abspielen'}
+                  >
+                    {laeuft ? '⏸' : '▶'}
+                  </button>
+                  <button className="werkzeug-knopf" onClick={() => springe(-5)} title="5 Sekunden zurück">
+                    ↺ 5s
+                  </button>
+                  <button className="werkzeug-knopf" onClick={() => springe(5)} title="5 Sekunden vor">
+                    5s ↻
+                  </button>
+                </div>
+
+                <div className="werkzeug-gruppe">
+                  <span className="werkzeug-titel">Tempo</span>
+                  <div className="tempo-reihe">
+                    {[0.5, 0.75, 1, 1.25].map((t) => (
+                      <button
+                        key={t}
+                        className={'tempo-knopf' + (tempo === t ? ' tempo-aktiv' : '')}
+                        onClick={() => setzeTempo(t)}
+                      >
+                        {t === 1 ? 'Normal' : t + '×'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Anzeige-Einstellungen */}
+                <div className="werkzeug-gruppe">
+                  <label className="werkzeug-schalter">
+                    <input
+                      type="checkbox"
+                      checked={autoScroll}
+                      onChange={(e) => setAutoScroll(e.target.checked)}
+                    />
+                    <span>Text läuft mit</span>
+                  </label>
+                  {/* Bei Videos aus der Bibliothek liegt die deutsche
+                      Fassung fertig vor und erscheint ohne Wartezeit. */}
+                  <label className="werkzeug-schalter">
+                    <input
+                      type="checkbox"
+                      checked={showDe}
+                      onChange={toggleUebersetzung}
+                      disabled={deLoading}
+                    />
+                    <span>{deLoading ? 'Übersetze …' : '🇩🇪 Übersetzung'}</span>
+                  </label>
+                </div>
+
+                {/* Aktionen */}
+                <div className="werkzeug-gruppe">
+                  <button
+                    className="werkzeug-aktion"
+                    onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
+                  >
+                    ✨ Vokabeln generieren
+                  </button>
+                  <button
+                    className={'werkzeug-aktion' + (currentSaved ? ' aktion-fertig' : '')}
+                    onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
+                  >
+                    {currentSaved ? '✓ Gemerkt' : '💾 Video merken'}
+                  </button>
+                </div>
               </div>
 
               {currentSaved?.category && (
@@ -833,28 +922,6 @@ export default function App() {
         {/* Schwebende Aktions-Knöpfe unten rechts: Generator & Speichern */}
         {video && (
           <>
-            <div className="fab-stack">
-              <button
-                className="fab"
-                title="Vokabeln aus dem Video generieren"
-                onClick={() => {
-                  setGenOpen(!genOpen)
-                  setSaveOpen(false)
-                }}
-              >
-                ✨
-              </button>
-              <button
-                className={'fab fab-secondary' + (currentSaved ? ' fab-done' : '')}
-                title={currentSaved ? 'Video ist gespeichert' : 'Video speichern & kategorisieren'}
-                onClick={() => {
-                  setSaveOpen(!saveOpen)
-                  setGenOpen(false)
-                }}
-              >
-                {currentSaved ? '✓' : '💾'}
-              </button>
-            </div>
 
             {saveOpen && (
               <div className="fab-panel">
