@@ -177,7 +177,12 @@ export default function App() {
   const [laeuft, setLaeuft] = useState(false) // spielt das Video gerade?
   const [tempo, setTempo] = useState(1) // Abspielgeschwindigkeit
   const [aktuelleArt, setAktuelleArt] = useState('video') // 'video' | 'musik'
-  const [view, setView] = useState('start') // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
+  // Kommt der Nutzer von Spotify zurueck (Adresse /spotify?code=...),
+  // starten wir gleich im Songs-Bereich – sonst landet er auf der
+  // Startseite und der Code wird nie eingeloest.
+  const [view, setView] = useState(() =>
+    new URLSearchParams(window.location.search).get('code') ? 'videos' : 'start'
+  ) // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
   const [savedVideos, setSavedVideos] = useState(loadSavedVideos)
   const [categoryInput, setCategoryInput] = useState('')
   const [progress, setProgress] = useState(loadProgress) // XP, Streak, letzter Lerntag

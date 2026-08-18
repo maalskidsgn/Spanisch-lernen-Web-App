@@ -73,7 +73,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
   const savedVideos = alleGemerkten.filter((v) => v.art !== 'musik')
-  const [bereich, setBereich] = useState('videos') // 'videos' oder 'buecher'
+  // Kommt der Nutzer von Spotify zurueck, gehoert er direkt zu den Songs –
+  // dort wird der Code eingeloest und die Auswertung gestartet.
+  const [bereich, setBereich] = useState(() =>
+    new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
+  ) // 'videos', 'songs' oder 'buecher'
   const [buecher, setBuecher] = useState(ladeBuecher)
   const [buchTitel, setBuchTitel] = useState('')
   const [buchLaden, setBuchLaden] = useState(false)
