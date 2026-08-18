@@ -3258,7 +3258,7 @@ body.liest-video .app > main { padding-top: 14px; }
 
 body.liest-video .reader {
   display: block;
-  max-width: 780px;
+  max-width: 860px;
   margin: 0 auto;
   /* Platz für die Fußzeile freihalten */
   padding-bottom: 96px;
@@ -3266,7 +3266,9 @@ body.liest-video .reader {
 
 /* Video oben – kompakt, damit der Text die Hauptrolle spielt */
 body.liest-video .video-pane {
-  max-width: 460px;
+  /* Auf großen Bildschirmen darf das Video deutlich größer sein –
+     es ist schließlich das, was man anschaut. */
+  max-width: 760px;
   margin: 0 auto 4px;
 }
 body.liest-video .video-pane h2 {
@@ -3287,8 +3289,8 @@ body.liest-video .text-pane {
      nie ankommen. Das Gleiten macht stattdessen der Code. */
   max-width: 680px;
   margin: 0 auto;
-  height: calc(100vh - 430px);
-  min-height: 220px;
+  height: calc(100vh - 560px);
+  min-height: 200px;
   overflow-y: auto;
   scrollbar-width: none;
   /* oben und unten ausblenden, damit der Text sanft hereinläuft */
@@ -4023,4 +4025,14 @@ body.liest-video .fab-panel {
 
 @media (max-width: 560px) {
   .filter-knopf { font-size: .77rem; padding: 6px 11px; }
+}
+
+/* Video-Größe an die Bildschirmhöhe anpassen: auf flachen Fenstern
+   schrumpft es, damit Text und Fußzeile noch Platz haben. */
+@media (max-height: 800px) {
+  body.liest-video .video-pane { max-width: 560px; }
+  body.liest-video .text-pane { height: calc(100vh - 450px); }
+}
+@media (max-width: 820px) {
+  body.liest-video .video-pane { max-width: 100%; }
 }
