@@ -7,6 +7,7 @@ import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
+import { findeSpanischeInterpreten } from './interpreten.js'
 import {
   holeTranskript as holeUeberDienst,
   tubeAlfredBereit,
