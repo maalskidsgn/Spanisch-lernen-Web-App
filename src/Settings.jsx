@@ -214,7 +214,8 @@ export default function Settings({
       <div className="plan-grid">
         <div className="plan-card plan-active">
           <div className="plan-name">
-            Kostenlos <span className="plan-badge">Aktueller Plan</span>
+            Kostenlos{' '}
+            {!premium && <span className="plan-badge">Aktueller Plan</span>}
           </div>
           <ul className="plan-features">
             <li>Unbegrenzt Videos lesen</li>
