@@ -246,6 +246,25 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
       {bereich === 'videos' && (
       <>
+      {/* Eigenes Video laden – Transkripte holt der Server notfalls
+          über einen Dienst, wenn YouTube ihn selbst abweist */}
+      <form
+        className="url-form"
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (link.trim()) onLoadUrl(link.trim())
+        }}
+      >
+        <input
+          type="text"
+          value={link}
+          onChange={(e) => setLink(e.target.value)}
+          placeholder="YouTube-Link einfügen…"
+          required
+        />
+        <button type="submit">Laden</button>
+      </form>
+
       {/* ---------- Gespeicherte Videos ---------- */}
       {savedVideos.length === 0 ? (
         <p className="intro">

@@ -7,6 +7,7 @@ import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
+import { holeTranskript as holeUeberDienst, tubeAlfredBereit } from './transkripte.js'
 import {
   erzeugeEbook,
   nutzerAusToken,
@@ -128,6 +129,18 @@ app.get('/api/transcript', async (req, res) => {
 
     res.json({ videoId, title, lines })
   } catch (err) {
+    // yt-dlp scheitert auf Servern regelmäßig an YouTubes Bot-Sperre.
+    // Dann übernimmt TubeAlfred – das kostet ein Guthaben, deshalb
+    // wird es bewusst erst hier versucht.
+    if (tubeAlfredBereit()) {
+      try {
+        console.log('yt-dlp blockiert, frage TubeAlfred:', videoId)
+        return res.json(await holeUeberDienst(videoId))
+      } catch (dienstFehler) {
+        console.error('TubeAlfred:', dienstFehler.message)
+        return res.status(502).json({ error: dienstFehler.message })
+      }
+    }
     console.error(err.message)
     res.status(500).json({ error: 'Transkript konnte nicht geladen werden: ' + err.message })
   } finally {
