@@ -9,6 +9,7 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import Willkommen from './Willkommen.jsx'
+import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
 
 /** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
@@ -622,6 +623,11 @@ export default function App() {
   const level = levelFromXp(progress.xp)
   const levelStartXp = xpForLevel(level)
   const nextLevelXp = xpForLevel(level + 1)
+  // Alle Kategorien, die schon vergeben wurden – für die Schnellauswahl
+  const vorhandeneKategorien = [
+    ...new Set(savedVideos.map((v) => v.category).filter(Boolean)),
+  ].sort()
+
   const levelPercent = Math.round(
     ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
   )
@@ -667,7 +673,7 @@ export default function App() {
       <header className="topbar">
         {/* Klick aufs Logo führt immer zum Start */}
         <button className="logo" onClick={() => setView('start')}>
-          <span className="logo-badge">¡</span>
+          <Logo />
           {APP_NAME}
         </button>
         <nav className="tabs">
@@ -833,19 +839,19 @@ export default function App() {
                     onClick={toggleUebersetzung}
                     disabled={deLoading}
                   >
-                    {deLoading ? 'Übersetze …' : '🇩🇪 Übersetzung'}
+                    {deLoading ? 'Übersetze …' : 'Übersetzung'}
                   </button>
                   <button
                     className="video-aktion"
                     onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
                   >
-                    ✨ Vokabeln
+                    Vokabeln sammeln
                   </button>
                   <button
                     className={'video-aktion' + (currentSaved ? ' aktion-fertig' : '')}
                     onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
                   >
-                    {currentSaved ? '✓ Gemerkt' : '💾 Merken'}
+                    {currentSaved ? 'Gemerkt' : 'Merken'}
                   </button>
                 </div>
               </div>
@@ -968,7 +974,7 @@ export default function App() {
               onClick={() => setAutoScroll(!autoScroll)}
               title="Text läuft mit dem Video mit"
             >
-              ↕ Mitlaufen
+              Mitlaufen
             </button>
           </div>
         )}
@@ -992,27 +998,42 @@ export default function App() {
                   </p>
                 ) : (
                   <div className="save-form">
+                    {/* Schon benutzte Kategorien zum Antippen – schneller
+                        als tippen und hält die Namen einheitlich */}
+                    {vorhandeneKategorien.length > 0 && (
+                      <div className="kategorie-wahl">
+                        {vorhandeneKategorien.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            className={
+                              'kategorie-chip' + (categoryInput === c ? ' kategorie-aktiv' : '')
+                            }
+                            onClick={() => setCategoryInput(categoryInput === c ? '' : c)}
+                          >
+                            {c}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <input
                       type="text"
-                      list="kategorien"
                       value={categoryInput}
                       onChange={(e) => setCategoryInput(e.target.value)}
-                      placeholder="Kategorie, z.B. Musik"
+                      placeholder={
+                        vorhandeneKategorien.length
+                          ? 'Oder neue Kategorie eingeben…'
+                          : 'Kategorie, z.B. Musik'
+                      }
                     />
-                    <datalist id="kategorien">
-                      {[...new Set(savedVideos.map((v) => v.category).filter(Boolean))].map(
-                        (c) => (
-                          <option key={c} value={c} />
-                        )
-                      )}
-                    </datalist>
                     <button
+                      className="btn"
                       onClick={() => {
                         saveVideo()
                         setSaveOpen(false)
                       }}
                     >
-                      💾 Speichern
+                      Speichern
                     </button>
                   </div>
                 )}
@@ -1022,7 +1043,7 @@ export default function App() {
             {genOpen && (
               <div className="fab-panel">
                 <div className="fab-panel-head">
-                  <b>✨ Vokabelgenerator</b>
+                  <b>Vokabelgenerator</b>
                   <button className="btn-plain" onClick={() => setGenOpen(false)}>
                     ✕
                   </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { registrieren, anmelden, passwortVergessen } from './auth.js'
+import Logo from './Logo.jsx'
 
 /**
  * Anmelde-Dialog – erscheint als Overlay über der App.
@@ -69,7 +70,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
         </button>
 
         <div className="login-kopf">
-          <span className="logo-badge login-badge">¡</span>
+          <Logo klasse="login-badge" />
           <h2>{titel}</h2>
           <p>{untertitel}</p>
         </div>

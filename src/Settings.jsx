@@ -143,9 +143,9 @@ export default function Settings({
             Kostenlos <span className="plan-badge">Aktueller Plan</span>
           </div>
           <ul className="plan-features">
-            <li>✓ Unbegrenzt Videos lesen</li>
-            <li>✓ Vokabeltrainer mit Spaced Repetition</li>
-            <li>✓ XP, Level & Tagesserie</li>
+            <li>Unbegrenzt Videos lesen</li>
+            <li>Vokabeltrainer mit Spaced Repetition</li>
+            <li>XP, Level & Tagesserie</li>
           </ul>
         </div>
         <div className="plan-card plan-premium">
@@ -153,10 +153,10 @@ export default function Settings({
             Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
           </div>
           <ul className="plan-features">
-            <li>⭐ KI-Vokabelgenerator mit Claude</li>
-            <li>⭐ Synchronisation auf allen Geräten</li>
-            <li>⭐ Offline-Modus & Statistiken</li>
-            <li>⭐ Erinnerungen als Push-Nachricht</li>
+            <li>Unbegrenzte KI-Vokabellisten</li>
+            <li>Unbegrenzte zweisprachige E-Books</li>
+            <li>Eigene Videos ohne Begrenzung</li>
+            <li>Offline-Modus & Erinnerungen</li>
           </ul>
           {/* Die drei Preis-Optionen */}
           <div className="price-options">

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { APP_NAME } from './App.jsx'
+import Logo from './Logo.jsx'
 
 /**
  * Startseite für alle, die noch nicht angemeldet sind.
@@ -38,7 +39,7 @@ export default function Willkommen({ onStarten, onAnmelden }) {
 
         <div className="wk-inhalt">
           <div className="wk-marke">
-            <span className="logo-badge wk-badge">¡</span>
+            <Logo klasse="wk-badge" />
             <span className="wk-name">{APP_NAME}</span>
           </div>
 
@@ -303,7 +304,7 @@ export default function Willkommen({ onStarten, onAnmelden }) {
       </section>
 
       <footer className="wk-footer">
-        <span className="logo-badge wk-footer-badge">¡</span>
+        <Logo klasse="wk-footer-badge" />
         <span>{APP_NAME}</span>
         <span className="wk-footer-klein">
           Mit Herz entwickelt von Klarwerk Digital

@@ -134,7 +134,7 @@ export default function ListGenerator({ vocab, setVocab }) {
             {laden ? (
               <>Stellt deine Liste zusammen<span className="studio-punkte" /></>
             ) : (
-              '✨ Liste erstellen'
+              'Liste erstellen'
             )}
           </button>
         </form>
@@ -143,7 +143,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         <div className="automatik">
           <div className="automatik-kopf">
             <div className="automatik-titel">
-              <b>🎯 Passend zu deinem Stand</b>
+              <b>Passend zu deinem Stand</b>
               <span>Die KI wählt selbst aus, was für dich als Nächstes dran ist</span>
             </div>
             <button
@@ -186,7 +186,7 @@ export default function ListGenerator({ vocab, setVocab }) {
           >
             {Object.keys(vocab).length < 5
               ? 'Sammle erst 5 Wörter'
-              : '🎯 Für mich auswählen lassen'}
+              : 'Für mich auswählen lassen'}
           </button>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         <div className="gen-list">
           {begruendung && (
             <div className="gen-begruendung">
-              <span className="gen-begruendung-marke">🎯 Warum diese Wörter?</span>
+              <span className="gen-begruendung-marke">Warum diese Wörter?</span>
               <p>{begruendung}</p>
             </div>
           )}

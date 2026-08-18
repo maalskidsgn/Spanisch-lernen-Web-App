@@ -86,7 +86,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
       {!suggestions && (
         <>
           <button onClick={generate} disabled={loading}>
-            {loading ? 'Analysiere Text…' : '✨ Vokabeln generieren'}
+            {loading ? 'Analysiere Text…' : 'Vokabeln generieren'}
           </button>
           <p className="free-hint">
             Noch {uebrig} von {FREE_LIMIT} kostenlos

@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <!-- Habloo-Logo: das ¡ auf orangem Badge.
-       Das Zeichen ist als Formen gezeichnet (nicht als Schrift),
-       damit es überall identisch aussieht. -->
+  <!-- Habloo-Zeichen: eine Sprechblase (Sprache) mit einem Funken (KI).
+       Alles als Formen gezeichnet, damit es überall gleich aussieht. -->
   <defs>
     <linearGradient id="orange" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#ff8124" />
@@ -11,13 +10,17 @@
 
   <rect width="64" height="64" rx="15" fill="url(#orange)" />
 
-  <!-- Punkt oben -->
-  <circle cx="32" cy="18" r="5.4" fill="#fff" />
-
-  <!-- Strich darunter: oben breit, nach unten leicht schmaler,
-       Unterkante abgerundet -->
+  <!-- Sprechblase mit Spitze unten links -->
   <path
-    d="M27.2 29.4h9.6l-1 15.1a3.6 3.6 0 0 1-7.6 0l-1-15.1z"
+    d="M17 15h30a7 7 0 0 1 7 7v17a7 7 0 0 1-7 7H29l-10 8.5V46h-2a7 7 0 0 1-7-7V22a7 7 0 0 1 7-7z"
     fill="#fff"
   />
+
+  <!-- Vierzackiger Funke: das Zeichen für KI -->
+  <path
+    d="M32 21.5c1.15 4.6 2.4 5.85 7 7-4.6 1.15-5.85 2.4-7 7-1.15-4.6-2.4-5.85-7-7 4.6-1.15 5.85-2.4 7-7z"
+    fill="#ff6c00"
+  />
+  <!-- Kleiner zweiter Funke für die Andeutung von Bewegung -->
+  <circle cx="43.5" cy="24.5" r="2.4" fill="#ff9a40" />
 </svg>

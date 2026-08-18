@@ -161,17 +161,19 @@ main {
 .logo:hover { background: #ffe4cc; filter: none; }
 .logo:active { transform: scale(0.96); box-shadow: none; }
 .logo-badge {
-  background: var(--primary); /* das ¡ leuchtet wieder in Habloo-Orange */
+  background: var(--primary);
+  /* currentColor färbt die Sprechblase im Zeichen weiß */
   color: #fff;
   width: 30px;
   height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   border-radius: 10px;
-  font-size: 1.25rem;
   box-shadow: 0 2px 6px rgba(255, 108, 0, 0.35);
+  flex-shrink: 0;
 }
+/* Das Zeichen füllt das Feld mit etwas Luft ringsum */
+.logo-badge svg { width: 68%; height: 68%; display: block; }
 
 /* Menüleiste: oben am Desktop, unten als App-Leiste auf dem Handy */
 .tabs { display: flex; gap: 4px; }
@@ -673,9 +675,11 @@ button:disabled {
 .flashcard {
   background: var(--card);
   border-radius: 24px;
-  padding: 52px 28px;
+  padding: 52px 32px;
   text-align: center;
-  max-width: 520px;
+  /* Breiter als früher: die vier Bewertungsknöpfe brauchen Platz,
+     damit die Beschriftungen nicht umbrechen */
+  max-width: 720px;
   margin: 0 auto 16px;
   animation: pop-in 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
   box-shadow: 0 10px 30px rgba(0, 0, 65, 0.12);
@@ -3400,6 +3404,8 @@ body.liest-video .fab-panel {
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-top: 20px;
+  /* Über die volle Breite der Karte, nicht nur über den Text */
+  width: 100%;
 }
 
 .bewertung {
@@ -3467,8 +3473,11 @@ body.liest-video .fab-panel {
 }
 
 @media (max-width: 560px) {
-  .bewertungen { grid-template-columns: repeat(2, 1fr); }
-  .bewertung { padding: 13px 8px; }
+  /* Auch auf dem Handy alle vier nebeneinander – dafür schmaler */
+  .bewertungen { gap: 5px; }
+  .bewertung { padding: 11px 4px; }
+  .bewertung-text { font-size: .8rem; }
+  .bewertung-zeit { font-size: .66rem; }
 }
 
 /* ============================================================
@@ -3821,3 +3830,93 @@ body.liest-video .fab-panel {
   line-height: 1.55;
   color: var(--navy);
 }
+
+/* ============================================================
+   EINHEITLICHE KNÖPFE
+   Drei Stufen statt vieler Sonderfälle – die Funktion erkennt man
+   an Form und Farbe, nicht an bunten Zeichen:
+     .btn          Hauptaktion (orange, gefüllt)
+     .btn-outline  Nebenaktion (weiß mit Rand)
+     .btn-still    unauffällig (nur Text)
+   ============================================================ */
+
+/* Nebenaktionen im Lese-Modus und in Panels sehen jetzt gleich aus */
+.video-aktion,
+.fuss-knopf,
+.werkzeug-aktion,
+.kategorie-chip {
+  font-family: inherit;
+  font-weight: 800;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s, color .15s, transform .1s;
+}
+.video-aktion:active,
+.fuss-knopf:active,
+.kategorie-chip:active { transform: scale(.96); }
+
+/* Zurückhaltender Textknopf – für "Abbrechen" und Ähnliches */
+.btn-still {
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 800;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.btn-still:hover { background: var(--bg); color: var(--navy); }
+
+/* ---------- Kategorien zum Antippen ---------- */
+.kategorie-wahl {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.kategorie-chip {
+  font-size: .84rem;
+  color: var(--navy);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  padding: 7px 14px;
+}
+.kategorie-chip:hover { border-color: var(--primary); }
+.kategorie-aktiv {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.save-form { display: grid; gap: 10px; }
+.save-form input {
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 600;
+  padding: 12px 15px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--navy);
+}
+.save-form input:focus { outline: none; border-color: var(--primary); background: #fff; }
+.save-form .btn { width: 100%; justify-content: center; }
+
+/* Aufzählungen in den Tarif-Karten: Häkchen kommt aus dem Stil,
+   nicht als Zeichen im Text */
+.plan-features li {
+  list-style: none;
+  padding-left: 24px;
+  position: relative;
+}
+.plan-features li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--success);
+  font-weight: 900;
+}
+.plan-premium .plan-features li::before { color: var(--primary); }

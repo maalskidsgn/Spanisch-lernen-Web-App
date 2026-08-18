@@ -169,7 +169,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
               {laedt ? (
                 <>Schreibt dein Buch<span className="studio-punkte" /></>
               ) : (
-                '✨ Buch erstellen'
+                'Buch erstellen'
               )}
             </button>
           </div>
