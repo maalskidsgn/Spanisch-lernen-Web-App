@@ -373,11 +373,44 @@ export default function App() {
   // (nur den Kasten, nicht die ganze Seite)
   useEffect(() => {
     if (!autoScroll || activeLine < 0) return
-    const el = lineRefs.current[activeLine]
     const box = textPaneRef.current
-    if (!el || !box) return
-    const target = el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2
-    box.scrollTo({ top: target, behavior: 'smooth' })
+    if (!box) return
+
+    // Die Zeile direkt aus dem DOM holen statt über eine gespeicherte
+    // Referenz: React setzt Inline-Referenzen bei jedem Neuzeichnen
+    // kurz auf null, und genau dann lief dieser Effekt ins Leere.
+    const el = box.children[activeLine]
+    if (!el) return
+
+    const ziel = Math.max(0, el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2)
+
+    // Sanft hingleiten – aber selbst gesteuert. Große Sprünge (etwa beim
+    // Öffnen mittendrin) macht der Code sofort, kleine Schritte von Zeile
+    // zu Zeile gleiten in ~300 ms.
+    const start = box.scrollTop
+    const weg = ziel - start
+    if (Math.abs(weg) < 2) return
+    if (Math.abs(weg) > 1200) {
+      box.scrollTop = ziel
+      return
+    }
+
+    const beginn = performance.now()
+    const dauer = 300
+    let abgebrochen = false
+
+    function schritt(jetzt) {
+      if (abgebrochen) return
+      const anteil = Math.min(1, (jetzt - beginn) / dauer)
+      // weiches Ein- und Ausgleiten
+      const weich = anteil < 0.5 ? 2 * anteil * anteil : 1 - (-2 * anteil + 2) ** 2 / 2
+      box.scrollTop = start + weg * weich
+      if (anteil < 1) requestAnimationFrame(schritt)
+    }
+    requestAnimationFrame(schritt)
+
+    // Läuft die nächste Zeile an, bricht die alte Bewegung ab
+    return () => { abgebrochen = true }
   }, [activeLine, autoScroll])
 
   // Holt das Transkript zu einem Link oder einer Video-ID.
@@ -732,6 +765,7 @@ export default function App() {
             onOpenVideo={openVideo}
             onLoadUrl={openUrl}
             onAddVocab={addVocabWords}
+            vocab={vocab}
           />
         </main>
       )}

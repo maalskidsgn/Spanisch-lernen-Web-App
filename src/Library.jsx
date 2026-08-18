@@ -67,7 +67,7 @@ function ladeBuecher() {
 
 // Die Bibliothek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
-export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab }) {
+export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
   const [bereich, setBereich] = useState('videos') // 'videos' oder 'buecher'
   const [buecher, setBuecher] = useState(ladeBuecher)
   const [buchTitel, setBuchTitel] = useState('')
@@ -242,7 +242,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
       </div>
 
       {/* ---------- Bücher: Zusammenfassungen wie bei Blinkist ---------- */}
-      {bereich === 'buecher' && <Ebooks onAddVocab={onAddVocab} />}
+      {bereich === 'buecher' && <Ebooks onAddVocab={onAddVocab} vocab={vocab} />}
 
       {bereich === 'videos' && (
       <>

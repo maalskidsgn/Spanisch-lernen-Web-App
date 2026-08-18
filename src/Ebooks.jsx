@@ -4,6 +4,11 @@ import { db } from './supabase.js'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2']
 
+/** Vereinheitlicht ein Wort so, wie es im Vokabeltrainer abgelegt ist. */
+function schluessel(wort) {
+  return wort.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
+}
+
 // Lesedauer grob schätzen: ~150 Wörter pro Minute
 function leseMinuten(buch) {
   const woerter = (buch.kapitel ?? [])
@@ -20,7 +25,7 @@ function leseMinuten(buch) {
  * bücher sieht jeder; eigene erzeugt man sich per KI – im
  * kostenlosen Zugang drei pro Monat.
  */
-export default function Ebooks({ onAddVocab }) {
+export default function Ebooks({ onAddVocab, vocab = {} }) {
   const [buecher, setBuecher] = useState(null)
   const [offenes, setOffenes] = useState(null)
   const [thema, setThema] = useState('')
@@ -96,7 +101,14 @@ export default function Ebooks({ onAddVocab }) {
   }
 
   if (offenes) {
-    return <BuchLeser buch={offenes} onZurueck={() => setOffenes(null)} onAddVocab={onAddVocab} />
+    return (
+      <BuchLeser
+        buch={offenes}
+        onZurueck={() => setOffenes(null)}
+        onAddVocab={onAddVocab}
+        vocab={vocab}
+      />
+    )
   }
 
   const aufgebraucht = kontingent && kontingent.frei === 0
@@ -223,7 +235,7 @@ export default function Ebooks({ onAddVocab }) {
 // ---------------------------------------------------------------
 //  Der Leser im Blinkist-Stil
 // ---------------------------------------------------------------
-function BuchLeser({ buch, onZurueck, onAddVocab }) {
+function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
   const [sprache, setSprache] = useState('es') // 'es' | 'de'
   const [kapitelNr, setKapitelNr] = useState(0) // -1 wäre Vokabel-Seite
   const [uebernommen, setUebernommen] = useState(false)
@@ -265,15 +277,21 @@ function BuchLeser({ buch, onZurueck, onAddVocab }) {
    * Nur im spanischen Text – im deutschen wäre es sinnlos.
    */
   function alsWoerter(absatz) {
-    return absatz.split(/(\s+)/).map((teil, i) =>
-      teil.trim() ? (
-        <span key={i} className="lese-wort" onClick={() => wortAntippen(teil)}>
+    return absatz.split(/(\s+)/).map((teil, i) => {
+      if (!teil.trim()) return teil
+      // Steht das Wort schon im Trainer? Dann wird es eingefärbt.
+      const status = vocab[schluessel(teil)]?.status
+      return (
+        <span
+          key={i}
+          className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
+          onClick={() => wortAntippen(teil)}
+          title={status ? 'Im Vokabeltrainer' : undefined}
+        >
           {teil}
         </span>
-      ) : (
-        teil
       )
-    )
+    })
   }
 
   const kapitel = buch.kapitel ?? []
@@ -372,7 +390,12 @@ function BuchLeser({ buch, onZurueck, onAddVocab }) {
       {wort && (
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
-            <div className="wortkarte-wort">{wort.text}</div>
+            <div className="wortkarte-wort">
+              {wort.text}
+              {vocab[schluessel(wort.text)] && (
+                <span className="wortkarte-marke">✓ im Trainer</span>
+              )}
+            </div>
             <div className="wortkarte-de">
               {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
             </div>

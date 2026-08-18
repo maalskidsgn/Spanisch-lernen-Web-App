@@ -533,7 +533,10 @@ button:disabled {
 .word:hover { background: #ffdcbd; }
 .word.neu { background: var(--blau-neu); }
 .word.lernen { background: var(--gelb-lernen); }
-.word.gewusst { background: none; }
+.word.gewusst {
+  background: none;
+  box-shadow: inset 0 -2px 0 var(--success);
+}
 .word-active {
   background: var(--primary) !important;
   color: #fff;
@@ -3259,9 +3262,8 @@ body.liest-video .reader {
 
 /* Video oben – kompakt, damit der Text die Hauptrolle spielt */
 body.liest-video .video-pane {
-  position: static;
-  max-width: 500px;
-  margin: 0 auto 6px;
+  max-width: 460px;
+  margin: 0 auto 4px;
 }
 body.liest-video .video-pane h2 {
   font-size: .95rem;
@@ -3271,17 +3273,35 @@ body.liest-video .video-pane h2 {
   margin: 12px 0 0;
 }
 
-/* Der Lesetext: groß, mittig, läuft mit */
+/* Der Lesetext läuft im eigenen Kasten hoch, während das Video
+   oben stehen bleibt – wie bei Karaoke. Deshalb braucht der Kasten
+   eine feste Höhe, sonst gäbe es nichts zu scrollen. */
 body.liest-video .text-pane {
+  /* Bewusst KEIN scroll-behavior: smooth – bei mehreren tausend
+     Pixeln Inhalt dauert die Animation länger als der Abstand
+     zwischen zwei Zeilen, sie würde ständig neu starten und
+     nie ankommen. Das Gleiten macht stattdessen der Code. */
   max-width: 680px;
   margin: 0 auto;
-  max-height: none;
-  overflow: visible;
-  padding: 22px 8px 0;
-  font-size: 1.22rem;
-  line-height: 2.1;
-  -webkit-mask-image: none;
-  mask-image: none;
+  height: calc(100vh - 430px);
+  min-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* oben und unten ausblenden, damit der Text sanft hereinläuft */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent);
+  padding: 10px 8px;
+  font-size: 1.2rem;
+  line-height: 2;
+}
+body.liest-video .text-pane::-webkit-scrollbar { display: none; }
+
+/* Das Video bleibt beim Lesen sichtbar */
+body.liest-video .video-pane {
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+  background: var(--bg);
 }
 body.liest-video .text-pane .line {
   opacity: .38;
@@ -3582,4 +3602,23 @@ body.liest-video .fab-panel {
 @media (max-width: 700px) {
   .reader-fuss { gap: 10px; padding: 9px 14px; }
   .video-aktion { font-size: .78rem; padding: 8px 12px; }
+}
+
+/* ---------- Wortstatus im E-Book-Lesetext ---------- */
+/* Gleiche Farben wie im Video-Lesemodus, damit man sie wiedererkennt:
+   blau = neu gesammelt, gelb = am Lernen, grün unterstrichen = gewusst */
+.lese-wort-neu { background: var(--blau-neu); }
+.lese-wort-lernen { background: var(--gelb-lernen); }
+.lese-wort-gewusst { box-shadow: inset 0 -2px 0 var(--success); }
+
+.wortkarte-marke {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: middle;
+  font-size: .72rem;
+  font-weight: 800;
+  color: #1f7a45;
+  background: #e8f7ee;
+  padding: 4px 10px;
+  border-radius: 999px;
 }
