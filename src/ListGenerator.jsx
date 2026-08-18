@@ -91,60 +91,59 @@ export default function ListGenerator({ vocab, setVocab }) {
 
   return (
     <div className="list-gen">
-      {/* Die Mini-App: Thema rein, fertige Liste raus */}
-      <div className="studio">
-        <div className="studio-kopf">
-          <span className="studio-icon">🪄</span>
-          <div className="studio-titel">
-            <b>KI-Vokabelliste</b>
-            <span>Dein Thema → 12 Wörter mit Beispielsätzen</span>
-          </div>
-          <span className="studio-zaehler" title="Kostenlose Generierungen diesen Monat">
+      {/* Gleicher Aufbau wie die anderen Bereiche: Überschrift,
+          ein Satz zur Einordnung, dann der Inhalt */}
+      <div className="bereich-kopf">
+        <div className="kopf-zeile">
+          <h2>Neue Wörter sammeln</h2>
+          <span className="rest-zaehler" title="Kostenlose Listen diesen Monat">
             {uebrig}/{FREE_LIMIT}
           </span>
         </div>
+        <p>
+          Nenn ein Thema, und die KI stellt zwölf passende Wörter mit
+          Beispielsätzen zusammen – ohne das, was du schon kennst.
+        </p>
+      </div>
 
-        <form className="studio-form" onSubmit={generieren}>
-          <label className="studio-feld">
-            <span>Worüber möchtest du Vokabeln lernen?</span>
-            <input
-              type="text"
-              value={thema}
-              onChange={(e) => setThema(e.target.value)}
-              placeholder="z.B. Restaurant, Fußball, Arztbesuch…"
-              disabled={laden}
-              required
-            />
-          </label>
+      <form className="wort-form" onSubmit={generieren}>
+        <input
+          type="text"
+          value={thema}
+          onChange={(e) => setThema(e.target.value)}
+          placeholder="z.B. Restaurant, Fußball, Arztbesuch…"
+          disabled={laden}
+          required
+        />
 
-          <div className="studio-vorschlaege">
-            {['🍽 Restaurant', '✈️ Reisen', '💼 Arbeit', '🛒 Einkaufen'].map((v) => (
-              <button
-                key={v}
-                type="button"
-                className="chip"
-                onClick={() => setThema(v.slice(v.indexOf(' ') + 1))}
-              >
-                {v}
-              </button>
-            ))}
-          </div>
+        <div className="wort-vorschlaege">
+          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen'].map((v) => (
+            <button
+              key={v}
+              type="button"
+              className="vorschlag-chip"
+              onClick={() => setThema(v)}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
 
-          <button type="submit" className="btn studio-los" disabled={laden}>
-            {laden ? (
-              <>Stellt deine Liste zusammen<span className="studio-punkte" /></>
-            ) : (
-              'Liste erstellen'
-            )}
-          </button>
-        </form>
+        <button type="submit" className="btn wort-los" disabled={laden}>
+          {laden ? (
+            <>Stellt deine Liste zusammen<span className="studio-punkte" /></>
+          ) : (
+            'Liste erstellen'
+          )}
+        </button>
+      </form>
 
-        {/* ---------- Die Automatik ---------- */}
-        <div className="automatik">
+      {/* ---------- Die Automatik ---------- */}
+      <div className="automatik">
           <div className="automatik-kopf">
             <div className="automatik-titel">
-              <b>Passend zu deinem Stand</b>
-              <span>Die KI wählt selbst aus, was für dich als Nächstes dran ist</span>
+              <b>Oder passend zu deinem Stand</b>
+              <span>Die KI wählt selbst aus, was als Nächstes dran ist</span>
             </div>
             <button
               type="button"
@@ -188,7 +187,6 @@ export default function ListGenerator({ vocab, setVocab }) {
               ? 'Sammle erst 5 Wörter'
               : 'Für mich auswählen lassen'}
           </button>
-        </div>
       </div>
 
       {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}

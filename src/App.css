@@ -3951,6 +3951,7 @@ body.liest-video .fab-panel {
 .filter-stufe,
 .spiel-karte,
 .spiel-karte *,
+.vorschlag-chip,
 .wiederholen-los,
 .filter-knopf {
   color: var(--navy);
@@ -4319,4 +4320,62 @@ body.liest-video .word-card {
   .wiederholen-los { width: 100%; justify-content: center; }
   .spiel-paar { gap: 10px; }
   .spiel-karte { padding: 18px 12px; }
+}
+
+/* ---------- Vokabelgenerator im Bereichs-Stil ---------- */
+.kopf-zeile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rest-zaehler {
+  flex-shrink: 0;
+  font-size: .8rem;
+  font-weight: 900;
+  color: var(--success);
+  background: #e8f7ee;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wort-form { display: grid; gap: 12px; }
+.wort-form input {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 14px 16px;
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  background: var(--bg);
+  color: var(--navy);
+  width: 100%;
+}
+.wort-form input:focus { outline: none; border-color: var(--primary); background: #fff; }
+.wort-form input:disabled { opacity: .55; }
+
+.wort-vorschlaege { display: flex; gap: 7px; flex-wrap: wrap; }
+.vorschlag-chip {
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.vorschlag-chip:hover { border-color: var(--primary); background: #fff; }
+.vorschlag-chip:active { transform: scale(.96); }
+
+.wort-los { width: 100%; justify-content: center; }
+
+/* Die Automatik als abgesetzter Block darunter */
+.automatik {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
 }
