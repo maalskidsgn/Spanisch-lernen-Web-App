@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
@@ -239,7 +239,7 @@ export default function Settings({
             <li>Offline-Modus & Erinnerungen</li>
           </ul>
 
-          {preis && !premium && (
+          {preis && !premium && !istApp && (
             <div className="price-options">
               <div className="price-row price-best">
                 <span>{preis.zeitraum === 'year' ? 'Jährlich' : 'Monatlich'}</span>
@@ -262,10 +262,19 @@ export default function Settings({
                     ? `Gekündigt – läuft noch bis ${gueltigBis}`
                     : `Aktiv – verlängert sich am ${gueltigBis}`}
               </p>
-              <button onClick={verwalten} disabled={laedt}>
-                {laedt ? 'Öffnet …' : 'Abo verwalten'}
-              </button>
+              {!istApp && (
+                <button onClick={verwalten} disabled={laedt}>
+                  {laedt ? 'Öffnet …' : 'Abo verwalten'}
+                </button>
+              )}
             </>
+          ) : istApp ? (
+            /* Kein Kauf und kein Link nach draussen – nur der neutrale
+               Hinweis, dass ein bestehendes Abo hier ankommt. */
+            <p className="abo-status">
+              Ein bestehendes Premium-Abo wird nach der Anmeldung
+              automatisch erkannt.
+            </p>
           ) : bezahlbar ? (
             <button onClick={kaufen} disabled={laedt}>
               {laedt ? 'Weiterleitung …' : 'Premium holen'}
