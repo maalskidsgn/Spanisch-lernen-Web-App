@@ -55,9 +55,14 @@ export async function holeTranskript(videoId) {
     throw new Error('Für dieses Video gibt es keine spanischen Untertitel.')
   }
 
+  // Den Titel liefert der Transkript-Abruf nicht mit. Statt dafür ein
+  // zweites Guthaben auszugeben, fragen wir YouTubes oEmbed-Dienst –
+  // der ist kostenlos und auch von Servern aus erreichbar.
+  const titel = data.title || (await holeTitel(videoId)) || 'Video'
+
   return {
     videoId,
-    title: data.title || 'Video',
+    title: titel,
     // Der Dienst liefert Millisekunden als Zeichenkette – die App rechnet in Sekunden
     lines: segmente
       .map((s) => ({
@@ -66,6 +71,20 @@ export async function holeTranskript(videoId) {
         end: Number(s.end_ms ?? 0) / 1000,
       }))
       .filter((z) => z.text),
+  }
+}
+
+/** Holt nur den Titel – über YouTubes kostenlosen oEmbed-Dienst. */
+async function holeTitel(videoId) {
+  try {
+    const antwort = await fetch(
+      'https://www.youtube.com/oembed?format=json&url=' +
+        encodeURIComponent('https://www.youtube.com/watch?v=' + videoId)
+    )
+    if (!antwort.ok) return null
+    return (await antwort.json()).title ?? null
+  } catch {
+    return null
   }
 }
 
