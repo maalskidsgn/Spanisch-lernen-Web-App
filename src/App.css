@@ -3954,6 +3954,8 @@ body.liest-video .fab-panel {
 .filter-stufe,
 .spiel-karte,
 .spiel-karte *,
+.interpret-karte,
+.interpret-karte *,
 .vorschlag-chip,
 .such-knopf,
 .such-knopf *,
@@ -4517,4 +4519,77 @@ body.liest-video .word-card {
 @media (max-width: 560px) {
   .song-oeffnen img { width: 68px; }
   .song-pdf { padding: 8px 12px; font-size: .76rem; }
+}
+
+
+/* ===== Spotify: Interpreten-Dashboard ===== */
+.spotify-box {
+  background: linear-gradient(135deg, #fff8f1, #fff);
+  border: 1px solid var(--rand);
+  border-radius: 18px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+.spotify-erklaerung { margin: 0; font-size: 14px; color: var(--grau); max-width: 52ch; }
+.spotify-los { background: #1db954; border-color: #1db954; }
+.spotify-los:hover { background: #17a349; }
+
+.spotify-leiste {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.spotify-status {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1db954;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.spotify-status::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #1db954;
+}
+.spotify-aktionen { display: flex; gap: 8px; }
+
+.interpreten-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.interpret-karte {
+  background: #fff;
+  border: 1px solid var(--rand);
+  border-radius: 14px;
+  padding: 13px 15px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  cursor: pointer;
+  transition: border-color .15s, transform .15s;
+}
+.interpret-karte:hover {
+  border-color: var(--orange);
+  transform: translateY(-2px);
+}
+.interpret-name { font-weight: 700; font-size: 15px; }
+.interpret-meta { font-size: 12px; color: var(--grau); }
+.interpret-hinweis {
+  font-size: 11px;
+  color: #b4762a;
+  background: #fff3e2;
+  border-radius: 6px;
+  padding: 2px 6px;
+  align-self: flex-start;
+  margin-top: 4px;
 }

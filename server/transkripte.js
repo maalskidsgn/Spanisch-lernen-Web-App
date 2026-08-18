@@ -112,7 +112,7 @@ export async function holeVideoDaten(videoId) {
  * Der Sinn: Jedes Video kostet nur beim allerersten Mal ein Guthaben.
  * Danach liest es die App aus der Datenbank – für alle Nutzer.
  */
-export async function merkeInBibliothek(videoId, titel, zeilen) {
+export async function merkeInBibliothek(videoId, titel, zeilen, kategorie = 'gefunden') {
   const url = process.env.SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_KEY
   if (!url || !key) return
@@ -131,7 +131,9 @@ export async function merkeInBibliothek(videoId, titel, zeilen) {
         titel,
         thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
         niveau: 'B1',
-        kategorie: 'gefunden', // selbst gesucht, nicht kuratiert
+        // "musik" für Songs, sonst "gefunden" – so bleiben die
+        // Bereiche in der Mediathek sauber getrennt
+        kategorie,
         transkript: zeilen.map((z) => ({
           text: z.text,
           start: z.start,

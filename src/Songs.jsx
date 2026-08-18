@@ -2,6 +2,16 @@ import { useState, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { db, holeVideoMitTranskript } from './supabase.js'
 import { songAlsPdf } from './songPdf.js'
+import {
+  spotifyBereit,
+  starteAnmeldung,
+  schliesseAnmeldungAb,
+  zugang,
+  trenneSpotify,
+  sammleKuenstler,
+  gemerkteInterpreten,
+  merkeInterpreten,
+} from './spotify.js'
 
 // Ein paar Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt
 const STILE = [
@@ -29,6 +39,12 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   const [fehler, setFehler] = useState('')
   const [pdfLaeuft, setPdfLaeuft] = useState(null)
 
+  // --- Spotify ---
+  const [verbunden, setVerbunden] = useState(() => Boolean(zugang()))
+  const [interpreten, setInterpreten] = useState(gemerkteInterpreten)
+  const [analyse, setAnalyse] = useState('') // Text während der Prüfung
+  const [spotifyFehler, setSpotifyFehler] = useState('')
+
   // Die gespeicherten Songs holen
   async function ladeSongs() {
     const { data, error } = await db
@@ -45,6 +61,59 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   useEffect(() => {
     ladeSongs()
   }, [])
+
+  // Zurück von Spotify? Dann den Code eintauschen und gleich prüfen.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).get('code')) return
+    schliesseAnmeldungAb()
+      .then((ok) => {
+        window.history.replaceState({}, '', '/')
+        if (ok) {
+          setVerbunden(true)
+          interpretenPruefen()
+        }
+      })
+      .catch((f) => setSpotifyFehler(f.message))
+    // Nur einmal beim Laden – deshalb keine Abhängigkeiten
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /**
+   * Liest die Musik des Nutzers aus und lässt die KI heraussuchen,
+   * welche seiner Künstler auf Spanisch singen.
+   */
+  async function interpretenPruefen() {
+    const token = zugang()
+    if (!token) return setSpotifyFehler('Bitte zuerst mit Spotify verbinden.')
+
+    setSpotifyFehler('')
+    try {
+      setAnalyse('Deine Musik wird gelesen …')
+      const kuenstler = await sammleKuenstler(token)
+
+      setAnalyse(`${kuenstler.length} Künstler gefunden – die KI prüft die Sprache …`)
+      const res = await fetch(API_URL + '/api/spotify/interpreten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ kuenstler }),
+      })
+      const daten = await res.json()
+      if (!res.ok) throw new Error(daten.error || 'Auswertung fehlgeschlagen')
+
+      setInterpreten(daten.interpreten)
+      merkeInterpreten(daten.interpreten)
+    } catch (f) {
+      setSpotifyFehler(f.message)
+    } finally {
+      setAnalyse('')
+    }
+  }
+
+  function spotifyTrennen() {
+    trenneSpotify()
+    setVerbunden(false)
+    setInterpreten([])
+  }
 
   /** Sucht auf YouTube – aber ausdrücklich nach Musik. */
   async function songSuchen(text) {
@@ -150,7 +219,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
               <button
                 key={s.videoId}
                 className="treffer"
-                onClick={() => onOpenVideo(s.videoId)}
+                onClick={() => onOpenVideo(s.videoId, 'musik')}
               >
                 <img src={s.thumbnail} alt="" />
                 <span className="treffer-text">
@@ -181,7 +250,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           <div className="song-liste">
             {songs.map((s) => (
               <div key={s.id} className="song-zeile">
-                <button className="song-oeffnen" onClick={() => onOpenVideo(s.youtube_id)}>
+                <button className="song-oeffnen" onClick={() => onOpenVideo(s.youtube_id, 'musik')}>
                   <img src={s.thumbnail} alt="" />
                   <span className="song-text">
                     <span className="song-titel">{s.titel}</span>
@@ -208,20 +277,94 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       {/* ============ 3. SPOTIFY ============ */}
       <section className="bereich">
         <div className="bereich-kopf">
-          <h2>Spotify verbinden</h2>
+          <h2>Deine spanischen Interpreten</h2>
           <p>
-            Wenn du dein Spotify-Konto verbindest, schlagen wir dir spanische
-            Musik vor, die zu deinem Geschmack passt.
+            Verbinde Spotify – eine KI schaut deine Playlists durch und merkt
+            sich, welche deiner Künstler auf Spanisch singen.
           </p>
         </div>
-        <div className="spotify-teaser">
-          <span className="spotify-marke">In Vorbereitung</span>
-          <p>
-            Die Verbindung wird gerade eingerichtet. Bis dahin findest du über
-            die Suche oben alles, was du zum Mitsingen brauchst.
-          </p>
-        </div>
+
+        {!spotifyBereit && (
+          <div className="spotify-teaser">
+            <span className="spotify-marke">Noch einzurichten</span>
+            <p>
+              Für die Verbindung fehlt noch die Spotify-Client-ID. Sobald sie
+              hinterlegt ist, erscheint hier der Verbinden-Knopf.
+            </p>
+          </div>
+        )}
+
+        {spotifyBereit && !verbunden && (
+          <div className="spotify-box">
+            <p className="spotify-erklaerung">
+              Wir lesen ausschließlich deine gespeicherten Titel und Playlists.
+              Nichts wird abgespielt, geändert oder geteilt.
+            </p>
+            <button className="btn spotify-los" onClick={starteAnmeldung}>
+              Mit Spotify verbinden
+            </button>
+          </div>
+        )}
+
+        {spotifyBereit && verbunden && (
+          <>
+            <div className="spotify-leiste">
+              <span className="spotify-status">Spotify verbunden</span>
+              <div className="spotify-aktionen">
+                <button
+                  className="filter-knopf"
+                  onClick={interpretenPruefen}
+                  disabled={Boolean(analyse)}
+                >
+                  {analyse ? 'Läuft …' : 'Neu auswerten'}
+                </button>
+                <button className="filter-knopf" onClick={spotifyTrennen}>
+                  Trennen
+                </button>
+              </div>
+            </div>
+
+            {analyse && <p className="suche-hinweis">{analyse}</p>}
+
+            {!analyse && interpreten.length === 0 && (
+              <p className="empty-hint">
+                In deiner Musik war noch nichts Spanischsprachiges dabei. Sobald
+                du welche hörst, taucht es hier nach einer neuen Auswertung auf.
+              </p>
+            )}
+
+            {interpreten.length > 0 && (
+              <>
+                <p className="suche-hinweis">
+                  {interpreten.length} gefunden – tippe einen an, um seine Songs
+                  zu suchen.
+                </p>
+                <div className="interpreten-liste">
+                  {interpreten.map((k) => (
+                    <button
+                      key={k.name}
+                      className="interpret-karte"
+                      onClick={() => songSuchen(k.name)}
+                      title={`Songs von ${k.name} suchen`}
+                    >
+                      <span className="interpret-name">{k.name}</span>
+                      <span className="interpret-meta">
+                        {k.herkunft} · {k.stil}
+                      </span>
+                      {!k.sicher && (
+                        <span className="interpret-hinweis">singt gemischt</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+
+        {spotifyFehler && <p className="error">{spotifyFehler}</p>}
       </section>
+
     </>
   )
 }

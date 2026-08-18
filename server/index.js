@@ -91,6 +91,8 @@ function runYtDlp(args) {
 
 app.get('/api/transcript', async (req, res) => {
   const videoId = extractVideoId(req.query.url || '')
+  // Songs sollen als Musik abgelegt werden, nicht als normales Video
+  const kategorie = req.query.art === 'musik' ? 'musik' : 'gefunden'
   if (!videoId) {
     return res.status(400).json({ error: 'Das sieht nicht wie ein YouTube-Link aus.' })
   }
@@ -142,7 +144,7 @@ app.get('/api/transcript', async (req, res) => {
         const ergebnis = await holeUeberDienst(videoId)
         // Gleich in die Bibliothek legen: so kostet dieses Video
         // nie wieder ein Guthaben – auch nicht bei anderen Nutzern
-        merkeInBibliothek(videoId, ergebnis.title, ergebnis.lines)
+        merkeInBibliothek(videoId, ergebnis.title, ergebnis.lines, kategorie)
         return res.json(ergebnis)
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
@@ -497,6 +499,16 @@ app.post('/api/ebook', async (req, res) => {
   } catch (err) {
     console.error('E-Book:', err.message)
     res.status(500).json({ error: err.message })
+  }
+})
+
+// Spotify-Künstler durch die KI filtern: Wer singt auf Spanisch?
+app.post('/api/spotify/interpreten', async (req, res) => {
+  try {
+    const ergebnis = await findeSpanischeInterpreten(req.body?.kuenstler)
+    res.json(ergebnis)
+  } catch (fehler) {
+    res.status(500).json({ error: fehler.message })
   }
 })
 

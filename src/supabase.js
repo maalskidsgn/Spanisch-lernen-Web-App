@@ -37,6 +37,9 @@ export async function holeBibliothek(kategorie) {
     .from('videos')
     .select('id,youtube_id,titel,kanal,dauer_sek,thumbnail,niveau,kategorie')
     .eq('aktiv', true)
+    // Songs liegen in derselben Tabelle, gehören aber in den
+    // Songs-Bereich – hier also ausdrücklich ausklammern
+    .neq('kategorie', 'musik')
     .order('kategorie', { ascending: true })
 
   if (kategorie && kategorie !== 'alle') abfrage = abfrage.eq('kategorie', kategorie)

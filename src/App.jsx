@@ -176,6 +176,7 @@ export default function App() {
   const [autoScroll, setAutoScroll] = useState(true)
   const [laeuft, setLaeuft] = useState(false) // spielt das Video gerade?
   const [tempo, setTempo] = useState(1) // Abspielgeschwindigkeit
+  const [aktuelleArt, setAktuelleArt] = useState('video') // 'video' | 'musik'
   const [view, setView] = useState('start') // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
   const [savedVideos, setSavedVideos] = useState(loadSavedVideos)
   const [categoryInput, setCategoryInput] = useState('')
@@ -417,7 +418,7 @@ export default function App() {
   // Holt das Transkript zu einem Link oder einer Video-ID.
   // Erst wird in der Habloo-Mediathek nachgesehen (schnell und überall
   // verfügbar); nur wenn das Video dort fehlt, wird YouTube gefragt.
-  async function fetchTranscript(input) {
+  async function fetchTranscript(input, art = 'video') {
     setLoading(true)
     setError('')
     setVideo(null)
@@ -450,7 +451,11 @@ export default function App() {
       }
 
       // 2) Sonst direkt bei YouTube nachfragen (klappt nur lokal)
-      const res = await fetch(API_URL + '/api/transcript?url=' + encodeURIComponent(input))
+      const res = await fetch(
+        API_URL +
+          '/api/transcript?url=' + encodeURIComponent(input) +
+          (art === 'musik' ? '&art=musik' : '')
+      )
       const text = await res.text()
       let data
       try {
@@ -501,10 +506,12 @@ export default function App() {
     return () => document.body.classList.remove('liest-video')
   }, [view, video])
 
-  // Aus der Video-Mediathek: Video öffnen und in den Lese-Modus wechseln
-  function openVideo(videoId) {
+  // Aus der Mediathek öffnen. "art" unterscheidet Song von Video –
+  // damit ein Song später auch wieder unter Songs auftaucht.
+  function openVideo(videoId, art = 'video') {
     setView('lesen')
-    fetchTranscript('https://www.youtube.com/watch?v=' + videoId)
+    setAktuelleArt(art)
+    fetchTranscript('https://www.youtube.com/watch?v=' + videoId, art)
   }
 
   // Eingefügter YouTube-Link aus dem Videobereich
@@ -558,6 +565,7 @@ export default function App() {
         videoId: video.videoId,
         title: video.title,
         category: categoryInput.trim(),
+        art: aktuelleArt,
         addedAt: Date.now(),
       },
     ])

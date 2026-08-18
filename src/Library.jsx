@@ -69,7 +69,10 @@ function ladeBuecher() {
 
 // Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
-export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
+export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
+  // Songs werden im Songs-Bereich angezeigt, nicht hier.
+  // Ältere Einträge haben noch kein "art" – die gelten als Video.
+  const savedVideos = alleGemerkten.filter((v) => v.art !== 'musik')
   const [bereich, setBereich] = useState('videos') // 'videos' oder 'buecher'
   const [buecher, setBuecher] = useState(ladeBuecher)
   const [buchTitel, setBuchTitel] = useState('')
