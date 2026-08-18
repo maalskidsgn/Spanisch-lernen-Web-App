@@ -84,6 +84,21 @@ export default function Trainer({ vocab, setVocab, addXp }) {
     }, 420) // so lange fliegt die Karte
   }
 
+  /**
+   * Nach einem gewonnenen Spiel: die gespielten Wörter rücken eine
+   * Stufe vor. Wer sie im Spiel wiedererkannt hat, kann sie – deshalb
+   * zählt das wie ein "Gut" im Training.
+   */
+  function nachSpiel(woerter) {
+    setVocab((v) => {
+      const kopie = { ...v }
+      for (const wort of woerter) {
+        if (kopie[wort]) kopie[wort] = review(withSrsDefaults(kopie[wort]), 'gut')
+      }
+      return kopie
+    })
+  }
+
   function removeWord(word) {
     setVocab((v) => {
       const copy = { ...v }
@@ -95,7 +110,13 @@ export default function Trainer({ vocab, setVocab, addXp }) {
   // ---------- Mini-Spiel-Ansicht ----------
   if (spiel !== null) {
     return (
-      <Games spiel={spiel} vocab={vocab} addXp={addXp} onClose={() => setSpiel(null)} />
+      <Games
+        spiel={spiel}
+        vocab={vocab}
+        addXp={addXp}
+        onClose={() => setSpiel(null)}
+        onGespielt={nachSpiel}
+      />
     )
   }
 
@@ -174,42 +195,74 @@ export default function Trainer({ vocab, setVocab, addXp }) {
   // ---------- Übersichts-Ansicht ----------
   return (
     <div className="trainer">
-      <div className="trainer-head">
-        <h1>
-          Dein <span className="accent">Vokabeltrainer</span>
-        </h1>
-        <button onClick={startTraining} disabled={trainable.length === 0}>
-          Üben ({trainable.length})
-        </button>
-      </div>
-      <p className="intro">
-        {entries.length} Wörter gesamt · {dueEntries.length} jetzt fällig. Nach
-        jeder Antwort wächst der Abstand bis zur nächsten Abfrage – bei „Gut"
-        aus einem Tag drei, daraus eine Woche. „Nochmal" setzt zurück.
-      </p>
+      <h1 className="trainer-titel">
+        Dein <span className="accent">Vokabeltrainer</span>
+      </h1>
 
-      {/* Mini-Spiele mit den eigenen Vokabeln */}
-      <h2 className="settings-heading">Spiele mit deinen Vokabeln</h2>
-      <div className="game-grid">
-        <button className="game-card" onClick={() => setSpiel('memory')}>
-          <span className="home-emoji">🧠</span>
-          <span className="home-title">Memory</span>
-          <span className="home-sub">Paare aufdecken</span>
+      {/* ============ 1. WIEDERHOLEN ============ */}
+      {/* Das Wichtigste zuerst: was heute dran ist */}
+      <section className="bereich bereich-wiederholen">
+        <div className="wiederholen-zahl">
+          <b>{trainable.length}</b>
+          <span>{trainable.length === 1 ? 'Wort wartet' : 'Wörter warten'}</span>
+        </div>
+        <div className="wiederholen-text">
+          <h2>Heute wiederholen</h2>
+          <p>
+            {trainable.length > 0
+              ? 'Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
+              : 'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.'}
+          </p>
+        </div>
+        <button
+          className="btn wiederholen-los"
+          onClick={startTraining}
+          disabled={trainable.length === 0}
+        >
+          {trainable.length > 0 ? 'Üben' : 'Nichts fällig'}
         </button>
-        <button className="game-card" onClick={() => setSpiel('paare')}>
-          <span className="home-emoji">🔗</span>
-          <span className="home-title">Wortpaare</span>
-          <span className="home-sub">Wort & Übersetzung verbinden</span>
-        </button>
-        <button className="game-card" onClick={() => setSpiel('kreuz')}>
-          <span className="home-emoji">✏️</span>
-          <span className="home-title">Kreuzworträtsel</span>
-          <span className="home-sub">Wörter eintragen</span>
-        </button>
-      </div>
+      </section>
 
-      {/* Vokabelliste zu einem Wunsch-Thema mit KI erstellen */}
-      <ListGenerator vocab={vocab} setVocab={setVocab} />
+      {/* ============ 2. SPIELEN ============ */}
+      <section className="bereich">
+        <div className="bereich-kopf">
+          <h2>Spielerisch üben</h2>
+          <p>
+            Beide Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie
+            wiedererkennt, schiebt sie eine Stufe weiter.
+          </p>
+        </div>
+        <div className="spiel-paar">
+          <button className="spiel-karte" onClick={() => setSpiel('memory')}>
+            <span className="spiel-bild" aria-hidden="true">
+              <i /><i /><i /><i />
+            </span>
+            <span className="spiel-name">Memory</span>
+            <span className="spiel-hinweis">6 Paare aufdecken</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('paare')}>
+            <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
+              <i /><i /><i />
+            </span>
+            <span className="spiel-name">Wortpaare</span>
+            <span className="spiel-hinweis">5 Wörter verbinden</span>
+          </button>
+        </div>
+      </section>
+
+      {/* ============ 3. NEUE WÖRTER ============ */}
+      <section className="bereich">
+        <ListGenerator vocab={vocab} setVocab={setVocab} />
+      </section>
+
+      {/* ============ 4. ALLE WÖRTER ============ */}
+      <section className="bereich">
+        <div className="bereich-kopf">
+          <h2>Alle deine Wörter</h2>
+          <p>
+            {entries.length} gesammelt · {knownCount} sitzen schon fest
+          </p>
+        </div>
 
       {/* Filter: die drei wichtigsten als Knöpfe, die sieben
           Karteikasten-Stufen zusammengefasst in einem Auswahlfeld */}
@@ -242,7 +295,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         </select>
       </div>
 
-      {filtered.length === 0 ? (
+        {filtered.length === 0 ? (
         <p className="empty-hint">
           Keine Wörter in dieser Ansicht. Klicke im Lese-Modus Wörter an, um sie
           hier zu sammeln.
@@ -284,7 +337,8 @@ export default function Trainer({ vocab, setVocab, addXp }) {
             ))}
           </tbody>
         </table>
-      )}
+        )}
+      </section>
     </div>
   )
 }

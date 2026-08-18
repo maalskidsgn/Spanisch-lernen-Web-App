@@ -1,24 +1,39 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
+import { isDue, withSrsDefaults } from './srs.js'
 
-// Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare und Kreuzworträtsel.
-// Alle Spiele holen sich die Wörter aus dem Vokabeltrainer.
+// Mini-Spiele mit den eigenen Vokabeln: Memory und Wortpaare.
+//
+// Wichtig: Die Spiele sind kein Zeitvertreib neben dem Trainer, sondern
+// ein Teil davon. Sie nehmen bevorzugt die Wörter, die als Nächstes
+// dran wären, und stufen sie am Ende im Karteikasten hoch.
 
-// Macht aus dem Vokabel-Speicher spielbare Paare (Wort + Übersetzung)
+/**
+ * Wählt spielbare Paare – fällige Wörter zuerst.
+ * Zu lange Wörter passen nicht auf die Karten und fallen raus.
+ */
 function spielbareVokabeln(vocab) {
-  return Object.entries(vocab)
-    .filter(([wort, e]) => e.translation && wort.length <= 16 && e.translation.length <= 18)
-    .map(([wort, e]) => ({ es: wort, de: e.translation }))
+  const passend = Object.entries(vocab)
+    .map(([wort, e]) => ({ wort, eintrag: withSrsDefaults(e) }))
+    .filter(
+      ({ wort, eintrag }) =>
+        eintrag.translation && wort.length <= 16 && eintrag.translation.length <= 18
+    )
+
+  const faellig = passend.filter(({ eintrag }) => isDue(eintrag))
+  const rest = passend.filter(({ eintrag }) => !isDue(eintrag))
+
+  // Erst die fälligen, dann der Rest zum Auffüllen
+  return [...mischen(faellig), ...mischen(rest)].map(({ wort, eintrag }) => ({
+    es: wort,
+    de: eintrag.translation,
+    faellig: isDue(eintrag),
+  }))
 }
 
-// Entfernt Akzente fürs einfache Tippen im Kreuzworträtsel (ñ -> n, á -> a)
-function vereinfachen(text) {
-  return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
-}
-
-export default function Games({ spiel, vocab, addXp, onClose }) {
-  const paare = mischen(spielbareVokabeln(vocab))
+export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
+  const paare = spielbareVokabeln(vocab)
 
   if (paare.length < 4) {
     return (
@@ -36,20 +51,31 @@ export default function Games({ spiel, vocab, addXp, onClose }) {
       <div className="player-top">
         <button className="btn-plain" onClick={onClose}>✕</button>
         <h2 className="game-title">
-          {spiel === 'memory' && '🧠 Memory'}
-          {spiel === 'paare' && '🔗 Wortpaare'}
-          {spiel === 'kreuz' && '✏️ Kreuzworträtsel'}
+          {spiel === 'memory' ? 'Memory' : 'Wortpaare'}
         </h2>
       </div>
-      {spiel === 'memory' && <Memory paare={paare.slice(0, 6)} addXp={addXp} onClose={onClose} />}
-      {spiel === 'paare' && <WortPaare paare={paare.slice(0, 5)} addXp={addXp} onClose={onClose} />}
-      {spiel === 'kreuz' && <Kreuzwort paare={paare} addXp={addXp} onClose={onClose} />}
+      {spiel === 'memory' && (
+        <Memory paare={paare.slice(0, 6)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
+      {spiel === 'paare' && (
+        <WortPaare paare={paare.slice(0, 5)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
     </div>
   )
 }
 
-// Der gemeinsame "Geschafft!"-Bildschirm aller Spiele
-function SpielFertig({ text, onClose }) {
+// Der gemeinsame "Geschafft!"-Bildschirm beider Spiele.
+// Hier rücken die gespielten Wörter im Karteikasten eine Stufe vor –
+// wer sie im Spiel wiedererkannt hat, kann sie eben.
+function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
+  const [gemeldet, setGemeldet] = useState(false)
+
+  useEffect(() => {
+    if (gemeldet || !woerter.length) return
+    onGespielt?.(woerter)
+    setGemeldet(true)
+  }, [gemeldet, woerter, onGespielt])
+
   return (
     <div className="flashcard done">
       <div className="confetti-burst" aria-hidden="true">
@@ -59,7 +85,10 @@ function SpielFertig({ text, onClose }) {
       </div>
       <h2>Geschafft! 🎉</h2>
       <p>{text}</p>
-      <p className="bonus-note">+{XP.SPIEL} Bonus-XP</p>
+      <p className="bonus-note">
+        +{XP.SPIEL} Bonus-XP
+        {woerter.length > 0 && ` · ${woerter.length} Wörter eine Stufe weiter`}
+      </p>
       <button onClick={onClose}>Zurück zum Trainer</button>
     </div>
   )
@@ -68,7 +97,7 @@ function SpielFertig({ text, onClose }) {
 /* ---------- Spiel 1: Memory ---------- */
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
-function Memory({ paare, addXp, onClose }) {
+function Memory({ paare, addXp, onClose, onGespielt }) {
   const [karten] = useState(() =>
     mischen(
       paare.flatMap((p, i) => [
@@ -112,7 +141,14 @@ function Memory({ paare, addXp, onClose }) {
   }
 
   if (fertig) {
-    return <SpielFertig text={`Alle ${paare.length} Paare in ${versuche} Versuchen gefunden!`} onClose={onClose} />
+    return (
+      <SpielFertig
+        text={`Alle ${paare.length} Paare in ${versuche} Versuchen gefunden!`}
+        woerter={paare.map((p) => p.es)}
+        onGespielt={onGespielt}
+        onClose={onClose}
+      />
+    )
   }
 
   return (
@@ -145,7 +181,7 @@ function Memory({ paare, addXp, onClose }) {
 /* ---------- Spiel 2: Wortpaare finden ---------- */
 // Links Spanisch, rechts Deutsch (gemischt). Tippe die zusammen-
 // gehörenden Wörter an, bis alle Paare verbunden sind.
-function WortPaare({ paare, addXp, onClose }) {
+function WortPaare({ paare, addXp, onClose, onGespielt }) {
   const [rechts] = useState(() => mischen(paare))
   const [wahlLinks, setWahlLinks] = useState(null) // angetipptes spanisches Wort
   const [geloest, setGeloest] = useState([]) // die es-Wörter der gelösten Paare
@@ -173,7 +209,14 @@ function WortPaare({ paare, addXp, onClose }) {
   }
 
   if (fertig) {
-    return <SpielFertig text={`Alle ${paare.length} Wortpaare verbunden!`} onClose={onClose} />
+    return (
+      <SpielFertig
+        text={`Alle ${paare.length} Wortpaare verbunden!`}
+        woerter={paare.map((p) => p.es)}
+        onGespielt={onGespielt}
+        onClose={onClose}
+      />
+    )
   }
 
   return (
@@ -215,170 +258,6 @@ function WortPaare({ paare, addXp, onClose }) {
           ))}
         </div>
       </div>
-    </>
-  )
-}
-
-/* ---------- Spiel 3: Kreuzworträtsel ---------- */
-
-// Baut aus einzelnen Wörtern ein kleines Kreuzworträtsel:
-// Das erste Wort liegt waagerecht, weitere Wörter werden an
-// gemeinsamen Buchstaben senkrecht/waagerecht angedockt.
-function baueKreuzwort(kandidaten) {
-  const woerter = kandidaten
-    .filter((p) => /^[a-záéíóúüñ]{3,10}$/i.test(p.es))
-    .slice(0, 6)
-    .map((p) => ({ wort: vereinfachen(p.es), anzeige: p.es, hinweis: p.de }))
-  if (woerter.length < 3) return null
-
-  const zellen = {} // "reihe,spalte" -> Buchstabe
-  const platziert = []
-
-  function passt(wort, r, c, senkrecht) {
-    for (let i = 0; i < wort.length; i++) {
-      const key = senkrecht ? `${r + i},${c}` : `${r},${c + i}`
-      if (zellen[key] && zellen[key] !== wort[i]) return false
-    }
-    return true
-  }
-
-  function setze(eintrag, r, c, senkrecht) {
-    for (let i = 0; i < eintrag.wort.length; i++) {
-      const key = senkrecht ? `${r + i},${c}` : `${r},${c + i}`
-      zellen[key] = eintrag.wort[i]
-    }
-    platziert.push({ ...eintrag, r, c, senkrecht })
-  }
-
-  setze(woerter[0], 0, 0, false)
-  for (const eintrag of woerter.slice(1)) {
-    let gesetzt = false
-    // einen gemeinsamen Buchstaben mit einem platzierten Wort suchen
-    for (const p of platziert) {
-      if (gesetzt) break
-      for (let i = 0; i < p.wort.length && !gesetzt; i++) {
-        const j = eintrag.wort.indexOf(p.wort[i])
-        if (j === -1) continue
-        // Kreuzungspunkt: neues Wort senkrecht, wenn das alte waagerecht liegt
-        const senkrecht = !p.senkrecht
-        const r = senkrecht ? p.r - j : p.r + i
-        const c = senkrecht ? p.c + i : p.c - j
-        if (passt(eintrag.wort, r, c, senkrecht)) {
-          setze(eintrag, r, c, senkrecht)
-          gesetzt = true
-        }
-      }
-    }
-  }
-
-  // Koordinaten so verschieben, dass alles bei 0 beginnt
-  const reihen = Object.keys(zellen).map((k) => Number(k.split(',')[0]))
-  const spalten = Object.keys(zellen).map((k) => Number(k.split(',')[1]))
-  const minR = Math.min(...reihen)
-  const minC = Math.min(...spalten)
-  const breite = Math.max(...spalten) - minC + 1
-  const hoehe = Math.max(...reihen) - minR + 1
-  for (const p of platziert) {
-    p.r -= minR
-    p.c -= minC
-  }
-  return { platziert, breite, hoehe }
-}
-
-function Kreuzwort({ paare, addXp, onClose }) {
-  const [raetsel] = useState(() => baueKreuzwort(paare))
-  const [eingaben, setEingaben] = useState({}) // "r,c" -> getippter Buchstabe
-  const [geloest, setGeloest] = useState([]) // Index der gelösten Wörter
-  const [fertig, setFertig] = useState(false)
-
-  if (!raetsel) {
-    return (
-      <p className="empty-hint">
-        Für ein Kreuzworträtsel brauchst du mindestens 3 einzelne Wörter (keine
-        Sätze) im Trainer. Sammle noch ein paar!
-      </p>
-    )
-  }
-
-  // Nach jeder Eingabe prüfen, ob ein Wort komplett richtig ist
-  function tippe(key, wert) {
-    const neu = { ...eingaben, [key]: vereinfachen(wert).slice(-1) }
-    setEingaben(neu)
-
-    const jetztGeloest = [...geloest]
-    raetsel.platziert.forEach((p, index) => {
-      if (jetztGeloest.includes(index)) return
-      const komplett = [...p.wort].every((buchstabe, i) => {
-        const k = p.senkrecht ? `${p.r + i},${p.c}` : `${p.r},${p.c + i}`
-        return neu[k] === buchstabe
-      })
-      if (komplett) {
-        jetztGeloest.push(index)
-        addXp(XP.QUIZ_RICHTIG)
-      }
-    })
-    if (jetztGeloest.length !== geloest.length) setGeloest(jetztGeloest)
-    if (jetztGeloest.length === raetsel.platziert.length) {
-      addXp(XP.SPIEL)
-      setFertig(true)
-    }
-  }
-
-  function istGeloest(r, c) {
-    return raetsel.platziert.some(
-      (p, index) =>
-        geloest.includes(index) &&
-        (p.senkrecht
-          ? c === p.c && r >= p.r && r < p.r + p.wort.length
-          : r === p.r && c >= p.c && c < p.c + p.wort.length)
-    )
-  }
-
-  if (fertig) {
-    return <SpielFertig text={`Alle ${raetsel.platziert.length} Wörter gelöst!`} onClose={onClose} />
-  }
-
-  return (
-    <>
-      <div className="kw-scroll">
-        <div
-          className="kw-grid"
-          style={{ gridTemplateColumns: `repeat(${raetsel.breite}, 36px)` }}
-        >
-          {Array.from({ length: raetsel.hoehe }, (_, r) =>
-            Array.from({ length: raetsel.breite }, (_, c) => {
-              const key = `${r},${c}`
-              const gehoertZuWort = raetsel.platziert.some((p) =>
-                p.senkrecht
-                  ? c === p.c && r >= p.r && r < p.r + p.wort.length
-                  : r === p.r && c >= p.c && c < p.c + p.wort.length
-              )
-              if (!gehoertZuWort) return <span key={key} className="kw-leer" />
-              const nummer = raetsel.platziert.findIndex((p) => p.r === r && p.c === c)
-              return (
-                <span key={key} className={'kw-zelle' + (istGeloest(r, c) ? ' kw-geloest' : '')}>
-                  {nummer !== -1 && <i className="kw-nummer">{nummer + 1}</i>}
-                  <input
-                    type="text"
-                    maxLength={2}
-                    value={eingaben[key] || ''}
-                    onChange={(e) => tippe(key, e.target.value)}
-                    disabled={istGeloest(r, c)}
-                  />
-                </span>
-              )
-            })
-          )}
-        </div>
-      </div>
-      <ol className="kw-hinweise">
-        {raetsel.platziert.map((p, i) => (
-          <li key={i} className={geloest.includes(i) ? 'kw-hinweis-geloest' : ''}>
-            <b>{i + 1} {p.senkrecht ? '↓' : '→'}</b> {p.hinweis}
-            {geloest.includes(i) && ` = ${p.anzeige} ✓`}
-          </li>
-        ))}
-      </ol>
     </>
   )
 }
