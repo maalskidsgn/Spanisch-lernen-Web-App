@@ -828,6 +828,13 @@ export default function App() {
         {video && (
           <div className="reader">
             <div className="video-pane">
+              {/* Oranger Verlauf mit Wellenkante: hebt Video und Titel
+                  vom Lesetext ab, ohne eine harte Linie zu ziehen */}
+              <div className="video-buehne">
+                <svg className="buehnen-welle" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M0 44 C 180 88, 340 4, 560 30 C 760 54, 900 92, 1200 46 L1200 90 L0 90 Z" />
+                </svg>
+              </div>
               <div className="player-wrap">
                 <div id="yt-player" />
               </div>
@@ -944,8 +951,20 @@ export default function App() {
               className="fuss-spiel"
               onClick={spielPause}
               title={laeuft ? 'Pause' : 'Abspielen'}
+              aria-label={laeuft ? 'Pause' : 'Abspielen'}
             >
-              {laeuft ? '⏸' : '▶'}
+              {/* Gezeichnete Symbole statt Emoji – die sehen auf jedem
+                  Gerät gleich aus und lassen sich einfärben */}
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {laeuft ? (
+                  <>
+                    <rect x="7" y="5" width="3.6" height="14" rx="1.4" />
+                    <rect x="13.4" y="5" width="3.6" height="14" rx="1.4" />
+                  </>
+                ) : (
+                  <path d="M8.5 5.6a1 1 0 0 1 1.52-.85l8.2 5.15a1.3 1.3 0 0 1 0 2.2l-8.2 5.15A1 1 0 0 1 8.5 16.4z" />
+                )}
+              </svg>
             </button>
 
             {/* Tempo in kleinen Schritten – langsamer hilft beim Verstehen */}
