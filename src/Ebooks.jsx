@@ -115,64 +115,57 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
   return (
     <>
-      <p className="intro">
-        Kurze Sachbuch-Zusammenfassungen auf Spanisch – mit deutscher Fassung
-        zum Umschalten. Ein Buch in etwa 10 Minuten.
-      </p>
-
-      {/* ---------- Das E-Book-Studio ---------- */}
-      <div className="studio">
-        <div className="studio-kopf">
-          <span className="studio-icon">📖</span>
-          <div className="studio-titel">
-            <b>E-Book-Studio</b>
-            <span>Dein Thema → kurzes zweisprachiges Buch in ~10 Sekunden</span>
+      {/* ============ 1. BUCH ERSTELLEN ============ */}
+      <section className="bereich">
+        <div className="bereich-kopf">
+          <div className="kopf-zeile">
+            <h2>Buch schreiben lassen</h2>
+            {kontingent && (
+              <span
+                className={'rest-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
+                title="Kostenlose Bücher diesen Monat"
+              >
+                {kontingent.frei}/{kontingent.gesamt}
+              </span>
+            )}
           </div>
-          {kontingent && (
-            <span
-              className={'studio-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
-              title="Kostenlose Bücher diesen Monat"
-            >
-              {kontingent.frei}/{kontingent.gesamt}
-            </span>
-          )}
+          <p>
+            Nenn ein Thema, und die KI schreibt eine kurze Zusammenfassung auf
+            Spanisch – mit deutscher Fassung zum Umschalten.
+          </p>
         </div>
 
-        <form className="studio-form" onSubmit={erstellen}>
-          <label className="studio-feld">
-            <span>Welches Buch soll die KI für dich schreiben?</span>
-            <input
-              type="text"
-              value={thema}
-              onChange={(e) => setThema(e.target.value)}
-              placeholder="Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“"
-              disabled={aufgebraucht || laedt}
-              required
-            />
-          </label>
+        <form className="wort-form" onSubmit={erstellen}>
+          <input
+            type="text"
+            value={thema}
+            onChange={(e) => setThema(e.target.value)}
+            placeholder="Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“"
+            disabled={aufgebraucht || laedt}
+            required
+          />
 
-          <div className="studio-zeile">
-            <div className="studio-optionen">
-              <span className="studio-option-label">Niveau</span>
-              {NIVEAUS.map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  className={'chip' + (niveau === n ? ' chip-aktiv' : '')}
-                  onClick={() => setNiveau(n)}
-                >
-                  {n}
-                </button>
-              ))}
-            </div>
-            <button type="submit" className="btn studio-los" disabled={laedt || aufgebraucht}>
-              {laedt ? (
-                <>Schreibt dein Buch<span className="studio-punkte" /></>
-              ) : (
-                'Buch erstellen'
-              )}
-            </button>
+          <div className="niveau-zeile">
+            <span className="niveau-label">Niveau</span>
+            {NIVEAUS.map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={'vorschlag-chip' + (niveau === n ? ' chip-gewaehlt' : '')}
+                onClick={() => setNiveau(n)}
+              >
+                {n}
+              </button>
+            ))}
           </div>
+
+          <button type="submit" className="btn wort-los" disabled={laedt || aufgebraucht}>
+            {laedt ? (
+              <>Schreibt dein Buch<span className="studio-punkte" /></>
+            ) : (
+              'Buch erstellen'
+            )}
+          </button>
 
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
@@ -181,7 +174,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             </p>
           )}
         </form>
-      </div>
+      </section>
 
       {aufgebraucht && (
         <div className="plan-card plan-premium premium-teaser">
@@ -197,7 +190,16 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
       {fehler && <p className="error">{fehler}</p>}
 
-      {!buecher && <p className="intro">Lade deine Bibliothek…</p>}
+      {/* ============ 2. DEINE BÜCHER ============ */}
+      <section className="bereich">
+        <div className="bereich-kopf">
+          <h2>Deine Bücher</h2>
+          <p>
+            {buecher
+              ? `${buecher.length} zum Lesen – tippe eins an.`
+              : 'Wird geladen …'}
+          </p>
+        </div>
 
       {buecher && (
         <div className="ebook-grid">
@@ -228,6 +230,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           ))}
         </div>
       )}
+      </section>
     </>
   )
 }

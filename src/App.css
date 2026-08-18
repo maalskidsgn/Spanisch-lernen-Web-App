@@ -3952,6 +3952,8 @@ body.liest-video .fab-panel {
 .spiel-karte,
 .spiel-karte *,
 .vorschlag-chip,
+.such-knopf,
+.such-knopf *,
 .wiederholen-los,
 .filter-knopf {
   color: var(--navy);
@@ -4379,3 +4381,41 @@ body.liest-video .word-card {
   padding-top: 18px;
   border-top: 1px solid var(--line);
 }
+
+/* ---------- Bibliothek im Bereichs-Stil ---------- */
+.such-knopf {
+  border: 2px solid var(--line);
+  border-style: solid;
+  background: var(--bg);
+  margin-bottom: 0;
+}
+.such-knopf:hover { background: #fff; border-color: var(--primary); }
+.such-lupe {
+  background: linear-gradient(140deg, #fff0e3, #ffe3c7);
+  color: var(--primary-dark, #e05f00);
+}
+.such-lupe svg { width: 21px; height: 21px; }
+
+.biblio-zaehler { color: var(--primary-dark, #e05f00); background: #fff0e3; }
+
+/* Niveau-Wahl im Buch-Bereich */
+.niveau-zeile { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.niveau-label {
+  font-size: .8rem;
+  font-weight: 800;
+  color: var(--muted);
+  margin-right: 4px;
+}
+.chip-gewaehlt {
+  background: var(--primary) !important;
+  color: #fff !important;
+  border-color: var(--primary) !important;
+}
+
+/* Die Umschalter Videos/Bücher etwas ruhiger */
+.bereich-schalter { margin-bottom: 20px; }
+
+/* Bücher- und Videoraster brauchen im Bereich keinen Extra-Abstand */
+.bereich .ebook-grid,
+.bereich .video-grid { margin-top: 0; }
+.bereich .themen-leiste { margin-bottom: 18px; }

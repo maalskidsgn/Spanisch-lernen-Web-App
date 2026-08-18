@@ -255,23 +255,36 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
       {bereich === 'videos' && (
       <>
-      {/* Eigenes Video finden: Thema eingeben statt Link suchen */}
-      <button className="such-knopf" onClick={() => setSucheOffen(true)}>
-        <span className="such-lupe">🔍</span>
-        <span className="such-text">
-          <b>Video zu einem Thema finden</b>
-          <span>Deutsch eingeben – wir suchen spanische Videos</span>
-        </span>
-      </button>
+      {/* ============ 1. SELBST SUCHEN ============ */}
+      <section className="bereich">
+        <div className="bereich-kopf">
+          <h2>Video zu einem Thema finden</h2>
+          <p>
+            Gib auf Deutsch ein, worüber du etwas schauen willst – wir suchen
+            passende spanische Videos dazu.
+          </p>
+        </div>
+        <button className="such-knopf" onClick={() => setSucheOffen(true)}>
+          <span className="such-lupe" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+              <circle cx="10.5" cy="10.5" r="6.5" />
+              <path d="M15.5 15.5L21 21" />
+            </svg>
+          </span>
+          <span className="such-text">
+            <b>Suche starten</b>
+            <span>z.B. gesunde Ernährung, Schlaf, Stoizismus</span>
+          </span>
+        </button>
+      </section>
 
-      {/* ---------- Gespeicherte Videos ---------- */}
-      {savedVideos.length === 0 ? (
-        <p className="intro">
-          Noch keine Videos gemerkt. Öffne unten ein Video aus der Bibliothek
-          und speichere es dort, um es hier wiederzufinden.
-        </p>
-      ) : (
-        <>
+      {/* ============ 2. GEMERKTE VIDEOS ============ */}
+      {savedVideos.length > 0 && (
+        <section className="bereich">
+          <div className="bereich-kopf">
+            <h2>Deine gemerkten Videos</h2>
+            <p>{savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.</p>
+          </div>
           <div className="chips">
             <button
               className={'chip ' + (filter === 'alle' ? 'chip-active' : '')}
@@ -293,11 +306,17 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
           <div className="video-grid">
             {filtered.map((v) => (
               <div key={v.videoId} className="video-card">
-                <img
-                  src={`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`}
-                  alt=""
-                  onClick={() => onOpenVideo(v.videoId)}
-                />
+                <div className="video-bild" onClick={() => onOpenVideo(v.videoId)}>
+                  <img src={`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`} alt="" />
+                  {fortschritt[v.videoId] > 0 && (
+                    <div className="video-fortschritt" title={`${fortschritt[v.videoId]} % geschaut`}>
+                      <div
+                        className={'video-fortschritt-balken' + (fortschritt[v.videoId] >= 95 ? ' fertig' : '')}
+                        style={{ width: fortschritt[v.videoId] + '%' }}
+                      />
+                    </div>
+                  )}
+                </div>
                 <div className="video-card-body">
                   <div className="video-card-title" onClick={() => onOpenVideo(v.videoId)}>
                     {v.title}
@@ -316,24 +335,24 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
               </div>
             ))}
           </div>
-        </>
+        </section>
       )}
 
       {/* ---------- Kuratierte Habloo-Bibliothek ---------- */}
       {supabaseBereit && (
-        <>
-          <div className="section-row">
-            <h2 className="discover-title">
-              Habloo-<span className="accent">Bibliothek</span>
-            </h2>
-            {bibliothek && (
-              <span className="biblio-anzahl">{bibliothek.length} Videos</span>
-            )}
+        <section className="bereich">
+          <div className="bereich-kopf">
+            <div className="kopf-zeile">
+              <h2>Ausgewählte Videos</h2>
+              {bibliothek && (
+                <span className="rest-zaehler biblio-zaehler">{bibliothek.length}</span>
+              )}
+            </div>
+            <p>
+              Spanisch lernen, während du etwas Spannendes schaust – jedes Video
+              mit fertigem Transkript, ohne Wartezeit.
+            </p>
           </div>
-          <p className="intro">
-            Spanisch lernen, während du etwas Spannendes schaust – jedes Video
-            mit fertigem Transkript, ohne Wartezeit.
-          </p>
 
           <div className="themen-leiste">
             {KATEGORIEN.map((k) => (
@@ -370,7 +389,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
               ))}
             </div>
           )}
-        </>
+        </section>
       )}
 
       </>

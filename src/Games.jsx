@@ -101,14 +101,19 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
 function Memory({ paare, addXp, onClose, onGespielt }) {
-  const [karten] = useState(() =>
-    mischen(
+  // Karten und Wortliste zusammen einfrieren: Beides muss vom selben
+  // Stand stammen, sonst würden am Ende andere Wörter hochgestuft als
+  // die tatsächlich gespielten.
+  const [{ karten, woerter, anzahl }] = useState(() => ({
+    karten: mischen(
       paare.flatMap((p, i) => [
         { id: i + '-es', pairId: i, text: p.es },
         { id: i + '-de', pairId: i, text: p.de },
       ])
-    )
-  )
+    ),
+    woerter: paare.map((p) => p.es),
+    anzahl: paare.length,
+  }))
   const [offen, setOffen] = useState([]) // ids der gerade aufgedeckten Karten
   const [gefunden, setGefunden] = useState([]) // pairIds der gefundenen Paare
   const [versuche, setVersuche] = useState(0)
@@ -146,8 +151,8 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
   if (fertig) {
     return (
       <SpielFertig
-        text={`Alle ${paare.length} Paare in ${versuche} Versuchen gefunden!`}
-        woerter={paare.map((p) => p.es)}
+        text={`Alle ${anzahl} Paare in ${versuche} Versuchen gefunden!`}
+        woerter={woerter}
         onGespielt={onGespielt}
         onClose={onClose}
       />
@@ -157,7 +162,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       <p className="training-progress">
-        {gefunden.length}/{paare.length} Paare · {versuche} Versuche
+        {gefunden.length}/{anzahl} Paare · {versuche} Versuche
       </p>
       <div className="memory-grid">
         {karten.map((k) => {
@@ -185,7 +190,16 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
 // Links Spanisch, rechts Deutsch (gemischt). Tippe die zusammen-
 // gehörenden Wörter an, bis alle Paare verbunden sind.
 function WortPaare({ paare, addXp, onClose, onGespielt }) {
-  const [rechts] = useState(() => mischen(paare))
+  // Die rechte Spalte wird NICHT zufällig gemischt und eingefroren.
+  // Grund: Wenn sich die Vokabeln während des Spiels ändern – etwa
+  // weil der Abgleich mit dem Konto durchläuft – blieb die alte
+  // Mischung stehen, während links neue Wörter erschienen. Dann
+  // gehörte kein Paar mehr zusammen.
+  //
+  // Stattdessen wird nach der deutschen Übersetzung sortiert: Das
+  // ergibt eine andere Reihenfolge als links (also weiterhin ein
+  // Rätsel), leitet sich aber immer aus denselben Daten ab.
+  const rechts = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
   const [wahlLinks, setWahlLinks] = useState(null) // angetipptes spanisches Wort
   const [geloest, setGeloest] = useState([]) // die es-Wörter der gelösten Paare
   const [fehler, setFehler] = useState(null) // kurz rot aufblinken
