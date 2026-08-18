@@ -33,7 +33,10 @@ function spielbareVokabeln(vocab) {
 }
 
 export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
-  const paare = spielbareVokabeln(vocab)
+  // Die Auswahl EINMAL beim Öffnen festlegen. Vorher wurde sie bei
+  // jedem Neuzeichnen neu gemischt – dadurch zeigte die linke Spalte
+  // plötzlich andere Wörter als die rechte, und kein Paar passte mehr.
+  const [paare] = useState(() => spielbareVokabeln(vocab))
 
   if (paare.length < 4) {
     return (
