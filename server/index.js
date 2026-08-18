@@ -199,8 +199,32 @@ async function istEinbettbar(videoId) {
 
 // Sucht Videos auf YouTube (über yt-dlp, ohne API-Schlüssel).
 // Nicht-einbettbare Videos werden direkt herausgefiltert.
+// Wie ein Niveau die Suche beeinflusst.
+// YouTube kennt keine Sprachniveaus – wir steuern über Suchwörter und
+// Videolänge. Für Anfänger sucht man gezielt nach langsam gesprochenen
+// Lernvideos, für Fortgeschrittene nach echten Podcasts und Gesprächen.
+// Die Zusätze sind bewusst knapp gehalten: zu viele Schlagwörter
+// verschieben das Thema (z. B. führte "lento" zu Meditationsvideos).
+const NIVEAU_SUCHE = {
+  A1: { zusatz: 'explicado fácil', maxSek: 900 },
+  A2: { zusatz: 'explicado sencillo', maxSek: 1200 },
+  B1: { zusatz: 'explicado', maxSek: 1800 },
+  B2: { zusatz: '', maxSek: 2700 },
+  C1: { zusatz: 'podcast', maxSek: 4500 },
+  C2: { zusatz: 'podcast análisis', maxSek: 7200 },
+}
+
+// Die drei Längen zur Auswahl (in Sekunden)
+const LAENGEN = {
+  kurz: { min: 240, max: 660 },     // ~5–10 Minuten
+  mittel: { min: 600, max: 960 },   // ~10–15 Minuten
+  lang: { min: 900, max: 7200 },    // über 15 Minuten
+}
+
 app.get('/api/search', async (req, res) => {
   const q = (req.query.q || '').trim()
+  const niveau = NIVEAU_SUCHE[req.query.niveau] ? req.query.niveau : null
+  const laenge = LAENGEN[req.query.laenge] ?? null
   if (!q) return res.status(400).json({ error: 'Kein Suchbegriff.' })
   try {
     // Deutsche Eingabe ins Spanische übersetzen, damit auch spanische
@@ -219,9 +243,15 @@ app.get('/api/search', async (req, res) => {
       // Klappt die Übersetzung nicht, wird eben im Original gesucht
     }
 
-    // Ein paar mehr suchen, weil das Einbettbarkeits-Sieb welche aussortiert
+    // Beim Niveau helfen zusätzliche Suchwörter: "para principiantes"
+    // findet andere Videos als "podcast debate".
+    if (niveau && NIVEAU_SUCHE[niveau].zusatz) {
+      suchbegriff += ' ' + NIVEAU_SUCHE[niveau].zusatz
+    }
+
+    // Großzügig suchen: Einbettbarkeit, Länge und Niveau sieben kräftig aus
     const out = await runYtDlp([
-      `ytsearch14:${suchbegriff}`,
+      `ytsearch25:${suchbegriff}`,
       '--flat-playlist',
       '-J',
       '--no-warnings',
@@ -229,6 +259,14 @@ app.get('/api/search', async (req, res) => {
     const data = JSON.parse(out)
     const alle = (data.entries || [])
       .filter((e) => e.id && e.title)
+      // Nach gewünschter Länge sieben; ohne Auswahl gilt nur die
+      // Obergrenze des Niveaus, damit nichts Endloses dabei ist
+      .filter((e) => {
+        const dauer = e.duration || 0
+        if (laenge) return dauer >= laenge.min && dauer <= laenge.max
+        if (niveau) return dauer > 0 && dauer <= NIVEAU_SUCHE[niveau].maxSek
+        return true
+      })
       .map((e) => ({
         videoId: e.id,
         title: e.title,

@@ -2,6 +2,26 @@ import { useState, useEffect, useRef } from 'react'
 import { API_URL } from './api.js'
 
 // Ein paar Themen zum Antippen, damit man nicht vor einem leeren Feld sitzt
+// Die Längen zur Auswahl
+const LAENGEN = [
+  { wert: '', label: 'Egal' },
+  { wert: 'kurz', label: '5–10 Min' },
+  { wert: 'mittel', label: '10–15 Min' },
+  { wert: 'lang', label: 'Über 15 Min' },
+]
+
+// Sprachniveaus. Die Beschreibung sagt, was einen erwartet –
+// YouTube kennt keine Niveaus, wir steuern über Suchwörter und Länge.
+const NIVEAUS = [
+  { wert: '', label: 'Egal', hilfe: 'Alles gemischt' },
+  { wert: 'A1', label: 'A1', hilfe: 'Kurze Erklärvideos, einfache Sprache' },
+  { wert: 'A2', label: 'A2', hilfe: 'Einfach erklärt, überschaubare Länge' },
+  { wert: 'B1', label: 'B1', hilfe: 'Normale Erklärvideos' },
+  { wert: 'B2', label: 'B2', hilfe: 'Alltagssprache, längere Beiträge' },
+  { wert: 'C1', label: 'C1', hilfe: 'Podcasts und Interviews' },
+  { wert: 'C2', label: 'C2', hilfe: 'Debatten und Analysen, volles Tempo' },
+]
+
 const IDEEN = [
   'Gesunde Ernährung',
   'Schlaf verbessern',
@@ -20,6 +40,8 @@ const IDEEN = [
  */
 export default function VideoSuche({ onSchliessen, onVideoWaehlen }) {
   const [begriff, setBegriff] = useState('')
+  const [laenge, setLaenge] = useState('')
+  const [niveau, setNiveau] = useState('')
   const [treffer, setTreffer] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -42,7 +64,12 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen }) {
     setFehler('')
     setTreffer(null)
     try {
-      const res = await fetch(API_URL + '/api/search?q=' + encodeURIComponent(frage))
+      const adresse =
+        API_URL +
+        '/api/search?q=' + encodeURIComponent(frage) +
+        (laenge ? '&laenge=' + laenge : '') +
+        (niveau ? '&niveau=' + niveau : '')
+      const res = await fetch(adresse)
       const daten = await res.json()
       if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
       setTreffer((daten.results ?? []).slice(0, 6))
@@ -91,6 +118,47 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen }) {
             {laedt ? 'Sucht …' : 'Suchen'}
           </button>
         </form>
+
+        {/* Länge und Niveau vor der Suche wählen */}
+        <div className="suche-filter">
+          <div className="filter-gruppe">
+            <span className="filter-label">Länge</span>
+            <div className="filter-knoepfe">
+              {LAENGEN.map((l) => (
+                <button
+                  key={l.wert}
+                  className={'filter-knopf' + (laenge === l.wert ? ' filter-an' : '')}
+                  onClick={() => setLaenge(l.wert)}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-gruppe">
+            <span className="filter-label">
+              Niveau
+              {niveau && (
+                <em className="filter-hilfe">
+                  {NIVEAUS.find((n) => n.wert === niveau)?.hilfe}
+                </em>
+              )}
+            </span>
+            <div className="filter-knoepfe">
+              {NIVEAUS.map((n) => (
+                <button
+                  key={n.wert}
+                  className={'filter-knopf' + (niveau === n.wert ? ' filter-an' : '')}
+                  onClick={() => setNiveau(n.wert)}
+                  title={n.hilfe}
+                >
+                  {n.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Vorschläge, solange noch nichts gesucht wurde */}
         {!treffer && !laedt && !fehler && (

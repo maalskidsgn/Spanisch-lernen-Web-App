@@ -3741,11 +3741,12 @@ body.liest-video .fab-panel {
 }
 .treffer-text { display: grid; gap: 3px; min-width: 0; }
 .treffer-titel {
+  color: var(--navy);
   font-size: .92rem; font-weight: 800; line-height: 1.35;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.treffer-meta { font-size: .78rem; color: var(--muted); font-weight: 700; }
+.treffer-meta { font-size: .78rem; color: var(--muted) !important; font-weight: 700; }
 
 @media (max-width: 560px) {
   .suche-fenster { padding: 18px; border-radius: 20px; }
@@ -3920,3 +3921,106 @@ body.liest-video .fab-panel {
   font-weight: 900;
 }
 .plan-premium .plan-features li::before { color: var(--primary); }
+
+/* ============================================================
+   Weiße Schrift zurücknehmen
+   Die allgemeine button-Regel oben färbt jede Schrift weiß – gedacht
+   für gefüllte orange Knöpfe. Bei Knöpfen mit hellem Hintergrund war
+   die Beschriftung dadurch unsichtbar. Diese Regel stellt für alle
+   hellen Varianten die normale Textfarbe wieder her.
+   ============================================================ */
+.treffer,
+.treffer *,
+.such-knopf,
+.such-knopf *,
+.kategorie-chip,
+.bewertung,
+.bewertung *,
+.fuss-knopf,
+.video-aktion,
+.werkzeug-knopf,
+.werkzeug-aktion,
+.tempo-schritt,
+.thema,
+.chip,
+.btn-outline,
+.btn-still,
+.automatik-info,
+.filter-stufe {
+  color: var(--navy);
+}
+
+/* Ausnahmen: diese sind gefüllt und brauchen weiße Schrift */
+.thema-aktiv,
+.chip-aktiv,
+.chip-active,
+.kategorie-aktiv,
+.fuss-an,
+.video-aktion.aktion-an,
+.video-aktion.aktion-fertig,
+.filter-stufe-aktiv {
+  color: #fff;
+}
+
+/* Bewertungsknöpfe behalten ihre eigenen Farben */
+.bewertung-nochmal, .bewertung-nochmal * { color: #c0392b; }
+.bewertung-schwer,  .bewertung-schwer *  { color: #b06f00; }
+.bewertung-gut,     .bewertung-gut *     { color: #1f7a45; }
+.bewertung-einfach, .bewertung-einfach * { color: #2c5aa8; }
+
+/* Zweitrangiger Text bleibt gedämpft */
+.treffer-meta,
+.such-text > span,
+.bewertung-zeit { opacity: .72; }
+
+/* ---------- Filter in der Video-Suche ---------- */
+.suche-filter {
+  display: grid;
+  gap: 12px;
+  padding: 13px 0 15px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+}
+.filter-gruppe { display: grid; gap: 6px; }
+.filter-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: .78rem;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.filter-hilfe {
+  font-style: normal;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--primary-dark, #e05f00);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.filter-knoepfe { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-knopf {
+  font-family: inherit;
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--bg);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 13px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.filter-knopf:hover { border-color: var(--primary); }
+.filter-knopf:active { transform: scale(.95); }
+.filter-an {
+  background: var(--primary);
+  color: #fff !important;
+  border-color: var(--primary);
+}
+
+@media (max-width: 560px) {
+  .filter-knopf { font-size: .77rem; padding: 6px 11px; }
+}
