@@ -1,6 +1,7 @@
 import { API_URL } from './api.js'
 import { holeBibliothek, supabaseBereit } from './supabase.js'
 import Ebooks from './Ebooks.jsx'
+import VideoSuche from './VideoSuche.jsx'
 import { ladeVideoFortschritt } from './App.jsx'
 import { useState, useEffect } from 'react'
 
@@ -78,6 +79,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
   // ---------- Kuratierte Bibliothek aus der Datenbank ----------
   const [bibliothek, setBibliothek] = useState(null)
   const [fortschritt] = useState(ladeVideoFortschritt) // wie weit pro Video
+  const [sucheOffen, setSucheOffen] = useState(false)
   const [kategorie, setKategorie] = useState('alle')
   const [bibliothekFehler, setBibliothekFehler] = useState('')
 
@@ -244,26 +246,23 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
       {/* ---------- Bücher: Zusammenfassungen wie bei Blinkist ---------- */}
       {bereich === 'buecher' && <Ebooks onAddVocab={onAddVocab} vocab={vocab} />}
 
+      {sucheOffen && (
+        <VideoSuche
+          onSchliessen={() => setSucheOffen(false)}
+          onVideoWaehlen={onOpenVideo}
+        />
+      )}
+
       {bereich === 'videos' && (
       <>
-      {/* Eigenes Video laden – Transkripte holt der Server notfalls
-          über einen Dienst, wenn YouTube ihn selbst abweist */}
-      <form
-        className="url-form"
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (link.trim()) onLoadUrl(link.trim())
-        }}
-      >
-        <input
-          type="text"
-          value={link}
-          onChange={(e) => setLink(e.target.value)}
-          placeholder="YouTube-Link einfügen…"
-          required
-        />
-        <button type="submit">Laden</button>
-      </form>
+      {/* Eigenes Video finden: Thema eingeben statt Link suchen */}
+      <button className="such-knopf" onClick={() => setSucheOffen(true)}>
+        <span className="such-lupe">🔍</span>
+        <span className="such-text">
+          <b>Video zu einem Thema finden</b>
+          <span>Deutsch eingeben – wir suchen spanische Videos</span>
+        </span>
+      </button>
 
       {/* ---------- Gespeicherte Videos ---------- */}
       {savedVideos.length === 0 ? (

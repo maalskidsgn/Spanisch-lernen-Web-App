@@ -104,3 +104,46 @@ export async function holeVideoDaten(videoId) {
     return null
   }
 }
+
+
+/**
+ * Legt ein neu geholtes Video in der Bibliothek ab.
+ *
+ * Der Sinn: Jedes Video kostet nur beim allerersten Mal ein Guthaben.
+ * Danach liest es die App aus der Datenbank – für alle Nutzer.
+ */
+export async function merkeInBibliothek(videoId, titel, zeilen) {
+  const url = process.env.SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_KEY
+  if (!url || !key) return
+
+  try {
+    const antwort = await fetch(`${url}/rest/v1/videos?on_conflict=youtube_id`, {
+      method: 'POST',
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        youtube_id: videoId,
+        titel,
+        thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+        niveau: 'B1',
+        kategorie: 'gefunden', // selbst gesucht, nicht kuratiert
+        transkript: zeilen.map((z) => ({
+          text: z.text,
+          start: z.start,
+          dauer: Math.max(0, z.end - z.start),
+        })),
+      }),
+    })
+    if (!antwort.ok) {
+      console.error('Video nicht gespeichert:', (await antwort.text()).slice(0, 150))
+    }
+  } catch (fehler) {
+    // Nicht schlimm: der Nutzer bekommt sein Transkript trotzdem
+    console.error('Video nicht gespeichert:', fehler.message)
+  }
+}

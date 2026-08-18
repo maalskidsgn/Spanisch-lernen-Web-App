@@ -7,7 +7,11 @@ import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
-import { holeTranskript as holeUeberDienst, tubeAlfredBereit } from './transkripte.js'
+import {
+  holeTranskript as holeUeberDienst,
+  tubeAlfredBereit,
+  merkeInBibliothek,
+} from './transkripte.js'
 import {
   erzeugeEbook,
   nutzerAusToken,
@@ -135,7 +139,11 @@ app.get('/api/transcript', async (req, res) => {
     if (tubeAlfredBereit()) {
       try {
         console.log('yt-dlp blockiert, frage TubeAlfred:', videoId)
-        return res.json(await holeUeberDienst(videoId))
+        const ergebnis = await holeUeberDienst(videoId)
+        // Gleich in die Bibliothek legen: so kostet dieses Video
+        // nie wieder ein Guthaben – auch nicht bei anderen Nutzern
+        merkeInBibliothek(videoId, ergebnis.title, ergebnis.lines)
+        return res.json(ergebnis)
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
         return res.status(502).json({ error: dienstFehler.message })
@@ -195,9 +203,25 @@ app.get('/api/search', async (req, res) => {
   const q = (req.query.q || '').trim()
   if (!q) return res.status(400).json({ error: 'Kein Suchbegriff.' })
   try {
+    // Deutsche Eingabe ins Spanische übersetzen, damit auch spanische
+    // Videos gefunden werden ("gesunde Ernährung" -> "alimentación saludable").
+    // Steht dort schon Spanisches, ändert die Übersetzung praktisch nichts.
+    let suchbegriff = q
+    try {
+      const r = await fetch(
+        'https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=es&dt=t&q=' +
+          encodeURIComponent(q)
+      )
+      const d = await r.json()
+      const spanisch = (d?.[0] || []).map((teil) => teil?.[0] || '').join('').trim()
+      if (spanisch) suchbegriff = spanisch
+    } catch {
+      // Klappt die Übersetzung nicht, wird eben im Original gesucht
+    }
+
     // Ein paar mehr suchen, weil das Einbettbarkeits-Sieb welche aussortiert
     const out = await runYtDlp([
-      `ytsearch14:${q}`,
+      `ytsearch14:${suchbegriff}`,
       '--flat-playlist',
       '-J',
       '--no-warnings',
