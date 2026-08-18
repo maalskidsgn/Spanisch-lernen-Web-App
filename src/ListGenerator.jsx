@@ -13,13 +13,20 @@ export default function ListGenerator({ vocab, setVocab }) {
   const [liste, setListe] = useState(null) // Vorschläge mit Häkchen
   const [erfolg, setErfolg] = useState(false)
   const [uebrig, setUebrig] = useState(() => verbleibend('listeGen')) // freie Generierungen
+  const [begruendung, setBegruendung] = useState('') // warum die KI diese Wörter wählte
+  const [infoOffen, setInfoOffen] = useState(false) // Erklärung der Automatik
 
-  async function generieren(e) {
-    e.preventDefault()
-    if (!thema.trim() || uebrig <= 0) return
+  /**
+   * Holt eine Liste. Ohne Thema übernimmt die KI die Auswahl und
+   * richtet sich nach dem, was schon im Trainer liegt.
+   */
+  async function generieren(e, automatisch = false) {
+    e?.preventDefault()
+    if ((!automatisch && !thema.trim()) || uebrig <= 0) return
     setLaden(true)
     setFehler('')
     setErfolg(false)
+    setBegruendung('')
     try {
       const res = await fetch(API_URL + '/api/vokabelliste', {
         method: 'POST',
@@ -27,14 +34,15 @@ export default function ListGenerator({ vocab, setVocab }) {
         // Die schon gesammelten Wörter mitschicken: so kommen keine
         // Dopplungen zurück und die Liste passt zum eigenen Stand.
         body: JSON.stringify({
-          thema: thema.trim(),
+          thema: automatisch ? '' : thema.trim(),
           bekannt: Object.keys(vocab),
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
-      setFertigThema(thema.trim())
+      setBegruendung(data.begruendung || '')
+      setFertigThema(data.thema || thema.trim())
       zaehleNutzung('listeGen') // eine kostenlose Generierung verbrauchen
       setUebrig(verbleibend('listeGen'))
     } catch (err) {
@@ -130,6 +138,57 @@ export default function ListGenerator({ vocab, setVocab }) {
             )}
           </button>
         </form>
+
+        {/* ---------- Die Automatik ---------- */}
+        <div className="automatik">
+          <div className="automatik-kopf">
+            <div className="automatik-titel">
+              <b>🎯 Passend zu deinem Stand</b>
+              <span>Die KI wählt selbst aus, was für dich als Nächstes dran ist</span>
+            </div>
+            <button
+              type="button"
+              className="automatik-info"
+              onClick={() => setInfoOffen(!infoOffen)}
+              title="Wie funktioniert das?"
+              aria-expanded={infoOffen}
+            >
+              {infoOffen ? '×' : '?'}
+            </button>
+          </div>
+
+          {infoOffen && (
+            <div className="automatik-erklaerung">
+              <p>
+                <b>Was passiert hier?</b> Deine gesammelten Wörter werden an die
+                KI geschickt. Sie schaut sich an, welche Themen darin vorkommen
+                und was noch fehlt – etwa passende Verben zu Wörtern, die du
+                schon kennst.
+              </p>
+              <p>
+                <b>Was du davon hast:</b> Keine Wiederholungen von Wörtern, die
+                du längst hast. Und die Vorschläge bauen aufeinander auf, statt
+                zufällig zu sein. Warum die KI genau diese Auswahl getroffen hat,
+                erklärt sie dir direkt über der Liste.
+              </p>
+              <p className="automatik-klein">
+                Du brauchst mindestens 5 gesammelte Wörter, damit die KI etwas
+                erkennen kann. Aktuell hast du {Object.keys(vocab).length}.
+              </p>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="btn-outline automatik-los"
+            onClick={(e) => generieren(e, true)}
+            disabled={laden || Object.keys(vocab).length < 5}
+          >
+            {Object.keys(vocab).length < 5
+              ? 'Sammle erst 5 Wörter'
+              : '🎯 Für mich auswählen lassen'}
+          </button>
+        </div>
       </div>
 
       {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}
@@ -150,6 +209,12 @@ export default function ListGenerator({ vocab, setVocab }) {
 
       {liste && (
         <div className="gen-list">
+          {begruendung && (
+            <div className="gen-begruendung">
+              <span className="gen-begruendung-marke">🎯 Warum diese Wörter?</span>
+              <p>{begruendung}</p>
+            </div>
+          )}
           <p className="gen-hint">
             Deine Liste zu „{fertigThema}“ – wähle aus, was in den Trainer soll:
           </p>

@@ -158,6 +158,17 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
 const LISTEN_SCHEMA = {
   type: 'object',
   properties: {
+    begruendung: {
+      type: 'string',
+      description:
+        'Ein bis zwei Sätze auf Deutsch: Was fiel am bisherigen Wortschatz auf, ' +
+        'und warum passen genau diese Wörter als nächster Schritt? ' +
+        'Persönlich formuliert, direkte Anrede.',
+    },
+    thema: {
+      type: 'string',
+      description: 'Kurzer Name für diese Liste, z. B. "Im Restaurant bestellen"',
+    },
     vokabeln: {
       type: 'array',
       description: '12 nützliche Vokabeln zum Thema',
@@ -173,7 +184,7 @@ const LISTEN_SCHEMA = {
       },
     },
   },
-  required: ['vokabeln'],
+  required: ['begruendung', 'thema', 'vokabeln'],
   additionalProperties: false,
 }
 
@@ -228,6 +239,19 @@ export async function erzeugeVokabelliste(thema, bekannt = []) {
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
+  // Ohne Thema übernimmt die KI die Auswahl: sie schaut sich den
+  // bisherigen Wortschatz an und schlägt den nächsten sinnvollen
+  // Schritt vor – etwa passende Verben zu vorhandenen Nomen.
+  const automatisch = !thema?.trim()
+
+  const auftrag = automatisch
+    ? 'Schau dir den bisherigen Wortschatz an und wähle selbst aus, was als ' +
+      'Nächstes am meisten bringt. Achte darauf: Welche Themen tauchen auf? ' +
+      'Fehlen zu vorhandenen Nomen die passenden Verben? Fehlen Wörter, die ' +
+      'man im Alltag ständig braucht? Wähle ein zusammenhängendes Thema statt ' +
+      'wahlloser Einzelwörter.' + bekanntesAlsHinweis(bekannt)
+    : `Thema: ${thema}` + bekanntesAlsHinweis(bekannt)
+
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
@@ -241,10 +265,11 @@ export async function erzeugeVokabelliste(thema, bekannt = []) {
           role: 'system',
           content:
             'Du stellst Vokabellisten für deutschsprachige Spanischlernende zusammen: ' +
-            'die 12 nützlichsten Wörter zum gewünschten Thema, Alltagsniveau, ' +
-            'Nomen mit Artikel, jedes Wort mit einem einfachen Beispielsatz.',
+            'die 12 nützlichsten Wörter, Alltagsniveau, Nomen mit Artikel, jedes Wort ' +
+            'mit einem einfachen Beispielsatz. Erkläre in der Begründung kurz und ' +
+            'persönlich, warum du gerade diese Auswahl getroffen hast.',
         },
-        { role: 'user', content: `Thema: ${thema}` + bekanntesAlsHinweis(bekannt) },
+        { role: 'user', content: auftrag },
       ],
       response_format: {
         type: 'json_schema',
@@ -259,9 +284,13 @@ export async function erzeugeVokabelliste(thema, bekannt = []) {
   }
 
   const daten = await antwort.json()
-  const vorschlaege = JSON.parse(daten.choices[0].message.content).vokabeln
-  // Sicherheitsnetz: das Modell hält sich nicht immer an die Vorgabe
-  return ohneBekannte(vorschlaege, bekannt)
+  const ergebnis = JSON.parse(daten.choices[0].message.content)
+  return {
+    // Sicherheitsnetz: das Modell hält sich nicht immer an die Vorgabe
+    vokabeln: ohneBekannte(ergebnis.vokabeln, bekannt),
+    begruendung: ergebnis.begruendung ?? '',
+    thema: ergebnis.thema ?? thema ?? '',
+  }
 }
 
 /**
