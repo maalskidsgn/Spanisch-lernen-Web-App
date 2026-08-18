@@ -1,7 +1,8 @@
 import { API_URL } from './api.js'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
+import { usePremium } from './premium.js'
 
 // Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen
 function cleanWord(word) {
@@ -15,7 +16,14 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
   const [added, setAdded] = useState(false)
-  const [uebrig, setUebrig] = useState(() => verbleibend()) // freie Generierungen
+  const { premium } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend())
+
+  // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
+  // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium]) // freie Generierungen
 
   async function generate() {
     if (uebrig <= 0) return
@@ -35,7 +43,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
       if (!res.ok) throw new Error(data.error)
       setSuggestions(data.vokabeln.map((v) => ({ ...v, checked: true })))
       zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
-      setUebrig(verbleibend())
+      setUebrig(verbleibend(premium))
     } catch (err) {
       setError(err.message)
     } finally {

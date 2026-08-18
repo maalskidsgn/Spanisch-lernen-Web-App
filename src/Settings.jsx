@@ -1,10 +1,15 @@
 import { useRef } from 'react'
+import { API_URL } from './api.js'
+import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
+// Preis und Status kommen aus Stripe bzw. der Datenbank – hier steht
+// bewusst keine Zahl fest verdrahtet, sonst weicht die Anzeige
+// irgendwann von dem ab, was tatsaechlich abgebucht wird.
 export default function Settings({
   progress,
   settings,
@@ -14,6 +19,45 @@ export default function Settings({
   syncStatus,
   onLoginOeffnen,
 }) {
+  const { premium, bis, status: aboStatus, neuLaden } = usePremium()
+  const [bezahlbar, setBezahlbar] = useState(false)
+  const [preis, setPreis] = useState(null)
+  const [laedt, setLaedt] = useState(false)
+  const [kaufFehler, setKaufFehler] = useState('')
+
+  // Steht die Bezahlung bereit, und was kostet es?
+  useEffect(() => {
+    fetch(API_URL + '/api/bezahlung/status')
+      .then((r) => r.json())
+      .then((d) => {
+        setBezahlbar(Boolean(d.bereit))
+        setPreis(d.preis ?? null)
+      })
+      .catch(() => setBezahlbar(false))
+  }, [])
+
+  // Nach der Rueckkehr von Stripe kann die Meldung noch unterwegs
+  // sein – deshalb kurz warten und dann erneut nachsehen.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('bezahlt') !== 'ja') return
+    window.history.replaceState({}, '', '/')
+    const timer = setTimeout(neuLaden, 2500)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const gueltigBis = bis ? bis.toLocaleDateString('de-DE') : ''
+
+  async function kaufen() {
+    setLaedt(true); setKaufFehler('')
+    try { await zurKasse() } catch (f) { setKaufFehler(f.message); setLaedt(false) }
+  }
+
+  async function verwalten() {
+    setLaedt(true); setKaufFehler('')
+    try { await aboVerwalten() } catch (f) { setKaufFehler(f.message); setLaedt(false) }
+  }
+
   // Abmelden – die lokalen Daten bleiben erhalten
   async function abmeldenKlick() {
     if (!confirm('Wirklich abmelden? Deine Daten bleiben gesichert.')) return
@@ -150,7 +194,12 @@ export default function Settings({
         </div>
         <div className="plan-card plan-premium">
           <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
+            Premium{' '}
+            {premium ? (
+              <span className="plan-badge">Dein Plan</span>
+            ) : !bezahlbar ? (
+              <span className="plan-badge badge-soon">Bald verfügbar</span>
+            ) : null}
           </div>
           <ul className="plan-features">
             <li>Unbegrenzte KI-Vokabellisten</li>
@@ -158,26 +207,45 @@ export default function Settings({
             <li>Eigene Videos ohne Begrenzung</li>
             <li>Offline-Modus & Erinnerungen</li>
           </ul>
-          {/* Die drei Preis-Optionen */}
-          <div className="price-options">
-            <div className="price-row">
-              <span>Monatlich</span>
-              <b>5,99 €</b>
+
+          {preis && !premium && (
+            <div className="price-options">
+              <div className="price-row price-best">
+                <span>{preis.zeitraum === 'year' ? 'Jährlich' : 'Monatlich'}</span>
+                <b>
+                  {preis.betrag.toLocaleString('de-DE', {
+                    style: 'currency',
+                    currency: preis.waehrung,
+                  })}
+                </b>
+              </div>
             </div>
-            <div className="price-row price-best">
-              <span>
-                Jährlich <em className="spar-badge">Spare 30 %</em>
-              </span>
-              <b>50 €</b>
-            </div>
-            <div className="price-row">
-              <span>Lifetime · einmal zahlen</span>
-              <b>89 €</b>
-            </div>
-          </div>
-          <button disabled title="Kommt mit der App-Version">
-            Demnächst
-          </button>
+          )}
+
+          {premium ? (
+            <>
+              <p className="abo-status">
+                {!gueltigBis
+                  ? 'Aktiv – unbegrenzt'
+                  : aboStatus === 'gekuendigt'
+                    ? `Gekündigt – läuft noch bis ${gueltigBis}`
+                    : `Aktiv – verlängert sich am ${gueltigBis}`}
+              </p>
+              <button onClick={verwalten} disabled={laedt}>
+                {laedt ? 'Öffnet …' : 'Abo verwalten'}
+              </button>
+            </>
+          ) : bezahlbar ? (
+            <button onClick={kaufen} disabled={laedt}>
+              {laedt ? 'Weiterleitung …' : 'Premium holen'}
+            </button>
+          ) : (
+            <button disabled title="Bezahlung wird gerade eingerichtet">
+              Demnächst
+            </button>
+          )}
+
+          {kaufFehler && <p className="error">{kaufFehler}</p>}
         </div>
       </div>
 

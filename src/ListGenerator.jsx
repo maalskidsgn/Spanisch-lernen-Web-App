@@ -1,7 +1,8 @@
 import { API_URL } from './api.js'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
+import { usePremium } from './premium.js'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
@@ -12,7 +13,14 @@ export default function ListGenerator({ vocab, setVocab }) {
   const [fehler, setFehler] = useState('')
   const [liste, setListe] = useState(null) // Vorschläge mit Häkchen
   const [erfolg, setErfolg] = useState(false)
-  const [uebrig, setUebrig] = useState(() => verbleibend()) // freie Generierungen
+  const { premium } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend())
+
+  // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
+  // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium]) // freie Generierungen
   const [begruendung, setBegruendung] = useState('') // warum die KI diese Wörter wählte
   const [infoOffen, setInfoOffen] = useState(false) // Erklärung der Automatik
 
@@ -44,7 +52,7 @@ export default function ListGenerator({ vocab, setVocab }) {
       setBegruendung(data.begruendung || '')
       setFertigThema(data.thema || thema.trim())
       zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
-      setUebrig(verbleibend())
+      setUebrig(verbleibend(premium))
     } catch (err) {
       setFehler(err.message)
     } finally {

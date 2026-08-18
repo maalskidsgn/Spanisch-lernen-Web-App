@@ -37,8 +37,12 @@ export function zaehleNutzung() {
   return stand.listen
 }
 
-/** Wie viele Listen sind heute noch übrig? */
-export function verbleibend() {
+/**
+ * Wie viele Listen sind heute noch übrig?
+ * @param {boolean} premium – Premium hat kein Tageslimit.
+ */
+export function verbleibend(premium = false) {
+  if (premium) return Infinity
   return Math.max(0, LISTEN_PRO_TAG - nutzung().listen)
 }
 

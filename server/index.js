@@ -9,6 +9,14 @@ import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import { findeSpanischeInterpreten } from './interpreten.js'
 import {
+  starteBezahlung,
+  verwaltungsLink,
+  pruefeMeldung,
+  verarbeiteMeldung,
+  stripeBereit,
+  holePreis,
+} from './bezahlung.js'
+import {
   holeTranskript as holeUeberDienst,
   tubeAlfredBereit,
   merkeInBibliothek,
@@ -39,6 +47,28 @@ try {
 }
 
 const app = express()
+
+// Die Stripe-Meldung MUSS vor express.json stehen und roh bleiben:
+// Stripe unterschreibt den unveraenderten Text. Sobald express.json
+// ihn einliest und wieder ausgibt, passt die Signatur nicht mehr –
+// dann waeren alle Meldungen ungueltig.
+app.post(
+  '/api/bezahlung/melden',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    try {
+      const ereignis = pruefeMeldung(req.body, req.headers['stripe-signature'])
+      const ergebnis = await verarbeiteMeldung(ereignis)
+      console.log('[stripe]', ereignis.type, JSON.stringify(ergebnis))
+      res.json({ empfangen: true })
+    } catch (fehler) {
+      // 400 signalisiert Stripe: nicht erneut versuchen (Signatur falsch).
+      console.error('[stripe] Meldung abgelehnt:', fehler.message)
+      res.status(400).json({ error: fehler.message })
+    }
+  }
+)
+
 app.use(express.json({ limit: '2mb' }))
 const PORT = process.env.PORT || 8787
 
@@ -508,6 +538,49 @@ app.post('/api/spotify/interpreten', async (req, res) => {
   try {
     const ergebnis = await findeSpanischeInterpreten(req.body?.kuenstler)
     res.json(ergebnis)
+  } catch (fehler) {
+    res.status(500).json({ error: fehler.message })
+  }
+})
+
+// ---------- Bezahlung ----------
+// Sagt der App, ob Bezahlen ueberhaupt eingerichtet ist.
+app.get('/api/bezahlung/status', async (req, res) => {
+  if (!stripeBereit()) return res.json({ bereit: false })
+  try {
+    res.json({ bereit: true, preis: await holePreis() })
+  } catch (fehler) {
+    // Bezahlen geht, nur der Preis liess sich nicht laden
+    res.json({ bereit: true, preis: null, hinweis: fehler.message })
+  }
+})
+
+// Bezahlvorgang starten. Die Nutzer-Kennung nehmen wir NICHT aus der
+// Anfrage, sondern aus dem geprueften Anmelde-Token – sonst koennte
+// jemand ein Abo auf ein fremdes Konto buchen.
+app.post('/api/bezahlung/start', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = await nutzerAusToken(token)
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    const herkunft = req.body?.herkunft || 'https://habloo.de'
+    const url = await starteBezahlung(nutzer.id, nutzer.email, herkunft)
+    res.json({ url })
+  } catch (fehler) {
+    res.status(500).json({ error: fehler.message })
+  }
+})
+
+// Stripes eigene Verwaltungsseite (kuendigen, Zahlungsart aendern)
+app.post('/api/bezahlung/verwalten', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = await nutzerAusToken(token)
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    const url = await verwaltungsLink(nutzer.id, req.body?.herkunft || 'https://habloo.de')
+    res.json({ url })
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })
   }
