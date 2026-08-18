@@ -1,5 +1,5 @@
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
-import { MODULE, modulFortschritt, ALLES_OFFEN } from './lektionen.js'
+import { MODULE, modulFortschritt } from './lektionen.js'
 import { tagesplan, planStand } from './tagesplan.js'
 
 // Der Start-Bereich: begrüßt dich, zeigt Tagesziel, Streak und deine
