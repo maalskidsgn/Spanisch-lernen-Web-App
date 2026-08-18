@@ -16,6 +16,12 @@
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
+// Welche App das hier ist. Stripe schickt jedes Ereignis an ALLE
+// passenden Webhook-Endpunkte – teilen sich mehrere Apps ein
+// Stripe-Konto, bekaeme Habloo auch Davaigos Abos gemeldet und
+// wuerde an einer unbekannten Nutzer-Kennung scheitern.
+const APP_KENNUNG = process.env.APP_KENNUNG || 'habloo'
+
 let stripe = null
 export function stripeBereit() {
   return Boolean(process.env.STRIPE_SECRET_KEY)
@@ -62,8 +68,8 @@ export async function starteBezahlung(nutzerId, email, herkunft) {
     // Die Nutzer-Kennung reisen mit und kommen in der Meldung
     // zurück – so wissen wir später, wem die Zahlung gehört.
     client_reference_id: nutzerId,
-    subscription_data: { metadata: { nutzer_id: nutzerId } },
-    metadata: { nutzer_id: nutzerId },
+    subscription_data: { metadata: { nutzer_id: nutzerId, app: APP_KENNUNG } },
+    metadata: { nutzer_id: nutzerId, app: APP_KENNUNG },
 
     success_url: `${herkunft}/?bezahlt=ja`,
     cancel_url: `${herkunft}/?bezahlt=abgebrochen`,
@@ -183,6 +189,12 @@ export async function verarbeiteMeldung(ereignis) {
       const nutzerId = d.metadata?.nutzer_id
       if (!nutzerId) return { erledigt: false, grund: 'keine Nutzer-Kennung' }
 
+      // Gehoert das Abo ueberhaupt zu dieser App? Aeltere Abos ohne
+      // Kennung lassen wir durch, sonst wuerden sie stehenbleiben.
+      if (d.metadata?.app && d.metadata.app !== APP_KENNUNG) {
+        return { erledigt: false, grund: 'gehoert zu ' + d.metadata.app }
+      }
+
       // "gekuendigt" heißt: läuft noch bis zum Periodenende, aber
       // verlängert sich nicht mehr. Premium bleibt bis dahin.
       const status = d.cancel_at_period_end
@@ -204,6 +216,9 @@ export async function verarbeiteMeldung(ereignis) {
     case 'customer.subscription.deleted': {
       const nutzerId = d.metadata?.nutzer_id
       if (!nutzerId) return { erledigt: false, grund: 'keine Nutzer-Kennung' }
+      if (d.metadata?.app && d.metadata.app !== APP_KENNUNG) {
+        return { erledigt: false, grund: 'gehoert zu ' + d.metadata.app }
+      }
       await setzeBerechtigung(nutzerId, {
         status: 'abgelaufen',
         laeuftAb: d.ended_at ?? Math.floor(Date.now() / 1000),
