@@ -1,7 +1,7 @@
 import { API_URL } from './api.js'
 import { useState } from 'react'
 import { newEntry } from './srs.js'
-import { FREE_LIMIT, verbleibend, zaehleNutzung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 
 // Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen
 function cleanWord(word) {
@@ -15,7 +15,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
   const [added, setAdded] = useState(false)
-  const [uebrig, setUebrig] = useState(() => verbleibend('videoGen')) // freie Generierungen
+  const [uebrig, setUebrig] = useState(() => verbleibend()) // freie Generierungen
 
   async function generate() {
     if (uebrig <= 0) return
@@ -34,8 +34,8 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
       setSuggestions(data.vokabeln.map((v) => ({ ...v, checked: true })))
-      zaehleNutzung('videoGen') // eine kostenlose Generierung verbrauchen
-      setUebrig(verbleibend('videoGen'))
+      zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
+      setUebrig(verbleibend())
     } catch (err) {
       setError(err.message)
     } finally {
@@ -73,7 +73,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
             Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
           </div>
           <p className="row-hint">
-            Deine {FREE_LIMIT} kostenlosen Generierungen sind aufgebraucht –
+            Deine {LISTEN_PRO_TAG} Listen für heute sind aufgebraucht. Neue gibt es {naechsteAuffuellung()} –
             unbegrenzte Vokabel-Generierung kommt mit dem Premium-Abo.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
             {loading ? 'Analysiere Text…' : 'Vokabeln generieren'}
           </button>
           <p className="free-hint">
-            Noch {uebrig} von {FREE_LIMIT} kostenlos
+            Noch {uebrig} von {LISTEN_PRO_TAG} heute
           </p>
         </>
       )}

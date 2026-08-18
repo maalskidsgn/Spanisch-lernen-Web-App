@@ -228,20 +228,6 @@ export default function Settings({
         </label>
       </div>
 
-      {/* ---------- Konto (kommt mit der Cloud-Version) ---------- */}
-      <h2 className="settings-heading">Konto</h2>
-      <div className="settings-card">
-        <div className="settings-row">
-          <div>
-            <div className="row-title">Anmeldung & Cloud-Sync</div>
-            <div className="row-hint">
-              Kommt mit dem nächsten großen Update – dann bleiben deine Daten auf
-              allen Geräten synchron.
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* ---------- Daten ---------- */}
       <h2 className="settings-heading">Deine Daten</h2>
       <div className="settings-card">

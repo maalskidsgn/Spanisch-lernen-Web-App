@@ -9,6 +9,7 @@ import {
   ALLES_OFFEN,
 } from './lektionen.js'
 import { XP } from './gamification.js'
+import { hakeAb } from './tagesplan.js'
 import { sprich } from './sprich.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
@@ -72,6 +73,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     if (next >= schritte.length) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
+      hakeAb('lektion') // Schritt im Tagesplan erledigt
       onLessonComplete(lektion)
       setFertig(true)
       return
@@ -332,9 +334,12 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       <h1>
         Deine <span className="accent">Sprach-Reise</span>
       </h1>
+      {/* Solange ALLES_OFFEN gilt, waere "schalte das naechste frei"
+          schlicht falsch – die Module stehen ja alle offen. */}
       <p className="intro">
-        Modul für Modul zum Spanisch-Können – schließe ein Modul ab, um das
-        nächste freizuschalten.
+        {ALLES_OFFEN
+          ? 'Modul für Modul zum Spanisch-Können – alle Module stehen dir offen, fang an, wo du magst.'
+          : 'Modul für Modul zum Spanisch-Können – schließe ein Modul ab, um das nächste freizuschalten.'}
       </p>
 
       <div className="lesson-list">

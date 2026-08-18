@@ -14,6 +14,7 @@
   --red: #ff4b4b;
   --red-press: #d33131;
   --navy: #000041;
+  --muted: #756a5c; /* gedaempfte Zweitschrift, 4,9:1 auf Creme */
   --bg: #faf7f1;
   --card: #ffffff;
   --line: #f0e5d8; /* zarte Trennlinien */
@@ -2002,7 +2003,7 @@ button:disabled {
 .pfad-name {
   font-size: 0.86rem;
   font-weight: 800;
-  color: var(--muted, #7d7263);
+  color: var(--muted);
   text-align: center;
   max-width: 150px;
   line-height: 1.3;
@@ -3956,6 +3957,8 @@ body.liest-video .fab-panel {
 .spiel-karte *,
 .interpret-karte,
 .interpret-karte *,
+.liste-kopf,
+.liste-kopf *,
 .vorschlag-chip,
 .such-knopf,
 .such-knopf *,
@@ -4525,7 +4528,7 @@ body.liest-video .word-card {
 /* ===== Spotify: Interpreten-Dashboard ===== */
 .spotify-box {
   background: linear-gradient(135deg, #fff8f1, #fff);
-  border: 1px solid var(--rand);
+  border: 1px solid var(--line);
   border-radius: 18px;
   padding: 22px;
   display: flex;
@@ -4533,7 +4536,7 @@ body.liest-video .word-card {
   gap: 14px;
   align-items: flex-start;
 }
-.spotify-erklaerung { margin: 0; font-size: 14px; color: var(--grau); max-width: 52ch; }
+.spotify-erklaerung { margin: 0; font-size: 14px; color: var(--muted); max-width: 52ch; }
 .spotify-los { background: #1db954; border-color: #1db954; }
 .spotify-los:hover { background: #17a349; }
 
@@ -4568,7 +4571,7 @@ body.liest-video .word-card {
 }
 .interpret-karte {
   background: #fff;
-  border: 1px solid var(--rand);
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 13px 15px;
   text-align: left;
@@ -4579,11 +4582,11 @@ body.liest-video .word-card {
   transition: border-color .15s, transform .15s;
 }
 .interpret-karte:hover {
-  border-color: var(--orange);
+  border-color: var(--primary);
   transform: translateY(-2px);
 }
 .interpret-name { font-weight: 700; font-size: 15px; }
-.interpret-meta { font-size: 12px; color: var(--grau); }
+.interpret-meta { font-size: 12px; color: var(--muted); }
 .interpret-hinweis {
   font-size: 11px;
   color: #b4762a;
@@ -4593,3 +4596,113 @@ body.liest-video .word-card {
   align-self: flex-start;
   margin-top: 4px;
 }
+
+/* ===== Tagesplan auf der Startseite ===== */
+.plan-kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 12px;
+}
+.plan-titel { font-size: 19px; margin: 0; }
+.plan-dauer {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  background: #fff3e8;
+  border-radius: 999px;
+  padding: 4px 11px;
+  white-space: nowrap;
+}
+
+.plan-liste {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.plan-schritt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 4px;
+  border-bottom: 1px solid var(--line);
+}
+.plan-schritt:last-child { border-bottom: none; }
+
+.plan-haken {
+  flex: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+.plan-fertig .plan-haken {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.plan-fertig .plan-name {
+  text-decoration: line-through;
+  opacity: .55;
+}
+
+.plan-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.plan-name { font-weight: 700; font-size: 15px; }
+.plan-hinweis { font-size: 12.5px; color: var(--muted); }
+
+.plan-rest {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Der Tagesfortschritt sitzt jetzt unter dem Plan */
+.home-hero .goal-progress { margin-top: 18px; }
+
+/* ===== Wortliste im Trainer: erst aufklappen ===== */
+.liste-kopf {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  text-align: left;
+}
+.liste-kopf-text { display: flex; flex-direction: column; gap: 3px; }
+.liste-titel { font-size: 19px; font-weight: 800; }
+.liste-sub { font-size: 13.5px; color: var(--muted); }
+.liste-kopf .liste-pfeil {
+  flex: none;
+  font-size: 20px;
+  color: var(--primary);
+  transition: transform .2s;
+}
+.liste-kopf .liste-pfeil-auf { transform: rotate(180deg); }
+
+.liste-werkzeuge { margin: 16px 0 12px; }
+.liste-suche {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  font: inherit;
+  font-size: 15px;
+}
+.liste-suche:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px #ffe6d0;
+}
+.liste-mehr { margin: 14px auto 0; display: block; }

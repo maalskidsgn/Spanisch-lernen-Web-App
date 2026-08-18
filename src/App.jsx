@@ -38,6 +38,7 @@ import {
   xpForLevel,
   levelName,
 } from './gamification.js'
+import { hakeAb } from './tagesplan.js'
 import './App.css'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
@@ -514,6 +515,7 @@ export default function App() {
   // Aus der Mediathek öffnen. "art" unterscheidet Song von Video –
   // damit ein Song später auch wieder unter Songs auftaucht.
   function openVideo(videoId, art = 'video') {
+    hakeAb('video') // Schritt im Tagesplan erledigt
     setView('lesen')
     setAktuelleArt(art)
     fetchTranscript('https://www.youtube.com/watch?v=' + videoId, art)
@@ -746,8 +748,11 @@ export default function App() {
             <div className="xp-bar">
               <div className="xp-bar-fill" style={{ width: levelPercent + '%' }} />
             </div>
+            {/* Ausdruecklich als Level-Fortschritt benannt – sonst
+                sieht es neben den Tages-XP wie ein zweites, konkurrierendes
+                Punktesystem aus. */}
             <span className="xp-text">
-              {progress.xp - levelStartXp}/{nextLevelXp - levelStartXp} XP
+              Noch {nextLevelXp - progress.xp} XP bis Level {level + 1}
             </span>
           </div>
         </div>

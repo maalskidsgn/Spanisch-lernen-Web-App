@@ -1,20 +1,23 @@
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
-import { MODULE, modulFortschritt } from './lektionen.js'
+import { MODULE, modulFortschritt, ALLES_OFFEN } from './lektionen.js'
+import { tagesplan, planStand } from './tagesplan.js'
 
 // Der Start-Bereich: begrüßt dich, zeigt Tagesziel, Streak und deine
 // Sprach-Reise und führt mit einem Klick in die einzelnen Bereiche.
 export default function Home({ progress, settings, counts, nextLesson, lessonProgress, onNavigate }) {
   const level = levelFromXp(progress.xp)
   const heute = xpHeute(progress)
+  const zielErreicht = heute >= settings.tagesziel
   const prozent = Math.min(100, Math.round((heute / settings.tagesziel) * 100))
 
-  // Was ist gerade der sinnvollste nächste Schritt?
-  const cta =
-    counts.faellig > 0
-      ? { text: `🃏 ${counts.faellig} fällige Vokabeln üben`, ziel: 'trainer' }
-      : nextLesson
-        ? { text: `🎓 Weiter mit „${nextLesson.titel}“`, ziel: 'lektionen' }
-        : { text: '📺 Neue Videos entdecken', ziel: 'videos' }
+  // Der Plan für heute – statt einer erschlagenden Gesamtzahl
+  const plan = tagesplan({
+    faellig: counts.faellig,
+    lektion: nextLesson,
+    woerter: counts.woerter,
+    videoOffen: counts.videos > 0,
+  })
+  const erledigt = planStand().erledigt
 
   return (
     <div className="home">
@@ -23,7 +26,7 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
       </h1>
       <p className="intro">Schön, dass du wieder da bist. Weiter geht’s!</p>
 
-      {/* Tages-Übersicht mit dem wichtigsten nächsten Schritt */}
+      {/* Der Plan für heute: drei Schritte, eine klare Zeitangabe */}
       <div className="home-hero">
         <div className="hero-row">
           <span className="hero-chip">🔥 {progress.streak} Tage</span>
@@ -31,18 +34,64 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
             ⭐ Level {level} · {levelName(level)}
           </span>
         </div>
+
+        <div className="plan-kopf">
+          <h2 className="plan-titel">Dein Plan für heute</h2>
+          <span className="plan-dauer">ca. {plan.minuten} Minuten</span>
+        </div>
+
+        <ol className="plan-liste">
+          {plan.schritte.map((s) => {
+            const fertig = erledigt.includes(s.art)
+            return (
+              <li
+                key={s.art}
+                className={'plan-schritt' + (fertig ? ' plan-fertig' : '')}
+              >
+                <span className="plan-haken" aria-hidden="true">
+                  {fertig ? '✓' : ''}
+                </span>
+                <span className="plan-text">
+                  <span className="plan-name">{s.titel}</span>
+                  <span className="plan-hinweis">{s.hinweis}</span>
+                </span>
+              </li>
+            )
+          })}
+        </ol>
+
+        <button
+          className="hero-cta"
+          onClick={() => {
+            const offen = plan.schritte.find((s) => !erledigt.includes(s.art))
+            onNavigate((offen ?? plan.schritte[0]).ziel)
+          }}
+        >
+          {erledigt.length === 0
+            ? 'Tageslektion starten'
+            : erledigt.length >= plan.schritte.length
+              ? 'Noch eine Runde'
+              : 'Weitermachen'}
+        </button>
+
+        {plan.rest > 0 && (
+          <p className="plan-rest">
+            Danach warten noch {plan.rest} weitere fällige Vokabeln – die
+            laufen dir nicht weg.
+          </p>
+        )}
+
+        {/* Tagesfortschritt, klar als solcher benannt */}
         <div className="goal-progress">
           <div className="xp-bar goal-bar">
             <div className="xp-bar-fill" style={{ width: prozent + '%' }} />
           </div>
           <span className="goal-text">
-            {heute}/{settings.tagesziel} XP heute
-            {prozent >= 100 && ' – Tagesziel geschafft! 🎉'}
+            {zielErreicht
+              ? `${heute} Tages-XP · Ziel erreicht 🎉`
+              : `${heute} von ${settings.tagesziel} Tages-XP`}
           </span>
         </div>
-        <button className="hero-cta" onClick={() => onNavigate(cta.ziel)}>
-          {cta.text}
-        </button>
       </div>
 
       {/* Die Sprach-Reise: Fortschritt pro Modul – Motivation pur! */}

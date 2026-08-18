@@ -9,12 +9,18 @@ import {
   withSrsDefaults,
 } from './srs.js'
 import { XP } from './gamification.js'
+import { hakeAb } from './tagesplan.js'
 import Games from './Games.jsx'
 import ListGenerator from './ListGenerator.jsx'
 
 // Der Vokabeltrainer: Übersicht aller Wörter mit Filter nach Stufen
 // und ein Karteikarten-Training für die fälligen Wörter.
 export default function Trainer({ vocab, setVocab, addXp }) {
+  // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
+  // deshalb eingeklappt und laedt nur haeppchenweise nach.
+  const [listeOffen, setListeOffen] = useState(false)
+  const [suche, setSuche] = useState('')
+  const [sichtbar, setSichtbar] = useState(30)
   const [filter, setFilter] = useState('faellig') // 'alle' | 'faellig' | 'gewusst' | Stufen-Nummer
   const [queue, setQueue] = useState(null) // Wörter der laufenden Übungsrunde (null = keine Runde)
   const [revealed, setRevealed] = useState(false) // Übersetzung schon aufgedeckt?
@@ -47,6 +53,16 @@ export default function Trainer({ vocab, setVocab, addXp }) {
     })
     .sort((a, b) => (a.due ?? 0) - (b.due ?? 0))
 
+  // Suchbegriff zusaetzlich anwenden – ueber Wort und Uebersetzung
+  const suchtext = suche.trim().toLowerCase()
+  const gefiltert = suchtext
+    ? filtered.filter(
+        (e) =>
+          e.word.toLowerCase().includes(suchtext) ||
+          (e.translation || '').toLowerCase().includes(suchtext)
+      )
+    : filtered
+
   const trainable = filtered.filter(isDue)
 
   function startTraining() {
@@ -75,7 +91,10 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       const nextQueue = gewusst ? queue.slice(1) : [...queue.slice(1), word]
       // XP: fürs Antworten – und Bonus, wenn damit die Runde geschafft ist
       let earned = gewusst ? XP.RICHTIG : XP.FALSCH
-      if (nextQueue.length === 0) earned += XP.RUNDE
+      if (nextQueue.length === 0) {
+        earned += XP.RUNDE
+        hakeAb('wiederholen') // Schritt im Tagesplan erledigt
+      }
       addXp(earned)
       setXpPopup({ amount: earned, key: Date.now() }) // key sorgt dafür, dass die Animation neu startet
       setQueue(nextQueue)
@@ -257,86 +276,121 @@ export default function Trainer({ vocab, setVocab, addXp }) {
 
       {/* ============ 4. ALLE WÖRTER ============ */}
       <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Alle deine Wörter</h2>
-          <p>
-            {entries.length} gesammelt · {knownCount} sitzen schon fest
-          </p>
-        </div>
-
-      {/* Filter: die drei wichtigsten als Knöpfe, die sieben
-          Karteikasten-Stufen zusammengefasst in einem Auswahlfeld */}
-      <div className="filter-zeile">
-        <div className="filter-haupt">
-          <Chip active={filter === 'faellig'} onClick={() => setFilter('faellig')}>
-            Fällig ({dueEntries.length})
-          </Chip>
-          <Chip active={filter === 'alle'} onClick={() => setFilter('alle')}>
-            Alle ({entries.length})
-          </Chip>
-          <Chip active={filter === 'gewusst'} onClick={() => setFilter('gewusst')}>
-            Gewusst ({knownCount})
-          </Chip>
-        </div>
-
-        <select
-          className={'filter-stufe' + (typeof filter === 'number' ? ' filter-stufe-aktiv' : '')}
-          value={typeof filter === 'number' ? filter : ''}
-          onChange={(e) =>
-            setFilter(e.target.value === '' ? 'alle' : Number(e.target.value))
-          }
+        <button
+          className="liste-kopf"
+          onClick={() => setListeOffen((o) => !o)}
+          aria-expanded={listeOffen}
         >
-          <option value="">Stufe wählen …</option>
-          {LEVEL_LABELS.map((label, lvl) => (
-            <option key={lvl} value={lvl}>
-              {label} ({levelCounts[lvl]})
-            </option>
-          ))}
-        </select>
-      </div>
+          <span className="liste-kopf-text">
+            <span className="liste-titel">Alle deine Wörter</span>
+            <span className="liste-sub">
+              {entries.length} gesammelt · {knownCount} sitzen schon fest
+            </span>
+          </span>
+          <span className={'liste-pfeil' + (listeOffen ? ' liste-pfeil-auf' : '')}>
+            ▾
+          </span>
+        </button>
 
-        {filtered.length === 0 ? (
-        <p className="empty-hint">
-          Keine Wörter in dieser Ansicht. Klicke im Lese-Modus Wörter an, um sie
-          hier zu sammeln.
-        </p>
-      ) : (
-        <table className="vocab-table">
-          <thead>
-            <tr>
-              <th>Wort</th>
-              <th>Übersetzung</th>
-              <th>Stufe</th>
-              <th>Fällig</th>
-              <th>Aus Video</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((e) => (
-              <tr key={e.word}>
-                <td className="cell-word">{e.word}</td>
-                <td>{e.translation || '–'}</td>
-                <td>
-                  <span className={'level-badge lvl-' + e.level}>
-                    {e.status === 'gewusst' ? 'Gewusst ✓' : LEVEL_LABELS[e.level]}
-                  </span>
-                </td>
-                <td>{formatDue(e)}</td>
-                <td className="cell-source">{e.source || '–'}</td>
-                <td>
+        {listeOffen && (
+          <>
+            <div className="liste-werkzeuge">
+              <input
+                type="search"
+                className="liste-suche"
+                value={suche}
+                onChange={(e) => {
+                  setSuche(e.target.value)
+                  setSichtbar(30) // bei neuer Suche wieder oben anfangen
+                }}
+                placeholder="Wort oder Übersetzung suchen…"
+              />
+            </div>
+
+            {/* Filter: die drei wichtigsten als Knöpfe, die sieben
+                Karteikasten-Stufen zusammengefasst in einem Auswahlfeld */}
+            <div className="filter-zeile">
+              <div className="filter-haupt">
+                <Chip active={filter === 'faellig'} onClick={() => setFilter('faellig')}>
+                  Fällig ({dueEntries.length})
+                </Chip>
+                <Chip active={filter === 'alle'} onClick={() => setFilter('alle')}>
+                  Alle ({entries.length})
+                </Chip>
+                <Chip active={filter === 'gewusst'} onClick={() => setFilter('gewusst')}>
+                  Gewusst ({knownCount})
+                </Chip>
+              </div>
+              <select
+                className={'filter-stufe' + (typeof filter === 'number' ? ' filter-stufe-aktiv' : '')}
+                value={typeof filter === 'number' ? filter : ''}
+                onChange={(e) =>
+                  setFilter(e.target.value === '' ? 'alle' : Number(e.target.value))
+                }
+              >
+                <option value="">Nach Stufe filtern …</option>
+                {LEVEL_LABELS.map((label, lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {label} ({levelCounts[lvl]})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {gefiltert.length === 0 ? (
+              <p className="empty-hint">
+                {suchtext
+                  ? `Nichts gefunden zu „${suche}“.`
+                  : 'Keine Wörter in dieser Ansicht. Klicke im Lese-Modus Wörter an, um sie hier zu sammeln.'}
+              </p>
+            ) : (
+              <>
+                <table className="vocab-table">
+                  <thead>
+                    <tr>
+                      <th>Wort</th>
+                      <th>Übersetzung</th>
+                      <th>Stufe</th>
+                      <th>Fällig</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gefiltert.slice(0, sichtbar).map((e) => (
+                      <tr key={e.word} title={e.source ? 'Aus: ' + e.source : undefined}>
+                        <td className="cell-word">{e.word}</td>
+                        <td>{e.translation || '–'}</td>
+                        <td>
+                          <span className={'level-badge lvl-' + e.level}>
+                            {e.status === 'gewusst' ? 'Gewusst ✓' : LEVEL_LABELS[e.level]}
+                          </span>
+                        </td>
+                        <td>{formatDue(e)}</td>
+                        <td>
+                          <button
+                            className="btn-delete"
+                            title="Wort löschen"
+                            onClick={() => removeWord(e.word)}
+                          >
+                            ✕
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {gefiltert.length > sichtbar && (
                   <button
-                    className="btn-delete"
-                    title="Wort löschen"
-                    onClick={() => removeWord(e.word)}
+                    className="btn-outline liste-mehr"
+                    onClick={() => setSichtbar((n) => n + 30)}
                   >
-                    ✕
+                    Weitere 30 anzeigen ({gefiltert.length - sichtbar} übrig)
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                )}
+              </>
+            )}
+          </>
         )}
       </section>
     </div>

@@ -1,7 +1,7 @@
 import { API_URL } from './api.js'
 import { useState } from 'react'
 import { newEntry } from './srs.js'
-import { FREE_LIMIT, verbleibend, zaehleNutzung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
@@ -12,7 +12,7 @@ export default function ListGenerator({ vocab, setVocab }) {
   const [fehler, setFehler] = useState('')
   const [liste, setListe] = useState(null) // Vorschläge mit Häkchen
   const [erfolg, setErfolg] = useState(false)
-  const [uebrig, setUebrig] = useState(() => verbleibend('listeGen')) // freie Generierungen
+  const [uebrig, setUebrig] = useState(() => verbleibend()) // freie Generierungen
   const [begruendung, setBegruendung] = useState('') // warum die KI diese Wörter wählte
   const [infoOffen, setInfoOffen] = useState(false) // Erklärung der Automatik
 
@@ -43,8 +43,8 @@ export default function ListGenerator({ vocab, setVocab }) {
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
       setBegruendung(data.begruendung || '')
       setFertigThema(data.thema || thema.trim())
-      zaehleNutzung('listeGen') // eine kostenlose Generierung verbrauchen
-      setUebrig(verbleibend('listeGen'))
+      zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
+      setUebrig(verbleibend())
     } catch (err) {
       setFehler(err.message)
     } finally {
@@ -81,7 +81,7 @@ export default function ListGenerator({ vocab, setVocab }) {
             Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
           </div>
           <p className="row-hint">
-            Deine {FREE_LIMIT} kostenlosen Listen sind aufgebraucht – unbegrenzte
+            Deine {LISTEN_PRO_TAG} kostenlosen Listen sind aufgebraucht – unbegrenzte
             KI-Vokabellisten kommen mit dem Premium-Abo.
           </p>
         </div>
@@ -97,7 +97,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         <div className="kopf-zeile">
           <h2>Neue Wörter sammeln</h2>
           <span className="rest-zaehler" title="Kostenlose Listen diesen Monat">
-            {uebrig}/{FREE_LIMIT}
+            {uebrig}/{LISTEN_PRO_TAG}
           </span>
         </div>
         <p>
