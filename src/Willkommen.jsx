@@ -95,7 +95,7 @@ export default function Willkommen({ onStarten, onAnmelden }) {
               {
                 nr: '1',
                 titel: 'Video aussuchen',
-                text: 'Wähle aus unserer Bibliothek oder füge einen Link ein – Musik, Podcasts, Kochvideos. Alles, was dich wirklich interessiert.',
+                text: 'Wähle aus unserer Mediathek oder füge einen Link ein – Musik, Podcasts, Kochvideos. Alles, was dich wirklich interessiert.',
               },
               {
                 nr: '2',

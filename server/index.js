@@ -225,6 +225,8 @@ app.get('/api/search', async (req, res) => {
   const q = (req.query.q || '').trim()
   const niveau = NIVEAU_SUCHE[req.query.niveau] ? req.query.niveau : null
   const laenge = LAENGEN[req.query.laenge] ?? null
+  // Bei der Songsuche wollen wir Musik statt Erklärvideos
+  const nurMusik = req.query.nurMusik === '1'
   if (!q) return res.status(400).json({ error: 'Kein Suchbegriff.' })
   try {
     // Deutsche Eingabe ins Spanische übersetzen, damit auch spanische
@@ -249,6 +251,11 @@ app.get('/api/search', async (req, res) => {
       suchbegriff += ' ' + NIVEAU_SUCHE[niveau].zusatz
     }
 
+    // Songsuche: "letra" (Songtext) findet die Fassungen mit
+    // eingeblendetem Text – genau die, bei denen auch Untertitel
+    // vorhanden sind und die sich zum Mitlesen eignen.
+    if (nurMusik) suchbegriff = `${suchbegriff} canción letra español`
+
     // Großzügig suchen: Einbettbarkeit, Länge und Niveau sieben kräftig aus
     const out = await runYtDlp([
       `ytsearch25:${suchbegriff}`,
@@ -263,6 +270,8 @@ app.get('/api/search', async (req, res) => {
       // Obergrenze des Niveaus, damit nichts Endloses dabei ist
       .filter((e) => {
         const dauer = e.duration || 0
+        // Songs sind kurz: alles über 10 Minuten ist eher ein Mix
+        if (nurMusik) return dauer >= 60 && dauer <= 600
         if (laenge) return dauer >= laenge.min && dauer <= laenge.max
         if (niveau) return dauer > 0 && dauer <= NIVEAU_SUCHE[niveau].maxSek
         return true

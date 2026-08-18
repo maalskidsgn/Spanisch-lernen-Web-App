@@ -330,7 +330,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
       {/* Kopf: zurück + Titel */}
       <div className="leser-kopf">
         <button className="btn-plain back-link" onClick={onZurueck}>
-          ← Bibliothek
+          ← Mediathek
         </button>
         <div className="leser-kopf-titel">
           <b>{sprache === 'es' ? buch.titel : buch.titel_de || buch.titel}</b>

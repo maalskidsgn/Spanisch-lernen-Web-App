@@ -415,7 +415,7 @@ export default function App() {
   }, [activeLine, autoScroll])
 
   // Holt das Transkript zu einem Link oder einer Video-ID.
-  // Erst wird in der Habloo-Bibliothek nachgesehen (schnell und überall
+  // Erst wird in der Habloo-Mediathek nachgesehen (schnell und überall
   // verfügbar); nur wenn das Video dort fehlt, wird YouTube gefragt.
   async function fetchTranscript(input) {
     setLoading(true)
@@ -426,7 +426,7 @@ export default function App() {
     setShowDe(false)
 
     try {
-      // 1) Bibliothek
+      // 1) Mediathek
       const id = videoIdAusEingabe(input)
       if (id && supabaseBereit) {
         const treffer = await holeVideoMitTranskript(id).catch(() => null)
@@ -457,7 +457,7 @@ export default function App() {
         data = JSON.parse(text)
       } catch {
         throw new Error(
-          'Dieses Video ist noch nicht in der Habloo-Bibliothek und der ' +
+          'Dieses Video ist noch nicht in der Habloo-Mediathek und der ' +
           'Transkript-Dienst ist gerade nicht erreichbar.'
         )
       }
@@ -501,7 +501,7 @@ export default function App() {
     return () => document.body.classList.remove('liest-video')
   }, [view, video])
 
-  // Aus der Video-Bibliothek: Video öffnen und in den Lese-Modus wechseln
+  // Aus der Video-Mediathek: Video öffnen und in den Lese-Modus wechseln
   function openVideo(videoId) {
     setView('lesen')
     fetchTranscript('https://www.youtube.com/watch?v=' + videoId)
@@ -549,7 +549,7 @@ export default function App() {
     })
   }
 
-  // Aktuelles Video mit Kategorie in der Bibliothek speichern
+  // Aktuelles Video mit Kategorie in der Mediathek speichern
   function saveVideo() {
     if (!video) return
     setSavedVideos((list) => [
@@ -706,7 +706,7 @@ export default function App() {
             onClick={() => setView('videos')}
           >
             <span className="tab-icon">{ICONS.bibliothek}</span>
-            <span className="tab-label">Bibliothek</span>
+            <span className="tab-label">Mediathek</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}
@@ -1005,7 +1005,7 @@ export default function App() {
             {saveOpen && (
               <div className="fab-panel">
                 <div className="fab-panel-head">
-                  <b>{currentSaved ? 'In deiner Bibliothek ✓' : 'Video speichern'}</b>
+                  <b>{currentSaved ? 'In deiner Mediathek ✓' : 'Video speichern'}</b>
                   <button className="btn-plain" onClick={() => setSaveOpen(false)}>
                     ✕
                   </button>

@@ -2,11 +2,12 @@ import { API_URL } from './api.js'
 import { holeBibliothek, supabaseBereit } from './supabase.js'
 import Ebooks from './Ebooks.jsx'
 import VideoSuche from './VideoSuche.jsx'
+import Songs from './Songs.jsx'
 import { ladeVideoFortschritt } from './App.jsx'
 import { useState, useEffect } from 'react'
 
-// Die Niveau-Stufen der kuratierten Bibliothek
-// Die Themen der Bibliothek – man lernt Spanisch nebenbei,
+// Die Niveau-Stufen der kuratierten Mediathek
+// Die Themen der Mediathek – man lernt Spanisch nebenbei,
 // während man etwas Interessantes schaut.
 const KATEGORIEN = [
   { wert: 'alle', label: 'Alle', emoji: '✨' },
@@ -66,7 +67,7 @@ function ladeBuecher() {
   }
 }
 
-// Die Bibliothek: Videos (Link laden, gespeichert, entdecken) und
+// Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
 export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
   const [bereich, setBereich] = useState('videos') // 'videos' oder 'buecher'
@@ -76,18 +77,18 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
   const [buchFehler, setBuchFehler] = useState('')
   const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
 
-  // ---------- Kuratierte Bibliothek aus der Datenbank ----------
+  // ---------- Kuratierte Mediathek aus der Datenbank ----------
   const [bibliothek, setBibliothek] = useState(null)
   const [fortschritt] = useState(ladeVideoFortschritt) // wie weit pro Video
   const [sucheOffen, setSucheOffen] = useState(false)
   const [kategorie, setKategorie] = useState('alle')
-  const [bibliothekFehler, setBibliothekFehler] = useState('')
+  const [bibliothekFehler, setbibliothekFehler] = useState('')
 
   useEffect(() => {
     if (!supabaseBereit) return
     let abgebrochen = false
 
-    setBibliothekFehler('')
+    setbibliothekFehler('')
     holeBibliothek(kategorie)
       .then((videos) => {
         if (abgebrochen) return
@@ -105,7 +106,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
         )
       })
       .catch((f) => {
-        if (!abgebrochen) setBibliothekFehler(f.message)
+        if (!abgebrochen) setbibliothekFehler(f.message)
       })
 
     return () => { abgebrochen = true }
@@ -224,24 +225,28 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
   return (
     <div className="library">
       <h1 className="lib-kopf">
-        Deine <span className="accent">Bibliothek</span>
+        Deine <span className="accent">Mediathek</span>
       </h1>
 
-      {/* Umschalter: Videos oder Bücher */}
+      {/* Umschalter: Videos, Songs oder Bücher */}
       <div className="chips bereich-schalter">
-        <button
-          className={'chip ' + (bereich === 'videos' ? 'chip-active' : '')}
-          onClick={() => setBereich('videos')}
-        >
-          🎬 Videos
-        </button>
-        <button
-          className={'chip ' + (bereich === 'buecher' ? 'chip-active' : '')}
-          onClick={() => setBereich('buecher')}
-        >
-          📚 Bücher
-        </button>
+        {[
+          { wert: 'videos', label: 'Videos' },
+          { wert: 'songs', label: 'Songs' },
+          { wert: 'buecher', label: 'Bücher' },
+        ].map((b) => (
+          <button
+            key={b.wert}
+            className={'chip ' + (bereich === b.wert ? 'chip-active' : '')}
+            onClick={() => setBereich(b.wert)}
+          >
+            {b.label}
+          </button>
+        ))}
       </div>
+
+      {/* ---------- Songs: Musik mit mitlaufendem Text ---------- */}
+      {bereich === 'songs' && <Songs onOpenVideo={onOpenVideo} vocab={vocab} />}
 
       {/* ---------- Bücher: Zusammenfassungen wie bei Blinkist ---------- */}
       {bereich === 'buecher' && <Ebooks onAddVocab={onAddVocab} vocab={vocab} />}
@@ -325,7 +330,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
                     {v.category && <span className="category-badge">{v.category}</span>}
                     <button
                       className="btn-delete"
-                      title="Aus der Bibliothek entfernen"
+                      title="Aus der Mediathek entfernen"
                       onClick={() => removeVideo(v.videoId)}
                     >
                       ✕
@@ -338,7 +343,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
         </section>
       )}
 
-      {/* ---------- Kuratierte Habloo-Bibliothek ---------- */}
+      {/* ---------- Kuratierte Habloo-Mediathek ---------- */}
       {supabaseBereit && (
         <section className="bereich">
           <div className="bereich-kopf">
@@ -369,7 +374,7 @@ export default function Library({ savedVideos, setSavedVideos, onOpenVideo, onLo
 
           {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
           {!bibliothek && !bibliothekFehler && (
-            <p className="intro">Lade Bibliothek…</p>
+            <p className="intro">Lade Mediathek…</p>
           )}
           {bibliothek && bibliothek.length === 0 && (
             <p className="intro">Zu diesem Thema ist noch nichts dabei.</p>
@@ -418,7 +423,7 @@ function BuchView({ buch, onClose, onAddVocab }) {
   return (
     <div className="library buch-view">
       <button className="btn-plain back-link" onClick={onClose}>
-        ← Zur Bibliothek
+        ← Zur Mediathek
       </button>
       <h1>{buch.titel}</h1>
       <p className="intro">
