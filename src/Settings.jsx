@@ -2,7 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
-import { supabaseBereit } from './supabase.js'
+import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -24,6 +24,7 @@ export default function Settings({
   const [preis, setPreis] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [kaufFehler, setKaufFehler] = useState('')
+  const [loeschLaeuft, setLoeschLaeuft] = useState(false)
 
   // Steht die Bezahlung bereit, und was kostet es?
   useEffect(() => {
@@ -122,6 +123,35 @@ export default function Settings({
     localStorage.removeItem('fortschritt')
     localStorage.removeItem('einstellungen')
     window.location.reload()
+  }
+
+  // Konto endgueltig loeschen – Pflicht fuer App Store und Play Store.
+  // Zweimal nachfragen, beim zweiten Mal muss der Nutzer tippen.
+  async function kontoLoeschen() {
+    if (!confirm('Dein Konto und ALLE Daten werden unwiderruflich gelöscht. Ein laufendes Abo wird gekündigt. Fortfahren?')) return
+    const bestaetigung = prompt('Zum Bestätigen bitte LÖSCHEN eintippen:')
+    if (bestaetigung !== 'LÖSCHEN') return
+
+    setLoeschLaeuft(true)
+    try {
+      const { data: sitzung } = await db.auth.getSession()
+      const token = sitzung?.session?.access_token
+      if (!token) throw new Error('Bitte zuerst anmelden.')
+
+      const res = await fetch(API_URL + '/api/konto/loeschen', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token },
+      })
+      const daten = await res.json()
+      if (!res.ok) throw new Error(daten.error || 'Löschen fehlgeschlagen.')
+
+      localStorage.clear()
+      await db.auth.signOut()
+      window.location.href = '/'
+    } catch (f) {
+      alert(f.message)
+      setLoeschLaeuft(false)
+    }
   }
 
   return (
@@ -327,10 +357,29 @@ export default function Settings({
         <div className="settings-row">
           <div>
             <div className="row-title">Alles zurücksetzen</div>
-            <div className="row-hint">Löscht sämtliche Daten unwiderruflich</div>
+            <div className="row-hint">
+              Leert diese App – dein Konto bleibt bestehen
+            </div>
           </div>
           <button className="btn-small btn-danger" onClick={resetData}>
-            Löschen
+            Zurücksetzen
+          </button>
+        </div>
+
+        <div className="settings-row">
+          <div>
+            <div className="row-title">Konto löschen</div>
+            <div className="row-hint">
+              Entfernt dein Konto und alle Daten endgültig. Ein laufendes Abo
+              wird dabei gekündigt.
+            </div>
+          </div>
+          <button
+            className="btn-small btn-danger"
+            onClick={kontoLoeschen}
+            disabled={loeschLaeuft}
+          >
+            {loeschLaeuft ? 'Löscht …' : 'Konto löschen'}
           </button>
         </div>
       </div>

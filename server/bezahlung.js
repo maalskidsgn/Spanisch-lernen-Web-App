@@ -237,3 +237,14 @@ export async function holePreis() {
     zeitraum: preis.recurring?.interval ?? null,
   }
 }
+
+/**
+ * Beendet ein Abo sofort – nicht erst zum Periodenende.
+ *
+ * Wird beim Loeschen eines Kontos gebraucht: Danach gibt es
+ * niemanden mehr, dem eine Verlaengerung zugeordnet werden koennte.
+ */
+export async function kuendigeSofort(aboId) {
+  if (!aboId) return null
+  return client().subscriptions.cancel(aboId)
+}

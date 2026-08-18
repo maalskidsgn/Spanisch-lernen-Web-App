@@ -17,3 +17,11 @@ android/local.properties
 android/app/release/
 *.keystore
 *.jks
+
+# iOS – Bauartefakte und persoenliche Xcode-Einstellungen
+ios/App/build/
+ios/App/Pods/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcworkspace/xcuserdata/
+ios/DerivedData/
+*.xcuserstate

@@ -10,15 +10,18 @@
     "preview": "vite preview",
     "server": "node server/index.js",
     "dev:all": "PORT=8787 node server/index.js & vite --port ${PORT:-5173}",
-    "app:sync": "vite build && cap sync android",
-    "app:open": "cap open android",
-    "app:apk": "vite build && cap sync android && cd android && ./gradlew assembleDebug"
+    "android:sync": "vite build && cap sync android",
+    "android:open": "cap open android",
+    "android:apk": "vite build && cap sync android && cd android && ./gradlew assembleDebug",
+    "ios:sync": "vite build && cap sync ios",
+    "ios:open": "cap open ios"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
     "@capacitor/android": "^8.5.0",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@supabase/supabase-js": "^2.112.3",
     "express": "^5.2.1",
     "react": "^19.2.8",

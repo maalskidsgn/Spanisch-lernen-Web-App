@@ -11,8 +11,13 @@
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": true,
-      "backgroundColor": "#ff6c00",
+      "backgroundColor": "#faf7f1",
       "showSpinner": false
     }
+  },
+  "ios": {
+    "backgroundColor": "#faf7f1",
+    "limitsNavigationsToAppBoundDomains": false,
+    "contentInset": "always"
   }
 }

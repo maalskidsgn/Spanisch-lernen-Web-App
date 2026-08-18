@@ -8,6 +8,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import { findeSpanischeInterpreten } from './interpreten.js'
+import { loescheKonto } from './konto.js'
 import {
   starteBezahlung,
   verwaltungsLink,
@@ -581,6 +582,22 @@ app.post('/api/bezahlung/verwalten', async (req, res) => {
 
     const url = await verwaltungsLink(nutzer.id, req.body?.herkunft || 'https://habloo.de')
     res.json({ url })
+  } catch (fehler) {
+    res.status(500).json({ error: fehler.message })
+  }
+})
+
+// Konto endgueltig loeschen. Apple und Google verlangen das von
+// jeder App, in der man sich registrieren kann.
+app.post('/api/konto/loeschen', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = await nutzerAusToken(token)
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    const ergebnis = await loescheKonto(nutzer)
+    console.log('[konto] geloescht:', nutzer.id, JSON.stringify(ergebnis))
+    res.json(ergebnis)
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })
   }
