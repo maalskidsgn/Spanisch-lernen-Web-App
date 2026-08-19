@@ -267,6 +267,15 @@ main {
   transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.xp-text-kurz {
+  display: none;
+  font-size: 0.72rem;
+  color: #a89d8d;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .xp-text {
   font-size: 0.75rem;
   color: #a89d8d;
@@ -1806,8 +1815,14 @@ button:disabled {
   .logo { font-size: 1.05rem; }
   .stats { gap: 8px; margin-left: auto; }
   .xp-text { display: none; }
-  .xp-bar { width: 54px; }
+  .xp-text-kurz { display: inline; }
+  .xp-bar { width: 44px; }
   .level-circle { width: 26px; height: 26px; font-size: 0.85rem; }
+
+  /* In einer laufenden Lektion stoert die Leiste nur – raus damit,
+     geschlossen wird ueber das ✕ oben links. */
+  body.lektion-laeuft .tabs { display: none; }
+  body.lektion-laeuft main { padding-bottom: 30px; }
 
   /* Menüleiste als moderne App-Leiste fest am unteren Rand */
   .tabs {
@@ -5074,6 +5089,7 @@ body.liest-video .word-card {
   height: 150px;
   padding: 8px 4px 0;
 }
+.woche-diagramm-leer { height: 84px; }
 .woche-tag {
   display: flex;
   flex-direction: column;
@@ -6391,7 +6407,28 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   box-shadow: 0 4px 0 var(--primary-press);
 }
 
-.tutor-knopf:disabled { opacity: 0.55; }
+.tutor-knopf:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Der zweite Knopf hatte gar keine eigene Regel und sah deshalb aus
+   wie der erste – zwei Hauptknoepfe nebeneinander. Jetzt ist klar,
+   welcher der Hauptweg ist. */
+.tutor-knopf-zweit {
+  background: #fff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  box-shadow: none;
+}
+.tutor-knopf-zweit:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* Auf schmalen Schirmen brechen die Knoepfe um – dann sollen sie
+   nicht unterschiedlich breit untereinander stehen. */
+@media (max-width: 460px) {
+  .tutor-knoepfe { flex-direction: column; align-items: stretch; }
+  .tutor-knopf { justify-content: center; }
+}
 
 .tutor-hinweis {
   margin: 10px 0 0;

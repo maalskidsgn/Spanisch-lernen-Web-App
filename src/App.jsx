@@ -762,6 +762,8 @@ export default function App() {
           <div
             className="level-pill"
             title={`${Object.keys(vocab).length} Wörter · ${gelernt} gewusst · ${levelName(level)}`}
+            role="img"
+            aria-label={`Level ${level} – noch ${nextLevelXp - progress.xp} XP bis Level ${level + 1}`}
           >
             {/* key={xp} lässt den Kreis bei jedem XP-Gewinn kurz hüpfen */}
             <span className="level-circle" key={progress.xp}>
@@ -776,6 +778,10 @@ export default function App() {
             <span className="xp-text">
               Noch {nextLevelXp - progress.xp} XP bis Level {level + 1}
             </span>
+            {/* Auf dem Handy ist fuer den Satz kein Platz. Statt gar
+                nichts – ein leerer grauer Balken sagt nichts aus –
+                steht dort die Zahl, um die es geht. */}
+            <span className="xp-text-kurz">{nextLevelXp - progress.xp} XP</span>
           </div>
         </div>
       </header>

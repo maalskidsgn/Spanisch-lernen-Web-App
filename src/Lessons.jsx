@@ -29,18 +29,112 @@ function mitChips(text) {
   )
 }
 
-// Hebt das gelernte Wort im Beispielsatz farblich hervor
-function hebeHervor(satz, wort) {
-  const kern = wort.replace(/[¿¡?!….]/g, '').trim()
-  const idx = satz.toLowerCase().indexOf(kern.toLowerCase())
-  if (idx === -1) return satz
-  return (
-    <>
-      {satz.slice(0, idx)}
-      <span className="example-hit">{satz.slice(idx, idx + kern.length)}</span>
-      {satz.slice(idx + kern.length)}
-    </>
-  )
+/**
+ * Hebt das gelernte Wort im Beispielsatz farblich hervor.
+ *
+ * Ein reiner Textvergleich reichte nicht: Von 198 Woertern blieben 63
+ * ohne Hervorhebung, weil das Wort im Satz anders aussieht als in der
+ * Liste. Drei Gruende, alle normal im Spanischen:
+ *
+ *   hablar   → "Hablo español"        (Verb gebeugt)
+ *   contento → "Está contenta"        (Adjektiv angepasst)
+ *   el libro → "El libro está aquí"   (Artikel gehoert zum Eintrag)
+ *
+ * Deshalb wird nicht auf Gleichheit geprueft, sondern auf einen
+ * gemeinsamen Wortstamm.
+ */
+const ARTIKEL = /^(el|la|los|las|un|una|unos|unas)\s+/i
+
+function glaetten(text) {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+/**
+ * Glaettet den Satz und merkt sich, wo jedes Zeichen im Original
+ * stand. Ohne diese Karte koennten wir eine Fundstelle im geglaetteten
+ * Text nicht zurueckuebersetzen – Akzente aendern beim Zerlegen die
+ * Laenge, "días" wird zu "dias" plus einem unsichtbaren Zeichen.
+ */
+function mitPositionen(satz) {
+  let flach = ''
+  const stellen = []
+  for (let i = 0; i < satz.length; i++) {
+    const z = glaetten(satz[i])
+    for (const einzeln of z) {
+      flach += einzeln
+      stellen.push(i)
+    }
+  }
+  return { flach, stellen }
+}
+
+export function hebeHervor(satz, wort) {
+  // Manche Eintraege nennen mehrere Formen: "alemán / alemana" oder
+  // "la eñe (ñ)". Im Satz steht immer nur EINE davon – also der Reihe
+  // nach probieren, statt am ganzen Eintrag zu scheitern.
+  const varianten = [
+    wort,
+    ...wort.split('/'),
+    wort.replace(/\([^)]*\)/g, ''),
+  ]
+    .map((v) => v.replace(/[¿¡?!….]/g, '').replace(ARTIKEL, '').trim())
+    .filter(Boolean)
+
+  for (const kandidat of [...new Set(varianten)]) {
+    const gefunden = suchStelle(satz, glaetten(kandidat))
+    if (gefunden) {
+      return (
+        <>
+          {satz.slice(0, gefunden.a)}
+          <span className="example-hit">{satz.slice(gefunden.a, gefunden.e)}</span>
+          {satz.slice(gefunden.e)}
+        </>
+      )
+    }
+  }
+  return satz
+}
+
+/** Wo im Satz steht dieses Ziel? Gibt Start und Ende im Original. */
+function suchStelle(satz, ziel) {
+  if (!ziel) return null
+
+  // Wortgruppen wie "buenos días" am Stueck suchen – sie stehen im
+  // Satz genauso da, nur der Vergleich Wort fuer Wort findet sie nicht.
+  if (ziel.includes(' ')) {
+    const { flach, stellen } = mitPositionen(satz)
+    const treffer = flach.indexOf(ziel)
+    if (treffer !== -1) {
+      return { a: stellen[treffer], e: stellen[treffer + ziel.length - 1] + 1 }
+    }
+  }
+
+  // Jedes Wort des Satzes mit seiner Position merken
+  let bestes = null
+  const muster = /[\p{L}\u00f1\u00d1]+/gu
+  for (const treffer of satz.matchAll(muster)) {
+    const kandidat = glaetten(treffer[0])
+    let gleich = 0
+    while (gleich < kandidat.length && gleich < ziel.length && kandidat[gleich] === ziel[gleich]) gleich++
+
+    // Der Stamm muss lang genug sein, sonst passt "casa" zu "cansado".
+    // Bei kurzen Woertern verlangen wir fast alles, bei langen den Stamm.
+    // Verben im Infinitiv duerfen kuerzer sein: "tomar" wird im Satz zu
+    // "tomo", gemeinsam ist nur "tom".
+    const istVerb = /(ar|er|ir)$/.test(ziel) && ziel.length >= 4
+    const noetig = istVerb
+      ? Math.max(3, ziel.length - 2)
+      : ziel.length <= 4
+        ? ziel.length
+        : Math.max(4, ziel.length - 3)
+    if (gleich >= noetig && (!bestes || gleich > bestes.gleich)) {
+      bestes = { a: treffer.index, e: treffer.index + treffer[0].length, gleich }
+    }
+  }
+  return bestes
 }
 
 // Der Lektionen-Bereich (wie bei Babbel):
@@ -58,6 +152,14 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   // Karte oder Liste? Die Karte macht Freude, die Liste laesst einen
   // in einem langen Modul schnell etwas wiederfinden.
   const [ansicht, setAnsicht] = useState('karte')
+
+  // Waehrend einer laufenden Lektion ist die untere Menueleiste weg.
+  // Vorher lag sie direkt unter den Antwortknoepfen: ein Fehltipp
+  // sprang aus der Lektion heraus, und der Fortschritt war weg.
+  useEffect(() => {
+    document.body.classList.toggle('lektion-laeuft', Boolean(lektion))
+    return () => document.body.classList.remove('lektion-laeuft')
+  }, [lektion])
 
   function brauchtOptionen(schritt) {
     return (

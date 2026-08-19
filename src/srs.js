@@ -77,7 +77,12 @@ function fertig(entry, intervall, leichtigkeit) {
     leichtigkeit: Math.round(leichtigkeit * 100) / 100,
     level: stufeAusIntervall(tage),
     due: Date.now() + tage * DAY_MS,
-    status: tage >= 90 ? 'gewusst' : 'lernen',
+    // Bewusst immer 'lernen': "gewusst" heisst "der Nutzer hat das Wort
+    // selbst abgehakt" und faellt damit aus isDue() heraus. Frueher
+    // setzte diese Zeile den Status ab 90 Tagen automatisch – die
+    // Vokabel kam danach nie wieder dran, und die Stufen ueber
+    // 90 Tage (bis MAX_TAGE) waren unerreichbar.
+    status: 'lernen',
   }
 }
 

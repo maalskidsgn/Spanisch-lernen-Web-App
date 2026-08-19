@@ -146,8 +146,10 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
               : `${wochenSumme} ${wochenSumme === 1 ? 'Einheit' : 'Einheiten'} diese Woche`}
           </p>
         </div>
+        {/* Ohne Daten waeren 150 px Hoehe nur ein grosses Loch unter
+            der Ueberschrift – dann faellt das Diagramm flacher aus. */}
         <div
-          className="woche-diagramm"
+          className={'woche-diagramm' + (wochenSumme === 0 ? ' woche-diagramm-leer' : '')}
           role="img"
           aria-label={`Lerneinheiten der letzten 7 Tage, insgesamt ${wochenSumme}`}
         >

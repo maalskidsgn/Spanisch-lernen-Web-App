@@ -75,22 +75,42 @@ export default function Settings({
   const heutigeXp = xpHeute(progress)
   const zielProzent = Math.min(100, Math.round((heutigeXp / settings.tagesziel) * 100))
 
+  // Was in ein Backup gehoert – eine Liste, damit Export und Import
+  // nicht auseinanderlaufen koennen. Frueher sicherte der Export nur
+  // vier Schluessel: Lektionsfortschritt, Videostaende und die
+  // Tagesserie waren nach dem Einspielen weg.
+  const BACKUP_SCHLUESSEL = [
+    'vokabeln',
+    'videos',
+    'videoFortschritt',
+    'fortschritt',
+    'einstellungen',
+    'lektionen',
+    'aktivitaet',
+    'buecher',
+  ]
+
   // Alle Lerndaten als Datei herunterladen (Backup)
   function exportData() {
+    const daten = {}
+    for (const schluessel of BACKUP_SCHLUESSEL) {
+      const wert = localStorage.getItem(schluessel)
+      if (wert !== null) daten[schluessel] = wert
+    }
     const backup = {
       app: 'spanisch-lernen',
+      version: 2,
       exportiertAm: new Date().toISOString(),
-      vokabeln: JSON.parse(localStorage.getItem('vokabeln') || '{}'),
-      videos: JSON.parse(localStorage.getItem('videos') || '[]'),
-      fortschritt: JSON.parse(localStorage.getItem('fortschritt') || '{}'),
-      einstellungen: JSON.parse(localStorage.getItem('einstellungen') || '{}'),
+      daten,
     }
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
     a.download = 'spanisch-lernen-backup.json'
     a.click()
-    URL.revokeObjectURL(a.href)
+    // Erst freigeben, wenn der Download angestossen ist – sonst bricht
+    // er in manchen Browsern ab.
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000)
   }
 
   // Backup-Datei wieder einlesen
@@ -102,10 +122,22 @@ export default function Settings({
       try {
         const data = JSON.parse(reader.result)
         if (data.app !== 'spanisch-lernen') throw new Error('Falsche Datei')
-        if (data.vokabeln) localStorage.setItem('vokabeln', JSON.stringify(data.vokabeln))
-        if (data.videos) localStorage.setItem('videos', JSON.stringify(data.videos))
-        if (data.fortschritt) localStorage.setItem('fortschritt', JSON.stringify(data.fortschritt))
-        if (data.einstellungen) localStorage.setItem('einstellungen', JSON.stringify(data.einstellungen))
+
+        if (data.daten) {
+          // Neues Format (Version 2): fertige Werte je Schluessel
+          for (const schluessel of BACKUP_SCHLUESSEL) {
+            if (typeof data.daten[schluessel] === 'string') {
+              localStorage.setItem(schluessel, data.daten[schluessel])
+            }
+          }
+        } else {
+          // Alte Backups weiter einlesen koennen
+          for (const schluessel of ['vokabeln', 'videos', 'fortschritt', 'einstellungen']) {
+            if (data[schluessel]) {
+              localStorage.setItem(schluessel, JSON.stringify(data[schluessel]))
+            }
+          }
+        }
         window.location.reload() // App mit den importierten Daten neu laden
       } catch {
         alert('Das ist leider keine gültige Backup-Datei.')
