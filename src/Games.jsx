@@ -87,7 +87,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
         <Memory paare={paare.slice(0, 6)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
       {spiel === 'paare' && (
-        <WortPaare paare={paare.slice(0, 5)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+        <WortPaare paare={paare.slice(0, 10)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
       {spiel === 'suche' && (
         <Wortsuche paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
@@ -195,9 +195,12 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <p className="training-progress">
-        {gefunden.length}/{anzahl} Paare · {versuche} Versuche
-      </p>
+      <div className="lern-fortschritt">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: (gefunden.length / anzahl) * 100 + '%' }} />
+        </div>
+        <p className="training-progress">{gefunden.length}/{anzahl} Paare · {versuche} Versuche</p>
+      </div>
       <div className="memory-grid">
         {karten.map((k) => {
           const istOffen = offen.includes(k.id) || gefunden.includes(k.pairId)
@@ -274,9 +277,14 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <p className="training-progress">
-        Tippe links ein Wort an und dann rechts die passende Übersetzung
-      </p>
+      <div className="lern-fortschritt">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
+        </div>
+        <p className="training-progress">
+          {geloest.length}/{paare.length} verbunden – links ein Wort, rechts die Übersetzung
+        </p>
+      </div>
       <div className="pairs-grid">
         <div className="pairs-col">
           {paare.map((p) => (

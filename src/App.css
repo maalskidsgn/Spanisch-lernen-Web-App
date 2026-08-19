@@ -1321,7 +1321,12 @@ button:disabled {
   box-shadow: 0 3px 0 var(--line);
   transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
 }
-.quiz-option:hover { border-color: var(--primary); background: #fff7ef; filter: none; }
+/* Hover nur, wo es echte Maus gibt. Auf dem Handy bleibt der
+   Hover-Zustand nach dem Tippen KLEBEN - der naechste Knopf an
+   derselben Stelle sah dadurch staendig "vorausgewaehlt" aus. */
+@media (hover: hover) {
+  .quiz-option:hover { border-color: var(--primary); background: #fff7ef; filter: none; }
+}
 .quiz-option:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 
 .option-richtig {
@@ -5089,3 +5094,111 @@ body.liest-video .word-card {
   font-variant-numeric: tabular-nums;
   flex: none;
 }
+
+/* ===== Fortschrittsbalken in Übungen und Spielen ===== */
+.lern-fortschritt { margin-bottom: 14px; }
+.lern-balken {
+  height: 10px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.lern-balken-voll {
+  height: 100%;
+  background: linear-gradient(90deg, #ff8124, var(--primary));
+  border-radius: 999px;
+  transition: width .4s ease;
+  min-width: 0;
+}
+
+/* ===== Startseite im Trainer-Stil ===== */
+.home .hero-row { margin-bottom: 18px; }
+
+.plan-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0 12px; }
+.plan-chip {
+  font-size: 12.5px;
+  font-weight: 700;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 11px;
+  color: var(--navy);
+}
+.plan-chip.chip-fertig {
+  background: #dff5e6;
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.ziel-zeile { max-width: 340px; }
+.ziel-zeile .lern-balken { height: 8px; margin-bottom: 4px; }
+.ziel-text { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+
+/* ---- Live-Unterricht ---- */
+.unterricht-karte {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #fff8f1, #fff);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+.unterricht-avatar {
+  width: 56px; height: 56px;
+  display: grid; place-items: center;
+  font-size: 30px;
+  background: #fff3e8;
+  border-radius: 50%;
+}
+.unterricht-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.unterricht-text b { font-size: 15.5px; }
+.unterricht-text span { font-size: 13px; color: var(--muted); }
+.unterricht-premium {
+  color: var(--primary) !important;
+  font-weight: 800;
+  font-size: 12px !important;
+}
+@media (max-width: 560px) {
+  .unterricht-karte { grid-template-columns: 48px 1fr; }
+  .unterricht-karte .btn-outline { grid-column: 1 / -1; }
+}
+
+/* ---- Wochendiagramm ---- */
+.woche-diagramm {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  align-items: end;
+  height: 150px;
+  padding: 8px 4px 0;
+}
+.woche-tag {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  height: 100%;
+}
+.woche-wert {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  min-height: 15px;
+}
+.woche-balken {
+  width: 100%;
+  max-width: 34px;
+  background: #ffd9b8;
+  border-radius: 8px 8px 3px 3px;
+  transition: height .4s ease;
+}
+.woche-balken.balken-heute { background: var(--primary); }
+.woche-label { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+.woche-label.label-heute { color: var(--primary); }
+
+.nav-emoji { font-size: 26px; }

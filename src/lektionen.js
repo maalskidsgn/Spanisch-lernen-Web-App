@@ -604,11 +604,37 @@ export function baueSchritte(lektion) {
     const luecke = baueLuecke(item)
     if (luecke) schritte.push({ typ: 'luecke', item, luecke })
   }
+
+  // Wortpaare: fuenf Woerter der Lektion verbinden – lockert die
+  // Quiz-Strecke auf und wiederholt nebenbei den halben Wortschatz
+  if (lektion.items.length >= 5) {
+    schritte.push({
+      typ: 'paare',
+      paare: mischen(lektion.items).slice(0, 5).map((i) => ({ es: i.es, de: i.de })),
+    })
+  }
+
+  // Abschlussfragen: ganze Saetze aus dem Dialog verstehen, nicht
+  // nur einzelne Woerter – das ist die eigentliche Vertiefung
+  if (lektion.dialog?.length >= 4) {
+    const zeilen = mischen(lektion.dialog.filter((z) => z.es.length > 12)).slice(0, 3)
+    for (const zeile of zeilen) {
+      schritte.push({ typ: 'dialogquiz', zeile, dialog: lektion.dialog })
+    }
+  }
   return schritte
 }
 
 // Baut die vier Antwort-Möglichkeiten für eine Übung (richtige + drei falsche)
 export function baueOptionen(schritt, lektion) {
+  if (schritt.typ === 'dialogquiz') {
+    // Die falschen Antworten sind die deutschen Saetze der ANDEREN
+    // Dialogzeilen – nah genug am Thema, um zum Nachdenken zu zwingen
+    const falsche = mischen(
+      schritt.dialog.filter((z) => z !== schritt.zeile).map((z) => z.de)
+    ).slice(0, 3)
+    return mischen([schritt.zeile.de, ...falsche])
+  }
   if (schritt.typ === 'luecke') {
     const falsche = mischen(
       lektion.items.filter((i) => i !== schritt.item).map((i) => kernwort(i.es))

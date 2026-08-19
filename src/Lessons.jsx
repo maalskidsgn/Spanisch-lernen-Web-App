@@ -10,6 +10,7 @@ import {
 } from './lektionen.js'
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
+import { merkeEinheit } from './aktivitaet.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
@@ -54,7 +55,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   const [fertig, setFertig] = useState(false)
 
   function brauchtOptionen(schritt) {
-    return schritt.typ === 'quiz' || schritt.typ === 'luecke'
+    return schritt.typ === 'quiz' || schritt.typ === 'luecke' || schritt.typ === 'dialogquiz'
   }
 
   function starten(l) {
@@ -74,6 +75,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
       hakeAb('lektion') // Schritt im Tagesplan erledigt
+      merkeEinheit() // zaehlt im Wochendiagramm
       onLessonComplete(lektion)
       setFertig(true)
       return
@@ -227,6 +229,25 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               optionen={optionen}
               feedback={feedback}
               richtig={schritt.richtung === 'es-de' ? schritt.item.de : schritt.item.es}
+              onAntwort={antworten}
+            />
+          </div>
+        )}
+
+        {/* --- Übung: Wortpaare der Lektion verbinden --- */}
+        {schritt.typ === 'paare' && (
+          <LektionsPaare key={'s' + index} paare={schritt.paare} onWeiter={weiter} />
+        )}
+
+        {/* --- Abschlussfrage: einen ganzen Satz verstehen --- */}
+        {schritt.typ === 'dialogquiz' && (
+          <div className="flashcard" key={'s' + index}>
+            <p className="lesson-hint">🎓 Vertiefung: Was bedeutet dieser Satz?</p>
+            <div className="gap-sentence">{schritt.zeile.es}</div>
+            <QuizOptionen
+              optionen={optionen}
+              feedback={feedback}
+              richtig={schritt.zeile.de}
               onAntwort={antworten}
             />
           </div>
@@ -502,6 +523,67 @@ function QuizOptionen({ optionen, feedback, richtig, onAntwort }) {
           </button>
         )
       })}
+    </div>
+  )
+}
+
+/**
+ * Wortpaare innerhalb einer Lektion: links Spanisch, rechts Deutsch,
+ * Paar antippen. Bewusst ohne Strafen – hier wird gefestigt, nicht
+ * geprüft.
+ */
+function LektionsPaare({ paare, onWeiter }) {
+  const [links, setLinks] = useState(null)
+  const [geloest, setGeloest] = useState([])
+  // Rechte Spalte deterministisch sortiert – nicht zufällig, damit
+  // beim Neuzeichnen nichts springt
+  const rechts = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
+  const fertig = geloest.length === paare.length
+
+  function rechtsTipp(p) {
+    if (!links || geloest.includes(p.es)) return
+    if (p.es === links.es) setGeloest((g) => [...g, p.es])
+    setLinks(null)
+  }
+
+  return (
+    <div className="flashcard">
+      <p className="lesson-hint">🔗 Verbinde die Paare</p>
+      <div className="pairs-grid">
+        <div className="pairs-col">
+          {paare.map((p) => (
+            <button
+              key={p.es}
+              className={
+                'quiz-option' +
+                (geloest.includes(p.es) ? ' option-richtig' : '') +
+                (links?.es === p.es ? ' pair-gewaehlt' : '')
+              }
+              disabled={geloest.includes(p.es)}
+              onClick={() => setLinks(p)}
+            >
+              {p.es}
+            </button>
+          ))}
+        </div>
+        <div className="pairs-col">
+          {rechts.map((p) => (
+            <button
+              key={p.de}
+              className={'quiz-option' + (geloest.includes(p.es) ? ' option-richtig' : '')}
+              disabled={geloest.includes(p.es)}
+              onClick={() => rechtsTipp(p)}
+            >
+              {p.de}
+            </button>
+          ))}
+        </div>
+      </div>
+      {fertig && (
+        <div className="flash-actions">
+          <button onClick={onWeiter}>Weiter</button>
+        </div>
+      )}
     </div>
   )
 }

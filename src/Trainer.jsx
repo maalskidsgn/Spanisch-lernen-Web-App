@@ -10,6 +10,7 @@ import {
 } from './srs.js'
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
+import { merkeEinheit } from './aktivitaet.js'
 import Games from './Games.jsx'
 import ListGenerator from './ListGenerator.jsx'
 import {
@@ -42,6 +43,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
   const [position, setPosition] = useState(0)   // fuer "gemischt": welcher Durchgang
   const [eingabe, setEingabe] = useState('')    // Schreiben: getippter Text
   const [tippStufe, setTippStufe] = useState(0) // 0 = kein Tipp, 1 = gemischt, 2 = Loesung
+  const [tippText, setTippText] = useState('')  // die einmal gewuerfelten Buchstaben
   const [gewaehlt, setGewaehlt] = useState(null) // Multiple Choice: angetippte Antwort
 
   // Alle Vokabeln als Liste, fehlende Felder ergänzen
@@ -133,6 +135,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       if (nextQueue.length === 0) {
         earned += XP.RUNDE
         hakeAb('wiederholen') // Schritt im Tagesplan erledigt
+        merkeEinheit() // zaehlt im Wochendiagramm
       }
       addXp(earned)
       setXpPopup({ amount: earned, key: Date.now() }) // key sorgt dafür, dass die Animation neu startet
@@ -140,6 +143,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       setRevealed(false)
       setEingabe('')
       setTippStufe(0)
+      setTippText('')
       setGewaehlt(null)
       setPosition((p) => p + 1)
       setExiting(null)
@@ -152,6 +156,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
    * zählt das wie ein "Gut" im Training.
    */
   function nachSpiel(woerter) {
+    merkeEinheit() // ein fertiges Spiel zaehlt im Wochendiagramm
     setVocab((v) => {
       const kopie = { ...v }
       for (const wort of woerter) {
@@ -216,9 +221,17 @@ export default function Trainer({ vocab, setVocab, addXp }) {
             +{xpPopup.amount} XP
           </span>
         )}
-        <p className="training-progress">
-          {ARTEN.find((a) => a.id === art)?.emoji} Noch {queue.length} von {LEKTION_GROESSE}
-        </p>
+        <div className="lern-fortschritt">
+          <div className="lern-balken">
+            <div
+              className="lern-balken-voll"
+              style={{ width: (result.richtig / LEKTION_GROESSE) * 100 + '%' }}
+            />
+          </div>
+          <p className="training-progress">
+            {ARTEN.find((a) => a.id === art)?.emoji} {result.richtig} von {LEKTION_GROESSE} geschafft
+          </p>
+        </div>
 
         {/* ---------- Art 1: Karteikarten ---------- */}
         {dieseArt === 'karten' && (
@@ -290,7 +303,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
                 zweiten Antippen das ganze Wort. */}
             {tippStufe > 0 && (
               <div className={'tipp-feld' + (tippStufe === 2 ? ' tipp-loesung' : '')}>
-                {tippStufe === 1 ? buchstabenMischen(wort) : wort}
+                {tippStufe === 1 ? tippText : wort}
               </div>
             )}
 
@@ -317,7 +330,12 @@ export default function Trainer({ vocab, setVocab, addXp }) {
                 <button
                   type="button"
                   className="btn-plain"
-                  onClick={() => setTippStufe((s) => Math.min(2, s + 1))}
+                  onClick={() => {
+                    // Beim ersten Tipp die Buchstaben EINMAL wuerfeln und
+                    // festhalten - sonst wuerfelt jeder Tastendruck neu
+                    if (tippStufe === 0) setTippText(buchstabenMischen(wort))
+                    setTippStufe((s) => Math.min(2, s + 1))
+                  }}
                   disabled={tippStufe >= 2}
                 >
                   {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? '💡 Ganzes Wort' : '💡 Aufgedeckt'}
