@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   vorschau,
   LEVEL_LABELS,
@@ -11,7 +11,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import Games from './Games.jsx'
+import Games, { spielbareVokabeln } from './Games.jsx'
 import ListGenerator from './ListGenerator.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
 
@@ -47,6 +47,9 @@ export default function Trainer({ vocab, setVocab, addXp }) {
   const [xpPopup, setXpPopup] = useState(null) // schwebende "+10 XP"-Anzeige
   const [exiting, setExiting] = useState(null) // 'richtig' | 'falsch' – für die Karten-Animation
   const [spiel, setSpiel] = useState(null) // laufendes Mini-Spiel
+  // Unter vier passenden Woertern kann kein Spiel starten. Dann sind
+  // die Kacheln gesperrt, statt in eine leere Seite zu fuehren.
+  const spielbar = useMemo(() => spielbareVokabeln(vocab).length >= 4, [vocab])
   const [artWahl, setArtWahl] = useState(false) // Auswahl der Uebungsart offen?
   const [art, setArt] = useState('karten')      // gewaehlte Uebungsart
   const [position, setPosition] = useState(0)   // fuer "gemischt": welcher Durchgang
@@ -436,33 +439,34 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         <div className="bereich-kopf">
           <h2>Spielerisch üben</h2>
           <p>
-            Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer
-            sie wiedererkennt, schiebt sie eine Stufe weiter.
+            {spielbar
+              ? 'Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
+              : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
           </p>
         </div>
         <div className="spiel-paar">
-          <button className="spiel-karte" onClick={() => setSpiel('memory')}>
+          <button className="spiel-karte" onClick={() => setSpiel('memory')} disabled={!spielbar}>
             <span className="spiel-bild" aria-hidden="true">
               <i /><i /><i /><i />
             </span>
             <span className="spiel-name">Memory</span>
             <span className="spiel-hinweis">6 Paare aufdecken</span>
           </button>
-          <button className="spiel-karte" onClick={() => setSpiel('paare')}>
+          <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
               <i /><i /><i />
             </span>
             <span className="spiel-name">Wortpaare</span>
             <span className="spiel-hinweis">5 Wörter verbinden</span>
           </button>
-          <button className="spiel-karte" onClick={() => setSpiel('suche')}>
+          <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
               <i /><i /><i /><i /><i /><i /><i /><i /><i />
             </span>
             <span className="spiel-name">Wortsuche</span>
             <span className="spiel-hinweis">5 Wörter im Gitter</span>
           </button>
-          <button className="spiel-karte" onClick={() => setSpiel('fang')}>
+          <button className="spiel-karte" onClick={() => setSpiel('fang')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
               <i /><i /><i />
             </span>

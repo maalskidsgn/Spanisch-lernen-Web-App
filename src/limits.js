@@ -10,10 +10,7 @@
 
 export const LISTEN_PRO_TAG = 10
 
-/** Heutiges Datum als Schlüssel, z. B. "2026-08-18". */
-function heute() {
-  return new Date().toISOString().slice(0, 10)
-}
+import { heute } from './datum.js'
 
 /**
  * Der Zählerstand von heute. Ist der gespeicherte Tag ein anderer,

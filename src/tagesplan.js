@@ -1,3 +1,4 @@
+import { heute } from './datum.js'
 // Der Tagesplan: aus allem, was ansteht, eine überschaubare Session bauen.
 //
 // Das Problem ohne ihn: Wer 88 fällige Vokabeln sieht, sieht einen
@@ -78,9 +79,7 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
  * Wie weit ist der Plan heute schon abgearbeitet?
  * Wird im localStorage vermerkt und beginnt jeden Tag neu.
  */
-function heute() {
-  return new Date().toISOString().slice(0, 10)
-}
+
 
 export function planStand() {
   try {

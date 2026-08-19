@@ -125,7 +125,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
             type="text"
             value={begriff}
             onChange={(e) => setBegriff(e.target.value)}
-            placeholder="z.B. gesunde Ernährung, Schlaf, Motivation…"
+            placeholder="z.B. gesunde Ernährung, Schlaf …"
           />
           <button type="submit" className="btn" disabled={laedt || !begriff.trim()}>
             {laedt ? 'Sucht …' : 'Suchen'}

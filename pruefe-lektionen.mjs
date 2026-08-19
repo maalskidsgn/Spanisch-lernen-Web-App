@@ -42,9 +42,28 @@ for (const l of LEKTIONEN) {
 
 const nrs = LEKTIONEN.map((l) => l.kursNr)
 if (new Set(nrs).size !== nrs.length) fehler.push('kursNr doppelt vergeben')
-for (const m of MODULE)
-  for (const id of m.lektionen)
-    if (!ids.includes(id)) fehler.push(`Modul "${m.titel}": Lektion "${id}" gibt es nicht`)
+
+// Die Modulzuordnung wird aus der Kursnummer abgeleitet. Damit das
+// traegt, muessen die Bereiche lueckenlos aneinanderstossen und
+// jede Lektion in genau einen fallen.
+let letztes = 0
+for (const m of MODULE) {
+  if (typeof m.von !== 'number' || typeof m.bis !== 'number')
+    fehler.push(`Modul "${m.titel}": von/bis fehlt`)
+  else {
+    if (m.von !== letztes + 1)
+      fehler.push(`Modul "${m.titel}": beginnt bei ${m.von}, erwartet ${letztes + 1}`)
+    if (m.bis < m.von) fehler.push(`Modul "${m.titel}": bis liegt vor von`)
+    letztes = m.bis
+  }
+}
+if (letztes !== 150) fehler.push(`Die Module enden bei ${letztes}, der Kurs hat 150 Lektionen`)
+
+for (const l of LEKTIONEN) {
+  const passend = MODULE.filter((m) => l.kursNr >= m.von && l.kursNr <= m.bis)
+  if (passend.length !== 1)
+    fehler.push(`"${l.id}" (Nr. ${l.kursNr}) faellt in ${passend.length} Module statt in genau eines`)
+}
 
 if (fehler.length) {
   console.error('\nKursaufbau fehlerhaft:\n' + fehler.map((f) => '  • ' + f).join('\n') + '\n')

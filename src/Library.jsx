@@ -336,7 +336,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
             setStartBegriff(suchFeld.trim())
             setSucheOffen(true)
           }}
-          platzhalter="z.B. gesunde Ernährung, Schlaf, Stoizismus"
+          platzhalter="z.B. gesunde Ernährung, Schlaf …"
         />
       </Hero>
 

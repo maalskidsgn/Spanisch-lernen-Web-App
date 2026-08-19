@@ -2,11 +2,9 @@
 // Wiederholungsrunden und Spiele gleichermaßen. Grundlage für das
 // Wochendiagramm auf der Startseite.
 
-const SCHLUESSEL = 'aktivitaet'
+import { heute, tagesSchluessel } from './datum.js'
 
-function heute() {
-  return new Date().toISOString().slice(0, 10)
-}
+const SCHLUESSEL = 'aktivitaet'
 
 function lade() {
   try {
@@ -22,7 +20,7 @@ export function merkeEinheit() {
   daten[heute()] = (daten[heute()] ?? 0) + 1
 
   // Nur die letzten 60 Tage behalten – mehr zeigt niemand an
-  const grenze = new Date(Date.now() - 60 * 86400000).toISOString().slice(0, 10)
+  const grenze = tagesSchluessel(new Date(Date.now() - 60 * 86400000))
   for (const tag of Object.keys(daten)) {
     if (tag < grenze) delete daten[tag]
   }
@@ -38,7 +36,7 @@ export function letzteWoche() {
   const tage = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date(Date.now() - i * 86400000)
-    const schluessel = d.toISOString().slice(0, 10)
+    const schluessel = tagesSchluessel(d)
     tage.push({
       label: d.toLocaleDateString('de-DE', { weekday: 'short' }),
       anzahl: daten[schluessel] ?? 0,

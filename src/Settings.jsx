@@ -115,13 +115,28 @@ export default function Settings({
   }
 
   // Alles auf null zurücksetzen (mit doppelter Nachfrage!)
+  //
+  // Die Liste steht bewusst vollstaendig hier: Frueher blieben
+  // Lektionsfortschritt, Videostaende und die Tagesserie stehen –
+  // "Alles zurücksetzen" loeschte also gerade nicht alles.
   function resetData() {
     if (!confirm('Wirklich ALLE Vokabeln, Videos und deinen Fortschritt löschen?')) return
     if (!confirm('Ganz sicher? Das kann nicht rückgängig gemacht werden!')) return
-    localStorage.removeItem('vokabeln')
-    localStorage.removeItem('videos')
-    localStorage.removeItem('fortschritt')
-    localStorage.removeItem('einstellungen')
+    for (const schluessel of [
+      'vokabeln',
+      'videos',
+      'videoFortschritt',
+      'fortschritt',
+      'einstellungen',
+      'lektionen',
+      'aktivitaet',
+      'tagesplan',
+      'nutzung',
+      'buecher',
+      'vorschlaege2',
+    ]) {
+      localStorage.removeItem(schluessel)
+    }
     window.location.reload()
   }
 
@@ -376,6 +391,9 @@ export default function Settings({
           </button>
         </div>
 
+        {/* Ohne Konto gibt es nichts zu loeschen – der Knopf fuehrte
+            sonst nach zwei Warnungen nur in eine Fehlermeldung. */}
+        {nutzer && (
         <div className="settings-row">
           <div>
             <div className="row-title">Konto löschen</div>
@@ -392,6 +410,7 @@ export default function Settings({
             {loeschLaeuft ? 'Löscht …' : 'Konto löschen'}
           </button>
         </div>
+        )}
       </div>
 
       {/* ---------- Über ---------- */}

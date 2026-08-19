@@ -25,7 +25,7 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
   // damit die Karte nicht luegt, wenn sich die Lektion aendert.
   const heuteKarte = nextLesson ? beschreibeLektion(nextLesson) : null
   const modul = nextLesson
-    ? MODULE.find((m) => m.lektionen.includes(nextLesson.id))
+    ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
     : null
   const modulListe = modul ? lektionenVon(modul) : []
 

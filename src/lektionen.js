@@ -879,89 +879,98 @@ export const LEKTIONEN = [
 export const MODULE = [
   {
     id: 'm1',
+    von: 1,
+    bis: 22,
     titel: 'Erste Schritte',
     emoji: '🌱',
     beschreibung: 'Ankommen in der Sprache – ohne Grammatik, nur Sprechen',
     farbe: '#7d8c5c', // Olive
-    lektionen: [
-      'alphabet',      // 2
-      'aussprache',    // 3
-      'betonung',      // 4
-      'begruessung',   // 5
-      'vorstellen',    // 6
-      'pronomen',      // 7
-      'ser',           // 8
-      'artikel',       // 9
-      'woher',         // 12
-    ],
   },
   {
     id: 'm2',
+    von: 23,
+    bis: 45,
     titel: 'Im Alltag',
     emoji: '☕',
     beschreibung: 'Ein ganz normaler Tag auf Spanisch',
     farbe: '#ff6c00', // Habloo-Orange
-    lektionen: ['zahlen', 'hoeflichkeit', 'cafe', 'einkaufen', 'wetter'],
   },
   {
     id: 'm3',
+    von: 46,
+    bis: 65,
     titel: 'Unter Menschen',
     emoji: '👋',
     beschreibung: 'Der obere Weg: über dich und andere sprechen',
     farbe: '#c96f4a', // Terrakotta
-    lektionen: [],
     kommtBald: true,
     geplant: ['Familie', 'Aussehen & Charakter', 'Hobbys', 'Verabreden', 'Gefühle'],
   },
   {
     id: 'm4',
+    von: 66,
+    bis: 88,
     titel: 'Unterwegs',
     emoji: '🧳',
     beschreibung: 'Der untere Weg: raus aus dem Haus',
     farbe: '#c9a961', // Sand, etwas dunkler fuer Kontrast
-    lektionen: ['essen', 'unterwegs'],
     geplant: ['Bus, Zug & Taxi', 'Im Hotel', 'Beim Arzt', 'Notfälle'],
   },
   {
     id: 'm5',
+    von: 89,
+    bis: 110,
     titel: 'Erzählen',
     emoji: '📖',
     beschreibung: 'Wo beide Wege zusammenlaufen – die Vergangenheit',
     farbe: '#7d3350', // Wein
-    lektionen: [],
     kommtBald: true,
     geplant: ['Gestern & letzte Woche', 'Der Urlaub', 'Früher war das so', 'Eine Geschichte erzählen', 'Meinungen sagen'],
   },
   {
     id: 'm6',
+    von: 111,
+    bis: 130,
     titel: 'An der Küste',
     emoji: '🌊',
     beschreibung: 'Ein Abstecher: Spanien und Lateinamerika',
     farbe: '#4a9d9c', // Meer
-    lektionen: [],
     kommtBald: true,
     geplant: ['Feste & Traditionen', 'Essen der Regionen', 'Spanisch in Amerika', 'Redewendungen'],
   },
   {
     id: 'm7',
+    von: 131,
+    bis: 150,
     titel: 'Arbeit & Pläne',
     emoji: '💼',
     beschreibung: 'Das letzte Gebiet: Zukunft und Berufliches',
     farbe: '#5b7596', // Blaugrau
-    lektionen: [],
     kommtBald: true,
     geplant: ['Beruf & Studium', 'Termine machen', 'Telefonieren', 'Pläne schmieden', 'Höflich schreiben'],
   },
 ]
 
 // Hilfen rund um Module und Fortschritt
+/**
+ * Welche Lektionen gehoeren zu diesem Modul?
+ *
+ * ABGELEITET aus der Kursnummer, nicht von Hand gepflegt. Die
+ * frueheren Listen sind zweimal falsch gewesen: "Zahlen" (Nr. 11)
+ * lag in Modul 2 und "Essen" (Nr. 32) in Modul 4, obwohl beide
+ * Nummern in andere Module gehoeren. Solche Fehler faellt niemandem
+ * auf – die Lektion ist ja da, nur an der falschen Stelle.
+ */
 export function lektionenVon(modul) {
-  return modul.lektionen.map((id) => LEKTIONEN.find((l) => l.id === id))
+  return LEKTIONEN
+    .filter((l) => l.kursNr >= modul.von && l.kursNr <= modul.bis)
+    .sort((a, b) => a.kursNr - b.kursNr)
 }
 
 export function modulFortschritt(modul, lessonProgress) {
-  const fertig = modul.lektionen.filter((id) => lessonProgress[id]?.fertig).length
-  return { fertig, gesamt: modul.lektionen.length }
+  const liste = lektionenVon(modul)
+  const fertig = liste.filter((l) => lessonProgress[l.id]?.fertig).length
+  return { fertig, gesamt: liste.length }
 }
 
 // Ein Modul ist offen, wenn das vorherige komplett geschafft ist
@@ -975,7 +984,8 @@ export function modulOffen(index, lessonProgress) {
   if (index === 0) return true
   const vorher = MODULE[index - 1]
   if (vorher.kommtBald) return false
-  return modulFortschritt(vorher, lessonProgress).fertig === vorher.lektionen.length
+  const { fertig, gesamt } = modulFortschritt(vorher, lessonProgress)
+  return gesamt > 0 && fertig === gesamt
 }
 
 // Mischt eine Liste zufällig durch (Fisher-Yates-Verfahren)

@@ -145,7 +145,7 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
                   ? 'HIER GEHT ES WEITER'
                   : fertig
                     ? 'geschafft'
-                    : (l.grammatik?.[0] ?? '').slice(0, 30)}
+                    : kurz(l.grammatik?.[0] ?? '')}
               </text>
             </g>
           )
@@ -153,4 +153,18 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
       </svg>
     </div>
   )
+}
+
+/**
+ * Kuerzt den Untertitel auf die Breite der Karte.
+ *
+ * Vorher wurde hart nach 30 Zeichen abgeschnitten – auf dem Schirm
+ * stand dann "Betonungsregeln und der schrif". Jetzt endet der Text
+ * am letzten ganzen Wort und bekommt Auslassungspunkte.
+ */
+function kurz(text, grenze = 30) {
+  if (text.length <= grenze) return text
+  const stueck = text.slice(0, grenze)
+  const luecke = stueck.lastIndexOf(' ')
+  return (luecke > 12 ? stueck.slice(0, luecke) : stueck).trimEnd() + '…'
 }

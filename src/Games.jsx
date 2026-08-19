@@ -39,7 +39,7 @@ function useXpMeldung(addXp) {
  * Wählt spielbare Paare – fällige Wörter zuerst.
  * Zu lange Wörter passen nicht auf die Karten und fallen raus.
  */
-function spielbareVokabeln(vocab) {
+export function spielbareVokabeln(vocab) {
   const passend = Object.entries(vocab)
     .map(([wort, e]) => ({ wort, eintrag: withSrsDefaults(e) }))
     .filter(
@@ -67,10 +67,17 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
   if (paare.length < 4) {
     return (
       <div className="trainer">
-        <p className="empty-hint">
-          Sammle erst ein paar Vokabeln (mindestens 4), dann kannst du hier spielen!
-        </p>
-        <button onClick={onClose}>Zurück</button>
+        <div className="spiel-leer">
+          <span className="spiel-leer-icon" aria-hidden="true">🃏</span>
+          <h2>Noch zu wenige Wörter</h2>
+          <p>
+            Ab vier gesammelten Wörtern mit Übersetzung geht es los. Wörter
+            kommen aus den Lektionen, aus Videos oder von der KI-Wortliste.
+          </p>
+          <button className="btn" onClick={onClose}>
+            Zurück zum Trainer
+          </button>
+        </div>
       </div>
     )
   }

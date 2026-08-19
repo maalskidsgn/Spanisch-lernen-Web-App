@@ -10,7 +10,7 @@
 // passiert auf dem Server und in den Zugriffsregeln der Datenbank.
 
 import { useState, useEffect } from 'react'
-import { db } from './supabase.js'
+import { db, supabaseBereit } from './supabase.js'
 import { API_URL } from './api.js'
 
 /**
@@ -18,6 +18,9 @@ import { API_URL } from './api.js'
  * @returns {Promise<{premium: boolean, bis: Date|null, status: string|null}>}
  */
 export async function holeBerechtigung() {
+  // Ohne eingerichtete Datenbank gibt es keine Abos – und vor allem
+  // keinen Absturz: db ist dann null.
+  if (!supabaseBereit) return { premium: false, bis: null, status: null }
   const { data: sitzung } = await db.auth.getSession()
   const nutzer = sitzung?.session?.user
   if (!nutzer) return { premium: false, bis: null, status: null }
@@ -55,6 +58,7 @@ export function usePremium() {
 
   useEffect(() => {
     neuLaden()
+    if (!supabaseBereit) return
     // Nach einer Anmeldung erneut fragen
     const { data } = db.auth.onAuthStateChange(() => neuLaden())
     return () => data?.subscription?.unsubscribe()
@@ -65,6 +69,7 @@ export function usePremium() {
 
 /** Schickt den Nutzer zur Bezahlseite von Stripe. */
 export async function zurKasse() {
+  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
   const { data: sitzung } = await db.auth.getSession()
   const token = sitzung?.session?.access_token
   if (!token) throw new Error('Bitte zuerst anmelden.')
@@ -81,6 +86,7 @@ export async function zurKasse() {
 
 /** Öffnet Stripes Verwaltungsseite zum Kündigen oder Kartenwechsel. */
 export async function aboVerwalten() {
+  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
   const { data: sitzung } = await db.auth.getSession()
   const token = sitzung?.session?.access_token
   if (!token) throw new Error('Bitte zuerst anmelden.')
