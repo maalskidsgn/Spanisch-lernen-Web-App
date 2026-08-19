@@ -25,3 +25,7 @@ ios/App/App.xcodeproj/xcuserdata/
 ios/App/App.xcworkspace/xcuserdata/
 ios/DerivedData/
 *.xcuserstate
+
+# Signaturschluessel – NIEMALS ins Repository
+android/habloo-release.keystore
+android/keystore.properties

@@ -16,10 +16,33 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Signatur fuer den Play Store. Die Zugangsdaten liegen in
+    // keystore.properties – die Datei ist gitignored, damit der
+    // Schluessel nie im Repository landet.
+    def keystoreProps = new Properties()
+    def keystoreDatei = rootProject.file('keystore.properties')
+    if (keystoreDatei.exists()) {
+        keystoreProps.load(new FileInputStream(keystoreDatei))
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreDatei.exists()) {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystoreDatei.exists()) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
