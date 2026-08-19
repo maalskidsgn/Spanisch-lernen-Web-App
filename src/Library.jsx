@@ -6,6 +6,7 @@ import Songs from './Songs.jsx'
 import {
   IconAlle, IconSprache, IconGesundheit, IconSport, IconErnaehrung,
   IconProduktiv, IconStoa, IconPsyche, IconSuche,
+  IconLesezeichen, IconStern, IconPfeil,
 } from './icons.jsx'
 
 const KATEGORIE_ICONS = {
@@ -29,6 +30,9 @@ import Inhalte from './Inhalte.jsx'
 // Der Bereich soll kurz bleiben: Filter oben, vier Videos darunter,
 // Nachschub nur auf Wunsch.
 const SCHRITT = 4
+
+// So viele gemerkte Videos stehen ohne "Alle anzeigen" da
+const SICHTBAR_GEMERKT = 4
 
 const KATEGORIEN = [
   { wert: 'alle', label: 'Alle' },
@@ -119,6 +123,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     )
   })
   const [sucheOffen, setSucheOffen] = useState(false)
+  const [suchFeld, setSuchFeld] = useState('')
+  const [alleGemerkt, setAlleGemerkt] = useState(false)
+  const [startBegriff, setStartBegriff] = useState('')
   const [kategorie, setKategorie] = useState('alle')
   const [sichtbareVideos, setSichtbareVideos] = useState(SCHRITT)
   const [bibliothekFehler, setbibliothekFehler] = useState('')
@@ -301,7 +308,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
       {sucheOffen && (
         <VideoSuche
-          onSchliessen={() => setSucheOffen(false)}
+          startBegriff={startBegriff}
+          onSchliessen={() => {
+            setSucheOffen(false)
+            setStartBegriff('')
+          }}
           onVideoWaehlen={onOpenVideo}
         />
       )}
@@ -309,31 +320,61 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {bereich === 'videos' && (
       <>
       {/* ============ 1. SELBST SUCHEN ============ */}
-      {/* Dieselbe Hauptkarte wie im Trainer: eine Zahl links, die
-          Ansage in der Mitte, die eine Aktion rechts. */}
-      <section className="bereich bereich-wiederholen">
-        <div className="wiederholen-zahl">
-          <b>{savedVideos.length}</b>
-          <span>{savedVideos.length === 1 ? 'Video gemerkt' : 'Videos gemerkt'}</span>
-        </div>
-        <div className="wiederholen-text">
-          <h2>Video zu einem Thema finden</h2>
+      {/* Das Feld steht direkt hier, nicht hinter einem Knopf: Wer
+          schon weiss, wonach er sucht, soll nicht erst ein Fenster
+          oeffnen muessen. */}
+      <section className="video-hero">
+        <span className="video-hero-symbol" aria-hidden="true">
+          <IconSuche groesse={26} />
+        </span>
+        <div className="video-hero-text">
+          <h2>Finde dein nächstes Video</h2>
           <p>
             Gib auf Deutsch ein, worüber du etwas schauen willst – wir suchen
-            passende spanische Videos mit Untertiteln dazu.
+            passende spanische Videos dazu.
           </p>
         </div>
-        <button className="btn wiederholen-los" onClick={() => setSucheOffen(true)}>
-          Suchen
-        </button>
+        <form
+          className="video-hero-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            const frage = suchFeld.trim()
+            if (!frage) return
+            setStartBegriff(frage)
+            setSucheOffen(true)
+          }}
+        >
+          <input
+            type="search"
+            value={suchFeld}
+            onChange={(e) => setSuchFeld(e.target.value)}
+            placeholder="z.B. gesunde Ernährung, Schlaf, Stoizismus"
+            aria-label="Wonach möchtest du suchen?"
+          />
+          <button type="submit" className="btn">Suchen</button>
+        </form>
       </section>
 
       {/* ============ 2. GEMERKTE VIDEOS ============ */}
       {savedVideos.length > 0 && (
         <section className="bereich">
-          <div className="bereich-kopf">
-            <h2>Deine gemerkten Videos</h2>
-            <p>{savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.</p>
+          <div className="mediathek-kopf">
+            <div className="mediathek-kopf-links">
+              <h2>
+                <IconLesezeichen groesse={19} />
+                Deine gemerkten Videos
+              </h2>
+              <p>{savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.</p>
+            </div>
+            {savedVideos.length > SICHTBAR_GEMERKT && (
+              <button
+                className="kopf-aktion"
+                onClick={() => setAlleGemerkt((a) => !a)}
+              >
+                {alleGemerkt ? 'Weniger' : 'Alle anzeigen'}
+                <IconPfeil groesse={15} />
+              </button>
+            )}
           </div>
           <div className="chips">
             <button
@@ -353,11 +394,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
             ))}
           </div>
 
-          <div className="video-grid">
-            {filtered.map((v) => (
-              <div key={v.videoId} className="video-card">
-                <div className="video-bild" onClick={() => onOpenVideo(v.videoId)}>
+          <div className="quer-liste">
+            {(alleGemerkt ? filtered : filtered.slice(0, SICHTBAR_GEMERKT)).map((v) => (
+              <div key={v.videoId} className="quer-karte">
+                <div className="quer-bild" onClick={() => onOpenVideo(v.videoId)}>
                   <img src={`https://i.ytimg.com/vi/${v.videoId}/mqdefault.jpg`} alt="" />
+                  {v.duration ? (
+                    <span className="quer-dauer">{formatDuration(v.duration)}</span>
+                  ) : null}
                   {fortschritt[v.videoId] > 0 && (
                     <div className="video-fortschritt" title={`${fortschritt[v.videoId]} % geschaut`}>
                       <div
@@ -367,11 +411,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     </div>
                   )}
                 </div>
-                <div className="video-card-body">
-                  <div className="video-card-title" onClick={() => onOpenVideo(v.videoId)}>
+                <div className="quer-text">
+                  <div className="quer-titel" onClick={() => onOpenVideo(v.videoId)}>
                     {v.title}
                   </div>
-                  <div className="video-card-meta">
+                  <div className="quer-fuss">
                     {v.category && <span className="category-badge">{v.category}</span>}
                     <button
                       className="btn-delete"
@@ -391,14 +435,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {/* ---------- Kuratierte Habloo-Mediathek ---------- */}
       {supabaseBereit && (
         <section className="bereich">
-          <div className="bereich-kopf">
-            <div className="kopf-zeile">
-              <h2>Ausgewählte Videos</h2>
-              {bibliothek && (
-                <span className="rest-zaehler biblio-zaehler">{bibliothek.length}</span>
-              )}
+          <div className="mediathek-kopf">
+            <div className="mediathek-kopf-links">
+              <h2>
+                <IconStern groesse={19} />
+                Ausgewählte Videos
+              </h2>
             </div>
-
+            {bibliothek && <span className="kopf-zahl">{bibliothek.length}</span>}
           </div>
 
           <div className="themen-leiste">
@@ -452,9 +496,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
                 {rest > 0 && (
                   <button
-                    className="btn-outline mehr-videos"
+                    className="mehr-videos"
                     onClick={() => setSichtbareVideos((n) => n + SCHRITT)}
                   >
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none"
+                         stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"
+                         strokeLinejoin="round" aria-hidden="true">
+                      <path d="m5 9 7 7 7-7" />
+                    </svg>
                     Mehr anzeigen ({rest} weitere)
                   </button>
                 )}

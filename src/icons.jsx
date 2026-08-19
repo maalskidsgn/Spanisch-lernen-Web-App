@@ -124,6 +124,18 @@ export const IconGemischt = (p) => (
   </>} />
 )
 
+/* Lesezeichen – markiert Gemerktes */
+export const IconLesezeichen = (p) => (
+  <Icon {...p} kinder={<path d="M6.5 3.5h11a1 1 0 0 1 1 1V21l-6.5-4.2L5.5 21V4.5a1 1 0 0 1 1-1z" />} />
+)
+
+/* Stern mit Strahlen – für Ausgewähltes */
+export const IconStern = (p) => (
+  <Icon {...p} kinder={<>
+    <path d="m12 3.2 2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z" />
+  </>} />
+)
+
 /* Pfeil rechts */
 export const IconPfeil = (p) => (
   <Icon {...p} kinder={<path d="M5 12h14m-6-6 6 6-6 6" />} />

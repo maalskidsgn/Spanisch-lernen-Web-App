@@ -6369,3 +6369,211 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   font-size: 12px;
   color: var(--muted);
 }
+
+/* ===== Mediathek: Videobereich ===== */
+
+/* Die Hauptkarte: Symbol links, Ansage mittig, Suchfeld rechts.
+   Das Feld steht direkt da statt hinter einem Knopf – wer schon
+   weiß, wonach er sucht, soll nicht erst ein Fenster öffnen. */
+.video-hero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px 22px;
+  margin: 4px 0 26px;
+}
+
+.video-hero-symbol {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  flex: none;
+  border-radius: 50%;
+  background: #ffe9d6;
+  color: var(--primary-press);
+}
+
+.video-hero-text { flex: 1 1 15rem; min-width: 0; }
+.video-hero-text h2 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.video-hero-text p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.video-hero-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 22rem;
+  background: var(--flaeche);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 5px 5px 5px 14px;
+}
+.video-hero-form input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 9px 0;
+  font-size: 14px;
+  color: var(--navy);
+}
+.video-hero-form input:focus { outline: none; }
+.video-hero-form .btn {
+  flex: none;
+  padding: 9px 18px;
+  font-size: 14px;
+  border-radius: 9px;
+  box-shadow: none;
+}
+
+/* Abschnittskopf mit Symbol links und Aktion rechts */
+.mediathek-kopf {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.mediathek-kopf-links { min-width: 0; }
+.mediathek-kopf h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.mediathek-kopf h2 svg { color: var(--primary); flex: none; }
+.mediathek-kopf p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.kopf-aktion {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  box-shadow: none;
+  padding: 8px 15px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.kopf-aktion:hover { border-color: var(--primary); color: var(--primary); }
+
+.kopf-zahl {
+  flex: none;
+  background: #eaf7ef;
+  color: #1f7a45;
+  border-radius: 99px;
+  padding: 5px 13px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+/* Gemerkte Videos: Bild links, Text rechts */
+.quer-liste {
+  display: grid;
+  /* 400px statt 300px: Sonst passen drei Karten nebeneinander und
+     der Titel bricht auf vier Zeilen um. Zwei breite lesen sich
+     besser als drei enge. */
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 14px;
+}
+@media (max-width: 560px) {
+  .quer-liste { grid-template-columns: 1fr; }
+}
+
+.quer-karte {
+  display: flex;
+  gap: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.quer-bild {
+  position: relative;
+  width: 44%;
+  max-width: 190px;
+  flex: none;
+  cursor: pointer;
+  background: var(--flaeche);
+}
+.quer-bild img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.quer-dauer {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  background: rgba(0, 0, 20, 0.82);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.quer-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 14px;
+  min-width: 0;
+}
+.quer-titel {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--navy);
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.quer-fuss {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* "Mehr anzeigen" mittig mit Winkel */
+.mehr-videos {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 22px auto 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  box-shadow: none;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+}
+.mehr-videos:hover { border-color: var(--primary); color: var(--primary); }

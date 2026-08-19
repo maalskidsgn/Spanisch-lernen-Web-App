@@ -38,14 +38,27 @@ const IDEEN = [
  * Spanische und sucht damit auf YouTube. Das Suchen selbst kostet
  * nichts – erst das Öffnen eines Treffers holt das Transkript.
  */
-export default function VideoSuche({ onSchliessen, onVideoWaehlen }) {
-  const [begriff, setBegriff] = useState('')
+export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff = '' }) {
+  const [begriff, setBegriff] = useState(startBegriff)
   const [laenge, setLaenge] = useState('')
   const [niveau, setNiveau] = useState('')
   const [treffer, setTreffer] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
   const feldRef = useRef(null)
+
+  // Kam der Nutzer ueber das Feld in der Mediathek, ist die Frage
+  // schon gestellt – dann sofort suchen statt ihn erneut tippen zu
+  // lassen. Nur beim ersten Zeichnen, sonst laeuft die Suche in einer
+  // Schleife.
+  const gestartet = useRef(false)
+  useEffect(() => {
+    if (startBegriff && !gestartet.current) {
+      gestartet.current = true
+      suchen(startBegriff)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startBegriff])
 
   // Beim Öffnen direkt ins Suchfeld springen, Escape schließt
   useEffect(() => {
