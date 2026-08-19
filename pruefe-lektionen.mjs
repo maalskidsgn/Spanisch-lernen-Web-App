@@ -65,6 +65,32 @@ for (const l of LEKTIONEN) {
     fehler.push(`"${l.id}" (Nr. ${l.kursNr}) faellt in ${passend.length} Module statt in genau eines`)
 }
 
+// Wird jede Lektion spaeter noch einmal aufgegriffen? Wer nie
+// wiederholt wird, ist nach zwei Wochen weg – genau das soll der
+// Kursaufbau verhindern.
+//
+// Gemessen wird nur, wo genug Stoff danach liegt: Solange auf eine
+// Lektion weniger als drei weitere folgen, gibt es schlicht niemanden,
+// der sie aufgreifen koennte. Sonst meldete der Pruefer bei jedem
+// neuen Modulende einen Fehler, der sich beim Weiterschreiben von
+// selbst erledigt.
+// Umgekehrt: Holt jede Lektion selbst etwas zurueck? Ohne Eintrag in
+// "wiederholt" entstehen gar keine Rueckblick-Aufgaben, und die
+// Lektion steht fuer sich allein.
+for (const l of LEKTIONEN) {
+  const davor = LEKTIONEN.filter((x) => x.kursNr < l.kursNr).length
+  if (davor >= 3 && (l.wiederholt ?? []).length === 0)
+    fehler.push(`"${l.id}" (Nr. ${l.kursNr}) wiederholt nichts, obwohl ${davor} Lektionen davor liegen`)
+}
+
+for (const l of LEKTIONEN) {
+  const danach = LEKTIONEN.filter((x) => x.kursNr > l.kursNr).length
+  if (danach < 3) continue
+  const spaeter = LEKTIONEN.some((x) => (x.wiederholt ?? []).includes(l.id))
+  if (!spaeter)
+    fehler.push(`"${l.id}" (Nr. ${l.kursNr}) wird von keiner spaeteren Lektion wiederholt`)
+}
+
 if (fehler.length) {
   console.error('\nKursaufbau fehlerhaft:\n' + fehler.map((f) => '  • ' + f).join('\n') + '\n')
   process.exit(1)
