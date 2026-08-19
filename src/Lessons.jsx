@@ -56,7 +56,21 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   const [fertig, setFertig] = useState(false)
 
   function brauchtOptionen(schritt) {
-    return schritt.typ === 'quiz' || schritt.typ === 'luecke' || schritt.typ === 'dialogquiz'
+    return (
+      schritt.typ === 'quiz' ||
+      schritt.typ === 'luecke' ||
+      schritt.typ === 'dialogquiz' ||
+      schritt.typ === 'hoeren'
+    )
+  }
+
+  /**
+   * Zaehlt als bewertete Aufgabe – auch der Satzbau, der seine
+   * Loesung selbst prueft und keine Auswahl-Optionen braucht.
+   * Ohne ihn kaeme am Ende "22 von 20 richtig" heraus.
+   */
+  function zaehltAlsUebung(schritt) {
+    return brauchtOptionen(schritt) || schritt.typ === 'satzbau'
   }
 
   function starten(l) {
@@ -101,24 +115,59 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
   // ---------- Abschluss-Bildschirm ----------
   if (lektion && fertig) {
-    const uebungen = schritte.filter(brauchtOptionen).length
+    const uebungen = schritte.filter(zaehltAlsUebung).length
+    const quote = uebungen > 0 ? Math.round((richtige / uebungen) * 100) : 100
+    // Bewusst WEICH: Unter 80 % empfiehlt die App die Wiederholung
+    // deutlich, blockiert aber nicht. Eine harte Sperre wuerde
+    // Gelegenheitslerner vertreiben – und widerspraeche dem
+    // offenen Aufbau der Sprach-Reise.
+    const sitzt = quote >= 80
+
     return (
       <div className="lessons">
         <div className="flashcard done">
-          <div className="confetti-burst" aria-hidden="true">
-            {Array.from({ length: 14 }, (_, i) => (
-              <span key={i} className="confetti" style={{ '--i': i }} />
-            ))}
+          {sitzt && (
+            <div className="confetti-burst" aria-hidden="true">
+              {Array.from({ length: 14 }, (_, i) => (
+                <span key={i} className="confetti" style={{ '--i': i }} />
+              ))}
+            </div>
+          )}
+
+          {/* Die Quote als Ring – eine Zahl sagt mehr als ein Balken */}
+          <div className={'quote-ring' + (sitzt ? ' ring-gut' : ' ring-uebung')}>
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <circle className="ring-grund" cx="50" cy="50" r="42" />
+              <circle
+                className="ring-voll"
+                cx="50" cy="50" r="42"
+                strokeDasharray={`${(quote / 100) * 264} 264`}
+              />
+            </svg>
+            <span className="quote-zahl">{quote}<i>%</i></span>
           </div>
-          <div className="lesson-done-emoji">{lektion.emoji}</div>
-          <h2>Lektion geschafft!</h2>
+
+          <h2>{sitzt ? 'Lektion geschafft!' : 'Fast geschafft'}</h2>
           <p>
-            {richtige} von {uebungen} Übungen richtig · +{XP.LEKTION} Bonus-XP
+            {richtige} von {uebungen} Aufgaben richtig · +{XP.LEKTION} Bonus-XP
           </p>
           <p className="bonus-note">
-            Die Wörter warten jetzt im Vokabeltrainer auf dich!
+            {sitzt
+              ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
+              : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'}
           </p>
-          <button onClick={() => setLektion(null)}>Zurück zur Übersicht</button>
+
+          <div className="abschluss-knoepfe">
+            {!sitzt && (
+              <button onClick={() => starten(lektion)}>Noch einmal</button>
+            )}
+            <button
+              className={sitzt ? '' : 'btn-outline'}
+              onClick={() => setLektion(null)}
+            >
+              Zurück zur Übersicht
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -234,6 +283,39 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               onAntwort={antworten}
             />
           </div>
+        )}
+
+        {/* --- Hörverstehen: erst hören, dann Bedeutung wählen --- */}
+        {schritt.typ === 'hoeren' && (
+          <div className="flashcard" key={'s' + index}>
+            <p className="lesson-hint">Hör zu – was bedeutet der Satz?</p>
+            <button
+              className="hoeren-knopf"
+              onClick={() => spiele(schritt.zeile.es, { stimme: stimmeImDialog(schritt.dialog, schritt.zeile.sprecher) })}
+            >
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M11 5 6 9H3v6h3l5 4z" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" />
+              </svg>
+              Anhören
+            </button>
+            <QuizOptionen
+              runde={index}
+              optionen={optionen}
+              feedback={feedback}
+              richtig={schritt.zeile.de}
+              onAntwort={antworten}
+            />
+          </div>
+        )}
+
+        {/* --- Satzbau: Wörter in die richtige Reihenfolge --- */}
+        {schritt.typ === 'satzbau' && (
+          <SatzbauUebung
+            key={'s' + index}
+            satzbau={schritt.satzbau}
+            onErgebnis={(richtig) => antworten(richtig ? schritt.satzbau.loesung : '×', schritt.satzbau.loesung)}
+          />
         )}
 
         {/* --- Übung: Wortpaare der Lektion verbinden --- */}
@@ -595,6 +677,69 @@ function LektionsPaare({ paare, onWeiter }) {
           <button onClick={onWeiter}>Weiter</button>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Satzbau: Die Wörter des Satzes liegen gemischt als Bausteine da,
+ * Antippen setzt sie zusammen. Ein falscher Baustein lässt sich
+ * durch erneutes Antippen wieder zurücklegen.
+ */
+function SatzbauUebung({ satzbau, onErgebnis }) {
+  const [gewaehlt, setGewaehlt] = useState([]) // Indizes in Reihenfolge
+  const [geprueft, setGeprueft] = useState(null) // true/false nach Pruefen
+  const fertig = gewaehlt.length === satzbau.woerter.length
+
+  function tippe(i) {
+    if (geprueft !== null) return
+    setGewaehlt((g) => (g.includes(i) ? g.filter((x) => x !== i) : [...g, i]))
+  }
+
+  function pruefen() {
+    const satz = gewaehlt.map((i) => satzbau.woerter[i]).join(' ')
+    const richtig = satz === satzbau.loesung
+    setGeprueft(richtig)
+    setTimeout(() => onErgebnis(richtig), richtig ? 900 : 1600)
+  }
+
+  return (
+    <div className="flashcard">
+      <p className="lesson-hint">Baue den Satz</p>
+      <p className="satzbau-deutsch">{satzbau.uebersetzung}</p>
+
+      {/* Der entstehende Satz */}
+      <div className={'satzbau-ablage' + (geprueft === true ? ' ablage-richtig' : geprueft === false ? ' ablage-falsch' : '')}>
+        {gewaehlt.length === 0 && <span className="ablage-leer">Tippe die Wörter unten an</span>}
+        {gewaehlt.map((i) => (
+          <button key={i} className="satz-baustein baustein-gesetzt" onClick={() => tippe(i)}>
+            {satzbau.woerter[i]}
+          </button>
+        ))}
+      </div>
+      {geprueft === false && (
+        <p className="satzbau-loesung">Richtig wäre: <b>{satzbau.loesung}</b></p>
+      )}
+
+      {/* Der Vorrat */}
+      <div className="satzbau-vorrat">
+        {satzbau.woerter.map((w, i) => (
+          <button
+            key={i}
+            className={'satz-baustein' + (gewaehlt.includes(i) ? ' baustein-weg' : '')}
+            disabled={gewaehlt.includes(i) || geprueft !== null}
+            onClick={() => tippe(i)}
+          >
+            {w}
+          </button>
+        ))}
+      </div>
+
+      <div className="flash-actions">
+        <button onClick={pruefen} disabled={!fertig || geprueft !== null}>
+          Prüfen
+        </button>
+      </div>
     </div>
   )
 }

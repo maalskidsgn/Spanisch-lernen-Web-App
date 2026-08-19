@@ -601,6 +601,18 @@ export function baueSchritte(lektion) {
   const schritte = [{ typ: 'intro' }]
   for (const item of lektion.items) schritte.push({ typ: 'lernen', item })
   if (lektion.wissen) schritte.push({ typ: 'info' })
+
+  // Hörverstehen VOR dem Dialog: eine Zeile nur hören, Bedeutung
+  // wählen. Wer den Dialog schon gelesen hat, hört nicht mehr
+  // wirklich hin – deshalb kommt dieser Schritt zuerst.
+  if (lektion.dialog?.length >= 4) {
+    const kandidaten = lektion.dialog.filter((z) => z.es.length > 12)
+    if (kandidaten.length) {
+      const zeile = mischen(kandidaten)[0]
+      schritte.push({ typ: 'hoeren', zeile, dialog: lektion.dialog })
+    }
+  }
+
   if (lektion.dialog) schritte.push({ typ: 'dialog' })
   mischen(lektion.items).forEach((item, i) =>
     schritte.push({ typ: 'quiz', item, richtung: i % 2 === 0 ? 'es-de' : 'de-es' })
@@ -608,6 +620,15 @@ export function baueSchritte(lektion) {
   for (const item of mischen(lektion.items).slice(0, 3)) {
     const luecke = baueLuecke(item)
     if (luecke) schritte.push({ typ: 'luecke', item, luecke })
+  }
+
+  // Satzbau: zwei Beispielsätze aus Bausteinen zusammensetzen
+  for (const item of mischen(lektion.items).slice(0, 6)) {
+    const satzbau = baueSatzbau(item)
+    if (satzbau) {
+      schritte.push({ typ: 'satzbau', item, satzbau })
+      if (schritte.filter((s) => s.typ === 'satzbau').length >= 2) break
+    }
   }
 
   // Wortpaare: fuenf Woerter der Lektion verbinden – lockert die
@@ -630,9 +651,28 @@ export function baueSchritte(lektion) {
   return schritte
 }
 
+/**
+ * Baut eine Satzbau-Übung aus einem Beispielsatz: Die Wörter werden
+ * gemischt, der Lernende tippt sie in die richtige Reihenfolge.
+ * Nur Sätze mit 4 bis 8 Wörtern taugen dafür – kürzere sind trivial,
+ * längere werden zum Geduldsspiel.
+ */
+export function baueSatzbau(item) {
+  const satz = (item.beispielEs || '').trim()
+  const woerter = satz.split(/\s+/)
+  if (woerter.length < 4 || woerter.length > 8) return null
+  // Erst mischen, wenn wirklich eine andere Reihenfolge entsteht
+  let gemischt = woerter
+  for (let i = 0; i < 8 && gemischt.join(' ') === satz; i++) {
+    gemischt = mischen(woerter)
+  }
+  if (gemischt.join(' ') === satz) return null
+  return { woerter: gemischt, loesung: satz, uebersetzung: item.beispielDe }
+}
+
 // Baut die vier Antwort-Möglichkeiten für eine Übung (richtige + drei falsche)
 export function baueOptionen(schritt, lektion) {
-  if (schritt.typ === 'dialogquiz') {
+  if (schritt.typ === 'hoeren' || schritt.typ === 'dialogquiz') {
     // Die falschen Antworten sind die deutschen Saetze der ANDEREN
     // Dialogzeilen – nah genug am Thema, um zum Nachdenken zu zwingen
     const falsche = mischen(
