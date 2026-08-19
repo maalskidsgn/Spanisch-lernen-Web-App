@@ -21,6 +21,7 @@ import {
   holeTranskript as holeUeberDienst,
   tubeAlfredBereit,
   merkeInBibliothek,
+  ausBibliothek,
 } from './transkripte.js'
 import {
   erzeugeEbook,
@@ -211,6 +212,13 @@ app.get('/api/transcript', async (req, res) => {
     // yt-dlp scheitert auf Servern regelmäßig an YouTubes Bot-Sperre.
     // Dann übernimmt TubeAlfred – das kostet ein Guthaben, deshalb
     // wird es bewusst erst hier versucht.
+    // ZUERST in der eigenen Datenbank nachsehen – kostet nichts.
+    const gespeichert = await ausBibliothek(videoId)
+    if (gespeichert) {
+      console.log('aus der Bibliothek, kein Guthaben:', videoId)
+      return res.json({ ...gespeichert, qualitaet: pruefeQualitaet(gespeichert.lines) })
+    }
+
     if (tubeAlfredBereit()) {
       try {
         console.log('yt-dlp blockiert, frage TubeAlfred:', videoId)

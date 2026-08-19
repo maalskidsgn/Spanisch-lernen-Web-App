@@ -162,3 +162,42 @@ export async function merkeInBibliothek(videoId, titel, zeilen, kategorie = 'gef
     console.error('Video nicht gespeichert:', fehler.message)
   }
 }
+
+/**
+ * Liegt dieses Video schon mit Transkript in unserer Datenbank?
+ *
+ * Muss VOR dem Bezahl-Dienst gefragt werden: Jeder Abruf dort
+ * kostet ein Guthaben – auch für ein Video, das wir längst haben.
+ * Die App prüft das zwar schon selbst, aber der Server darf sich
+ * darauf nicht verlassen; er ist die Stelle, die das Geld ausgibt.
+ */
+export async function ausBibliothek(videoId) {
+  const url = process.env.SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_KEY
+  if (!url || !key) return null
+
+  try {
+    const antwort = await fetch(
+      `${url}/rest/v1/videos?youtube_id=eq.${encodeURIComponent(videoId)}` +
+        `&select=youtube_id,titel,transkript&limit=1`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+    )
+    if (!antwort.ok) return null
+
+    const [treffer] = await antwort.json()
+    if (!treffer?.transkript?.length) return null
+
+    return {
+      videoId: treffer.youtube_id,
+      title: treffer.titel,
+      lines: treffer.transkript.map((z) => ({
+        text: z.text,
+        start: z.start,
+        end: z.start + (z.dauer ?? 0),
+      })),
+      ausDatenbank: true,
+    }
+  } catch {
+    return null
+  }
+}
