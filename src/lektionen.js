@@ -1,3 +1,31 @@
+// ============================================================
+//  Das Lektions-Schema
+// ============================================================
+// Jede Lektion folgt derselben Struktur. Die Pflichtfelder tragen
+// den Inhalt, die Kursfelder halten die 150 Lektionen als
+// zusammenhängenden Kurs zusammen statt als lose Sammlung.
+//
+//  PFLICHT
+//    id            eindeutige Kennung, wird nie wieder geändert
+//    titel         Anzeigename
+//    emoji         Symbol auf der Landkarte
+//    beschreibung  ein Satz, was man danach kann
+//    ziele[]       2–4 konkrete Lernziele
+//    items[]       8–15 Wörter mit Beispielsatz auf ES und DE
+//    wissen[]      Kultur- und Grammatikkarten
+//    dialog[]      Gespräch mit festen Sprechern
+//
+//  KURS (neu, für den 150-Lektionen-Aufbau)
+//    niveau        A1.1 … B2.1, Einstufung nach GER
+//    grammatik[]   HÖCHSTENS EIN neuer Schwerpunkt je Lektion
+//    wiederholt[]  3–5 IDs früherer Lektionen, die mitlaufen
+//    vorher[]      Lektionen, die man vorher gemacht haben sollte
+//    kulturnotiz   ein Satz Landeskunde
+//
+// Warum "wiederholt" Pflicht ist: 150 Lektionen ohne Rückgriff
+// wären 150 isolierte Artikel. Erst der Rückgriff macht daraus
+// einen Kurs.
+
 // Die Grundlagen-Lektionen (wie bei Babbel) mit geführtem Aufbau:
 // Einleitung (Lernziele) → neue Wörter mit Beispielsätzen → "Gut zu wissen"
 // → Dialog zum Mitlesen → Übungen (Auswahl + Lückentext) → Abschluss.
@@ -6,6 +34,13 @@
 export const LEKTIONEN = [
   {
     id: 'begruessung',
+    // Kursfelder: Lektion 5 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 5,
+    grammatik: ['Register: du oder Sie'],
+    wiederholt: [],
+    vorher: [],
+    kulturnotiz: 'In Spanien begrüßt man sich unter Freunden mit zwei Wangenküssen, rechts beginnend.',
     titel: 'Begrüßung',
     emoji: '👋',
     beschreibung: 'Hallo sagen wie ein Muttersprachler',
@@ -42,6 +77,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'vorstellen',
+    // Kursfelder: Lektion 6 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 6,
+    grammatik: ['llamarse und ser in der ersten Person'],
+    wiederholt: ['begruessung'],
+    vorher: ['begruessung'],
+    kulturnotiz: 'Spanier tragen zwei Nachnamen: den des Vaters und den der Mutter.',
     titel: 'Sich vorstellen',
     emoji: '🙋',
     beschreibung: 'Name, Herkunft und Befinden',
@@ -78,6 +120,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'zahlen',
+    // Kursfelder: Lektion 11 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 11,
+    grammatik: ['uno wird un vor männlichen Substantiven'],
+    wiederholt: ['alphabet', 'vorstellen'],
+    vorher: ['alphabet'],
+    kulturnotiz: 'Preise werden in Spanien mit Komma geschrieben: 5,20 € heißt „cinco con veinte“.',
     titel: 'Zahlen',
     emoji: '🔢',
     beschreibung: 'Von eins bis zehn zählen',
@@ -114,6 +163,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'hoeflichkeit',
+    // Kursfelder: Lektion 5 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 5,
+    grammatik: ['por favor, gracias und die Antwortformeln'],
+    wiederholt: ['begruessung', 'vorstellen'],
+    vorher: ['begruessung'],
+    kulturnotiz: '„Perdón“ entschuldigt eine Störung, „lo siento“ drückt echtes Bedauern aus.',
     titel: 'Höflichkeit',
     emoji: '🙏',
     beschreibung: 'Bitte, danke und Entschuldigung',
@@ -150,6 +206,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'essen',
+    // Kursfelder: Lektion 32 im 150er-Aufbau
+    niveau: 'A1.2',
+    kursNr: 32,
+    grammatik: ['el oder la: das Geschlecht der Substantive'],
+    wiederholt: ['cafe', 'zahlen', 'hoeflichkeit'],
+    vorher: ['cafe'],
+    kulturnotiz: 'Die Hauptmahlzeit ist in Spanien das Mittagessen zwischen 14 und 16 Uhr.',
     titel: 'Essen & Trinken',
     emoji: '🥘',
     beschreibung: 'Im Café und Restaurant bestellen',
@@ -186,6 +249,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'unterwegs',
+    // Kursfelder: Lektion 66 im 150er-Aufbau
+    niveau: 'A2.1',
+    kursNr: 66,
+    grammatik: ['Richtungsangaben mit a la und Ortspräpositionen'],
+    wiederholt: ['hoeflichkeit', 'zahlen', 'essen'],
+    vorher: ['hoeflichkeit'],
+    kulturnotiz: 'In spanischen Städten heißt die zentrale Platzanlage fast immer Plaza Mayor.',
     titel: 'Unterwegs',
     emoji: '🧭',
     beschreibung: 'Nach dem Weg fragen',
@@ -224,6 +294,13 @@ export const LEKTIONEN = [
   // ============ NEU: Gebiet "Erste Schritte" vervollständigen ============
   {
     id: 'woher',
+    // Kursfelder: Lektion 12 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 12,
+    grammatik: ['ser de für Herkunft, Nationalitätsadjektive'],
+    wiederholt: ['vorstellen', 'begruessung'],
+    vorher: ['vorstellen'],
+    kulturnotiz: 'Spanisch ist in 21 Ländern Amtssprache – nach Mandarin die zweitmeistgesprochene Muttersprache der Welt.',
     titel: 'Woher kommst du?',
     emoji: '🌍',
     beschreibung: 'Über Herkunft und Sprachen sprechen',
@@ -272,6 +349,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'alphabet',
+    // Kursfelder: Lektion 2 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 2,
+    grammatik: ['Aussprache und Betonung'],
+    wiederholt: ['begruessung'],
+    vorher: [],
+    kulturnotiz: 'Das ñ hat einen eigenen Platz im Alphabet – es entstand aus einem doppelten n im Mittelalter.',
     titel: 'Das Alphabet & Aussprache',
     emoji: '🔤',
     beschreibung: 'Buchstabieren und richtig klingen',
@@ -322,6 +406,13 @@ export const LEKTIONEN = [
   // ============ NEU: Gebiet "Im Alltag" vervollständigen ============
   {
     id: 'cafe',
+    // Kursfelder: Lektion 36 im 150er-Aufbau
+    niveau: 'A1.2',
+    kursNr: 36,
+    grammatik: ['Bestellformeln: para mí, quisiera'],
+    wiederholt: ['zahlen', 'hoeflichkeit', 'begruessung'],
+    vorher: ['zahlen', 'hoeflichkeit'],
+    kulturnotiz: 'Trinkgeld ist in Spanien freiwillig – Aufrunden genügt, niemand erwartet Prozente.',
     titel: 'Im Café bestellen',
     emoji: '☕',
     beschreibung: 'Getränke, Tapas und bezahlen',
@@ -373,6 +464,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'einkaufen',
+    // Kursfelder: Lektion 39 im 150er-Aufbau
+    niveau: 'A1.2',
+    kursNr: 39,
+    grammatik: ['Mengenangaben mit de'],
+    wiederholt: ['zahlen', 'cafe', 'hoeflichkeit'],
+    vorher: ['zahlen'],
+    kulturnotiz: 'In fast jeder spanischen Stadt gibt es eine Markthalle, den mercado – dort bestellt man laut über die Theke.',
     titel: 'Einkaufen gehen',
     emoji: '🛒',
     beschreibung: 'Mengen, Preise und „Haben Sie…?"',
@@ -423,6 +521,13 @@ export const LEKTIONEN = [
   },
   {
     id: 'wetter',
+    // Kursfelder: Lektion 43 im 150er-Aufbau
+    niveau: 'A1.2',
+    kursNr: 43,
+    grammatik: ['hacer für Wetterangaben'],
+    wiederholt: ['zahlen', 'begruessung', 'woher'],
+    vorher: ['zahlen'],
+    kulturnotiz: '„¡Qué calor!“ ist der einfachste Gesprächseinstieg Spaniens – im Aufzug, an der Haltestelle, überall.',
     titel: 'Wetter & Small Talk',
     emoji: '🌤️',
     beschreibung: 'Plaudern über Wetter, Tage und Pläne',
@@ -595,6 +700,21 @@ export function baueLuecke(item) {
   return { satz: item.beispielEs.replace(regex, LUECKE_MARKE), loesung: treffer[0] }
 }
 
+/**
+ * Sammelt Wörter aus den Lektionen, die diese hier wiederholt.
+ * Höchstens drei, gemischt – mehr würde die Lektion überladen.
+ */
+export function sammleWiederholung(lektion) {
+  const quellen = (lektion.wiederholt ?? [])
+    .map((id) => LEKTIONEN.find((l) => l.id === id))
+    .filter(Boolean)
+  if (quellen.length === 0) return []
+
+  // Aus jeder Quelle EIN Wort, damit die Wiederholung breit streut
+  const gezogen = quellen.map((q) => mischen(q.items)[0]).filter(Boolean)
+  return mischen(gezogen).slice(0, 3)
+}
+
 // Baut den geführten Ablauf einer Lektion:
 // Einleitung → Wörter → Gut zu wissen → Dialog → Auswahl-Übungen → Lücken-Übungen
 export function baueSchritte(lektion) {
@@ -640,6 +760,14 @@ export function baueSchritte(lektion) {
     })
   }
 
+  // Wiederholung aus frueheren Lektionen. DAS macht aus 150
+  // Einzelstuecken einen Kurs: Jede Lektion greift drei bis fuenf
+  // aeltere Woerter auf, statt nur Neues aufzutuermen.
+  const rueckblick = sammleWiederholung(lektion)
+  for (const item of rueckblick) {
+    schritte.push({ typ: 'rueckblick', item, richtung: 'es-de' })
+  }
+
   // Abschlussfragen: ganze Saetze aus dem Dialog verstehen, nicht
   // nur einzelne Woerter – das ist die eigentliche Vertiefung
   if (lektion.dialog?.length >= 4) {
@@ -672,6 +800,14 @@ export function baueSatzbau(item) {
 
 // Baut die vier Antwort-Möglichkeiten für eine Übung (richtige + drei falsche)
 export function baueOptionen(schritt, lektion) {
+  if (schritt.typ === 'rueckblick') {
+    // Falsche Antworten aus der AKTUELLEN Lektion – so muss man
+    // Altes und Neues auseinanderhalten
+    const falsche = mischen(
+      lektion.items.map((i) => i.de).filter((d) => d !== schritt.item.de)
+    ).slice(0, 3)
+    return mischen([schritt.item.de, ...falsche])
+  }
   if (schritt.typ === 'hoeren' || schritt.typ === 'dialogquiz') {
     // Die falschen Antworten sind die deutschen Saetze der ANDEREN
     // Dialogzeilen – nah genug am Thema, um zum Nachdenken zu zwingen

@@ -5994,3 +5994,19 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   flex-wrap: wrap;
   margin-top: 6px;
 }
+
+/* ===== Wiederholung und Kulturnotiz ===== */
+.rueckblick-hinweis { color: var(--primary); }
+
+.kulturnotiz {
+  margin: 14px auto 8px;
+  padding: 12px 16px;
+  max-width: 44ch;
+  background: var(--bg);
+  border-radius: 12px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--navy);
+  text-align: left;
+}
+.kulturnotiz b { color: var(--primary); }

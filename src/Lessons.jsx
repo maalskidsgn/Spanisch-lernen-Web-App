@@ -60,7 +60,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       schritt.typ === 'quiz' ||
       schritt.typ === 'luecke' ||
       schritt.typ === 'dialogquiz' ||
-      schritt.typ === 'hoeren'
+      schritt.typ === 'hoeren' ||
+      schritt.typ === 'rueckblick'
     )
   }
 
@@ -151,6 +152,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           <p>
             {richtige} von {uebungen} Aufgaben richtig · +{XP.LEKTION} Bonus-XP
           </p>
+          {lektion.kulturnotiz && (
+            <p className="kulturnotiz">
+              <b>Gut zu wissen:</b> {lektion.kulturnotiz}
+            </p>
+          )}
           <p className="bonus-note">
             {sitzt
               ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
@@ -280,6 +286,23 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               optionen={optionen}
               feedback={feedback}
               richtig={schritt.richtung === 'es-de' ? schritt.item.de : schritt.item.es}
+              onAntwort={antworten}
+            />
+          </div>
+        )}
+
+        {/* --- Wiederholung aus früheren Lektionen --- */}
+        {schritt.typ === 'rueckblick' && (
+          <div className="flashcard" key={'s' + index}>
+            <p className="lesson-hint rueckblick-hinweis">
+              Kurze Wiederholung – kennst du das noch?
+            </p>
+            <div className="flash-word">{schritt.item.es}</div>
+            <QuizOptionen
+              runde={index}
+              optionen={optionen}
+              feedback={feedback}
+              richtig={schritt.item.de}
               onAntwort={antworten}
             />
           </div>
