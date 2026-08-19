@@ -9,8 +9,13 @@ import {
   IconSerie, IconLevel, IconPfeil,
 } from './icons.jsx'
 
-// Die Startseite – im selben Sektionen-Stil wie der Vokabeltrainer:
-// große Zahl, klare Ansage, ein Knopf. Kein Aufgabenzettel.
+// Die Startseite.
+//
+// AUFGERAEUMTER START: Zurzeit sind nur die Gruppenstunde und die
+// Wochenuebersicht sichtbar. Alles andere ist NICHT geloescht,
+// sondern haengt an diesem Schalter – zurueckholen ist eine Zeile.
+// Die Wege dorthin gibt es weiterhin ueber die untere Leiste.
+const NUR_KERN = true
 export default function Home({ progress, settings, counts, nextLesson, lessonProgress = {}, onNavigate }) {
   const level = levelFromXp(progress.xp)
   const heute = xpHeute(progress)
@@ -33,12 +38,16 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
       <h1 className="trainer-titel">
         ¡<span className="accent">Hola</span>!
       </h1>
-      <div className="hero-row">
-        <span className="hero-chip"><IconSerie groesse={15} /> {progress.streak} Tage</span>
-        <span className="hero-chip"><IconLevel groesse={15} /> Level {level} · {levelName(level)}</span>
-      </div>
+      {!NUR_KERN && (
+        <div className="hero-row">
+          <span className="hero-chip"><IconSerie groesse={15} /> {progress.streak} Tage</span>
+          <span className="hero-chip"><IconLevel groesse={15} /> Level {level} · {levelName(level)}</span>
+        </div>
+      )}
 
-      {/* ============ 1. ZWEI KLARE WEGE ============ */}
+      {/* ============ 1. HEUTE, FORTSCHRITT, VOKABELN ============ */}
+      {!NUR_KERN && (
+        <>
       {/* Kein Plan, keine Liste: zwei grosse Knoepfe. */}
       {/* ============ 1. HEUTE ============ */}
       {/* Eine Karte statt einer Karte voller Punkte: Der Startbildschirm
@@ -121,6 +130,8 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
             : `${heute} von ${settings.tagesziel} Tages-XP`}
         </span>
       </div>
+        </>
+      )}
 
       {/* ============ 2. UNTERRICHT MIT TUTORIN ============ */}
       <Gruppenstunde onNavigate={onNavigate} />
@@ -156,6 +167,7 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
       </section>
 
       {/* ============ 4. ENTDECKEN ============ */}
+      {!NUR_KERN && (
       <section className="bereich">
         <div className="bereich-kopf">
           <h2>Entdecken</h2>
@@ -187,6 +199,7 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
           </button>
         </div>
       </section>
+      )}
     </div>
   )
 }
