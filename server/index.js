@@ -90,6 +90,33 @@ app.get('/health', (req, res) => res.json({ ok: true }))
 // sonst arbeitet der Vokabelgenerator mit Häufigkeits-Analyse + Übersetzung.
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null
 
+/**
+ * Schaetzt ein, wie brauchbar ein Transkript ist.
+ *
+ * Automatische Untertitel von Musikvideos zerfallen typischerweise
+ * in Bruchstuecke ("teot un", "bes en"): sehr kurze Zeilen, viele
+ * Ein-Wort-Zeilen, kaum Woerter je Zeile. Genau daran erkennen
+ * wir sie – ohne die Sprache verstehen zu muessen.
+ *
+ * @returns {{stufe: 'gut'|'mittel'|'schlecht', woerterProZeile: number}}
+ */
+function pruefeQualitaet(lines) {
+  if (!lines?.length) return { stufe: 'schlecht', woerterProZeile: 0 }
+
+  const woerterJe = lines.map((l) => l.text.trim().split(/\s+/).filter(Boolean).length)
+  const schnitt = woerterJe.reduce((s, n) => s + n, 0) / woerterJe.length
+  const anteilWinzig = woerterJe.filter((n) => n <= 2).length / woerterJe.length
+
+  // Erfahrungswerte: Ordentliche Untertitel haben 5+ Woerter je
+  // Zeile; unter 3,5 im Schnitt oder mehr als 35 % Zwei-Wort-Zeilen
+  // ist der Text zerhackt.
+  let stufe = 'gut'
+  if (schnitt < 3.5 || anteilWinzig > 0.35) stufe = 'schlecht'
+  else if (schnitt < 5 || anteilWinzig > 0.2) stufe = 'mittel'
+
+  return { stufe, woerterProZeile: Math.round(schnitt * 10) / 10 }
+}
+
 // Holt aus einer YouTube-URL die Video-ID (der Teil nach "v=" oder hinter youtu.be/)
 function extractVideoId(url) {
   const patterns = [
@@ -137,18 +164,32 @@ app.get('/api/transcript', async (req, res) => {
       await runYtDlp(['--skip-download', '--print', 'title', `https://www.youtube.com/watch?v=${videoId}`])
     ).trim()
 
-    // Untertitel herunterladen: erst echte spanische, sonst automatische
-    await runYtDlp([
-      '--skip-download',
-      '--write-subs',
-      '--write-auto-subs',
-      '--sub-langs', 'es,es-ES,es-419,es-US',
-      '--sub-format', 'json3',
-      '-o', join(dir, 'subs.%(ext)s'),
-      `https://www.youtube.com/watch?v=${videoId}`,
-    ])
+    // Untertitel in ZWEI Stufen holen.
+    //
+    // Wichtig bei Musik: YouTubes automatische Spracherkennung
+    // scheitert an Gesang und liefert Bruchstuecke wie "teot un".
+    // Von Hand hochgeladene Untertitel (bei Lyrics-Videos die Regel)
+    // sind dagegen wortgenau. Deshalb fragen wir sie ZUERST an und
+    // nehmen die automatischen nur als Notloesung – klar markiert.
+    const holeUntertitel = async (automatisch) => {
+      await runYtDlp([
+        '--skip-download',
+        automatisch ? '--write-auto-subs' : '--write-subs',
+        '--sub-langs', 'es,es-ES,es-419,es-US',
+        '--sub-format', 'json3',
+        '-o', join(dir, 'subs.%(ext)s'),
+        `https://www.youtube.com/watch?v=${videoId}`,
+      ])
+      return (await readdir(dir)).filter((f) => f.endsWith('.json3'))
+    }
 
-    const files = (await readdir(dir)).filter((f) => f.endsWith('.json3'))
+    let files = await holeUntertitel(false)
+    let automatisch = false
+    if (files.length === 0) {
+      files = await holeUntertitel(true)
+      automatisch = true
+    }
+
     if (files.length === 0) {
       return res.status(404).json({ error: 'Für dieses Video gibt es leider keine spanischen Untertitel.' })
     }
@@ -165,7 +206,7 @@ app.get('/api/transcript', async (req, res) => {
       }))
       .filter((l) => l.text)
 
-    res.json({ videoId, title, lines })
+    res.json({ videoId, title, lines, automatisch, qualitaet: pruefeQualitaet(lines) })
   } catch (err) {
     // yt-dlp scheitert auf Servern regelmäßig an YouTubes Bot-Sperre.
     // Dann übernimmt TubeAlfred – das kostet ein Guthaben, deshalb

@@ -28,14 +28,28 @@ export async function holeTranskript(videoId) {
   const schluessel = process.env.TUBEALFRED_API_KEY
   if (!schluessel) throw new Error('Kein TubeAlfred-Schlüssel hinterlegt.')
 
+  // "standard" = von Hand hochgeladene Untertitel. Bei Musik ist
+  // das entscheidend: Die automatische Spracherkennung scheitert an
+  // Gesang und liefert Bruchstuecke. Nur wenn es keine gibt, nehmen
+  // wir die automatischen – und melden das an die App weiter.
   const adresse =
-    `${BASIS}/video/${videoId}/transcript` +
-    // Spanisch bevorzugen; automatische Untertitel sind auch in Ordnung
-    `?language=es&kind=any`
+    `${BASIS}/video/${videoId}/transcript?language=es&kind=standard`
 
   const antwort = await fetch(adresse, {
     headers: { Authorization: `Bearer ${schluessel}` },
   })
+
+  // Keine manuellen Untertitel? Dann doch die automatischen holen.
+  if (antwort.status === 404) {
+    const zweiter = await fetch(
+      `${BASIS}/video/${videoId}/transcript?language=es&kind=asr`,
+      { headers: { Authorization: `Bearer ${schluessel}` } }
+    )
+    if (zweiter.ok) {
+      const daten = await zweiter.json()
+      return { ...formeErgebnis(daten, videoId), automatisch: true }
+    }
+  }
 
   if (!antwort.ok) {
     if (antwort.status === 401) throw new Error('Der TubeAlfred-Schlüssel wird nicht akzeptiert.')
@@ -49,8 +63,15 @@ export async function holeTranskript(videoId) {
   }
 
   const { data } = await antwort.json()
-  const segmente = data?.transcript ?? []
+  return { ...(await formeErgebnis(data, videoId)), automatisch: false }
+}
 
+/**
+ * Bringt die Antwort des Dienstes in die Form, die die App erwartet.
+ * Wird von beiden Wegen genutzt – manuelle und automatische Untertitel.
+ */
+async function formeErgebnis(data, videoId) {
+  const segmente = data?.transcript ?? []
   if (!segmente.length) {
     throw new Error('Für dieses Video gibt es keine spanischen Untertitel.')
   }

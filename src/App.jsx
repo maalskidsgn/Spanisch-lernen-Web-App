@@ -909,6 +909,18 @@ export default function App() {
                 <div id="yt-player" />
               </div>
 
+              {/* Warnen, wenn YouTube nur automatische Untertitel hat.
+                  Bei Musik zerfallen die in Bruchstuecke – dann ist
+                  ein anderes Video die bessere Wahl. */}
+              {video.qualitaet?.stufe === 'schlecht' && (
+                <p className="text-warnung">
+                  ⚠️ Dieser Text stammt aus YouTubes automatischer
+                  Spracherkennung und ist bei Musik oft zerstückelt.
+                  Such lieber eine Fassung mit „Letra" im Titel – die
+                  hat meist einen sauber getippten Text.
+                </p>
+              )}
+
               {/* Kurz einblenden, damit klar ist, warum das Video
                   nicht bei null anfaengt */}
               {weiterAb !== null && (

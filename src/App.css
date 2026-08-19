@@ -3975,6 +3975,7 @@ body.liest-video .fab-panel {
 .start-aktion-zweit,
 .start-aktion-zweit *,
 .weiter-hinweis,
+.text-warnung,
 .song-vorschlag,
 .song-vorschlag .song-vorschlag-titel,
 .vorschlag-chip,
@@ -5391,4 +5392,133 @@ body.liest-video .word-card {
   font-size: 12.5px;
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* ===== Warnung bei zerstückeltem Untertitel ===== */
+.text-warnung {
+  position: relative;
+  z-index: 5;
+  max-width: 640px;
+  margin: 12px auto 0;
+  padding: 11px 16px;
+  background: rgba(255, 255, 255, .96);
+  border-left: 4px solid #e8a33d;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--navy);
+  box-shadow: 0 3px 12px rgba(0, 0, 65, .12);
+}
+
+/* ==========================================================
+   Fußzeile im Lese-Modus – komplett neu
+   Vorher: zwei widersprüchliche .fuss-spiel-Regeln, und die
+   runden Tempo-Knöpfe erbten die 3D-Kante der allgemeinen
+   button-Regel (box-shadow: 0 4px 0) – daher die Bögen unter
+   Plus und Minus.
+   ========================================================== */
+.reader-fuss {
+  gap: 14px;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: rgba(255, 253, 250, .92);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  border-top: 1px solid rgba(0, 0, 65, .06);
+  box-shadow: 0 -6px 24px rgba(0, 0, 65, .06);
+  flex-wrap: nowrap;
+}
+
+/* Abspiel-Knopf: eine Scheibe, kein Kasten */
+.reader-fuss .fuss-spiel {
+  width: 52px; height: 52px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--primary);
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 14px rgba(255, 108, 0, .38);
+  transition: transform .12s, box-shadow .12s;
+}
+.reader-fuss .fuss-spiel svg {
+  width: 22px; height: 22px;
+  fill: #fff;
+  /* Das Dreieck sitzt optisch links – minimal ausgleichen */
+  margin-left: 2px;
+}
+.reader-fuss .fuss-spiel svg rect { margin-left: 0; }
+.reader-fuss .fuss-spiel:active { transform: scale(.93); box-shadow: 0 2px 8px rgba(255, 108, 0, .34); }
+@media (hover: hover) {
+  .reader-fuss .fuss-spiel:hover { box-shadow: 0 6px 20px rgba(255, 108, 0, .46); }
+}
+
+/* Tempo: eine ruhige Pille, flache Knöpfe ohne Kante */
+.reader-fuss .tempo-steller {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(0, 0, 65, .05);
+  border-radius: 999px;
+  padding: 4px;
+  flex: none;
+}
+.reader-fuss .tempo-schritt {
+  width: 34px; height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 19px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--navy);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  /* Die 3D-Kante der allgemeinen button-Regel ausdrücklich weg */
+  box-shadow: none;
+  transition: background .12s;
+}
+.reader-fuss .tempo-schritt:active:not(:disabled) { background: rgba(0, 0, 65, .1); transform: none; }
+.reader-fuss .tempo-schritt:disabled { opacity: .28; box-shadow: none; }
+@media (hover: hover) {
+  .reader-fuss .tempo-schritt:hover:not(:disabled) { background: #fff; }
+}
+.reader-fuss .tempo-wert {
+  min-width: 40px;
+  text-align: center;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mitlaufen: Schalter, flach */
+.reader-fuss .fuss-knopf {
+  padding: 11px 18px;
+  font-size: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 65, .1);
+  background: transparent;
+  color: var(--navy);
+  box-shadow: none;
+  flex: none;
+}
+.reader-fuss .fuss-knopf:active { transform: scale(.96); box-shadow: none; }
+.reader-fuss .fuss-an {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(255, 108, 0, .32);
+}
+@media (hover: hover) {
+  .reader-fuss .fuss-knopf:hover { border-color: var(--primary); }
+}
+
+@media (max-width: 420px) {
+  .reader-fuss { gap: 10px; padding-left: 12px; padding-right: 12px; }
+  .reader-fuss .fuss-spiel { width: 46px; height: 46px; }
+  .reader-fuss .fuss-knopf { padding: 10px 14px; font-size: 13.5px; }
+  .reader-fuss .tempo-schritt { width: 30px; height: 30px; font-size: 17px; }
+  .reader-fuss .tempo-wert { min-width: 34px; font-size: 12.5px; }
 }
