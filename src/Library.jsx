@@ -21,6 +21,7 @@ const KATEGORIE_ICONS = {
 }
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
+import Inhalte from './Inhalte.jsx'
 
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Spanisch nebenbei,
@@ -271,7 +272,8 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         {[
           { wert: 'videos', label: 'Videos' },
           { wert: 'songs', label: 'Songs' },
-          { wert: 'buecher', label: 'Bücher' },
+          { wert: 'hoertexte', label: 'Hörtexte' },
+          { wert: 'lesetexte', label: 'Lesetexte' },
         ].map((b) => (
           <button
             key={b.wert}
@@ -286,8 +288,16 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {/* ---------- Songs: Musik mit mitlaufendem Text ---------- */}
       {bereich === 'songs' && <Songs onOpenVideo={onOpenVideo} vocab={vocab} />}
 
-      {/* ---------- Bücher: Zusammenfassungen wie bei Blinkist ---------- */}
-      {bereich === 'buecher' && <Ebooks onAddVocab={onAddVocab} vocab={vocab} />}
+      {/* ---------- Hörtexte und Lesetexte ----------
+          Die beiden Bereiche, in denen nichts erzeugt wird: fertige
+          Inhalte von spanisch-lernen.com. Videos und Songs bleiben
+          die generativen Bereiche. */}
+      {bereich === 'hoertexte' && (
+        <Inhalte art="hoertexte" onAddVocab={onAddVocab} vocab={vocab} />
+      )}
+      {bereich === 'lesetexte' && (
+        <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} />
+      )}
 
       {sucheOffen && (
         <VideoSuche

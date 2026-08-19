@@ -37,3 +37,4 @@ route-test.html
 
 # Lesetexte liegen im Supabase-Speicher, nicht im öffentlichen Repo
 public/lesetexte/
+public/hoertexte/
