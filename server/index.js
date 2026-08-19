@@ -7,7 +7,7 @@ import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
-import { findeSpanischeInterpreten } from './interpreten.js'
+import { findeSpanischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { loescheKonto } from './konto.js'
 import {
   starteBezahlung,
@@ -537,7 +537,35 @@ app.post('/api/ebook', async (req, res) => {
 // Spotify-Künstler durch die KI filtern: Wer singt auf Spanisch?
 app.post('/api/spotify/interpreten', async (req, res) => {
   try {
-    const ergebnis = await findeSpanischeInterpreten(req.body?.kuenstler)
+    const kuenstler = req.body?.kuenstler ?? []
+    const ergebnis = await findeSpanischeInterpreten(kuenstler)
+
+    // Songs aus der Bibliothek des Nutzers uebernehmen …
+    const ausBibliothek = new Map(kuenstler.map((k) => [k.name, k.songs ?? []]))
+    for (const i of ergebnis.interpreten) {
+      i.songs = (ausBibliothek.get(i.name) ?? []).slice(0, 5)
+    }
+
+    // … und wo weniger als 3 zusammenkommen, von der KI auffuellen.
+    // Spotifys Katalog-Abfragen stehen uns nicht mehr offen.
+    const duenn = ergebnis.interpreten.filter((i) => i.songs.length < 3).map((i) => i.name)
+    if (duenn.length) {
+      try {
+        const { interpreten: vorschlaege } = await ergaenzeSongs(duenn)
+        const nachName = new Map(vorschlaege.map((v) => [v.name, v.songs]))
+        for (const i of ergebnis.interpreten) {
+          if (i.songs.length >= 3) continue
+          const bekannt = new Set(i.songs.map((s) => s.titel.toLowerCase()))
+          for (const titel of nachName.get(i.name) ?? []) {
+            if (i.songs.length >= 5) break
+            if (bekannt.has(titel.toLowerCase())) continue
+            i.songs.push({ titel, ausKi: true })
+          }
+        }
+      } catch (fehler) {
+        console.error('[interpreten] Songs ergaenzen fehlgeschlagen:', fehler.message)
+      }
+    }
     res.json(ergebnis)
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })

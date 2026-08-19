@@ -10,7 +10,6 @@ import {
   istVerbunden,
   trenneSpotify,
   sammleKuenstler,
-  holeSongsZuInterpreten,
   gemerkteInterpreten,
   merkeInterpreten,
 } from './spotify.js'
@@ -68,43 +67,14 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     ladeSongs()
   }, [])
 
-  // Interpreten aus der Zeit VOR der Song-Funktion haben noch keine
-  // Songs gespeichert. Einmal still nachladen statt den Nutzer mit
-  // "keine Songs gefunden" und einem Extra-Klick stehenzulassen.
+  // Interpreten aus alten Auswertungen haben noch keine Songs.
+  // Einmal still neu auswerten, statt den Nutzer mit "keine Songs
+  // gefunden" stehenzulassen.
   useEffect(() => {
     if (!verbunden || interpreten.length === 0) return
     if (interpreten.some((k) => k.songs?.length)) return
-    ;(async () => {
-      const token = await zugang()
-      if (!token) return
-      setAnalyse('Hole die Songs deiner Interpreten …')
-      try {
-        const mitSongs = await holeSongsZuInterpreten(interpreten, token)
-        setInterpreten(mitSongs)
-        merkeInterpreten(mitSongs)
-      } catch {
-        // beim naechsten Besuch erneut versuchen
-      } finally {
-        setAnalyse('')
-      }
-    })()
+    interpretenPruefen()
     // bewusst nur einmal beim Laden
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Zurück von Spotify? Dann den Code eintauschen und gleich prüfen.
-  useEffect(() => {
-    if (!new URLSearchParams(window.location.search).get('code')) return
-    schliesseAnmeldungAb()
-      .then((ok) => {
-        window.history.replaceState({}, '', '/')
-        if (ok) {
-          setVerbunden(true)
-          interpretenPruefen()
-        }
-      })
-      .catch((f) => setSpotifyFehler(f.message))
-    // Nur einmal beim Laden – deshalb keine Abhängigkeiten
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -130,12 +100,10 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       const daten = await res.json()
       if (!res.ok) throw new Error(daten.error || 'Auswertung fehlgeschlagen')
 
-      setAnalyse(`${daten.interpreten.length} spanische Interpreten – hole ihre Songs …`)
-      // Zu jedem Interpreten fuenf Songs dazuholen und alles
-      // speichern, damit es das Neuladen ueberlebt.
-      const mitSongs = await holeSongsZuInterpreten(daten.interpreten, token)
-      setInterpreten(mitSongs)
-      merkeInterpreten(mitSongs)
+      // Die Songs kommen schon mit: aus deiner Bibliothek, wo
+      // vorhanden, sonst von der KI ergaenzt.
+      setInterpreten(daten.interpreten)
+      merkeInterpreten(daten.interpreten)
     } catch (f) {
       setSpotifyFehler(f.message)
     } finally {
@@ -406,7 +374,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                               >
                                 <span className="song-vorschlag-titel">{s.titel}</span>
                                 <span className="song-vorschlag-dauer">
-                                  {dauerText(s.dauer)}
+                                  {s.ausKi ? 'Vorschlag' : dauerText(s.dauer)}
                                 </span>
                               </button>
                             ))}

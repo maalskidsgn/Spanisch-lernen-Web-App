@@ -181,44 +181,75 @@ async function hole(pfad, token) {
  * wichtiger.
  */
 export async function sammleKuenstler(token) {
-  const zaehler = new Map()
-  const merke = (name) => {
-    if (name) zaehler.set(name, (zaehler.get(name) ?? 0) + 1)
+  const zaehler = new Map()  // Name -> Gewicht
+  const songs = new Map()    // Name -> Set von Songtiteln
+
+  const merke = (name, gewicht = 1, titel = null) => {
+    if (!name) return
+    zaehler.set(name, (zaehler.get(name) ?? 0) + gewicht)
+    if (titel) {
+      if (!songs.has(name)) songs.set(name, new Set())
+      songs.get(name).add(titel)
+    }
   }
 
   // 1. Lieblingskünstler – die deutlichste Aussage
   try {
     const top = await hole('/me/top/artists?limit=50&time_range=medium_term', token)
-    for (const k of top.items ?? []) {
-      zaehler.set(k.name, (zaehler.get(k.name) ?? 0) + 3) // zählt dreifach
-    }
+    for (const k of top.items ?? []) merke(k.name, 3)
   } catch {
     // Neue Konten haben noch keine Statistik – kein Grund abzubrechen
   }
 
-  // 2. Gespeicherte Titel
-  const gespeichert = await hole('/me/tracks?limit=50', token)
-  for (const eintrag of gespeichert.items ?? []) {
-    for (const k of eintrag.track?.artists ?? []) merke(k.name)
+  // 2. Meistgehörte Titel – liefert Künstler UND Songnamen
+  try {
+    const topTitel = await hole('/me/top/tracks?limit=50&time_range=medium_term', token)
+    for (const s of topTitel.items ?? []) {
+      for (const k of s.artists ?? []) merke(k.name, 2, s.name)
+    }
+  } catch {
+    // ebenfalls optional
   }
 
-  // 3. Die ersten Titel aus den eigenen Playlists
-  const listen = await hole('/me/playlists?limit=10', token)
-  for (const liste of listen.items ?? []) {
-    try {
-      const titel = await hole(`/playlists/${liste.id}/tracks?limit=50`, token)
-      for (const eintrag of titel.items ?? []) {
-        for (const k of eintrag.track?.artists ?? []) merke(k.name)
-      }
-    } catch {
-      // Eine unlesbare Playlist soll den Rest nicht kippen
+  // 3. Gespeicherte Titel
+  try {
+    const gespeicherteTitel = await hole('/me/tracks?limit=50', token)
+    for (const eintrag of gespeicherteTitel.items ?? []) {
+      for (const k of eintrag.track?.artists ?? []) merke(k.name, 1, eintrag.track.name)
     }
+  } catch {
+    // optional
+  }
+
+  // 4. Die ersten Titel aus den eigenen Playlists
+  try {
+    const listen = await hole('/me/playlists?limit=10', token)
+    for (const liste of listen.items ?? []) {
+      try {
+        const titel = await hole(`/playlists/${liste.id}/tracks?limit=50`, token)
+        for (const eintrag of titel.items ?? []) {
+          for (const k of eintrag.track?.artists ?? []) merke(k.name, 1, eintrag.track.name)
+        }
+      } catch {
+        // Eine unlesbare Playlist soll den Rest nicht kippen
+      }
+    }
+  } catch {
+    // optional
   }
 
   return [...zaehler.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 120)
-    .map(([name, punkte]) => ({ name, punkte }))
+    .map(([name, punkte]) => ({
+      name,
+      punkte,
+      // Songs aus DEINER Bibliothek – passender als irgendwelche
+      // Charts, und die einzige Quelle, die uns noch offensteht:
+      // Spotify hat die Katalog-Abfragen (Suche, Top-Tracks) für
+      // Apps im Entwicklungsmodus im Februar 2026 abgeschaltet.
+      songs: [...(songs.get(name) ?? [])].slice(0, 5).map((titel) => ({ titel })),
+    }))
 }
 
 /** Die gemerkten spanischsprachigen Interpreten aus dem Dashboard. */
@@ -232,46 +263,4 @@ export function gemerkteInterpreten() {
 
 export function merkeInterpreten(liste) {
   localStorage.setItem('spotify_interpreten', JSON.stringify(liste))
-}
-
-/**
- * Holt zu jedem Interpreten seine fünf bekanntesten Songs.
- *
- * Warum wir sie speichern: Der Nutzer soll nach dem Neuladen sofort
- * seine Auswahl sehen, ohne dass Spotify erneut befragt wird.
- *
- * @param {{name: string}[]} interpreten – höchstens die ersten 10
- */
-export async function holeSongsZuInterpreten(interpreten, token) {
-  const mitSongs = []
-
-  for (const k of interpreten.slice(0, 10)) {
-    try {
-      // Erst den Künstler bei Spotify finden …
-      const suche = await hole(
-        `/search?q=${encodeURIComponent(k.name)}&type=artist&limit=1`,
-        token
-      )
-      const kuenstler = suche.artists?.items?.[0]
-      if (!kuenstler) {
-        mitSongs.push({ ...k, songs: [] })
-        continue
-      }
-
-      // … dann seine Top-Songs (Markt DE, damit es hier auch spielbar ist)
-      const top = await hole(`/artists/${kuenstler.id}/top-tracks?market=DE`, token)
-      mitSongs.push({
-        ...k,
-        bild: kuenstler.images?.at(-1)?.url ?? null,
-        songs: (top.tracks ?? []).slice(0, 5).map((s) => ({
-          titel: s.name,
-          dauer: Math.round(s.duration_ms / 1000),
-        })),
-      })
-    } catch {
-      // Ein Künstler ohne Treffer soll den Rest nicht aufhalten
-      mitSongs.push({ ...k, songs: [] })
-    }
-  }
-  return mitSongs
 }
