@@ -88,6 +88,10 @@ export function hebeHervor(satz, wort) {
     // kurz, um als Treffer zu zaehlen.
     wort.replace(/o$/, 'a'),
     wort.replace(/a$/, 'o'),
+    // Wortgruppen mit Verb: "tener miedo" steht im Satz als "tengo
+    // miedo". Die ganze Gruppe findet sich nicht, das Substantiv
+    // schon – es ist der Teil, der sich nicht veraendert.
+    ...wort.split(/\s+/).filter((w) => w.length > 3),
   ]
     .map((v) => v.replace(/[¿¡?!….]/g, '').replace(ARTIKEL, '').trim())
     .filter(Boolean)
