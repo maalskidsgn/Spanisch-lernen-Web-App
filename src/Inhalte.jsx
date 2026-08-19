@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { holeVerzeichnis, holeInhalt, lesedauer, teileMitVokabeln, ARTEN } from './inhalte.js'
 import { spiele } from './audio.js'
 import { API_URL } from './api.js'
-import { IconSuche, IconPfeil } from './icons.jsx'
+import { IconSuche, IconPfeil, IconMediathek, IconBuch, IconLesezeichen } from './icons.jsx'
+import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 
 // Hörtexte und Lesetexte – zwei Bereiche, eine Anzeige.
 //
@@ -54,23 +55,39 @@ export default function Inhalte({ art, onAddVocab, vocab = {} }) {
     ? verzeichnis.filter((e) => e.titel.toLowerCase().includes(begriff))
     : verzeichnis
 
-  return (
-    <section className="bereich">
-      <div className="inhalt-suche">
-        <IconSuche groesse={17} />
-        <input
-          type="search"
-          value={suche}
-          onChange={(e) => setSuche(e.target.value)}
-          placeholder={`${ARTEN[art].titel} durchsuchen`}
-          aria-label={`${ARTEN[art].titel} durchsuchen`}
-        />
-      </div>
+  const hoeren = art === 'hoertexte'
 
-      <p className="inhalt-zahl">
-        {gefiltert.length} {gefiltert.length === 1 ? ARTEN[art].einzahl : ARTEN[art].titel}
-        {begriff && ` für „${suche.trim()}“`}
-      </p>
+  return (
+    <>
+      <Hero
+        symbol={hoeren ? <IconMediathek groesse={26} /> : <IconBuch groesse={26} />}
+        titel={hoeren ? 'Hör dich durch echte Themen' : 'Lies dich durch echte Themen'}
+        text={
+          hoeren
+            ? 'Jede Folge mit Tonspur, spanischem Text und deutscher Fassung daneben.'
+            : 'Jedes Kapitel auf Spanisch – die Übersetzung holst du dir mit einem Tipp.'
+        }
+      >
+        <SuchFeld
+          wert={suche}
+          onWert={setSuche}
+          onAbsenden={() => {}}
+          platzhalter={`${ARTEN[art].titel} durchsuchen`}
+          knopf="Filtern"
+        />
+      </Hero>
+
+      <section className="bereich">
+      <Kopf
+        symbol={<IconLesezeichen groesse={19} />}
+        titel={begriff ? `Treffer für „${suche.trim()}“` : ARTEN[art].titel}
+        text={
+          begriff
+            ? `${gefiltert.length} von ${verzeichnis.length}`
+            : 'Zum Lesen antippen – dein Fortschritt bleibt erhalten.'
+        }
+        zahl={gefiltert.length}
+      />
 
       <ul className="inhalt-liste">
         {gefiltert.map((e) => (
@@ -93,7 +110,8 @@ export default function Inhalte({ art, onAddVocab, vocab = {} }) {
       {gefiltert.length === 0 && (
         <p className="inhalt-hinweis">Dazu haben wir noch nichts.</p>
       )}
-    </section>
+      </section>
+    </>
   )
 }
 

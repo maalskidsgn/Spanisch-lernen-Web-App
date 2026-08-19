@@ -5486,9 +5486,8 @@ body:has(.trainer) { background: #fff; }
   border-radius: 0;
   padding: 26px 0;
   margin-bottom: 0;
-  border-bottom: 1px solid var(--line);
 }
-.trainer .bereich:last-of-type { border-bottom: none; }
+
 
 /* Der Wiederhol-Block bleibt hervorgehoben, aber ruhiger.
    Bewusst NICHT auf .trainer beschraenkt: Dieselbe Hauptkarte steht
@@ -5623,9 +5622,9 @@ main { background: #fff; }
   border-radius: 0;
   padding: 26px 0;
   margin-bottom: 0;
-  border-bottom: 1px solid var(--line);
+  /* Keine Trennlinien mehr: Die Abschnittskoepfe mit Symbol trennen
+     schon deutlich genug, und die Linien zerschnitten die Seite. */
 }
-.bereich:last-of-type { border-bottom: none; }
 
 /* Beschreibungs-Sätze unter Überschriften: kleiner und leiser.
    Sie sollen helfen, nicht die Seite füllen. */
@@ -6380,11 +6379,17 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
-  background: var(--card);
-  border: 1px solid var(--line);
+  /* Der Schimmer sitzt oben rechts in der Karte und laeuft nach
+     innen aus – radial-gradient statt Bild, damit er sich mit der
+     Karte streckt. */
+  background:
+    radial-gradient(120% 150% at 88% -30%, #ffe4c9 0%, rgba(255, 228, 201, 0) 62%),
+    var(--card);
+  border: 1px solid var(--primary);
   border-radius: 20px;
   padding: 20px 22px;
   margin: 4px 0 26px;
+  overflow: hidden;
 }
 
 .video-hero-symbol {
@@ -6577,3 +6582,21 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: var(--navy);
 }
 .mehr-videos:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Stilrichtungen unter der Songs-Karte */
+.stil-vorschlaege {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: -14px 0 22px;
+}
+
+/* Der Suchknopf bleibt auch gesperrt erkennbar: Die globale
+   Sperr-Optik nahm ihm fast die ganze Farbe, wodurch die Karte
+   unfertig wirkte. */
+.video-hero-form .btn:disabled {
+  opacity: 1;
+  background: #ffd0ab;
+  color: #fff;
+  cursor: default;
+}

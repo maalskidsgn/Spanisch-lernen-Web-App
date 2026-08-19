@@ -23,6 +23,7 @@ const KATEGORIE_ICONS = {
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
+import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Spanisch nebenbei,
@@ -323,59 +324,38 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {/* Das Feld steht direkt hier, nicht hinter einem Knopf: Wer
           schon weiss, wonach er sucht, soll nicht erst ein Fenster
           oeffnen muessen. */}
-      <section className="video-hero">
-        <span className="video-hero-symbol" aria-hidden="true">
-          <IconSuche groesse={26} />
-        </span>
-        <div className="video-hero-text">
-          <h2>Finde dein nächstes Video</h2>
-          <p>
-            Gib auf Deutsch ein, worüber du etwas schauen willst – wir suchen
-            passende spanische Videos dazu.
-          </p>
-        </div>
-        <form
-          className="video-hero-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            const frage = suchFeld.trim()
-            if (!frage) return
-            setStartBegriff(frage)
+      <Hero
+        symbol={<IconSuche groesse={26} />}
+        titel="Finde dein nächstes Video"
+        text="Gib auf Deutsch ein, worüber du etwas schauen willst – wir suchen passende spanische Videos dazu."
+      >
+        <SuchFeld
+          wert={suchFeld}
+          onWert={setSuchFeld}
+          onAbsenden={() => {
+            setStartBegriff(suchFeld.trim())
             setSucheOffen(true)
           }}
-        >
-          <input
-            type="search"
-            value={suchFeld}
-            onChange={(e) => setSuchFeld(e.target.value)}
-            placeholder="z.B. gesunde Ernährung, Schlaf, Stoizismus"
-            aria-label="Wonach möchtest du suchen?"
-          />
-          <button type="submit" className="btn">Suchen</button>
-        </form>
-      </section>
+          platzhalter="z.B. gesunde Ernährung, Schlaf, Stoizismus"
+        />
+      </Hero>
 
       {/* ============ 2. GEMERKTE VIDEOS ============ */}
       {savedVideos.length > 0 && (
         <section className="bereich">
-          <div className="mediathek-kopf">
-            <div className="mediathek-kopf-links">
-              <h2>
-                <IconLesezeichen groesse={19} />
-                Deine gemerkten Videos
-              </h2>
-              <p>{savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.</p>
-            </div>
-            {savedVideos.length > SICHTBAR_GEMERKT && (
-              <button
-                className="kopf-aktion"
-                onClick={() => setAlleGemerkt((a) => !a)}
-              >
-                {alleGemerkt ? 'Weniger' : 'Alle anzeigen'}
-                <IconPfeil groesse={15} />
-              </button>
-            )}
-          </div>
+          <Kopf
+            symbol={<IconLesezeichen groesse={19} />}
+            titel="Deine gemerkten Videos"
+            text={`${savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.`}
+            aktion={
+              savedVideos.length > SICHTBAR_GEMERKT ? (
+                <button className="kopf-aktion" onClick={() => setAlleGemerkt((a) => !a)}>
+                  {alleGemerkt ? 'Weniger' : 'Alle anzeigen'}
+                  <IconPfeil groesse={15} />
+                </button>
+              ) : null
+            }
+          />
           <div className="chips">
             <button
               className={'chip ' + (filter === 'alle' ? 'chip-active' : '')}
@@ -435,15 +415,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {/* ---------- Kuratierte Habloo-Mediathek ---------- */}
       {supabaseBereit && (
         <section className="bereich">
-          <div className="mediathek-kopf">
-            <div className="mediathek-kopf-links">
-              <h2>
-                <IconStern groesse={19} />
-                Ausgewählte Videos
-              </h2>
-            </div>
-            {bibliothek && <span className="kopf-zahl">{bibliothek.length}</span>}
-          </div>
+          <Kopf
+            symbol={<IconStern groesse={19} />}
+            titel="Ausgewählte Videos"
+            zahl={bibliothek ? bibliothek.length : null}
+          />
 
           <div className="themen-leiste">
             {KATEGORIEN.map((k) => (

@@ -13,6 +13,8 @@ import {
   gemerkteInterpreten,
   merkeInterpreten,
 } from './spotify.js'
+import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
 
 // Ein paar Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt
 const STILE = [
@@ -239,43 +241,33 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   return (
     <>
       {/* ============ 1. SONG SUCHEN ============ */}
-      <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Spanische Songs finden</h2>
-          <p>Der Text läuft mit – unbekannte Wörter tippst du an.</p>
-        </div>
+      <Hero
+        symbol={<IconMusik groesse={26} />}
+        titel="Spanische Songs finden"
+        text="Der Text läuft mit – unbekannte Wörter tippst du an."
+      >
+        <SuchFeld
+          wert={suche}
+          onWert={setSuche}
+          onAbsenden={() => songSuchen()}
+          platzhalter="Künstler, Songtitel oder Stilrichtung…"
+          knopf="Songs suchen"
+          laedt={laedt}
+        />
+      </Hero>
 
-        <form
-          className="wort-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            songSuchen()
-          }}
-        >
-          <input
-            type="text"
-            value={suche}
-            onChange={(e) => setSuche(e.target.value)}
-            placeholder="Künstler, Songtitel oder Stilrichtung…"
-            disabled={laedt}
-          />
-          <div className="wort-vorschlaege">
-            {STILE.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className="vorschlag-chip"
-                onClick={() => songSuchen(s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <button type="submit" className="btn wort-los" disabled={laedt || !suche.trim()}>
-            {laedt ? 'Sucht …' : 'Songs suchen'}
+      {/* Die Stilrichtungen stehen unter der Karte, nicht darin:
+          In der Zeile waere kein Platz, und sie sind Vorschlaege,
+          keine Hauptaktion. */}
+      <div className="stil-vorschlaege">
+        {STILE.map((s) => (
+          <button key={s} type="button" className="vorschlag-chip" onClick={() => songSuchen(s)}>
+            {s}
           </button>
-        </form>
+        ))}
+      </div>
 
+      <section className="bereich">
         {fehler && <p className="error">{fehler}</p>}
 
         {treffer?.length === 0 && (
@@ -306,14 +298,16 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
 
       {/* ============ 2. DEINE SONGS ============ */}
       <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Deine Songs</h2>
-          <p>
-            {songs?.length
+        <Kopf
+          symbol={<IconLesezeichen groesse={19} />}
+          titel="Deine Songs"
+          text={
+            songs?.length
               ? `${songs.length} gespeichert – zum Anhören antippen oder den Text als PDF sichern.`
-              : 'Noch keine Songs. Such dir oben einen aus und öffne ihn.'}
-          </p>
-        </div>
+              : 'Noch keine Songs. Such dir oben einen aus und öffne ihn.'
+          }
+          zahl={songs?.length || null}
+        />
 
         {songs?.length > 0 && (
           <div className="song-liste">
@@ -345,8 +339,12 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
 
       {/* ============ 3. SPOTIFY ============ */}
       <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Deine spanischen Interpreten</h2>
+        <Kopf
+          symbol={<IconStern groesse={19} />}
+          titel="Deine spanischen Interpreten"
+        />
+        <div className="bereich-kopf bereich-kopf-rest">
+          <h2 hidden>Deine spanischen Interpreten</h2>
           <p>Deine spanischsprachigen Künstler aus Spotify, mit ihren Songs.</p>
         </div>
 
