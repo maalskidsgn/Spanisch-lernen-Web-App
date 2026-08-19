@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 
-// Mini-Spiele mit den eigenen Vokabeln: Memory und Wortpaare.
+// Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare,
+// Wortsuche und Wortfang.
 //
 // Wichtig: Die Spiele sind kein Zeitvertreib neben dem Trainer, sondern
 // ein Teil davon. Sie nehmen bevorzugt die Wörter, die als Nächstes
@@ -54,7 +55,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       <div className="player-top">
         <button className="btn-plain" onClick={onClose}>✕</button>
         <h2 className="game-title">
-          {spiel === 'memory' ? 'Memory' : 'Wortpaare'}
+          {{ memory: 'Memory', paare: 'Wortpaare', suche: 'Wortsuche', fang: 'Wortfang' }[spiel]}
         </h2>
       </div>
       {spiel === 'memory' && (
@@ -62,6 +63,12 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       )}
       {spiel === 'paare' && (
         <WortPaare paare={paare.slice(0, 5)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
+      {spiel === 'suche' && (
+        <Wortsuche paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
+      {spiel === 'fang' && (
+        <Wortfang paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
     </div>
   )
@@ -276,5 +283,347 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
         </div>
       </div>
     </>
+  )
+}
+
+/* ---------- Spiel 3: Wortsuche ---------- */
+// Ein Buchstabengitter, in dem spanische Wörter versteckt sind.
+// Man zieht mit dem Finger über die Buchstaben; ein gefundenes Wort
+// wird in der Liste darunter durchgestrichen und zeigt die
+// Übersetzung – so lernt man beim Suchen mit.
+
+const GITTER = 10 // 10x10 Felder
+const RICHTUNGEN = [
+  [1, 0],   // waagerecht
+  [0, 1],   // senkrecht
+  [1, 1],   // diagonal runter
+  [1, -1],  // diagonal hoch
+]
+
+/** Legt die Wörter ins Gitter und füllt den Rest mit Buchstaben. */
+function baueGitter(woerter) {
+  const feld = Array.from({ length: GITTER }, () => Array(GITTER).fill(null))
+  const platziert = []
+
+  for (const wort of woerter) {
+    // Umlaute und Akzente raus – im Gitter stehen nur A–Z und Ñ
+    const buchstaben = wort.es
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[̀-̂̈]/g, '') // Akzente entfernen, Ñ behalten
+      .replace(/[^A-ZÑ]/g, '')
+    if (!buchstaben || buchstaben.length > GITTER) continue
+
+    // Bis zu 60 Versuche, einen freien Platz zu finden
+    let gelegt = false
+    for (let versuch = 0; versuch < 60 && !gelegt; versuch++) {
+      const [dx, dy] = RICHTUNGEN[Math.floor(Math.random() * RICHTUNGEN.length)]
+      const maxX = dx > 0 ? GITTER - buchstaben.length : GITTER - 1
+      const minY = dy < 0 ? buchstaben.length - 1 : 0
+      const maxY = dy > 0 ? GITTER - buchstaben.length : GITTER - 1
+      const x = Math.floor(Math.random() * (maxX + 1))
+      const y = minY + Math.floor(Math.random() * (maxY - minY + 1))
+
+      // Passt es? Überschneidungen nur bei gleichem Buchstaben
+      const felder = []
+      let passt = true
+      for (let i = 0; i < buchstaben.length; i++) {
+        const fx = x + dx * i
+        const fy = y + dy * i
+        const da = feld[fy]?.[fx]
+        if (da !== null && da !== buchstaben[i]) { passt = false; break }
+        felder.push([fx, fy])
+      }
+      if (!passt) continue
+
+      felder.forEach(([fx, fy], i) => { feld[fy][fx] = buchstaben[i] })
+      platziert.push({ ...wort, buchstaben, felder })
+      gelegt = true
+    }
+  }
+
+  // Leere Felder mit zufälligen Buchstaben auffüllen
+  const alphabet = 'ABCDEFGHIJLMNOPQRSTUVZÑ'
+  for (let y = 0; y < GITTER; y++) {
+    for (let x = 0; x < GITTER; x++) {
+      if (feld[y][x] === null) {
+        feld[y][x] = alphabet[Math.floor(Math.random() * alphabet.length)]
+      }
+    }
+  }
+  return { feld, platziert }
+}
+
+function Wortsuche({ paare, addXp, onClose, onGespielt }) {
+  // Gitter EINMAL bauen – sonst springen die Buchstaben bei jedem
+  // Neuzeichnen.
+  const [{ feld, platziert }] = useState(() => baueGitter(paare.slice(0, 7)))
+  const [gefunden, setGefunden] = useState([])
+  const [zug, setZug] = useState(null) // {start:[x,y], jetzt:[x,y]}
+
+  const alleGefunden = platziert.length > 0 && gefunden.length === platziert.length
+
+  /** Welche Felder liegen zwischen Start und aktueller Position? */
+  function strecke(start, jetzt) {
+    const [x1, y1] = start
+    const [x2, y2] = jetzt
+    const dx = Math.sign(x2 - x1)
+    const dy = Math.sign(y2 - y1)
+    const laenge = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))
+    // Nur gerade und diagonale Linien zählen
+    if (dx !== 0 && dy !== 0 && Math.abs(x2 - x1) !== Math.abs(y2 - y1)) return []
+    return Array.from({ length: laenge + 1 }, (_, i) => [x1 + dx * i, y1 + dy * i])
+  }
+
+  const aktiveFelder = zug ? strecke(zug.start, zug.jetzt) : []
+
+  // Das Ziehen laeuft ueber die POSITION des Zeigers, nicht ueber
+  // "Maus betritt Feld". Grund: Auf dem Handy behaelt das zuerst
+  // beruehrte Feld alle weiteren Ereignisse (Pointer Capture) – die
+  // anderen Felder wuerden nie ein Enter sehen und das Spiel waere
+  // auf Mobilgeraeten unbedienbar.
+  function feldUnter(e) {
+    const el = document.elementFromPoint(e.clientX, e.clientY)
+    const treffer = el?.closest?.('.gitter-feld')
+    if (!treffer?.dataset.pos) return null
+    return treffer.dataset.pos.split(',').map(Number)
+  }
+
+  function beginne(e, x, y) {
+    e.preventDefault()
+    setZug({ start: [x, y], jetzt: [x, y] })
+  }
+
+  function bewege(e) {
+    if (!zug) return
+    const feld = feldUnter(e)
+    if (feld) setZug((z) => (z ? { ...z, jetzt: feld } : z))
+  }
+
+  function loslassen() {
+    if (!zug) return
+    const gezogen = strecke(zug.start, zug.jetzt)
+    setZug(null)
+    if (gezogen.length < 2) return
+
+    // Passt die Strecke auf ein noch nicht gefundenes Wort?
+    // Vorwärts UND rückwärts prüfen – die Ziehrichtung ist egal.
+    const treffer = platziert.find((w) => {
+      if (gefunden.includes(w.es)) return false
+      if (w.felder.length !== gezogen.length) return false
+      const gleich = (a, b) => a.every(([x, y], i) => b[i][0] === x && b[i][1] === y)
+      return gleich(gezogen, w.felder) || gleich([...gezogen].reverse(), w.felder)
+    })
+
+    if (treffer) {
+      setGefunden((g) => [...g, treffer.es])
+      addXp(XP.QUIZ_RICHTIG)
+    }
+  }
+
+  const gefundeneFelder = new Set(
+    platziert
+      .filter((w) => gefunden.includes(w.es))
+      .flatMap((w) => w.felder.map(([x, y]) => x + ',' + y))
+  )
+
+  if (alleGefunden) {
+    return (
+      <SpielFertig
+        text={`Alle ${platziert.length} Wörter im Gitter gefunden!`}
+        woerter={platziert.map((w) => w.es)}
+        onGespielt={onGespielt}
+        onClose={onClose}
+      />
+    )
+  }
+
+  return (
+    <div className="spiel-buehne">
+      <div className="spiel-kopf">
+        <span className="spiel-titel">🔍 Wortsuche</span>
+        <span className="spiel-stand">
+          {gefunden.length} / {platziert.length}
+        </span>
+      </div>
+
+      <p className="spiel-hinweis">
+        Zieh mit dem Finger über die Buchstaben – waagerecht, senkrecht oder
+        diagonal.
+      </p>
+
+      <div
+        className="gitter"
+        onPointerMove={bewege}
+        onPointerUp={loslassen}
+        onPointerCancel={loslassen}
+        style={{ '--spalten': GITTER }}
+      >
+        {feld.map((zeile, y) =>
+          zeile.map((buchstabe, x) => {
+            const schluessel = x + ',' + y
+            const istAktiv = aktiveFelder.some(([ax, ay]) => ax === x && ay === y)
+            const istGefunden = gefundeneFelder.has(schluessel)
+            return (
+              <button
+                key={schluessel}
+                className={
+                  'gitter-feld' +
+                  (istGefunden ? ' feld-gefunden' : '') +
+                  (istAktiv ? ' feld-aktiv' : '')
+                }
+                data-pos={schluessel}
+                onPointerDown={(e) => beginne(e, x, y)}
+              >
+                {buchstabe}
+              </button>
+            )
+          })
+        )}
+      </div>
+
+      <div className="such-liste">
+        {platziert.map((w) => {
+          const fertig = gefunden.includes(w.es)
+          return (
+            <span key={w.es} className={'such-wort' + (fertig ? ' wort-gefunden' : '')}>
+              <b>{w.es}</b>
+              {fertig && <em> – {w.de}</em>}
+            </span>
+          )
+        })}
+      </div>
+
+      <button className="btn-plain spiel-abbrechen" onClick={onClose}>
+        Abbrechen
+      </button>
+    </div>
+  )
+}
+
+/* ---------- Spiel 4: Wortfang ---------- */
+// Oben steht die deutsche Bedeutung, von oben fallen spanische
+// Wörter herunter. Tippe nur die richtigen an – die falschen
+// lässt du durchfallen. Wer daneben tippt, verliert ein Leben.
+
+const FALLDAUER = 7000  // wie lange ein Wort von oben nach unten braucht
+const ABSTAND = 1400    // Abstand zwischen zwei Würfen
+const LEBEN = 3
+const RUNDEN = 8        // so viele Wörter muss man fangen
+
+function Wortfang({ paare, addXp, onClose, onGespielt }) {
+  // Ziele einmal festlegen, damit sie nicht neu gemischt werden
+  const [ziele] = useState(() => paare.slice(0, RUNDEN))
+  const [runde, setRunde] = useState(0)
+  const [leben, setLeben] = useState(LEBEN)
+  const [fallend, setFallend] = useState([])  // {id, wort, richtig, links}
+  const [gefangen, setGefangen] = useState([])
+  const [blitz, setBlitz] = useState(null)    // 'gut' | 'schlecht'
+  const naechsteId = useRef(0)
+
+  const ziel = ziele[runde]
+  const vorbei = runde >= ziele.length || leben <= 0
+
+  // Wörter losschicken: das gesuchte plus Ablenker
+  useEffect(() => {
+    if (vorbei || !ziel) return
+
+    // Ablenker sind andere echte Vokabeln – nicht erfundene Wörter,
+    // damit man wirklich Bedeutungen unterscheiden muss.
+    const ablenker = paare
+      .filter((p) => p.es !== ziel.es)
+      .slice(0, 12)
+    const mischung = mischen([
+      { wort: ziel.es, richtig: true },
+      ...mischen(ablenker).slice(0, 3).map((a) => ({ wort: a.es, richtig: false })),
+    ])
+
+    let index = 0
+    const werfen = () => {
+      const eintrag = mischung[index % mischung.length]
+      index++
+      const id = naechsteId.current++
+      setFallend((f) => [
+        ...f,
+        { id, ...eintrag, links: 8 + Math.random() * 72 },
+      ])
+      // Nach der Fallzeit wieder entfernen
+      setTimeout(() => {
+        setFallend((f) => f.filter((x) => x.id !== id))
+      }, FALLDAUER)
+    }
+
+    werfen()
+    const takt = setInterval(werfen, ABSTAND)
+    return () => clearInterval(takt)
+  }, [runde, ziel, vorbei, paare])
+
+  function antippen(eintrag) {
+    setFallend((f) => f.filter((x) => x.id !== eintrag.id))
+
+    if (eintrag.richtig) {
+      setBlitz('gut')
+      addXp(XP.QUIZ_RICHTIG)
+      setGefangen((g) => [...g, ziel.es])
+      setFallend([])          // Runde räumen
+      setRunde((r) => r + 1)
+    } else {
+      setBlitz('schlecht')
+      setLeben((l) => l - 1)
+    }
+    setTimeout(() => setBlitz(null), 320)
+  }
+
+  if (vorbei) {
+    const geschafft = gefangen.length
+    return (
+      <SpielFertig
+        text={
+          leben > 0
+            ? `Alle ${geschafft} Wörter gefangen – ohne alle Leben zu verlieren!`
+            : `${geschafft} von ${ziele.length} gefangen. Beim nächsten Mal mehr!`
+        }
+        woerter={gefangen}
+        onGespielt={onGespielt}
+        onClose={onClose}
+      />
+    )
+  }
+
+  return (
+    <div className="spiel-buehne">
+      <div className="spiel-kopf">
+        <span className="spiel-titel">🎣 Wortfang</span>
+        <span className="spiel-stand">
+          {'❤️'.repeat(leben)}
+          {'🖤'.repeat(LEBEN - leben)} · {runde}/{ziele.length}
+        </span>
+      </div>
+
+      <div className="fang-auftrag">
+        <span className="fang-label">Fang das Wort für</span>
+        <b className="fang-wort">{ziel.de}</b>
+      </div>
+
+      <div className={'fang-feld' + (blitz ? ' fang-' + blitz : '')}>
+        {fallend.map((f) => (
+          <button
+            key={f.id}
+            className="fang-tropfen"
+            style={{
+              left: f.links + '%',
+              animationDuration: FALLDAUER + 'ms',
+            }}
+            onClick={() => antippen(f)}
+          >
+            {f.wort}
+          </button>
+        ))}
+      </div>
+
+      <button className="btn-plain spiel-abbrechen" onClick={onClose}>
+        Abbrechen
+      </button>
+    </div>
   )
 }

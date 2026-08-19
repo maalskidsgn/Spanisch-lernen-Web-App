@@ -3959,6 +3959,8 @@ body.liest-video .fab-panel {
 .interpret-karte *,
 .liste-kopf,
 .liste-kopf *,
+.gitter-feld,
+.fang-tropfen,
 .vorschlag-chip,
 .such-knopf,
 .such-knopf *,
@@ -4719,3 +4721,146 @@ body.liest-video .word-card {
   transition: opacity .15s, transform .15s;
 }
 .chat-ton:hover { opacity: 1; transform: scale(1.15); }
+
+/* ===== Kachel-Symbole der neuen Spiele ===== */
+.spiel-bild-gitter {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.spiel-bild-gitter i {
+  width: 9px; height: 9px;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: .35;
+}
+.spiel-bild-gitter i:nth-child(1),
+.spiel-bild-gitter i:nth-child(5),
+.spiel-bild-gitter i:nth-child(9) { opacity: 1; } /* die "gefundene" Diagonale */
+
+.spiel-bild-fang { display: flex; gap: 5px; align-items: flex-end; }
+.spiel-bild-fang i {
+  width: 8px;
+  border-radius: 4px;
+  background: var(--primary);
+}
+.spiel-bild-fang i:nth-child(1) { height: 22px; opacity: .35; }
+.spiel-bild-fang i:nth-child(2) { height: 32px; }
+.spiel-bild-fang i:nth-child(3) { height: 14px; opacity: .35; }
+
+/* ===== Gemeinsame Bühne der neuen Spiele ===== */
+.spiel-buehne {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  max-width: 620px;
+  margin: 0 auto;
+}
+.spiel-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.spiel-titel { font-weight: 800; font-size: 17px; }
+.spiel-stand {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.spiel-buehne .spiel-hinweis {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+.spiel-abbrechen { display: block; margin: 18px auto 0; }
+
+/* ===== Wortsuche: das Buchstabengitter ===== */
+.gitter {
+  display: grid;
+  grid-template-columns: repeat(var(--spalten), 1fr);
+  gap: 3px;
+  touch-action: none; /* damit das Ziehen nicht die Seite scrollt */
+  user-select: none;
+  margin-bottom: 18px;
+}
+.gitter-feld {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-weight: 800;
+  font-size: clamp(11px, 3.2vw, 16px);
+  cursor: pointer;
+  transition: background .1s, color .1s;
+}
+.gitter-feld.feld-aktiv {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.gitter-feld.feld-gefunden {
+  background: #dff5e6;
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.such-liste { display: flex; flex-wrap: wrap; gap: 8px; }
+.such-wort {
+  font-size: 13.5px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.such-wort.wort-gefunden {
+  background: #dff5e6;
+  border-color: var(--success);
+}
+.such-wort.wort-gefunden b { text-decoration: line-through; opacity: .65; }
+.such-wort em { color: var(--muted); font-style: normal; }
+
+/* ===== Wortfang: fallende Wörter ===== */
+.fang-auftrag {
+  text-align: center;
+  margin-bottom: 12px;
+}
+.fang-label { display: block; font-size: 13px; color: var(--muted); }
+.fang-wort { font-size: 24px; }
+
+.fang-feld {
+  position: relative;
+  height: 340px;
+  overflow: hidden;
+  background: linear-gradient(#fff8f1, var(--bg));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: background .2s;
+}
+.fang-feld.fang-gut { background: #dff5e6; }
+.fang-feld.fang-schlecht { background: #ffe4e4; }
+
+.fang-tropfen {
+  position: absolute;
+  top: -44px;
+  background: var(--card);
+  border: 2px solid var(--primary);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0, 0, 65, .1);
+  animation: fallen linear forwards;
+}
+@keyframes fallen {
+  to { transform: translateY(380px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fang-tropfen { animation-duration: 12s !important; }
+}

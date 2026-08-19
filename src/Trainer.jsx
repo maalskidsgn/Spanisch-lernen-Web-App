@@ -247,8 +247,8 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         <div className="bereich-kopf">
           <h2>Spielerisch üben</h2>
           <p>
-            Beide Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie
-            wiedererkennt, schiebt sie eine Stufe weiter.
+            Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer
+            sie wiedererkennt, schiebt sie eine Stufe weiter.
           </p>
         </div>
         <div className="spiel-paar">
@@ -265,6 +265,20 @@ export default function Trainer({ vocab, setVocab, addXp }) {
             </span>
             <span className="spiel-name">Wortpaare</span>
             <span className="spiel-hinweis">5 Wörter verbinden</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('suche')}>
+            <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
+              <i /><i /><i /><i /><i /><i /><i /><i /><i />
+            </span>
+            <span className="spiel-name">Wortsuche</span>
+            <span className="spiel-hinweis">7 Wörter im Gitter</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('fang')}>
+            <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
+              <i /><i /><i />
+            </span>
+            <span className="spiel-name">Wortfang</span>
+            <span className="spiel-hinweis">Richtige antippen</span>
           </button>
         </div>
       </section>
