@@ -34,10 +34,13 @@ export const STIMMEN = {
  * Stimme nach ihrer Position im Dialog.
  */
 export const BESETZUNG = {
+  // Zwei Deutsche, drei Spanierinnen und Spanier – so entstehen
+  // Gespraeche, in denen wirklich jemand etwas lernt.
   Ana: 'es-w1',   // Spanierin aus Madrid, ruhig und deutlich
   Tom: 'es-m1',   // der Lernende – hier identifiziert sich der Nutzer
   Luis: 'es-m2',  // Spanier aus Valencia, lockerer Ton
   Carmen: 'es-w2',// Anas Mitbewohnerin
+  Lena: 'es-w3',  // Toms Schwester, kommt aus Deutschland zu Besuch
 }
 
 /**
