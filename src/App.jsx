@@ -112,12 +112,21 @@ export function ladeVideoFortschritt() {
 // Wird beim Abspielen laufend aufgerufen – deshalb nur schreiben,
 // wenn sich der Wert um mindestens einen Prozentpunkt geändert hat.
 let letzterFortschritt = {}
-function merkeFortschritt(videoId, prozent) {
+function merkeFortschritt(videoId, prozent, sekunden) {
   if (letzterFortschritt[videoId] === prozent) return
   letzterFortschritt[videoId] = prozent
   const alle = ladeVideoFortschritt()
-  alle[videoId] = prozent
+  // Prozent fuer die Kachel, Sekunden zum Weiterschauen. Aeltere
+  // Eintraege sind nur eine Zahl – die lesen wir weiter unten ab.
+  alle[videoId] = { prozent, sekunden: Math.round(sekunden) }
   localStorage.setItem('videoFortschritt', JSON.stringify(alle))
+}
+
+/** Wie weit war man in diesem Video? Versteht auch alte Eintraege. */
+export function standVon(videoId) {
+  const eintrag = ladeVideoFortschritt()[videoId]
+  if (typeof eintrag === 'number') return { prozent: eintrag, sekunden: 0 }
+  return { prozent: eintrag?.prozent ?? 0, sekunden: eintrag?.sekunden ?? 0 }
 }
 
 // Gespeicherte Videos aus dem Browser-Speicher laden
@@ -177,6 +186,7 @@ export default function App() {
   const [autoScroll, setAutoScroll] = useState(true)
   const [laeuft, setLaeuft] = useState(false) // spielt das Video gerade?
   const [tempo, setTempo] = useState(1) // Abspielgeschwindigkeit
+  const [weiterAb, setWeiterAb] = useState(null) // Hinweis "weiter bei ..."
   const [aktuelleArt, setAktuelleArt] = useState('video') // 'video' | 'musik'
   // Kommt der Nutzer von Spotify zurueck (Adresse /spotify?code=...),
   // starten wir gleich im Songs-Bereich – sonst landet er auf der
@@ -340,7 +350,19 @@ export default function App() {
           // Damit der Pause-Knopf immer das richtige Symbol zeigt –
           // auch wenn direkt im Player geklickt wird (1 = läuft)
           onStateChange: (e) => setLaeuft(e.data === 1),
-          onReady: () => { setLaeuft(false); setTempo(1) },
+          onReady: (e) => {
+            setLaeuft(false)
+            setTempo(1)
+            // Dort weitermachen, wo man aufgehoert hat. Nur wenn man
+            // wirklich mittendrin war: Die ersten 10 Sekunden lohnen
+            // sich nicht, und ab 95 % faengt man lieber neu an.
+            const { prozent, sekunden } = standVon(video.videoId)
+            if (sekunden > 10 && prozent < 95) {
+              e.target.seekTo(sekunden, true)
+              setWeiterAb(sekunden)
+              setTimeout(() => setWeiterAb(null), 4000)
+            }
+          },
         },
       })
     })
@@ -371,7 +393,7 @@ export default function App() {
       // Fortschritt merken, damit die Video-Kachel zeigt, wie weit man ist
       const dauer = player.getDuration?.() ?? 0
       if (dauer > 0) {
-        merkeFortschritt(video.videoId, Math.min(100, Math.round((t / dauer) * 100)))
+        merkeFortschritt(video.videoId, Math.min(100, Math.round((t / dauer) * 100)), t)
       }
     }, 300)
     return () => clearInterval(timer)
@@ -886,6 +908,18 @@ export default function App() {
               <div className="player-wrap">
                 <div id="yt-player" />
               </div>
+
+              {/* Kurz einblenden, damit klar ist, warum das Video
+                  nicht bei null anfaengt */}
+              {weiterAb !== null && (
+                <p className="weiter-hinweis">
+                  ⏱ Weiter bei {Math.floor(weiterAb / 60)}:
+                  {String(Math.round(weiterAb % 60)).padStart(2, '0')}
+                  <button className="weiter-neu" onClick={() => { playerRef.current?.seekTo?.(0, true); setWeiterAb(null) }}>
+                    Von vorn
+                  </button>
+                </p>
+              )}
               <div className="video-kopf">
                 <h2 className="video-titel">{video.title}</h2>
                 <div className="video-aktionen">

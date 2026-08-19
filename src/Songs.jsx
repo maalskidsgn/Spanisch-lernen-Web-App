@@ -46,6 +46,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   // Verbindung nach einer Stunde scheinbar weg.
   const [verbunden, setVerbunden] = useState(istVerbunden)
   const [offenerInterpret, setOffenerInterpret] = useState(null)
+  const [laeuft, setLaeuft] = useState(null) // welcher Song gerade geholt wird
   const [interpreten, setInterpreten] = useState(gemerkteInterpreten)
   const [analyse, setAnalyse] = useState('') // Text während der Prüfung
   const [spotifyFehler, setSpotifyFehler] = useState('')
@@ -154,6 +155,37 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       setFehler(f.message)
     } finally {
       setLaedt(false)
+    }
+  }
+
+  /**
+   * Song antippen: suchen und den besten Treffer gleich oeffnen.
+   *
+   * Vorher wurde nur die Suche oben gefuellt – weit ausserhalb des
+   * Sichtfelds. Es sah aus, als passiere nichts.
+   */
+  async function songOeffnen(kuenstler, titel) {
+    const schluessel = kuenstler + '|' + titel
+    if (laeuft) return
+    setLaeuft(schluessel)
+    setSpotifyFehler('')
+    try {
+      const res = await fetch(
+        API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(`${kuenstler} ${titel}`)
+      )
+      const daten = await res.json()
+      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+
+      const treffer = daten.results ?? []
+      if (!treffer.length) {
+        throw new Error(`Zu „${titel}" gibt es leider kein Video mit Text.`)
+      }
+      // Der erste Treffer ist die Lyrics-Fassung – direkt oeffnen
+      onOpenVideo(treffer[0].videoId, 'musik')
+    } catch (f) {
+      setSpotifyFehler(f.message)
+    } finally {
+      setLaeuft(null)
     }
   }
 
@@ -386,12 +418,19 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                             {k.songs.map((s) => (
                               <button
                                 key={s.titel}
-                                className="song-vorschlag"
-                                onClick={() => songSuchen(`${k.name} ${s.titel}`)}
+                                className={
+                                  'song-vorschlag' +
+                                  (laeuft === k.name + '|' + s.titel ? ' song-laedt' : '')
+                                }
+                                onClick={() => songOeffnen(k.name, s.titel)}
+                                disabled={Boolean(laeuft)}
                               >
+                                <span className="song-play" aria-hidden="true">
+                                  {laeuft === k.name + '|' + s.titel ? '◌' : '▶'}
+                                </span>
                                 <span className="song-vorschlag-titel">{s.titel}</span>
                                 <span className="song-vorschlag-dauer">
-                                  {s.ausKi ? 'Vorschlag' : dauerText(s.dauer)}
+                                  {laeuft === k.name + '|' + s.titel ? 'Öffnet …' : 'Mitlesen'}
                                 </span>
                               </button>
                             ))}

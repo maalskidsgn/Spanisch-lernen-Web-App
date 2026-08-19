@@ -3,7 +3,7 @@ import { holeBibliothek, supabaseBereit } from './supabase.js'
 import Ebooks from './Ebooks.jsx'
 import VideoSuche from './VideoSuche.jsx'
 import Songs from './Songs.jsx'
-import { ladeVideoFortschritt } from './App.jsx'
+import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -86,7 +86,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
   // ---------- Kuratierte Mediathek aus der Datenbank ----------
   const [bibliothek, setBibliothek] = useState(null)
-  const [fortschritt] = useState(ladeVideoFortschritt) // wie weit pro Video
+  // standVon() versteht beide Formate: alte Eintraege waren eine
+  // blosse Prozentzahl, neue enthalten auch die Sekunde.
+  const [fortschritt] = useState(() => {
+    const roh = ladeVideoFortschritt()
+    return Object.fromEntries(
+      Object.keys(roh).map((id) => [id, standVon(id).prozent])
+    )
+  })
   const [sucheOffen, setSucheOffen] = useState(false)
   const [kategorie, setKategorie] = useState('alle')
   const [bibliothekFehler, setbibliothekFehler] = useState('')
