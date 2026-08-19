@@ -449,7 +449,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
               <i /><i /><i /><i /><i /><i /><i /><i /><i />
             </span>
             <span className="spiel-name">Wortsuche</span>
-            <span className="spiel-hinweis">7 Wörter im Gitter</span>
+            <span className="spiel-hinweis">5 Wörter im Gitter</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('fang')}>
             <span className="spiel-bild spiel-bild-fang" aria-hidden="true">

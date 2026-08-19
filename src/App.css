@@ -5638,3 +5638,131 @@ body.liest-video .word-card {
 @media (hover: hover) {
   .reihen-mehr:hover { background: #ffe4cc; }
 }
+
+/* ==========================================================
+   Vokabeltrainer: clean auf Weiß
+   Vorher: grauer Grund mit weißen Karten darauf – dazu erbten
+   mehrere Elemente die 3D-Kante der allgemeinen button-Regel
+   (box-shadow: 0 4px 0), was zerschossen aussah.
+   ========================================================== */
+body:has(.trainer) { background: #fff; }
+.trainer { background: #fff; }
+
+/* Keine Karten mehr – nur Abschnitte mit einer feinen Trennlinie */
+.trainer .bereich {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 26px 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+.trainer .bereich:last-of-type { border-bottom: none; }
+
+/* Der Wiederhol-Block bleibt hervorgehoben, aber ruhiger */
+.trainer .bereich-wiederholen {
+  background: linear-gradient(135deg, #fff6ee, #fffdfb);
+  border: 1px solid #ffe0c4;
+  border-radius: 20px;
+  padding: 22px;
+  margin: 4px 0 8px;
+}
+
+/* Die große Zahl: Text darf nicht mehr aus dem Kasten laufen */
+.trainer .wiederholen-zahl {
+  width: 88px;
+  height: auto;
+  min-height: 88px;
+  padding: 12px 8px;
+  gap: 2px;
+  align-content: center;
+}
+.trainer .wiederholen-zahl b { font-size: 1.75rem; }
+.trainer .wiederholen-zahl span {
+  font-size: 10.5px;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  opacity: .95;
+}
+
+/* Das Fragezeichen: ein schlichter Kreis, keine 3D-Kante */
+.trainer .automatik-info {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+  font-size: 13px;
+  line-height: 1;
+}
+.trainer .automatik-info:active { transform: scale(.92); box-shadow: none; }
+
+/* Die aufklappbare Wortliste: reine Kopfzeile, kein Knopf-Look */
+.trainer .liste-kopf {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 2px 0;
+}
+.trainer .liste-kopf:active { transform: none; box-shadow: none; }
+
+/* "Für mich auswählen lassen" – flacher Umriss statt Kante */
+.trainer .automatik-los,
+.trainer .btn-outline {
+  box-shadow: none;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--navy);
+}
+.trainer .automatik-los:active,
+.trainer .btn-outline:active { transform: scale(.98); box-shadow: none; }
+@media (hover: hover) {
+  .trainer .automatik-los:hover,
+  .trainer .btn-outline:hover { border-color: var(--primary); }
+}
+
+/* Alle 3D-Kanten im Trainer weg – der Bereich soll ruhig wirken.
+   Nur der große Üben-Knopf behält seine Kante als klarer Anker. */
+.trainer .spiel-karte,
+.trainer .vorschlag-chip,
+.trainer .chip,
+.trainer .wort-feld,
+.trainer input,
+.trainer select,
+.trainer .filter-stufe,
+.trainer .liste-suche {
+  box-shadow: none;
+}
+.trainer .spiel-karte {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.trainer .spiel-karte:active { transform: scale(.98); box-shadow: none; }
+@media (hover: hover) {
+  .trainer .spiel-karte:hover { border-color: var(--primary); transform: translateY(-2px); }
+}
+
+.trainer .vorschlag-chip,
+.trainer .chip {
+  border: 1.5px solid var(--line);
+  background: #fff;
+}
+.trainer .vorschlag-chip:active,
+.trainer .chip:active { transform: scale(.96); box-shadow: none; }
+
+.trainer input,
+.trainer .liste-suche,
+.trainer select {
+  border: 1.5px solid var(--line);
+  background: #fff;
+}
+
+/* Der Üben-Knopf bleibt der eine Blickfang */
+.trainer .wiederholen-los,
+.trainer .wort-los {
+  box-shadow: 0 4px 0 var(--primary-press);
+}
