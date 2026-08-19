@@ -34,3 +34,6 @@ android/keystore.properties
 stimmen-proben/
 hoerprobe.html
 route-test.html
+
+# Lesetexte liegen im Supabase-Speicher, nicht im öffentlichen Repo
+public/lesetexte/
