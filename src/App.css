@@ -4090,10 +4090,12 @@ body.liest-video .video-pane { position: relative; }
   /* Reicht über den Lesebereich hinaus bis an die Fensterränder */
   width: 100vw;
   top: -80px;
-  /* Weiter nach unten: Die Welle soll HINTER dem Aktions-Kasten
-     ansetzen, nicht direkt darunter – sonst schwebt der Kasten
-     auf der Kante statt auf der Fläche zu liegen. */
-  height: calc(100% + 200px);
+  /* Die Fläche endet KURZ hinter dem Aktions-Kasten. Die Welle ist
+     dafür hoch (96px) und wächst vom unteren Rand nach oben – ihr
+     Kamm liegt damit hinter dem Kasten, ohne dass sich das Orange
+     über den Lesetext schiebt. Zu viel Höhe hier verschluckt die
+     ersten Zeilen. */
+  height: calc(100% + 110px);
   background: linear-gradient(170deg, #ff8124 0%, #ff6c00 55%, #f56200 100%);
   z-index: -1;
   pointer-events: none;
@@ -4198,8 +4200,8 @@ body.liest-video .word-card {
 .fuss-spiel:active { transform: scale(.93); }
 
 @media (max-width: 820px) {
-  .video-buehne { top: -70px; height: calc(100% + 170px); }
-  .buehnen-welle { height: 70px; }
+  .video-buehne { top: -70px; height: calc(100% + 95px); }
+  .buehnen-welle { height: 78px; }
   body.liest-video .word-card { bottom: 78px; }
   .video-aktion { font-size: .8rem; padding: 9px 13px; }
 }
