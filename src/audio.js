@@ -11,43 +11,28 @@
 // ein Audio laufen, das nicht zum Text passt.
 
 import { sprich } from './sprich.js'
+import {
+  STIMMEN,
+  sprechText,
+  stimmeImDialog,
+  dateiName,
+  pruefsummeQuelle,
+} from './stimmen.js'
+
+export { STIMMEN, sprechText, stimmeImDialog }
 
 // Wo die fertigen Aufnahmen liegen (öffentlicher Supabase-Ordner)
 const ABLAGE =
   'https://okwegzwsjrxusmznohis.supabase.co/storage/v1/object/public/audio'
 
-// Die Sprechrollen. Die Kennungen sind bewusst neutral – welche
-// ElevenLabs-Stimme dahinter steckt, entscheidet allein das
-// Vertonungs-Skript. App und Skript müssen nur dieselben Namen
-// benutzen, damit die Prüfsummen zusammenpassen.
-export const STIMMEN = {
-  standard: 'es-a', // Wörter und Beispielsätze
-  rolleA: 'es-a',   // erste Person im Dialog
-  rolleB: 'es-b',   // zweite Person im Dialog
-}
-
-/**
- * Text vor dem Vertonen säubern – identisch im Skript!
- * "alemán / alemana" soll nicht als "alemán Schrägstrich…" enden.
- */
-export function sprechText(text) {
-  return String(text)
-    .replace(/\s*\/\s*/g, ', ')   // "a / b" -> "a, b"
-    .replace(/\s*\([^)]*\)/g, '') // "(m/w)" u.ä. entfernen
-    .replace(/…/g, '')
-    .trim()
-}
-
 /** Prüfsumme aus Text + Stimme – ergibt den Dateinamen. */
 export async function audioName(text, stimme = STIMMEN.standard) {
-  const daten = new TextEncoder().encode(stimme + '|' + sprechText(text))
+  const daten = new TextEncoder().encode(pruefsummeQuelle(text, stimme))
   const hash = await crypto.subtle.digest('SHA-256', daten)
-  return (
-    [...new Uint8Array(hash)]
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('')
-      .slice(0, 24) + '.mp3'
-  )
+  const hex = [...new Uint8Array(hash)]
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
+  return dateiName(hex)
 }
 
 // Merkt sich pro Sitzung, welche Dateien existieren (oder fehlen),
@@ -104,15 +89,6 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
   return 'browser'
 }
 
-/**
- * Welche Rolle spricht diese Dialogzeile? Die erste Person, die im
- * Dialog auftaucht, ist immer Rolle A – deterministisch, damit das
- * Vertonungs-Skript zur selben Zuordnung kommt.
- */
-export function stimmeImDialog(dialog, sprecher) {
-  const erste = dialog[0]?.sprecher
-  return sprecher === erste ? STIMMEN.rolleA : STIMMEN.rolleB
-}
 
 /**
  * Spielt einen ganzen Dialog als Gespräch ab, Zeile für Zeile mit

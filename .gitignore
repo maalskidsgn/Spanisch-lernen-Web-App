@@ -29,3 +29,6 @@ ios/DerivedData/
 # Signaturschluessel – NIEMALS ins Repository
 android/habloo-release.keystore
 android/keystore.properties
+
+# Hörproben fürs Casting – lokal, gehören nicht ins Repo
+stimmen-proben/

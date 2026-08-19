@@ -21,30 +21,17 @@ for (const z of readFileSync('.env.local', 'utf8').split('\n')) {
 
 const { LEKTIONEN } = await import('../src/lektionen.js')
 
-// ---- MUSS mit src/audio.js übereinstimmen ----
-const STIMMEN = { standard: 'es-a', rolleA: 'es-a', rolleB: 'es-b' }
-
-function sprechText(text) {
-  return String(text)
-    .replace(/\s*\/\s*/g, ', ')
-    .replace(/\s*\([^)]*\)/g, '')
-    .replace(/…/g, '')
-    .trim()
-}
+// Prüfsummen-Logik und Besetzung kommen aus dem gemeinsamen Modul –
+// so KANN das Skript gar nicht auf einen anderen Dateinamen kommen
+// als die App.
+const { STIMMEN, sprechText, stimmeImDialog, dateiName, pruefsummeQuelle } =
+  await import('../src/stimmen.js')
 
 function audioName(text, stimme) {
-  return (
-    createHash('sha256')
-      .update(stimme + '|' + sprechText(text))
-      .digest('hex')
-      .slice(0, 24) + '.mp3'
+  return dateiName(
+    createHash('sha256').update(pruefsummeQuelle(text, stimme)).digest('hex')
   )
 }
-
-function stimmeImDialog(dialog, sprecher) {
-  return sprecher === dialog[0]?.sprecher ? STIMMEN.rolleA : STIMMEN.rolleB
-}
-// ---- Ende der geteilten Logik ----
 
 // Welche echte ElevenLabs-Stimme hinter welcher Kennung steckt.
 // Die IDs stammen aus der ElevenLabs-Bibliothek und werden hier
