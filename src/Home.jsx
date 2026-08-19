@@ -1,5 +1,4 @@
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
-import { tagesplan, planStand } from './tagesplan.js'
 import { letzteWoche } from './aktivitaet.js'
 
 // Die Startseite – im selben Sektionen-Stil wie der Vokabeltrainer:
@@ -8,16 +7,6 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
   const level = levelFromXp(progress.xp)
   const heute = xpHeute(progress)
   const zielProzent = Math.min(100, Math.round((heute / settings.tagesziel) * 100))
-
-  const plan = tagesplan({
-    faellig: counts.faellig,
-    lektion: nextLesson,
-    woerter: counts.woerter,
-    videoOffen: counts.videos > 0,
-  })
-  const erledigt = planStand().erledigt
-  const offen = plan.schritte.filter((s) => !erledigt.includes(s.art))
-  const naechster = offen[0] ?? plan.schritte[0]
 
   const woche = letzteWoche()
   const wochenSumme = woche.reduce((s, t) => s + t.anzahl, 0)
@@ -33,46 +22,36 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
         <span className="hero-chip">⭐ Level {level} · {levelName(level)}</span>
       </div>
 
-      {/* ============ 1. HEUTE LERNEN ============ */}
-      {/* Große Zahl + ein Knopf – wie "Heute wiederholen" im Trainer */}
-      <section className="bereich bereich-wiederholen">
-        <div className="wiederholen-zahl">
-          <b>{plan.minuten}</b>
-          <span>Minuten heute</span>
-        </div>
-        <div className="wiederholen-text">
-          <h2>Heute lernen</h2>
-          {/* Der Plan als drei kleine Stationen, nicht als Zettel */}
-          <div className="plan-chips">
-            {plan.schritte.map((s) => (
-              <span
-                key={s.art}
-                className={'plan-chip' + (erledigt.includes(s.art) ? ' chip-fertig' : '')}
-              >
-                {erledigt.includes(s.art) ? '✓ ' : ''}
-                {s.titel}
-              </span>
-            ))}
-          </div>
-          <div className="ziel-zeile">
-            <div className="lern-balken">
-              <div className="lern-balken-voll" style={{ width: zielProzent + '%' }} />
-            </div>
-            <span className="ziel-text">
-              {zielProzent >= 100
-                ? `${heute} Tages-XP · Ziel erreicht 🎉`
-                : `${heute} von ${settings.tagesziel} Tages-XP`}
-            </span>
-          </div>
-        </div>
-        <button className="btn wiederholen-los" onClick={() => onNavigate(naechster.ziel)}>
-          {erledigt.length === 0
-            ? 'Loslegen'
-            : erledigt.length >= plan.schritte.length
-              ? 'Extra-Runde'
-              : 'Weitermachen'}
+      {/* ============ 1. ZWEI KLARE WEGE ============ */}
+      {/* Kein Plan, keine Liste: zwei grosse Knoepfe. */}
+      <div className="start-aktionen">
+        <button className="start-aktion" onClick={() => onNavigate('lektionen')}>
+          <span className="start-aktion-emoji" aria-hidden="true">🎓</span>
+          <span className="start-aktion-titel">Nächste Lektion</span>
+          <span className="start-aktion-sub">
+            {nextLesson ? nextLesson.titel : 'Alle geschafft ✓'}
+          </span>
         </button>
-      </section>
+        <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
+          <span className="start-aktion-emoji" aria-hidden="true">🃏</span>
+          <span className="start-aktion-titel">Vokabeln wiederholen</span>
+          <span className="start-aktion-sub">
+            {counts.faellig > 0 ? `${counts.faellig} Wörter fällig` : 'Nichts fällig – stark!'}
+          </span>
+        </button>
+      </div>
+
+      {/* Tagesziel als schmale Zeile darunter */}
+      <div className="ziel-zeile start-ziel">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: zielProzent + '%' }} />
+        </div>
+        <span className="ziel-text">
+          {zielProzent >= 100
+            ? `${heute} Tages-XP · Ziel erreicht 🎉`
+            : `${heute} von ${settings.tagesziel} Tages-XP`}
+        </span>
+      </div>
 
       {/* ============ 2. LIVE-UNTERRICHT (Skizze) ============ */}
       <section className="bereich">
