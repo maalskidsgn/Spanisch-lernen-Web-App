@@ -180,8 +180,29 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       if (!treffer.length) {
         throw new Error(`Zu „${titel}" gibt es leider kein Video mit Text.`)
       }
-      // Der erste Treffer ist die Lyrics-Fassung – direkt oeffnen
-      onOpenVideo(treffer[0].videoId, 'musik')
+
+      // Der Server siebt Songs ohne Untertitel bereits aus. Falls
+      // seine Pruefung nicht greift (z. B. weil der YouTube-Schluessel
+      // beschraenkt ist), probieren wir den naechsten Treffer, statt
+      // in einer Sackgasse zu enden.
+      for (const [i, kandidat] of treffer.slice(0, 3).entries()) {
+        try {
+          const pruefung = await fetch(
+            API_URL + '/api/transcript?url=' + kandidat.videoId + '&art=musik'
+          )
+          if (pruefung.ok) {
+            onOpenVideo(kandidat.videoId, 'musik')
+            return
+          }
+          if (i < 2) setSpotifyFehler('Suche eine Fassung mit Text …')
+        } catch {
+          // naechsten Treffer versuchen
+        }
+      }
+      throw new Error(
+        `Zu „${titel}" habe ich keine Fassung mit Songtext gefunden. ` +
+          'Versuch es über die Suche oben mit „Letra" im Suchbegriff.'
+      )
     } catch (f) {
       setSpotifyFehler(f.message)
     } finally {

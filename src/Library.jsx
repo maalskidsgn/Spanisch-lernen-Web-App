@@ -9,11 +9,12 @@ import { useState, useEffect } from 'react'
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Spanisch nebenbei,
 // während man etwas Interessantes schaut.
-// Eine Reihe je Kategorie mit wenigen Videos – statt einer langen
-// Liste aus allen. Wer mehr will, klappt die Reihe auf.
-const PRO_REIHE = 4
+// Der Bereich soll kurz bleiben: Filter oben, vier Videos darunter,
+// Nachschub nur auf Wunsch.
+const SCHRITT = 4
 
 const KATEGORIEN = [
+  { wert: 'alle', label: 'Alle', emoji: '✨' },
   { wert: 'sprache', label: 'Spanisch lernen', emoji: '🎓' },
   { wert: 'gesundheit', label: 'Gesundheit', emoji: '🩺' },
   { wert: 'sport', label: 'Sport', emoji: '🏃' },
@@ -101,7 +102,8 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     )
   })
   const [sucheOffen, setSucheOffen] = useState(false)
-  const [offeneReihe, setOffeneReihe] = useState(null) // welche Kategorie ist ausgeklappt
+  const [kategorie, setKategorie] = useState('alle')
+  const [sichtbareVideos, setSichtbareVideos] = useState(SCHRITT)
   const [bibliothekFehler, setbibliothekFehler] = useState('')
 
   useEffect(() => {
@@ -379,53 +381,66 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
             </p>
           </div>
 
+          <div className="themen-leiste">
+            {KATEGORIEN.map((k) => (
+              <button
+                key={k.wert}
+                className={'thema' + (kategorie === k.wert ? ' thema-aktiv' : '')}
+                onClick={() => {
+                  setKategorie(k.wert)
+                  setSichtbareVideos(SCHRITT) // bei neuem Filter wieder oben anfangen
+                }}
+              >
+                <span className="thema-emoji">{k.emoji}</span>
+                {k.label}
+              </button>
+            ))}
+          </div>
+
           {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
           {!bibliothek && !bibliothekFehler && (
             <p className="intro">Lade Mediathek…</p>
           )}
 
-          {/* Eine Reihe je Kategorie mit vier Videos. Die alte
-              Gesamtliste zeigte 45 Videos am Stueck – man wusste
-              nicht, wo anfangen. */}
-          {bibliothek &&
-            KATEGORIEN.map((k) => {
-              const videos = bibliothek.filter((v) => v.kategorie === k.wert)
-              if (videos.length === 0) return null
-              const offen = offeneReihe === k.wert
-              const sichtbar = offen ? videos : videos.slice(0, PRO_REIHE)
+          {bibliothek && (() => {
+            const gefiltert =
+              kategorie === 'alle'
+                ? bibliothek
+                : bibliothek.filter((v) => v.kategorie === kategorie)
 
-              return (
-                <div key={k.wert} className="kategorie-reihe">
-                  <div className="reihen-kopf">
-                    <h3 className="reihen-titel">
-                      <span className="reihen-emoji" aria-hidden="true">{k.emoji}</span>
-                      {k.label}
-                    </h3>
-                    {videos.length > PRO_REIHE && (
-                      <button
-                        className="reihen-mehr"
-                        onClick={() => setOffeneReihe(offen ? null : k.wert)}
-                      >
-                        {offen ? 'Weniger' : `Alle ${videos.length}`}
-                      </button>
-                    )}
-                  </div>
+            if (gefiltert.length === 0) {
+              return <p className="intro">Zu diesem Thema ist noch nichts dabei.</p>
+            }
 
-                  <div className="video-grid">
-                    {sichtbar.map((v) => (
-                      <div key={v.videoId} className="biblio-karte">
-                        <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
-                        <VideoKarte
-                          video={v}
-                          onOpen={onOpenVideo}
-                          fortschritt={fortschritt[v.videoId] ?? 0}
-                        />
-                      </div>
-                    ))}
-                  </div>
+            const sichtbar = gefiltert.slice(0, sichtbareVideos)
+            const rest = gefiltert.length - sichtbar.length
+
+            return (
+              <>
+                <div className="video-grid">
+                  {sichtbar.map((v) => (
+                    <div key={v.videoId} className="biblio-karte">
+                      <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
+                      <VideoKarte
+                        video={v}
+                        onOpen={onOpenVideo}
+                        fortschritt={fortschritt[v.videoId] ?? 0}
+                      />
+                    </div>
+                  ))}
                 </div>
-              )
-            })}
+
+                {rest > 0 && (
+                  <button
+                    className="btn-outline mehr-videos"
+                    onClick={() => setSichtbareVideos((n) => n + SCHRITT)}
+                  >
+                    Mehr anzeigen ({rest} weitere)
+                  </button>
+                )}
+              </>
+            )
+          })()}
         </section>
       )}
 

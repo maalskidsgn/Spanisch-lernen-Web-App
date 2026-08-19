@@ -118,6 +118,47 @@ function pruefeQualitaet(lines) {
   return { stufe, woerterProZeile: Math.round(schnitt * 10) / 10 }
 }
 
+/**
+ * Welche dieser Videos haben ueberhaupt Untertitel?
+ *
+ * Ohne diese Pruefung landen Songs in den Treffern, die gar keinen
+ * Text haben – der Nutzer klickt, wartet, und bekommt "keine
+ * spanischen Untertitel". Schlimmer noch: Der Versuch geht ueber
+ * den kostenpflichtigen Dienst.
+ *
+ * Ein einziger Aufruf prueft bis zu 50 Videos (1 Kontingent-Einheit).
+ * Scheitert er – etwa weil der Schluessel auf eine andere Adresse
+ * beschraenkt ist – lassen wir ALLE durch, statt gar nichts zu
+ * zeigen.
+ *
+ * @returns {Promise<Set<string>|null>} IDs mit Untertiteln, oder null
+ */
+async function mitUntertiteln(ids) {
+  const schluessel = process.env.YOUTUBE_API_KEY
+  if (!schluessel || ids.length === 0) return null
+
+  try {
+    const antwort = await fetch(
+      'https://www.googleapis.com/youtube/v3/videos' +
+        `?part=contentDetails&id=${ids.slice(0, 50).join(',')}&key=${schluessel}`
+    )
+    if (!antwort.ok) return null
+
+    const daten = await antwort.json()
+    if (daten.error) {
+      console.warn('[suche] Untertitel-Pruefung nicht moeglich:', daten.error.message)
+      return null
+    }
+    return new Set(
+      (daten.items ?? [])
+        .filter((v) => v.contentDetails?.caption === 'true')
+        .map((v) => v.id)
+    )
+  } catch {
+    return null
+  }
+}
+
 // Holt aus einer YouTube-URL die Video-ID (der Teil nach "v=" oder hinter youtu.be/)
 function extractVideoId(url) {
   const patterns = [
@@ -371,9 +412,23 @@ app.get('/api/search', async (req, res) => {
 
     // Alle parallel prüfen und nur einbettbare behalten
     const checks = await Promise.all(alle.map((v) => istEinbettbar(v.videoId)))
-    const results = alle.filter((_, i) => checks[i]).slice(0, 10)
+    let brauchbar = alle.filter((_, i) => checks[i])
 
-    res.json({ results })
+    // Bei Songs zusaetzlich: nur Videos MIT Untertiteln. Ein Song
+    // ohne Text ist fuer uns wertlos – und der Versuch, ihn zu
+    // oeffnen, geht ueber den kostenpflichtigen Dienst.
+    if (nurMusik) {
+      const mitText = await mitUntertiteln(brauchbar.map((v) => v.videoId))
+      if (mitText) {
+        const gefiltert = brauchbar.filter((v) => mitText.has(v.videoId))
+        console.log(`[suche] ${gefiltert.length} von ${brauchbar.length} Songs haben Untertitel`)
+        // Wenn gar nichts uebrig bleibt, lieber die ungefilterten
+        // zeigen als eine leere Liste
+        if (gefiltert.length > 0) brauchbar = gefiltert
+      }
+    }
+
+    res.json({ results: brauchbar.slice(0, 10) })
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Suche fehlgeschlagen.' })
