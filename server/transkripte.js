@@ -28,28 +28,20 @@ export async function holeTranskript(videoId) {
   const schluessel = process.env.TUBEALFRED_API_KEY
   if (!schluessel) throw new Error('Kein TubeAlfred-Schlüssel hinterlegt.')
 
-  // "standard" = von Hand hochgeladene Untertitel. Bei Musik ist
-  // das entscheidend: Die automatische Spracherkennung scheitert an
-  // Gesang und liefert Bruchstuecke. Nur wenn es keine gibt, nehmen
-  // wir die automatischen – und melden das an die App weiter.
+  // kind=auto liefert die HOCHGELADENEN Untertitel, wenn es welche
+  // gibt, und sonst die automatischen. Genau das wollen wir – und
+  // zwar in EINEM Aufruf, denn jeder kostet ein Guthaben.
+  //
+  // Ich hatte hier kurzzeitig "standard" stehen, ein Wert, den es
+  // gar nicht gibt (gueltig sind auto, manual, asr). Der Dienst
+  // antwortete daraufhin mit 404 und keine Songs liessen sich mehr
+  // oeffnen.
   const adresse =
-    `${BASIS}/video/${videoId}/transcript?language=es&kind=standard`
+    `${BASIS}/video/${videoId}/transcript?language=es&kind=auto`
 
   const antwort = await fetch(adresse, {
     headers: { Authorization: `Bearer ${schluessel}` },
   })
-
-  // Keine manuellen Untertitel? Dann doch die automatischen holen.
-  if (antwort.status === 404) {
-    const zweiter = await fetch(
-      `${BASIS}/video/${videoId}/transcript?language=es&kind=asr`,
-      { headers: { Authorization: `Bearer ${schluessel}` } }
-    )
-    if (zweiter.ok) {
-      const daten = await zweiter.json()
-      return { ...formeErgebnis(daten, videoId), automatisch: true }
-    }
-  }
 
   if (!antwort.ok) {
     if (antwort.status === 401) throw new Error('Der TubeAlfred-Schlüssel wird nicht akzeptiert.')

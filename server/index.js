@@ -218,7 +218,9 @@ app.get('/api/transcript', async (req, res) => {
         // Gleich in die Bibliothek legen: so kostet dieses Video
         // nie wieder ein Guthaben – auch nicht bei anderen Nutzern
         merkeInBibliothek(videoId, ergebnis.title, ergebnis.lines, kategorie)
-        return res.json(ergebnis)
+        // Auch ueber diesen Weg soll die App erfahren, ob der Text
+        // brauchbar ist – sonst warnt sie nur bei lokal geholten.
+        return res.json({ ...ergebnis, qualitaet: pruefeQualitaet(ergebnis.lines) })
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
         return res.status(502).json({ error: dienstFehler.message })
