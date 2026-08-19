@@ -3,6 +3,22 @@ import { holeBibliothek, supabaseBereit } from './supabase.js'
 import Ebooks from './Ebooks.jsx'
 import VideoSuche from './VideoSuche.jsx'
 import Songs from './Songs.jsx'
+import {
+  IconAlle, IconSprache, IconGesundheit, IconSport, IconErnaehrung,
+  IconProduktiv, IconStoa, IconPsyche, IconSuche,
+} from './icons.jsx'
+
+const KATEGORIE_ICONS = {
+  alle: IconAlle,
+  sprache: IconSprache,
+  gesundheit: IconGesundheit,
+  sport: IconSport,
+  ernaehrung: IconErnaehrung,
+  produktivitaet: IconProduktiv,
+  stoizismus: IconStoa,
+  psychologie: IconPsyche,
+  gefunden: IconSuche,
+}
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 
@@ -14,17 +30,17 @@ import { useState, useEffect } from 'react'
 const SCHRITT = 4
 
 const KATEGORIEN = [
-  { wert: 'alle', label: 'Alle', emoji: '✨' },
-  { wert: 'sprache', label: 'Spanisch lernen', emoji: '🎓' },
-  { wert: 'gesundheit', label: 'Gesundheit', emoji: '🩺' },
-  { wert: 'sport', label: 'Sport', emoji: '🏃' },
-  { wert: 'ernaehrung', label: 'Ernährung', emoji: '🥗' },
-  { wert: 'produktivitaet', label: 'Produktivität', emoji: '⚡' },
-  { wert: 'stoizismus', label: 'Stoizismus', emoji: '🏛' },
-  { wert: 'psychologie', label: 'Psychologie', emoji: '🧠' },
+  { wert: 'alle', label: 'Alle' },
+  { wert: 'sprache', label: 'Spanisch lernen' },
+  { wert: 'gesundheit', label: 'Gesundheit' },
+  { wert: 'sport', label: 'Sport' },
+  { wert: 'ernaehrung', label: 'Ernährung' },
+  { wert: 'produktivitaet', label: 'Produktivität' },
+  { wert: 'stoizismus', label: 'Stoizismus' },
+  { wert: 'psychologie', label: 'Psychologie' },
   // Videos, die jemand selbst gesucht hat. Ohne eigene Reihe waeren
   // sie unsichtbar – sie tragen keine der kuratierten Kategorien.
-  { wert: 'gefunden', label: 'Selbst gefunden', emoji: '🔎' },
+  { wert: 'gefunden', label: 'Selbst gefunden' },
 ]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
@@ -375,10 +391,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                 <span className="rest-zaehler biblio-zaehler">{bibliothek.length}</span>
               )}
             </div>
-            <p>
-              Spanisch lernen, während du etwas Spannendes schaust – jedes Video
-              mit fertigem Transkript, ohne Wartezeit.
-            </p>
+
           </div>
 
           <div className="themen-leiste">
@@ -391,7 +404,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                   setSichtbareVideos(SCHRITT) // bei neuem Filter wieder oben anfangen
                 }}
               >
-                <span className="thema-emoji">{k.emoji}</span>
+                {(() => { const I = KATEGORIE_ICONS[k.wert]; return I ? <I groesse={15} /> : null })()}
                 {k.label}
               </button>
             ))}

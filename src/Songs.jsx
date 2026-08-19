@@ -242,10 +242,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       <section className="bereich">
         <div className="bereich-kopf">
           <h2>Spanische Songs finden</h2>
-          <p>
-            Musik ist der einfachste Weg, ein Ohr für die Sprache zu bekommen –
-            der Text läuft mit, unbekannte Wörter tippst du an.
-          </p>
+          <p>Der Text läuft mit – unbekannte Wörter tippst du an.</p>
         </div>
 
         <form
@@ -350,10 +347,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       <section className="bereich">
         <div className="bereich-kopf">
           <h2>Deine spanischen Interpreten</h2>
-          <p>
-            Verbinde Spotify – eine KI schaut deine Playlists durch und merkt
-            sich, welche deiner Künstler auf Spanisch singen.
-          </p>
+          <p>Deine spanischsprachigen Künstler aus Spotify, mit ihren Songs.</p>
         </div>
 
         {!spotifyBereit && (

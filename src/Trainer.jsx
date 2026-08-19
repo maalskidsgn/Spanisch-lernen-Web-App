@@ -13,6 +13,15 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import Games from './Games.jsx'
 import ListGenerator from './ListGenerator.jsx'
+import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
+
+// Zuordnung der Uebungsarten zu ihren Icons
+const ART_ICONS = {
+  karten: IconKarten,
+  auswahl: IconAuswahl,
+  schreiben: IconSchreiben,
+  gemischt: IconGemischt,
+}
 import {
   ARTEN,
   LEKTION_GROESSE,
@@ -229,7 +238,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
             />
           </div>
           <p className="training-progress">
-            {ARTEN.find((a) => a.id === art)?.emoji} {result.richtig} von {LEKTION_GROESSE} geschafft
+            {result.richtig} von {LEKTION_GROESSE} geschafft
           </p>
         </div>
 
@@ -375,7 +384,9 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         <div className="art-liste">
           {ARTEN.map((a) => (
             <button key={a.id} className="art-karte" onClick={() => startTraining(a.id)}>
-              <span className="art-emoji" aria-hidden="true">{a.emoji}</span>
+              <span className="art-emoji" aria-hidden="true">
+                {(() => { const I = ART_ICONS[a.icon]; return <I groesse={24} /> })()}
+              </span>
               <span className="art-text">
                 <span className="art-titel">{a.titel}</span>
                 <span className="art-beschreibung">{a.text}</span>

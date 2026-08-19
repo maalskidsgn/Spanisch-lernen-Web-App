@@ -1,5 +1,9 @@
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { letzteWoche } from './aktivitaet.js'
+import {
+  IconLektion, IconKarten, IconMediathek, IconMehr,
+  IconSerie, IconLevel, IconPfeil,
+} from './icons.jsx'
 
 // Die Startseite – im selben Sektionen-Stil wie der Vokabeltrainer:
 // große Zahl, klare Ansage, ein Knopf. Kein Aufgabenzettel.
@@ -15,25 +19,25 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
   return (
     <div className="trainer home">
       <h1 className="trainer-titel">
-        ¡Hola! <span className="accent">👋</span>
+        ¡<span className="accent">Hola</span>!
       </h1>
       <div className="hero-row">
-        <span className="hero-chip">🔥 {progress.streak} Tage</span>
-        <span className="hero-chip">⭐ Level {level} · {levelName(level)}</span>
+        <span className="hero-chip"><IconSerie groesse={15} /> {progress.streak} Tage</span>
+        <span className="hero-chip"><IconLevel groesse={15} /> Level {level} · {levelName(level)}</span>
       </div>
 
       {/* ============ 1. ZWEI KLARE WEGE ============ */}
       {/* Kein Plan, keine Liste: zwei grosse Knoepfe. */}
       <div className="start-aktionen">
         <button className="start-aktion" onClick={() => onNavigate('lektionen')}>
-          <span className="start-aktion-emoji" aria-hidden="true">🎓</span>
+          <span className="start-aktion-icon" aria-hidden="true"><IconLektion groesse={26} /></span>
           <span className="start-aktion-titel">Nächste Lektion</span>
           <span className="start-aktion-sub">
             {nextLesson ? nextLesson.titel : 'Alle geschafft ✓'}
           </span>
         </button>
         <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
-          <span className="start-aktion-emoji" aria-hidden="true">🃏</span>
+          <span className="start-aktion-icon" aria-hidden="true"><IconKarten groesse={26} /></span>
           <span className="start-aktion-titel">Vokabeln wiederholen</span>
           <span className="start-aktion-sub">
             {counts.faellig > 0 ? `${counts.faellig} Wörter fällig` : 'Nichts fällig – stark!'}
@@ -48,7 +52,7 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
         </div>
         <span className="ziel-text">
           {zielProzent >= 100
-            ? `${heute} Tages-XP · Ziel erreicht 🎉`
+            ? `${heute} Tages-XP · Ziel erreicht`
             : `${heute} von ${settings.tagesziel} Tages-XP`}
         </span>
       </div>
@@ -68,10 +72,10 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
         </p>
         <div className="tutor-knoepfe">
           <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
-            Lets go <span aria-hidden="true">➤</span>
+            Lets go <IconPfeil groesse={16} />
           </button>
           <button className="tutor-knopf tutor-knopf-zweit" onClick={() => onNavigate('trainer')}>
-            KI Hilfe <span aria-hidden="true">✦</span>
+            KI Hilfe
           </button>
         </div>
       </section>
@@ -82,8 +86,8 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
           <h2>Deine Woche</h2>
           <p>
             {wochenSumme === 0
-              ? 'Jede fertige Lektion, Runde und jedes Spiel zählt hier.'
-              : `${wochenSumme} ${wochenSumme === 1 ? 'Einheit' : 'Einheiten'} in den letzten 7 Tagen.`}
+              ? 'Jede fertige Einheit zählt hier.'
+              : `${wochenSumme} ${wochenSumme === 1 ? 'Einheit' : 'Einheiten'} diese Woche`}
           </p>
         </div>
         <div
@@ -113,26 +117,26 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
         </div>
         <div className="start-aktionen">
           <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('lektionen')}>
-            <span className="start-aktion-emoji" aria-hidden="true">🎓</span>
+            <span className="start-aktion-icon" aria-hidden="true"><IconLektion groesse={24} /></span>
             <span className="start-aktion-titel">Lektionen</span>
             <span className="start-aktion-sub">
               {nextLesson ? `Weiter: ${nextLesson.titel}` : 'Alle geschafft ✓'}
             </span>
           </button>
           <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
-            <span className="start-aktion-emoji" aria-hidden="true">🃏</span>
+            <span className="start-aktion-icon" aria-hidden="true"><IconKarten groesse={24} /></span>
             <span className="start-aktion-titel">Trainer</span>
             <span className="start-aktion-sub">
               {counts.faellig > 0 ? `${counts.faellig} Wörter fällig` : `${counts.woerter} Wörter`}
             </span>
           </button>
           <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('videos')}>
-            <span className="start-aktion-emoji" aria-hidden="true">📺</span>
+            <span className="start-aktion-icon" aria-hidden="true"><IconMediathek groesse={24} /></span>
             <span className="start-aktion-titel">Mediathek</span>
             <span className="start-aktion-sub">Videos, Songs & Bücher</span>
           </button>
           <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('mehr')}>
-            <span className="start-aktion-emoji" aria-hidden="true">⚙️</span>
+            <span className="start-aktion-icon" aria-hidden="true"><IconMehr groesse={24} /></span>
             <span className="start-aktion-titel">Mehr</span>
             <span className="start-aktion-sub">Abo, Ziele & Daten</span>
           </button>

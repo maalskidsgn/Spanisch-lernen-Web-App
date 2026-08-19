@@ -5766,3 +5766,126 @@ body:has(.trainer) { background: #fff; }
 .trainer .wort-los {
   box-shadow: 0 4px 0 var(--primary-press);
 }
+
+/* ==========================================================
+   Design-Vereinheitlichung: Weiß, eine Knopf-Sprache
+   Der Trainer-Look (weißer Grund, flache Elemente, feine
+   Linien) gilt jetzt überall.
+   ========================================================== */
+body, .app { background: #fff; }
+main { background: #fff; }
+
+/* Alle Bereiche wie im Trainer: keine Karten, feine Trennlinien */
+.bereich {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 26px 0;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--line);
+}
+.bereich:last-of-type { border-bottom: none; }
+
+/* Beschreibungs-Sätze unter Überschriften: kleiner und leiser.
+   Sie sollen helfen, nicht die Seite füllen. */
+.bereich-kopf { margin-bottom: 14px; }
+.bereich-kopf p {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+  max-width: 52ch;
+  margin: 4px 0 0;
+}
+
+/* Eine Knopf-Sprache:
+   – Primär (orange, 3D-Kante): nur die EINE Hauptaktion je Ansicht
+   – Alles andere: flach, weiß, feiner Rand */
+button { box-shadow: none; }
+button:active { transform: scale(.97); box-shadow: none; }
+
+.btn,
+.wiederholen-los,
+.wort-los,
+.hero-cta,
+.tutor-knopf,
+.start-aktion:not(.start-aktion-zweit) {
+  box-shadow: 0 4px 0 var(--primary-press);
+}
+.btn:active,
+.wiederholen-los:active,
+.wort-los:active,
+.tutor-knopf:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 var(--primary-press);
+}
+.start-aktion:not(.start-aktion-zweit) { box-shadow: 0 6px 18px rgba(255,108,0,.28); }
+
+.chip, .vorschlag-chip, .thema, .filter-knopf, .btn-outline, .btn-plain,
+.kategorie-chip, .reihen-mehr, .such-knopf {
+  box-shadow: none;
+  background: #fff;
+  border: 1.5px solid var(--line);
+}
+.btn-plain { border: none; }
+.thema-aktiv, .chip-aktiv, .chip-active, .filter-an {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+@media (hover: hover) {
+  .chip:hover, .vorschlag-chip:hover, .thema:hover,
+  .filter-knopf:hover, .btn-outline:hover { border-color: var(--primary); }
+}
+
+/* Eingaben überall gleich */
+input[type="text"], input[type="search"], input:not([type]), select, textarea {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+}
+
+/* Icon in Chips und Knöpfen: sauber neben dem Text ausgerichtet */
+.mit-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.mit-icon svg { flex: none; }
+
+/* Hero-Chips (Serie, Level): flach mit Icon */
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  box-shadow: none;
+}
+.hero-chip svg { color: var(--primary); }
+
+
+/* Themen-Chips mit Linien-Icon */
+.thema {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.thema svg { flex: none; }
+.thema-aktiv svg { color: #fff; }
+
+.start-aktion-icon {
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .22);
+  margin-bottom: 6px;
+}
+.start-aktion-zweit .start-aktion-icon {
+  background: #fff3e8;
+  color: var(--primary);
+}
+.art-emoji svg { color: var(--primary); }
+
+/* Restliche Textkuerzungen: kleine Hinweise leiser */
+.suche-hinweis, .empty-hint { font-size: 13px; color: var(--muted); }
