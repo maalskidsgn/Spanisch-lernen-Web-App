@@ -6323,3 +6323,39 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   font-size: 13px;
   color: var(--red-press);
 }
+
+/* Gruppenstunde: Live-Punkt und Zustände des Beitreten-Knopfs */
+.tutor-bild { position: relative; }
+.tutor-live {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--red);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 99px;
+  border: 2px solid var(--card);
+}
+
+.tutor-knopf-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 4px 0 var(--primary-press);
+}
+
+.tutor-knopf:disabled { opacity: 0.55; }
+
+.tutor-hinweis {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}

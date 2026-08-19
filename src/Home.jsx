@@ -1,6 +1,9 @@
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { MODULE, LEKTIONEN, lektionenVon, baueSchritte } from './lektionen.js'
+import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
+import { usePremium } from './premium.js'
 import { letzteWoche } from './aktivitaet.js'
+import { useEffect, useState } from 'react'
 import {
   IconLektion, IconKarten, IconMediathek, IconMehr,
   IconSerie, IconLevel, IconPfeil,
@@ -120,27 +123,7 @@ export default function Home({ progress, settings, counts, nextLesson, lessonPro
       </div>
 
       {/* ============ 2. UNTERRICHT MIT TUTORIN ============ */}
-      <section className="tutor-karte">
-        <div className="tutor-bild">
-          {/* Bis ein Foto da ist: die Anfangsbuchstaben als Platzhalter */}
-          <span className="tutor-initialen" aria-hidden="true">Y</span>
-        </div>
-        <h2 className="tutor-titel">
-          Lerne in der <span className="accent">Praxis!</span>
-        </h2>
-        <p className="tutor-text">
-          Lerne jeden Donnerstag in Gruppenunterricht mit{' '}
-          <b className="accent">Yulibeth</b>!
-        </p>
-        <div className="tutor-knoepfe">
-          <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
-            Lets go <IconPfeil groesse={16} />
-          </button>
-          <button className="tutor-knopf tutor-knopf-zweit" onClick={() => onNavigate('trainer')}>
-            KI Hilfe
-          </button>
-        </div>
-      </section>
+      <Gruppenstunde onNavigate={onNavigate} />
 
       {/* ============ 3. DEINE WOCHE ============ */}
       <section className="bereich">
@@ -233,4 +216,104 @@ function beschreibeLektion(l) {
   if (quellen.length) zeilen.push(`Wiederholung aus: ${quellen.join(', ')}`)
 
   return { minuten, lernst: l.grammatik?.[0] ?? l.beschreibung, zeilen }
+}
+
+/**
+ * Der wöchentliche Gruppenunterricht.
+ *
+ * Der Knopf ist nur im Zeitfenster ein Beitreten-Knopf – sonst zeigt
+ * die Karte, wann es losgeht. Ein Knopf, der jederzeit in einen
+ * leeren Raum führt, wäre schlimmer als keiner.
+ */
+function Gruppenstunde({ onNavigate }) {
+  const { premium } = usePremium()
+  const [jetzt, setJetzt] = useState(() => new Date())
+
+  // Einmal je Minute nachsehen: Der Countdown soll von selbst
+  // umspringen, wenn jemand die App offen liegen lässt.
+  useEffect(() => {
+    const takt = setInterval(() => setJetzt(new Date()), 30_000)
+    return () => clearInterval(takt)
+  }, [])
+
+  const s = stand(jetzt)
+  const offen = s.zustand === 'laeuft' || s.zustand === 'gleich'
+  const raumDa = Boolean(UNTERRICHT.raum)
+
+  return (
+    <section className="tutor-karte">
+      <div className="tutor-bild">
+        {/* Bis ein Foto da ist: die Anfangsbuchstaben als Platzhalter */}
+        <span className="tutor-initialen" aria-hidden="true">
+          {UNTERRICHT.lehrerin[0]}
+        </span>
+        {s.zustand === 'laeuft' && <span className="tutor-live">live</span>}
+      </div>
+
+      <h2 className="tutor-titel">
+        Lerne in der <span className="accent">Praxis!</span>
+      </h2>
+
+      <p className="tutor-text">
+        {s.zustand === 'laeuft' ? (
+          <>
+            Die Gruppenstunde mit <b className="accent">{UNTERRICHT.lehrerin}</b> läuft
+            gerade – {restzeit(s.endetIn)} ist Schluss.
+          </>
+        ) : (
+          <>
+            Gruppenunterricht mit <b className="accent">{UNTERRICHT.lehrerin}</b>:{' '}
+            {terminText(s.termin)}, {restzeit(s.beginntIn)}.
+          </>
+        )}
+      </p>
+
+      <div className="tutor-knoepfe">
+        {/* Fuenf Faelle, bewusst einzeln statt verschachtelt: Beim
+            Verschachteln landete der laufende Unterricht im Zweig fuer
+            "noch nicht offen" und rechnete mit s.beginntIn, das es
+            dort gar nicht gibt – auf dem Bildschirm stand dann
+            "Öffnet in NaN Tagen". */}
+        {offen && premium && raumDa && (
+          <a
+            className="tutor-knopf tutor-knopf-live"
+            href={UNTERRICHT.raum}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {s.zustand === 'laeuft' ? 'Jetzt beitreten' : 'Raum öffnen'}
+            <IconPfeil groesse={16} />
+          </a>
+        )}
+
+        {offen && premium && !raumDa && (
+          <button className="tutor-knopf" disabled>
+            Raum wird vorbereitet
+          </button>
+        )}
+
+        {!premium && (
+          <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
+            Mit Premium teilnehmen <IconPfeil groesse={16} />
+          </button>
+        )}
+
+        {!offen && premium && (
+          <button className="tutor-knopf" disabled>
+            Öffnet {restzeit(Math.max(0, s.beginntIn - UNTERRICHT.vorlaufMinuten * 60000))}
+          </button>
+        )}
+
+        <button className="tutor-knopf tutor-knopf-zweit" onClick={() => onNavigate('trainer')}>
+          KI Hilfe
+        </button>
+      </div>
+
+      {offen && premium && !raumDa && (
+        <p className="tutor-hinweis">
+          Die Zugangsadresse fehlt noch (VITE_UNTERRICHT_URL).
+        </p>
+      )}
+    </section>
+  )
 }
