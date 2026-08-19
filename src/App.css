@@ -5490,8 +5490,18 @@ body:has(.trainer) { background: #fff; }
 }
 .trainer .bereich:last-of-type { border-bottom: none; }
 
-/* Der Wiederhol-Block bleibt hervorgehoben, aber ruhiger */
-.trainer .bereich-wiederholen {
+/* Der Wiederhol-Block bleibt hervorgehoben, aber ruhiger.
+   Bewusst NICHT auf .trainer beschraenkt: Dieselbe Hauptkarte steht
+   auch in der Mediathek. Mit der Beschraenkung bekam sie dort die
+   aeltere, haertere Fassung – anderer Verlauf, dickerer Rand, und
+   das Zahl-Abzeichen lief aus dem Kasten.
+
+   ".bereich.bereich-wiederholen" statt nur ".bereich-wiederholen":
+   Beide Klassen stehen ohnehin am selben Element, aber erst die
+   Doppelung schlaegt ".trainer .bereich", das Hintergrund und
+   Rundung zurueckdreht. Mit nur einer Klasse verlor die Karte im
+   Trainer ihren Verlauf. */
+.bereich.bereich-wiederholen {
   background: linear-gradient(135deg, #fff6ee, #fffdfb);
   border: 1px solid #ffe0c4;
   border-radius: 20px;
@@ -5500,7 +5510,7 @@ body:has(.trainer) { background: #fff; }
 }
 
 /* Die große Zahl: Text darf nicht mehr aus dem Kasten laufen */
-.trainer .wiederholen-zahl {
+.wiederholen-zahl {
   width: 88px;
   height: auto;
   min-height: 88px;
@@ -5508,8 +5518,8 @@ body:has(.trainer) { background: #fff; }
   gap: 2px;
   align-content: center;
 }
-.trainer .wiederholen-zahl b { font-size: 1.75rem; }
-.trainer .wiederholen-zahl span {
+.wiederholen-zahl b { font-size: 1.75rem; }
+.wiederholen-zahl span {
   font-size: 10.5px;
   font-weight: 800;
   line-height: 1.15;

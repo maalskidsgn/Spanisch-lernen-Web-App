@@ -309,25 +309,22 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {bereich === 'videos' && (
       <>
       {/* ============ 1. SELBST SUCHEN ============ */}
-      <section className="bereich">
-        <div className="bereich-kopf">
+      {/* Dieselbe Hauptkarte wie im Trainer: eine Zahl links, die
+          Ansage in der Mitte, die eine Aktion rechts. */}
+      <section className="bereich bereich-wiederholen">
+        <div className="wiederholen-zahl">
+          <b>{savedVideos.length}</b>
+          <span>{savedVideos.length === 1 ? 'Video gemerkt' : 'Videos gemerkt'}</span>
+        </div>
+        <div className="wiederholen-text">
           <h2>Video zu einem Thema finden</h2>
           <p>
             Gib auf Deutsch ein, worüber du etwas schauen willst – wir suchen
-            passende spanische Videos dazu.
+            passende spanische Videos mit Untertiteln dazu.
           </p>
         </div>
-        <button className="such-knopf" onClick={() => setSucheOffen(true)}>
-          <span className="such-lupe" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
-              <circle cx="10.5" cy="10.5" r="6.5" />
-              <path d="M15.5 15.5L21 21" />
-            </svg>
-          </span>
-          <span className="such-text">
-            <b>Suche starten</b>
-            <span>z.B. gesunde Ernährung, Schlaf, Stoizismus</span>
-          </span>
+        <button className="btn wiederholen-los" onClick={() => setSucheOffen(true)}>
+          Suchen
         </button>
       </section>
 
