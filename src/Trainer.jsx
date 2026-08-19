@@ -12,6 +12,15 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import Games from './Games.jsx'
 import ListGenerator from './ListGenerator.jsx'
+import {
+  ARTEN,
+  LEKTION_GROESSE,
+  baueLektion,
+  artFuer,
+  baueAuswahl,
+  buchstabenMischen,
+  stimmtUeberein,
+} from './uebungen.js'
 
 // Der Vokabeltrainer: Übersicht aller Wörter mit Filter nach Stufen
 // und ein Karteikarten-Training für die fälligen Wörter.
@@ -27,7 +36,13 @@ export default function Trainer({ vocab, setVocab, addXp }) {
   const [result, setResult] = useState({ richtig: 0, falsch: 0 })
   const [xpPopup, setXpPopup] = useState(null) // schwebende "+10 XP"-Anzeige
   const [exiting, setExiting] = useState(null) // 'richtig' | 'falsch' – für die Karten-Animation
-  const [spiel, setSpiel] = useState(null) // 'memory' | 'paare' | 'kreuz' – laufendes Mini-Spiel
+  const [spiel, setSpiel] = useState(null) // laufendes Mini-Spiel
+  const [artWahl, setArtWahl] = useState(false) // Auswahl der Uebungsart offen?
+  const [art, setArt] = useState('karten')      // gewaehlte Uebungsart
+  const [position, setPosition] = useState(0)   // fuer "gemischt": welcher Durchgang
+  const [eingabe, setEingabe] = useState('')    // Schreiben: getippter Text
+  const [tippStufe, setTippStufe] = useState(0) // 0 = kein Tipp, 1 = gemischt, 2 = Loesung
+  const [gewaehlt, setGewaehlt] = useState(null) // Multiple Choice: angetippte Antwort
 
   // Alle Vokabeln als Liste, fehlende Felder ergänzen
   const entries = Object.entries(vocab).map(([word, e]) => ({
@@ -65,10 +80,34 @@ export default function Trainer({ vocab, setVocab, addXp }) {
 
   const trainable = filtered.filter(isDue)
 
-  function startTraining() {
-    setQueue(trainable.map((e) => e.word))
+  function startTraining(gewaehlteArt) {
+    setArt(gewaehlteArt)
+    // Eine Lektion sind 20 Woerter: erst die faelligen, dann
+    // auffuellen – so ist die Runde immer gleich lang und ueberschaubar.
+    setQueue(baueLektion(entries, trainable))
+    setPosition(0)
     setRevealed(false)
+    setEingabe('')
+    setTippStufe(0)
+    setGewaehlt(null)
     setResult({ richtig: 0, falsch: 0 })
+    setArtWahl(false)
+  }
+
+  /**
+   * Eine Antwort aus Auswahl oder Schreiben verbuchen.
+   *
+   * WICHTIG: Auch diese Arten laufen ueber dieselbe answer()-Funktion
+   * und damit ueber review() – die Wörter wandern also genauso durch
+   * den Karteikasten wie bei den Karten. Nur die Bewertung wird
+   * automatisch gesetzt, statt dass der Nutzer sie selbst waehlt.
+   *
+   * Wer einen Tipp gebraucht hat, bekommt hoechstens "schwer" –
+   * sonst wuerde ein erratenes Wort zu weit nach hinten rutschen.
+   */
+  function autoAntwort(richtigGetippt) {
+    if (!richtigGetippt) return answer('nochmal')
+    return answer(tippStufe > 0 ? 'schwer' : 'gut')
   }
 
   // Antwort im Training: die Karte fliegt in die passende Richtung weg,
@@ -99,6 +138,10 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       setXpPopup({ amount: earned, key: Date.now() }) // key sorgt dafür, dass die Animation neu startet
       setQueue(nextQueue)
       setRevealed(false)
+      setEingabe('')
+      setTippStufe(0)
+      setGewaehlt(null)
+      setPosition((p) => p + 1)
       setExiting(null)
     }, 420) // so lange fliegt die Karte
   }
@@ -161,7 +204,11 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         </div>
       )
     }
-    const current = vocab[queue[0]]
+    const wort = queue[0]
+    const current = withSrsDefaults(vocab[wort] ?? {})
+    const loesung = current.translation || '(keine Übersetzung gespeichert)'
+    const dieseArt = artFuer(art, position)
+
     return (
       <div className="trainer training-stage">
         {xpPopup && (
@@ -169,44 +216,157 @@ export default function Trainer({ vocab, setVocab, addXp }) {
             +{xpPopup.amount} XP
           </span>
         )}
-        <p className="training-progress">Noch {queue.length} Karten</p>
-        <div
-          className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
-          key={queue[0] + queue.length}
-        >
-          <div className="flash-word">{queue[0]}</div>
-          {revealed ? (
-            <div className="flash-back">
-              <div className="flash-translation">{current?.translation || '(keine Übersetzung gespeichert)'}</div>
-              {/* Vier Bewertungen wie bei Anki – darunter steht,
-                  wann die Vokabel dadurch wieder drankommt */}
-              <div className="bewertungen">
-                {[
-                  { wert: 'nochmal', text: 'Nochmal' },
-                  { wert: 'schwer', text: 'Schwer' },
-                  { wert: 'gut', text: 'Gut' },
-                  { wert: 'einfach', text: 'Einfach' },
-                ].map((b) => (
-                  <button
-                    key={b.wert}
-                    className={'bewertung bewertung-' + b.wert}
-                    onClick={() => answer(b.wert)}
-                  >
-                    <span className="bewertung-text">{b.text}</span>
-                    <span className="bewertung-zeit">
-                      {vorschau(withSrsDefaults(current ?? {}), b.wert)}
-                    </span>
-                  </button>
-                ))}
+        <p className="training-progress">
+          {ARTEN.find((a) => a.id === art)?.emoji} Noch {queue.length} von {LEKTION_GROESSE}
+        </p>
+
+        {/* ---------- Art 1: Karteikarten ---------- */}
+        {dieseArt === 'karten' && (
+          <div
+            className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
+            key={wort + queue.length}
+          >
+            <div className="flash-word">{wort}</div>
+            {revealed ? (
+              <div className="flash-back">
+                <div className="flash-translation">{loesung}</div>
+                <div className="bewertungen">
+                  {[
+                    { wert: 'nochmal', text: 'Nochmal' },
+                    { wert: 'schwer', text: 'Schwer' },
+                    { wert: 'gut', text: 'Gut' },
+                    { wert: 'einfach', text: 'Einfach' },
+                  ].map((b) => (
+                    <button
+                      key={b.wert}
+                      className={'bewertung bewertung-' + b.wert}
+                      onClick={() => answer(b.wert)}
+                    >
+                      <span className="bewertung-text">{b.text}</span>
+                      <span className="bewertung-zeit">{vorschau(current, b.wert)}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <button onClick={() => setRevealed(true)}>Übersetzung zeigen</button>
-          )}
-        </div>
+            ) : (
+              <button onClick={() => setRevealed(true)}>Übersetzung zeigen</button>
+            )}
+          </div>
+        )}
+
+        {/* ---------- Art 2: Multiple Choice ---------- */}
+        {dieseArt === 'auswahl' && (
+          <div
+            className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
+            key={wort + queue.length}
+          >
+            <p className="lesson-hint">Was heißt …</p>
+            <div className="flash-word">{wort}</div>
+            <AuswahlKnoepfe
+              key={wort}
+              loesung={loesung}
+              entries={entries}
+              gewaehlt={gewaehlt}
+              onWahl={(antwort) => {
+                if (gewaehlt) return
+                setGewaehlt(antwort)
+                // Kurz stehen lassen, damit man Grün/Rot sieht
+                setTimeout(() => autoAntwort(antwort === loesung), 750)
+              }}
+            />
+          </div>
+        )}
+
+        {/* ---------- Art 3: Schreiben ---------- */}
+        {dieseArt === 'schreiben' && (
+          <div
+            className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
+            key={wort + queue.length}
+          >
+            <p className="lesson-hint">Wie sagt man …</p>
+            <div className="flash-word">{loesung}</div>
+
+            {/* Der Tipp: erst die Buchstaben durcheinander, beim
+                zweiten Antippen das ganze Wort. */}
+            {tippStufe > 0 && (
+              <div className={'tipp-feld' + (tippStufe === 2 ? ' tipp-loesung' : '')}>
+                {tippStufe === 1 ? buchstabenMischen(wort) : wort}
+              </div>
+            )}
+
+            <form
+              className="schreib-form"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (!eingabe.trim() || exiting) return
+                autoAntwort(stimmtUeberein(eingabe, wort))
+              }}
+            >
+              <input
+                className="schreib-feld"
+                value={eingabe}
+                onChange={(e) => setEingabe(e.target.value)}
+                placeholder="Auf Spanisch tippen …"
+                autoComplete="off"
+                autoCapitalize="off"
+                autoCorrect="off"
+                spellCheck="false"
+                autoFocus
+              />
+              <div className="schreib-knoepfe">
+                <button
+                  type="button"
+                  className="btn-plain"
+                  onClick={() => setTippStufe((s) => Math.min(2, s + 1))}
+                  disabled={tippStufe >= 2}
+                >
+                  {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? '💡 Ganzes Wort' : '💡 Aufgedeckt'}
+                </button>
+                <button type="submit" disabled={!eingabe.trim()}>
+                  Prüfen
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
         <button className="btn-plain" onClick={() => setQueue(null)}>
           Runde abbrechen
         </button>
+      </div>
+    )
+  }
+
+  // ---------- Auswahl der Übungsart ----------
+  if (artWahl) {
+    const anzahl = Math.min(LEKTION_GROESSE, entries.length)
+    return (
+      <div className="trainer">
+        <div className="art-kopf">
+          <button className="btn-plain" onClick={() => setArtWahl(false)}>
+            ← Zurück
+          </button>
+          <h1 className="trainer-titel">
+            Wie willst du <span className="accent">üben?</span>
+          </h1>
+          <p className="art-unterzeile">
+            {anzahl} Wörter · {trainable.length > 0 && `${Math.min(trainable.length, anzahl)} davon fällig`}
+          </p>
+        </div>
+
+        <div className="art-liste">
+          {ARTEN.map((a) => (
+            <button key={a.id} className="art-karte" onClick={() => startTraining(a.id)}>
+              <span className="art-emoji" aria-hidden="true">{a.emoji}</span>
+              <span className="art-text">
+                <span className="art-titel">{a.titel}</span>
+                <span className="art-beschreibung">{a.text}</span>
+                <span className="art-hinweis">{a.hinweis}</span>
+              </span>
+              <span className="art-pfeil" aria-hidden="true">›</span>
+            </button>
+          ))}
+        </div>
       </div>
     )
   }
@@ -235,8 +395,8 @@ export default function Trainer({ vocab, setVocab, addXp }) {
         </div>
         <button
           className="btn wiederholen-los"
-          onClick={startTraining}
-          disabled={trainable.length === 0}
+          onClick={() => setArtWahl(true)}
+          disabled={entries.length === 0}
         >
           {trainable.length > 0 ? 'Üben' : 'Nichts fällig'}
         </button>
@@ -416,5 +576,34 @@ function Chip({ active, onClick, children }) {
     <button className={'chip ' + (active ? 'chip-active' : '')} onClick={onClick}>
       {children}
     </button>
+  )
+}
+
+/**
+ * Die fünf Antwortmöglichkeiten bei Multiple Choice.
+ *
+ * Die Auswahl wird EINMAL pro Wort festgelegt (useState mit
+ * Startfunktion) – sonst würden die Knöpfe bei jedem Neuzeichnen
+ * neu gemischt und man könnte nicht zielen.
+ */
+function AuswahlKnoepfe({ loesung, entries, gewaehlt, onWahl }) {
+  const [optionen] = useState(() => baueAuswahl(loesung, entries))
+
+  return (
+    <div className="quiz-options auswahl-fuenf">
+      {optionen.map((o) => {
+        let klasse = 'quiz-option'
+        if (gewaehlt) {
+          if (o === loesung) klasse += ' option-richtig'
+          else if (o === gewaehlt) klasse += ' option-falsch'
+          else klasse += ' option-inaktiv'
+        }
+        return (
+          <button key={o} className={klasse} onClick={() => onWahl(o)} disabled={Boolean(gewaehlt)}>
+            {o}
+          </button>
+        )
+      })}
+    </div>
   )
 }
