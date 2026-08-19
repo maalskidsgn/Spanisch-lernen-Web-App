@@ -110,30 +110,30 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
         <div className="bereich-kopf">
           <h2>Entdecken</h2>
         </div>
-        <div className="spiel-paar">
-          <button className="spiel-karte" onClick={() => onNavigate('lektionen')}>
-            <span className="nav-emoji" aria-hidden="true">🎓</span>
-            <span className="spiel-name">Lektionen</span>
-            <span className="spiel-hinweis">
+        <div className="start-aktionen">
+          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('lektionen')}>
+            <span className="start-aktion-emoji" aria-hidden="true">🎓</span>
+            <span className="start-aktion-titel">Lektionen</span>
+            <span className="start-aktion-sub">
               {nextLesson ? `Weiter: ${nextLesson.titel}` : 'Alle geschafft ✓'}
             </span>
           </button>
-          <button className="spiel-karte" onClick={() => onNavigate('trainer')}>
-            <span className="nav-emoji" aria-hidden="true">🃏</span>
-            <span className="spiel-name">Trainer</span>
-            <span className="spiel-hinweis">
+          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
+            <span className="start-aktion-emoji" aria-hidden="true">🃏</span>
+            <span className="start-aktion-titel">Trainer</span>
+            <span className="start-aktion-sub">
               {counts.faellig > 0 ? `${counts.faellig} Wörter fällig` : `${counts.woerter} Wörter`}
             </span>
           </button>
-          <button className="spiel-karte" onClick={() => onNavigate('videos')}>
-            <span className="nav-emoji" aria-hidden="true">📺</span>
-            <span className="spiel-name">Mediathek</span>
-            <span className="spiel-hinweis">Videos, Songs & Bücher</span>
+          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('videos')}>
+            <span className="start-aktion-emoji" aria-hidden="true">📺</span>
+            <span className="start-aktion-titel">Mediathek</span>
+            <span className="start-aktion-sub">Videos, Songs & Bücher</span>
           </button>
-          <button className="spiel-karte" onClick={() => onNavigate('mehr')}>
-            <span className="nav-emoji" aria-hidden="true">⚙️</span>
-            <span className="spiel-name">Mehr</span>
-            <span className="spiel-hinweis">Abo, Ziele & Daten</span>
+          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('mehr')}>
+            <span className="start-aktion-emoji" aria-hidden="true">⚙️</span>
+            <span className="start-aktion-titel">Mehr</span>
+            <span className="start-aktion-sub">Abo, Ziele & Daten</span>
           </button>
         </div>
       </section>
