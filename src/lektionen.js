@@ -165,7 +165,7 @@ export const LEKTIONEN = [
     id: 'hoeflichkeit',
     // Kursfelder: Lektion 5 im 150er-Aufbau
     niveau: 'A1.1',
-    kursNr: 5,
+    kursNr: 24,
     grammatik: ['por favor, gracias und die Antwortformeln'],
     wiederholt: ['begruessung', 'vorstellen'],
     vorher: ['begruessung'],
@@ -210,8 +210,8 @@ export const LEKTIONEN = [
     niveau: 'A1.2',
     kursNr: 32,
     grammatik: ['el oder la: das Geschlecht der Substantive'],
-    wiederholt: ['cafe', 'zahlen', 'hoeflichkeit'],
-    vorher: ['cafe'],
+    wiederholt: ['zahlen', 'hoeflichkeit', 'begruessung'],
+    vorher: ['hoeflichkeit'],
     kulturnotiz: 'Die Hauptmahlzeit ist in Spanien das Mittagessen zwischen 14 und 16 Uhr.',
     titel: 'Essen & Trinken',
     emoji: '🥘',
@@ -353,7 +353,7 @@ export const LEKTIONEN = [
     niveau: 'A1.1',
     kursNr: 2,
     grammatik: ['Aussprache und Betonung'],
-    wiederholt: ['begruessung'],
+    wiederholt: [],
     vorher: [],
     kulturnotiz: 'Das ñ hat einen eigenen Platz im Alphabet – es entstand aus einem doppelten n im Mittelalter.',
     titel: 'Das Alphabet & Aussprache',
@@ -574,6 +574,304 @@ export const LEKTIONEN = [
       { sprecher: 'David', es: 'Perfecto, ¡quedamos el sábado!', de: 'Perfekt, dann bis Samstag!' },
     ],
   },
+
+  // ============ NEU: Aussprache-Fundament (Lektionen 3 und 4) ============
+  {
+    id: 'aussprache',
+    // Kursfelder: Lektion 3 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 3,
+    grammatik: ['Die spanischen Sonderlaute'],
+    wiederholt: ['alphabet'],
+    vorher: ['alphabet'],
+    kulturnotiz: 'In Spanien spricht man das c vor e und i wie das englische „th“ – in Lateinamerika wie ein s. Beides ist völlig korrekt.',
+    titel: 'Spanische Aussprache',
+    emoji: '🗣️',
+    beschreibung: 'Die Laute, die es im Deutschen nicht gibt',
+    ziele: [
+      'Die spanischen Sonderlaute erkennen und aussprechen',
+      'Das gerollte R üben',
+      'Regionale Unterschiede heraushören',
+    ],
+    items: [
+      { es: 'el trabajo', de: 'die Arbeit', beispielEs: 'Mi trabajo empieza a las nueve.', beispielDe: 'Meine Arbeit beginnt um neun.' },
+      { es: 'el perro', de: 'der Hund', beispielEs: 'El perro corre por el parque.', beispielDe: 'Der Hund läuft durch den Park.' },
+      { es: 'pero', de: 'aber', beispielEs: 'Quiero ir, pero no tengo tiempo.', beispielDe: 'Ich möchte gehen, aber ich habe keine Zeit.' },
+      { es: 'la hora', de: 'die Stunde', beispielEs: '¿Qué hora es, por favor?', beispielDe: 'Wie spät ist es, bitte?' },
+      { es: 'el coche', de: 'das Auto', beispielEs: 'Mi coche es pequeño y rojo.', beispielDe: 'Mein Auto ist klein und rot.' },
+      { es: 'la plaza', de: 'der Platz', beispielEs: 'Nos vemos en la plaza mayor.', beispielDe: 'Wir sehen uns auf dem Hauptplatz.' },
+      { es: 'la llave', de: 'der Schlüssel', beispielEs: 'No encuentro mi llave.', beispielDe: 'Ich finde meinen Schlüssel nicht.' },
+      { es: 'el vino', de: 'der Wein', beispielEs: 'Un vino tinto, por favor.', beispielDe: 'Einen Rotwein, bitte.' },
+      { es: 'la guitarra', de: 'die Gitarre', beispielEs: 'Toco la guitarra los domingos.', beispielDe: 'Ich spiele sonntags Gitarre.' },
+      { es: 'mañana', de: 'morgen', beispielEs: 'Hasta mañana, Ana.', beispielDe: 'Bis morgen, Ana.' },
+      { es: 'la gente', de: 'die Leute', beispielEs: 'Hay mucha gente en la calle.', beispielDe: 'Es sind viele Leute auf der Straße.' },
+      { es: 'despacio', de: 'langsam', beispielEs: 'Más despacio, por favor.', beispielDe: 'Langsamer, bitte.' },
+    ],
+    wissen: [
+      {
+        emoji: '🎯',
+        titel: 'Das gerollte R – der Trick',
+        text: 'Ein *rr* ist ein gerolltes R: *perro* (Hund). Ein einfaches *r* zwischen Vokalen ist nur ein kurzer Schlag: *pero* (aber). Der Unterschied ändert die Bedeutung! Wer das Rollen nicht schafft: Zungenspitze locker hinter die oberen Schneidezähne und pusten.',
+      },
+      {
+        emoji: '🤫',
+        titel: 'j und g klingen wie „ch“ in Bach',
+        text: 'Das *j* ist immer ein Rachenlaut: *trabajo* klingt wie „trabacho“. Vor *e* und *i* klingt auch das *g* so: *gente* wird „chente“, *gitarra* dagegen mit *u* geschrieben – *guitarra* – damit es hart bleibt.',
+      },
+      {
+        emoji: '🌍',
+        titel: 'b und v klingen gleich',
+        text: 'Für spanische Ohren gibt es keinen Unterschied zwischen *b* und *v*: *vino* und *bino* klängen identisch. Deshalb fragen Spanier beim Buchstabieren oft „¿be o uve?“ – ist es ein B oder ein V?',
+      },
+    ],
+    dialog: [
+      { sprecher: 'Ana', es: 'Tom, repite: el perro corre.', de: 'Tom, wiederhole: Der Hund läuft.' },
+      { sprecher: 'Tom', es: 'El pero corre… ¿está bien?', de: 'El pero corre … ist das richtig?' },
+      { sprecher: 'Ana', es: 'Casi. Con dos erres: perro. Pero con una erre significa „aber“.', de: 'Fast. Mit zwei R: perro. Mit einem R heißt es „aber“.' },
+      { sprecher: 'Tom', es: 'Ah, entonces trabajo también es difícil para mí.', de: 'Ah, dann ist trabajo auch schwer für mich.' },
+      { sprecher: 'Ana', es: 'La jota suena como en alemán „Bach“. Trabajo.', de: 'Das J klingt wie im deutschen „Bach“. Trabajo.' },
+      { sprecher: 'Tom', es: 'Trabajo. ¿Y la hache en hora?', de: 'Trabajo. Und das H in hora?' },
+      { sprecher: 'Ana', es: 'La hache no suena nunca. Solo „ora“.', de: 'Das H klingt nie. Nur „ora“.' },
+      { sprecher: 'Tom', es: 'Más despacio, por favor. ¡Pero me gusta!', de: 'Langsamer, bitte. Aber es gefällt mir!' },
+    ],
+  },
+  {
+    id: 'betonung',
+    // Kursfelder: Lektion 4 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 4,
+    grammatik: ['Betonungsregeln und der schriftliche Akzent'],
+    wiederholt: ['aussprache', 'alphabet'],
+    vorher: ['aussprache'],
+    kulturnotiz: 'Der Akzent ist keine Zierde: „papa“ ist der Papst oder die Kartoffel, „papá“ ist der Papa.',
+    titel: 'Betonung & Akzente',
+    emoji: '´',
+    beschreibung: 'Warum ein Strich die Bedeutung ändert',
+    ziele: [
+      'Wörter ohne Akzent richtig betonen',
+      'Verstehen, wann ein Akzent nötig ist',
+      'Bedeutungsunterschiede wie tu und tú erkennen',
+    ],
+    items: [
+      { es: 'la sílaba', de: 'die Silbe', beispielEs: 'Esta palabra tiene tres sílabas.', beispielDe: 'Dieses Wort hat drei Silben.' },
+      { es: 'la palabra', de: 'das Wort', beispielEs: 'No conozco esta palabra.', beispielDe: 'Ich kenne dieses Wort nicht.' },
+      { es: 'el acento', de: 'der Akzent', beispielEs: 'Café lleva acento en la e.', beispielDe: 'Café trägt einen Akzent auf dem E.' },
+      { es: 'tú', de: 'du', beispielEs: '¿Y tú, de dónde eres?', beispielDe: 'Und du, woher kommst du?' },
+      { es: 'tu', de: 'dein', beispielEs: '¿Cómo se llama tu hermana?', beispielDe: 'Wie heißt deine Schwester?' },
+      { es: 'él', de: 'er', beispielEs: 'Él vive en Sevilla.', beispielDe: 'Er wohnt in Sevilla.' },
+      { es: 'el', de: 'der', beispielEs: 'El libro está en la mesa.', beispielDe: 'Das Buch liegt auf dem Tisch.' },
+      { es: 'sí', de: 'ja', beispielEs: 'Sí, claro que quiero.', beispielDe: 'Ja, natürlich möchte ich.' },
+      { es: 'si', de: 'wenn', beispielEs: 'Si llueve, nos quedamos en casa.', beispielDe: 'Wenn es regnet, bleiben wir zu Hause.' },
+      { es: 'el examen', de: 'die Prüfung', beispielEs: 'El examen es el jueves.', beispielDe: 'Die Prüfung ist am Donnerstag.' },
+      { es: 'fácil', de: 'einfach', beispielEs: 'El español no es tan fácil.', beispielDe: 'Spanisch ist nicht so einfach.' },
+      { es: 'difícil', de: 'schwierig', beispielEs: 'Esta palabra es difícil.', beispielDe: 'Dieses Wort ist schwierig.' },
+    ],
+    wissen: [
+      {
+        emoji: '📏',
+        titel: 'Zwei Regeln decken fast alles ab',
+        text: 'Endet ein Wort auf *Vokal*, *n* oder *s*, liegt die Betonung auf der vorletzten Silbe: *casa*, *examen*, *gracias*. Endet es auf einen anderen Konsonanten, auf der letzten: *hablar*, *feliz*, *ciudad*.',
+      },
+      {
+        emoji: '❗',
+        titel: 'Der Akzent markiert die Ausnahme',
+        text: 'Ein geschriebener Akzent steht nur dort, wo die Betonung von der Regel abweicht: *café* endet auf einen Vokal, wird aber hinten betont – also Akzent. *fácil* endet auf Konsonant, wird aber vorne betont – also auch Akzent.',
+      },
+      {
+        emoji: '🔀',
+        titel: 'Der Akzent, der Wörter unterscheidet',
+        text: 'Bei kurzen Wörtern trennt der Akzent die Bedeutung: *tú* (du) und *tu* (dein), *él* (er) und *el* (der), *sí* (ja) und *si* (wenn). Gesprochen klingt das gleich – geschrieben ist es ein anderes Wort.',
+      },
+    ],
+    dialog: [
+      { sprecher: 'Tom', es: 'Ana, ¿por qué café lleva acento?', de: 'Ana, warum trägt café einen Akzent?' },
+      { sprecher: 'Ana', es: 'Porque no sigue la regla. Normalmente „cafe“ se diría CA-fe.', de: 'Weil es der Regel nicht folgt. Normalerweise würde man „cafe“ als CA-fe sprechen.' },
+      { sprecher: 'Tom', es: 'Y con acento es ca-FÉ.', de: 'Und mit Akzent ist es ca-FÉ.' },
+      { sprecher: 'Ana', es: 'Exacto. Mira: tu hermana y tú. ¿Ves la diferencia?', de: 'Genau. Schau: deine Schwester und du. Siehst du den Unterschied?' },
+      { sprecher: 'Tom', es: 'Tu sin acento es „dein“, tú con acento es „du“.', de: 'Tu ohne Akzent ist „dein“, tú mit Akzent ist „du“.' },
+      { sprecher: 'Ana', es: 'Muy bien. Un acento pequeño, una palabra distinta.', de: 'Sehr gut. Ein kleiner Akzent, ein anderes Wort.' },
+      { sprecher: 'Tom', es: 'Entonces no es tan difícil, solo diferente.', de: 'Dann ist es nicht so schwierig, nur anders.' },
+      { sprecher: 'Ana', es: 'Eso es. Y el español se lee como se escribe.', de: 'So ist es. Und Spanisch liest man, wie man es schreibt.' },
+    ],
+  },
+
+  // ============ NEU: Grammatik-Fundament (Lektionen 7 bis 9) ============
+  {
+    id: 'pronomen',
+    // Kursfelder: Lektion 7 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 7,
+    grammatik: ['Die Personalpronomen'],
+    wiederholt: ['vorstellen', 'begruessung', 'alphabet'],
+    vorher: ['vorstellen'],
+    kulturnotiz: 'In Spanien duzt man fast alle – in Lateinamerika ist „usted“ deutlich häufiger, auch unter Erwachsenen.',
+    titel: 'Ich, du, wir',
+    emoji: '👥',
+    beschreibung: 'Die Personalpronomen und wann man sie weglässt',
+    ziele: [
+      'Alle Personalpronomen kennen',
+      'Verstehen, warum Spanier sie meist weglassen',
+      'Zwischen tú und usted sicher wählen',
+    ],
+    items: [
+      { es: 'yo', de: 'ich', beispielEs: 'Yo soy de Alemania, ¿y tú?', beispielDe: 'Ich bin aus Deutschland, und du?' },
+      { es: 'tú', de: 'du', beispielEs: 'Tú hablas muy bien español.', beispielDe: 'Du sprichst sehr gut Spanisch.' },
+      { es: 'él', de: 'er', beispielEs: 'Él trabaja en un hospital.', beispielDe: 'Er arbeitet in einem Krankenhaus.' },
+      { es: 'ella', de: 'sie', beispielEs: 'Ella estudia medicina.', beispielDe: 'Sie studiert Medizin.' },
+      { es: 'usted', de: 'Sie (höflich)', beispielEs: '¿Y usted, cómo se llama?', beispielDe: 'Und Sie, wie heißen Sie?' },
+      { es: 'nosotros', de: 'wir', beispielEs: 'Nosotros vivimos en Madrid.', beispielDe: 'Wir wohnen in Madrid.' },
+      { es: 'vosotros', de: 'ihr (Spanien)', beispielEs: '¿Vosotros venís mañana?', beispielDe: 'Kommt ihr morgen?' },
+      { es: 'ustedes', de: 'Sie / ihr (Mehrzahl)', beispielEs: '¿Ustedes son de aquí?', beispielDe: 'Sind Sie von hier?' },
+      { es: 'ellos', de: 'sie (Männer)', beispielEs: 'Ellos llegan por la tarde.', beispielDe: 'Sie kommen am Nachmittag an.' },
+      { es: 'ellas', de: 'sie (Frauen)', beispielEs: 'Ellas trabajan juntas.', beispielDe: 'Sie arbeiten zusammen.' },
+    ],
+    wissen: [
+      {
+        emoji: '🫥',
+        titel: 'Meistens lässt man sie weg',
+        text: 'Die Verbendung verrät schon, wer gemeint ist: *hablo* kann nur „ich spreche“ heißen. Deshalb sagt man einfach *Hablo español* – nicht *Yo hablo español*. Das Pronomen setzt man nur, wenn man betont: *Yo soy de Alemania, ¿y tú?*',
+      },
+      {
+        emoji: '🤝',
+        titel: 'usted ist höflich – und dritte Person',
+        text: '*usted* heißt „Sie“, wird aber wie *él/ella* gebeugt: *usted habla*, nicht *usted hablas*. Das verwirrt am Anfang, hat aber einen Grund: Es kommt von *vuestra merced* – „Euer Gnaden“.',
+      },
+      {
+        emoji: '🌎',
+        titel: 'vosotros gibt es nur in Spanien',
+        text: 'In Spanien sagt man zu einer Gruppe von Freunden *vosotros*. In ganz Lateinamerika benutzt man dafür *ustedes* – egal ob förmlich oder locker. Beides verstehen, eins aktiv benutzen.',
+      },
+    ],
+    dialog: [
+      { sprecher: 'Ana', es: 'Tom, ¿tú trabajas o estudias?', de: 'Tom, arbeitest du oder studierst du?' },
+      { sprecher: 'Tom', es: 'Estudio español. ¿Y ella? ¿Es tu hermana?', de: 'Ich lerne Spanisch. Und sie? Ist das deine Schwester?' },
+      { sprecher: 'Ana', es: 'Sí, ella se llama Carmen. Nosotras vivimos juntas.', de: 'Ja, sie heißt Carmen. Wir wohnen zusammen.' },
+      { sprecher: 'Tom', es: 'Perdón, ¿por qué dices „nosotras“ y no „nosotros“?', de: 'Entschuldigung, warum sagst du „nosotras“ und nicht „nosotros“?' },
+      { sprecher: 'Ana', es: 'Porque somos dos mujeres. Con un hombre sería „nosotros“.', de: 'Weil wir zwei Frauen sind. Mit einem Mann wäre es „nosotros“.' },
+      { sprecher: 'Tom', es: 'Entiendo. ¿Y a tu profesor le dices tú o usted?', de: 'Verstehe. Und zu deinem Lehrer sagst du du oder Sie?' },
+      { sprecher: 'Ana', es: 'En España casi siempre tú. Usted es para situaciones muy formales.', de: 'In Spanien fast immer du. Sie ist für sehr formelle Situationen.' },
+      { sprecher: 'Tom', es: '¡Qué bien! En alemán es más complicado.', de: 'Wie gut! Auf Deutsch ist es komplizierter.' },
+    ],
+  },
+  {
+    id: 'ser',
+    // Kursfelder: Lektion 8 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 8,
+    grammatik: ['Das Verb ser im Präsens'],
+    wiederholt: ['pronomen', 'vorstellen', 'betonung'],
+    vorher: ['pronomen'],
+    kulturnotiz: 'Berufe stehen nach ser ohne Artikel: „Soy profesora“ – nicht „soy una profesora“.',
+    titel: 'Das Verb ser',
+    emoji: '🪪',
+    beschreibung: 'Sagen, wer und was jemand ist',
+    ziele: [
+      'ser vollständig konjugieren',
+      'Beruf, Herkunft und Eigenschaften ausdrücken',
+      'Verstehen, wofür ser wirklich zuständig ist',
+    ],
+    items: [
+      { es: 'ser', de: 'sein', beispielEs: 'Ser profesor es un buen trabajo.', beispielDe: 'Lehrer zu sein ist ein guter Beruf.' },
+      { es: 'soy', de: 'ich bin', beispielEs: 'Soy de Múnich.', beispielDe: 'Ich bin aus München.' },
+      { es: 'eres', de: 'du bist', beispielEs: '¿Eres estudiante?', beispielDe: 'Bist du Student?' },
+      { es: 'es', de: 'er/sie ist', beispielEs: 'Mi hermana es médica.', beispielDe: 'Meine Schwester ist Ärztin.' },
+      { es: 'somos', de: 'wir sind', beispielEs: 'Somos cuatro en casa.', beispielDe: 'Wir sind vier zu Hause.' },
+      { es: 'sois', de: 'ihr seid', beispielEs: '¿Sois de aquí?', beispielDe: 'Seid ihr von hier?' },
+      { es: 'son', de: 'sie sind', beispielEs: 'Mis padres son profesores.', beispielDe: 'Meine Eltern sind Lehrer.' },
+      { es: 'el estudiante', de: 'der Student', beispielEs: 'Soy estudiante de medicina.', beispielDe: 'Ich bin Medizinstudent.' },
+      { es: 'el profesor', de: 'der Lehrer', beispielEs: 'Mi profesor es muy simpático.', beispielDe: 'Mein Lehrer ist sehr nett.' },
+      { es: 'simpático', de: 'nett, sympathisch', beispielEs: 'Tu amiga es muy simpática.', beispielDe: 'Deine Freundin ist sehr nett.' },
+      { es: 'alto', de: 'groß (Person)', beispielEs: 'Mi padre es muy alto.', beispielDe: 'Mein Vater ist sehr groß.' },
+      { es: 'joven', de: 'jung', beispielEs: 'Ella es joven pero sabe mucho.', beispielDe: 'Sie ist jung, weiß aber viel.' },
+    ],
+    wissen: [
+      {
+        emoji: '🧾',
+        titel: 'ser beantwortet: Wer oder was ist das?',
+        text: '*ser* steht für alles, was jemanden ausmacht: Name, Herkunft, Beruf, Charakter, Aussehen, Material, Uhrzeit. *Soy Tom. Soy alemán. Soy estudiante. Es la una.* Lerne es nicht als „dauerhaft“ – sondern als Antwort auf „wer oder was?“.',
+      },
+      {
+        emoji: '🚫',
+        titel: 'Berufe ohne Artikel',
+        text: 'Nach *ser* steht der Beruf nackt: *Soy profesor*, *Ella es médica*. Ein *un/una* kommt erst dazu, wenn ein Adjektiv folgt: *Es una médica excelente*.',
+      },
+      {
+        emoji: '🔤',
+        titel: 'Das Adjektiv passt sich an',
+        text: 'Nach *ser* richtet sich das Adjektiv nach der Person: *Tom es alto*, *Ana es alta*, *ellos son altos*. Auf *-o* endende Adjektive wechseln zu *-a*; auf *-e* oder Konsonant endende bleiben gleich: *joven*, *jóvenes*.',
+      },
+    ],
+    dialog: [
+      { sprecher: 'Ana', es: 'Tom, este es Luis. Es mi compañero de piso.', de: 'Tom, das ist Luis. Er ist mein Mitbewohner.' },
+      { sprecher: 'Luis', es: '¡Hola! ¿Eres el amigo alemán de Ana?', de: 'Hallo! Bist du Anas deutscher Freund?' },
+      { sprecher: 'Tom', es: 'Sí, soy Tom. Soy de Múnich y soy estudiante.', de: 'Ja, ich bin Tom. Ich bin aus München und bin Student.' },
+      { sprecher: 'Luis', es: 'Yo soy de Valencia. Somos casi vecinos en España.', de: 'Ich bin aus Valencia. Wir sind fast Nachbarn in Spanien.' },
+      { sprecher: 'Ana', es: 'Luis es profesor de guitarra. Y es muy simpático.', de: 'Luis ist Gitarrenlehrer. Und er ist sehr nett.' },
+      { sprecher: 'Tom', es: '¿Profesor? ¡Qué bien! ¿Y sois de la misma ciudad?', de: 'Lehrer? Wie schön! Und seid ihr aus derselben Stadt?' },
+      { sprecher: 'Ana', es: 'No, yo soy de Madrid. Pero somos amigos desde hace años.', de: 'Nein, ich bin aus Madrid. Aber wir sind seit Jahren befreundet.' },
+      { sprecher: 'Tom', es: 'Entonces ahora somos tres. ¡Perfecto!', de: 'Dann sind wir jetzt drei. Perfekt!' },
+    ],
+  },
+  {
+    id: 'artikel',
+    // Kursfelder: Lektion 9 im 150er-Aufbau
+    niveau: 'A1.1',
+    kursNr: 9,
+    grammatik: ['Bestimmte und unbestimmte Artikel'],
+    wiederholt: ['ser', 'aussprache', 'vorstellen'],
+    vorher: ['ser'],
+    kulturnotiz: 'Wörter griechischen Ursprungs auf -ma sind männlich: el problema, el tema, el idioma – trotz der Endung auf -a.',
+    titel: 'el, la, un, una',
+    emoji: '🏷️',
+    beschreibung: 'Jedes Substantiv hat ein Geschlecht',
+    ziele: [
+      'Bestimmte und unbestimmte Artikel unterscheiden',
+      'Das Geschlecht an der Endung erkennen',
+      'Die wichtigsten Ausnahmen kennen',
+    ],
+    items: [
+      { es: 'el libro', de: 'das Buch', beispielEs: 'El libro está en la mesa.', beispielDe: 'Das Buch liegt auf dem Tisch.' },
+      { es: 'la mesa', de: 'der Tisch', beispielEs: 'La mesa es de madera.', beispielDe: 'Der Tisch ist aus Holz.' },
+      { es: 'un libro', de: 'ein Buch', beispielEs: 'Busco un libro en español.', beispielDe: 'Ich suche ein Buch auf Spanisch.' },
+      { es: 'una mesa', de: 'ein Tisch', beispielEs: 'Necesitamos una mesa más grande.', beispielDe: 'Wir brauchen einen größeren Tisch.' },
+      { es: 'la ventana', de: 'das Fenster', beispielEs: 'Abre la ventana, por favor.', beispielDe: 'Mach das Fenster auf, bitte.' },
+      { es: 'el problema', de: 'das Problem', beispielEs: 'No hay ningún problema.', beispielDe: 'Es gibt kein Problem.' },
+      { es: 'el idioma', de: 'die Sprache', beispielEs: 'El español es un idioma bonito.', beispielDe: 'Spanisch ist eine schöne Sprache.' },
+      { es: 'la mano', de: 'die Hand', beispielEs: 'Dame la mano.', beispielDe: 'Gib mir die Hand.' },
+      { es: 'el día', de: 'der Tag', beispielEs: 'Hoy es un día especial.', beispielDe: 'Heute ist ein besonderer Tag.' },
+      { es: 'la ciudad', de: 'die Stadt', beispielEs: 'Madrid es una ciudad grande.', beispielDe: 'Madrid ist eine große Stadt.' },
+      { es: 'la clase', de: 'der Unterricht', beispielEs: 'La clase empieza a las diez.', beispielDe: 'Der Unterricht beginnt um zehn.' },
+      { es: 'el papel', de: 'das Papier', beispielEs: 'Necesito un papel y un boli.', beispielDe: 'Ich brauche ein Blatt Papier und einen Stift.' },
+    ],
+    wissen: [
+      {
+        emoji: '🧲',
+        titel: 'Artikel und Substantiv gehören zusammen',
+        text: 'Lerne nie *mesa*, sondern immer *la mesa*. Das Geschlecht lässt sich nicht ableiten – *la mesa* ist weiblich, obwohl „der Tisch“ im Deutschen männlich ist. Wer den Artikel mitlernt, muss ihn nie wieder raten.',
+      },
+      {
+        emoji: '📐',
+        titel: 'Die Faustregel und ihre Grenzen',
+        text: 'Endet ein Wort auf *-o*, ist es meist männlich (*el libro*); auf *-a* meist weiblich (*la mesa*). Auch *-ción*, *-dad* und *-tad* sind immer weiblich: *la ciudad*. Wörter auf *-e* oder Konsonant muss man einzeln lernen.',
+      },
+      {
+        emoji: '⚠️',
+        titel: 'Die berühmten Ausreißer',
+        text: '*el problema*, *el idioma*, *el día*, *el mapa* sind männlich trotz *-a*. Umgekehrt ist *la mano* weiblich trotz *-o*. Es sind wenige – aber es sind genau die Wörter, die man ständig braucht.',
+      },
+    ],
+    dialog: [
+      { sprecher: 'Ana', es: 'Tom, ¿dónde está el libro de español?', de: 'Tom, wo ist das Spanischbuch?' },
+      { sprecher: 'Tom', es: 'Está en la mesa, al lado de la ventana.', de: 'Es liegt auf dem Tisch, neben dem Fenster.' },
+      { sprecher: 'Ana', es: 'Gracias. ¿Necesitas un papel para la clase?', de: 'Danke. Brauchst du ein Blatt Papier für den Unterricht?' },
+      { sprecher: 'Tom', es: 'Sí, pero tengo una pregunta. ¿Por qué el problema y no la problema?', de: 'Ja, aber ich habe eine Frage. Warum el problema und nicht la problema?' },
+      { sprecher: 'Ana', es: 'Buena pregunta. Las palabras en -ma vienen del griego y son masculinas.', de: 'Gute Frage. Wörter auf -ma kommen aus dem Griechischen und sind männlich.' },
+      { sprecher: 'Tom', es: 'Como el idioma. ¿Y hay más excepciones?', de: 'Wie el idioma. Und gibt es mehr Ausnahmen?' },
+      { sprecher: 'Ana', es: 'La mano, por ejemplo. Es femenina aunque termina en -o.', de: 'La mano zum Beispiel. Es ist weiblich, obwohl es auf -o endet.' },
+      { sprecher: 'Tom', es: 'Entonces aprendo siempre el artículo con la palabra.', de: 'Dann lerne ich immer den Artikel mit dem Wort.' },
+      { sprecher: 'Ana', es: 'Exacto. Así no tienes que pensar nunca más.', de: 'Genau. So musst du nie wieder nachdenken.' },
+    ],
+  },
 ]
 
 // Die Module der Sprach-Reise: Jedes Modul bündelt Lektionen zu einem Thema.
@@ -585,7 +883,17 @@ export const MODULE = [
     emoji: '🌱',
     beschreibung: 'Ankommen in der Sprache – ohne Grammatik, nur Sprechen',
     farbe: '#7d8c5c', // Olive
-    lektionen: ['begruessung', 'vorstellen', 'woher', 'alphabet'],
+    lektionen: [
+      'alphabet',      // 2
+      'aussprache',    // 3
+      'betonung',      // 4
+      'begruessung',   // 5
+      'vorstellen',    // 6
+      'pronomen',      // 7
+      'ser',           // 8
+      'artikel',       // 9
+      'woher',         // 12
+    ],
   },
   {
     id: 'm2',

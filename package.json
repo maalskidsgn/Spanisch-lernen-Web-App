@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node pruefe-lektionen.mjs && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
     "server": "node server/index.js",
@@ -14,7 +14,8 @@
     "android:open": "cap open android",
     "android:apk": "vite build && cap sync android && cd android && ./gradlew assembleDebug",
     "ios:sync": "vite build && cap sync ios",
-    "ios:open": "cap open ios"
+    "ios:open": "cap open ios",
+    "pruefe": "node pruefe-lektionen.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",
