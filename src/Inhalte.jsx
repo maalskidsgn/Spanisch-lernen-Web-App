@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { holeVerzeichnis, holeInhalt, lesedauer, teileMitVokabeln, ARTEN } from './inhalte.js'
 import { spiele } from './audio.js'
+import { API_URL } from './api.js'
 import { IconSuche, IconPfeil } from './icons.jsx'
 
 // Hörtexte und Lesetexte – zwei Bereiche, eine Anzeige.
@@ -98,6 +99,39 @@ export default function Inhalte({ art, onAddVocab, vocab = {} }) {
 
 /** Der Lesebereich: spanischer Text, deutsche Fassung auf Tippen. */
 function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
+  // Welches Wort wird gerade uebersetzt? Ohne Rueckmeldung wirkt der
+  // Tipp folgenlos, waehrend im Hintergrund die Uebersetzung laeuft.
+  const [holt, setHolt] = useState(null)
+  const [wortFehler, setWortFehler] = useState('')
+
+  /**
+   * Ein markiertes Wort in den Trainer legen.
+   *
+   * Die Uebersetzung steht auf der Website NICHT bei den markierten
+   * Woertern – sie muss geholt werden. Und addVocabWords erwartet
+   * Objekte, keine blossen Woerter: Eine Zeichenkette laeuft dort in
+   * eine Schleife ueber ihre Buchstaben und stuerzt ab.
+   */
+  async function wortUebernehmen(wort) {
+    if (holt || vocab[wort.toLowerCase()]) return
+    setHolt(wort)
+    setWortFehler('')
+    try {
+      const r = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(wort))
+      const d = await r.json()
+      if (!r.ok || !d.translation) throw new Error(d.error || 'Keine Übersetzung gefunden.')
+      onAddVocab?.([{
+        wort,
+        uebersetzung: d.translation,
+        quelle: (art === 'hoertexte' ? 'Hörtext: ' : 'Lesetext: ') + eintrag.titel,
+      }])
+    } catch (f) {
+      setWortFehler(`„${wort}“ ließ sich nicht übernehmen: ${f.message}`)
+    } finally {
+      setHolt(null)
+    }
+  }
+
   const [daten, setDaten] = useState(null)
   const [fehler, setFehler] = useState('')
   const [kapitel, setKapitel] = useState(0)
@@ -174,11 +208,15 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
                 stueck.vokabel ? (
                   <button
                     key={k}
-                    className={'lesetext-vokabel' + (vocab[stueck.text.toLowerCase()] ? ' schon-da' : '')}
+                    className={
+                      'lesetext-vokabel' +
+                      (vocab[stueck.text.toLowerCase()] ? ' schon-da' : '') +
+                      (holt === stueck.text ? ' laedt' : '')
+                    }
                     onClick={(e) => {
-                      e.stopPropagation() // nicht zugleich übersetzen
+                      e.stopPropagation() // nicht zugleich den Absatz übersetzen
                       spiele(stueck.text)
-                      onAddVocab?.(stueck.text)
+                      wortUebernehmen(stueck.text)
                     }}
                     title="Anhören und in den Trainer legen"
                   >
@@ -195,6 +233,8 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
           </div>
         ))}
       </div>
+
+      {wortFehler && <p className="lesetext-wortfehler">{wortFehler}</p>}
 
       <p className="lesetext-hinweis">
         Tippe einen Absatz an für die Übersetzung, ein markiertes Wort für den Trainer.

@@ -6313,3 +6313,13 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: var(--muted);
   text-align: center;
 }
+
+.lesetext-vokabel.laedt { opacity: 0.5; }
+.lesetext-wortfehler {
+  margin-top: 16px;
+  padding: 10px 13px;
+  background: #fff1f1;
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--red-press);
+}
