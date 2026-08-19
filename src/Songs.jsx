@@ -7,8 +7,10 @@ import {
   starteAnmeldung,
   schliesseAnmeldungAb,
   zugang,
+  istVerbunden,
   trenneSpotify,
   sammleKuenstler,
+  holeSongsZuInterpreten,
   gemerkteInterpreten,
   merkeInterpreten,
 } from './spotify.js'
@@ -40,7 +42,11 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   const [pdfLaeuft, setPdfLaeuft] = useState(null)
 
   // --- Spotify ---
-  const [verbunden, setVerbunden] = useState(() => Boolean(zugang()))
+  // istVerbunden() prueft, ob ein Erneuerungs-Schluessel da ist –
+  // nicht, ob der Zugang gerade gueltig ist. Sonst waere die
+  // Verbindung nach einer Stunde scheinbar weg.
+  const [verbunden, setVerbunden] = useState(istVerbunden)
+  const [offenerInterpret, setOffenerInterpret] = useState(null)
   const [interpreten, setInterpreten] = useState(gemerkteInterpreten)
   const [analyse, setAnalyse] = useState('') // Text während der Prüfung
   const [spotifyFehler, setSpotifyFehler] = useState('')
@@ -83,7 +89,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
    * welche seiner Künstler auf Spanisch singen.
    */
   async function interpretenPruefen() {
-    const token = zugang()
+    const token = await zugang()
     if (!token) return setSpotifyFehler('Bitte zuerst mit Spotify verbinden.')
 
     setSpotifyFehler('')
@@ -100,8 +106,12 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       const daten = await res.json()
       if (!res.ok) throw new Error(daten.error || 'Auswertung fehlgeschlagen')
 
-      setInterpreten(daten.interpreten)
-      merkeInterpreten(daten.interpreten)
+      setAnalyse(`${daten.interpreten.length} spanische Interpreten – hole ihre Songs …`)
+      // Zu jedem Interpreten fuenf Songs dazuholen und alles
+      // speichern, damit es das Neuladen ueberlebt.
+      const mitSongs = await holeSongsZuInterpreten(daten.interpreten, token)
+      setInterpreten(mitSongs)
+      merkeInterpreten(mitSongs)
     } catch (f) {
       setSpotifyFehler(f.message)
     } finally {
@@ -337,25 +347,50 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
               <>
                 <p className="suche-hinweis">
                   {interpreten.length} gefunden – tippe einen an, um seine Songs
-                  zu suchen.
+                  zu sehen. Ein Klick auf einen Song sucht ihn direkt.
                 </p>
                 <div className="interpreten-liste">
-                  {interpreten.map((k) => (
-                    <button
-                      key={k.name}
-                      className="interpret-karte"
-                      onClick={() => songSuchen(k.name)}
-                      title={`Songs von ${k.name} suchen`}
-                    >
-                      <span className="interpret-name">{k.name}</span>
-                      <span className="interpret-meta">
-                        {k.herkunft} · {k.stil}
-                      </span>
-                      {!k.sicher && (
-                        <span className="interpret-hinweis">singt gemischt</span>
-                      )}
-                    </button>
-                  ))}
+                  {interpreten.map((k) => {
+                    const offen = offenerInterpret === k.name
+                    return (
+                      <div key={k.name} className={'interpret-block' + (offen ? ' block-offen' : '')}>
+                        <button
+                          className="interpret-karte"
+                          onClick={() => setOffenerInterpret(offen ? null : k.name)}
+                        >
+                          <span className="interpret-name">{k.name}</span>
+                          <span className="interpret-meta">
+                            {k.herkunft} · {k.stil}
+                          </span>
+                          {!k.sicher && (
+                            <span className="interpret-hinweis">singt gemischt</span>
+                          )}
+                          <span className="interpret-anzahl">
+                            {k.songs?.length
+                              ? `${k.songs.length} Songs ${offen ? '▴' : '▾'}`
+                              : 'keine Songs gefunden'}
+                          </span>
+                        </button>
+
+                        {offen && k.songs?.length > 0 && (
+                          <div className="interpret-songs">
+                            {k.songs.map((s) => (
+                              <button
+                                key={s.titel}
+                                className="song-vorschlag"
+                                onClick={() => songSuchen(`${k.name} ${s.titel}`)}
+                              >
+                                <span className="song-vorschlag-titel">{s.titel}</span>
+                                <span className="song-vorschlag-dauer">
+                                  {dauerText(s.dauer)}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </>
             )}

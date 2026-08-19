@@ -74,19 +74,78 @@ export async function schliesseAnmeldungAb() {
   if (!res.ok) throw new Error(daten.error_description || 'Anmeldung fehlgeschlagen')
 
   sessionStorage.removeItem('spotify_geheimnis')
-  localStorage.setItem(
-    'spotify_zugang',
-    JSON.stringify({ token: daten.access_token, laeuftAb: Date.now() + daten.expires_in * 1000 })
-  )
+  merkeZugang(daten)
   return true
 }
 
-/** Der gespeicherte Zugang – oder null, wenn keiner da bzw. abgelaufen ist. */
-export function zugang() {
+/**
+ * Zugang speichern – inklusive Erneuerungs-Schlüssel.
+ *
+ * Der Zugang selbst gilt nur eine Stunde. Ohne den
+ * Erneuerungs-Schlüssel wäre die Verbindung danach weg und man
+ * müsste sich immer wieder neu anmelden. Mit ihm holt die App
+ * still einen neuen Zugang, solange der Nutzer nicht trennt.
+ */
+function merkeZugang(daten) {
+  const alt = gespeichert()
+  localStorage.setItem(
+    'spotify_zugang',
+    JSON.stringify({
+      token: daten.access_token,
+      // Spotify schickt den Erneuerungs-Schlüssel nicht immer erneut
+      erneuern: daten.refresh_token ?? alt?.erneuern ?? null,
+      laeuftAb: Date.now() + daten.expires_in * 1000,
+    })
+  )
+}
+
+function gespeichert() {
   try {
-    const g = JSON.parse(localStorage.getItem('spotify_zugang'))
-    if (!g?.token || g.laeuftAb < Date.now()) return null
-    return g.token
+    return JSON.parse(localStorage.getItem('spotify_zugang'))
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Ist eine nutzbare Verbindung da? Entweder ein Erneuerungs-Schlüssel
+ * (dann können wir jederzeit einen frischen Zugang holen) oder ein
+ * noch gültiger Zugang. Alte Daten ohne beides zählen als getrennt –
+ * dann soll der Nutzer den Verbinden-Knopf sehen, nicht einen
+ * scheinbar verbundenen Zustand, der bei der ersten Aktion scheitert.
+ */
+export function istVerbunden() {
+  const g = gespeichert()
+  if (!g) return false
+  return Boolean(g.erneuern || (g.token && g.laeuftAb > Date.now()))
+}
+
+/**
+ * Ein gültiger Zugang – erneuert sich bei Bedarf von selbst.
+ * Gibt null zurück, wenn gar keine Verbindung besteht.
+ */
+export async function zugang() {
+  const g = gespeichert()
+  if (!g?.token) return null
+
+  // Noch mindestens eine Minute gültig? Dann direkt nehmen.
+  if (g.laeuftAb - 60000 > Date.now()) return g.token
+
+  if (!g.erneuern) return null
+  try {
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: g.erneuern,
+      }),
+    })
+    if (!res.ok) return null
+    const daten = await res.json()
+    merkeZugang(daten)
+    return daten.access_token
   } catch {
     return null
   }
@@ -169,4 +228,46 @@ export function gemerkteInterpreten() {
 
 export function merkeInterpreten(liste) {
   localStorage.setItem('spotify_interpreten', JSON.stringify(liste))
+}
+
+/**
+ * Holt zu jedem Interpreten seine fünf bekanntesten Songs.
+ *
+ * Warum wir sie speichern: Der Nutzer soll nach dem Neuladen sofort
+ * seine Auswahl sehen, ohne dass Spotify erneut befragt wird.
+ *
+ * @param {{name: string}[]} interpreten – höchstens die ersten 10
+ */
+export async function holeSongsZuInterpreten(interpreten, token) {
+  const mitSongs = []
+
+  for (const k of interpreten.slice(0, 10)) {
+    try {
+      // Erst den Künstler bei Spotify finden …
+      const suche = await hole(
+        `/search?q=${encodeURIComponent(k.name)}&type=artist&limit=1`,
+        token
+      )
+      const kuenstler = suche.artists?.items?.[0]
+      if (!kuenstler) {
+        mitSongs.push({ ...k, songs: [] })
+        continue
+      }
+
+      // … dann seine Top-Songs (Markt DE, damit es hier auch spielbar ist)
+      const top = await hole(`/artists/${kuenstler.id}/top-tracks?market=DE`, token)
+      mitSongs.push({
+        ...k,
+        bild: kuenstler.images?.at(-1)?.url ?? null,
+        songs: (top.tracks ?? []).slice(0, 5).map((s) => ({
+          titel: s.name,
+          dauer: Math.round(s.duration_ms / 1000),
+        })),
+      })
+    } catch {
+      // Ein Künstler ohne Treffer soll den Rest nicht aufhalten
+      mitSongs.push({ ...k, songs: [] })
+    }
+  }
+  return mitSongs
 }

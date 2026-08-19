@@ -3963,6 +3963,8 @@ body.liest-video .fab-panel {
 .fang-tropfen,
 .art-karte,
 .art-karte *,
+.song-vorschlag,
+.song-vorschlag *,
 .vorschlag-chip,
 .such-knopf,
 .such-knopf *,
@@ -4569,8 +4571,10 @@ body.liest-video .word-card {
 .spotify-aktionen { display: flex; gap: 8px; }
 
 .interpreten-liste {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  /* Eine Spalte: Die Bloecke klappen Songs aus, nebeneinander
+     wuerde die Liste bei jedem Aufklappen springen. */
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 .interpret-karte {
@@ -4989,4 +4993,99 @@ body.liest-video .word-card {
   border-style: solid;
   border-color: var(--success);
   color: var(--success);
+}
+
+/* ===== Belohnung: schwebende XP-Meldung in den Spielen ===== */
+.spiel-xp {
+  position: fixed;
+  left: 50%;
+  top: 24%;
+  transform: translateX(-50%);
+  z-index: 60;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .35);
+  pointer-events: none;
+  animation: xp-schweben 1.3s ease-out forwards;
+  white-space: nowrap;
+}
+@keyframes xp-schweben {
+  0%   { opacity: 0; transform: translate(-50%, 12px) scale(.8); }
+  18%  { opacity: 1; transform: translate(-50%, 0) scale(1.06); }
+  30%  { transform: translate(-50%, 0) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -34px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spiel-xp { animation: xp-schweben 1.3s linear forwards; }
+}
+
+/* ===== Wortsuche: Auftrag über dem Gitter ===== */
+.such-auftrag { margin-bottom: 14px; }
+.such-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.such-auftrag .such-liste { margin-bottom: 0; }
+
+/* ===== Interpreten mit ausklappbaren Songs ===== */
+.interpret-block {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--card);
+  transition: border-color .15s;
+}
+.interpret-block.block-offen { border-color: var(--primary); }
+
+.interpret-block .interpret-karte {
+  border: none;
+  border-radius: 0;
+  width: 100%;
+  transform: none;
+}
+.interpret-block .interpret-karte:hover { transform: none; background: var(--bg); }
+
+.interpret-anzahl {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-top: 5px;
+}
+
+.interpret-songs {
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+.song-vorschlag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  cursor: pointer;
+  transition: background .12s;
+}
+.song-vorschlag:last-child { border-bottom: none; }
+.song-vorschlag:hover { background: #fff3e8; }
+.song-vorschlag-titel { font-weight: 700; font-size: 14.5px; }
+.song-vorschlag-dauer {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  flex: none;
 }

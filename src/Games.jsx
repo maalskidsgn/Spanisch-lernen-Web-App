@@ -11,6 +11,31 @@ import { isDue, withSrsDefaults } from './srs.js'
 // dran wären, und stufen sie am Ende im Karteikasten hoch.
 
 /**
+ * Schwebende "+10 XP"-Anzeige fuer die Spiele.
+ *
+ * Belohnung muss man SEHEN, sonst wirkt sie nicht. Bisher wanderten
+ * die Punkte still ins Konto – jetzt poppt bei jedem Treffer eine
+ * Zahl auf.
+ */
+function useXpMeldung(addXp) {
+  const [meldung, setMeldung] = useState(null)
+
+  function belohne(punkte, text) {
+    addXp(punkte)
+    // key sorgt dafuer, dass die Animation bei jedem Treffer neu startet
+    setMeldung({ punkte, text, key: Date.now() + Math.random() })
+  }
+
+  const anzeige = meldung ? (
+    <span key={meldung.key} className="spiel-xp" onAnimationEnd={() => setMeldung(null)}>
+      +{meldung.punkte} XP{meldung.text ? ' · ' + meldung.text : ''}
+    </span>
+  ) : null
+
+  return [anzeige, belohne]
+}
+
+/**
  * Wählt spielbare Paare – fällige Wörter zuerst.
  * Zu lange Wörter passen nicht auf die Karten und fallen raus.
  */
@@ -108,6 +133,7 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
 function Memory({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Karten und Wortliste zusammen einfrieren: Beides muss vom selben
   // Stand stammen, sonst würden am Ende andere Wörter hochgestuft als
   // die tatsächlich gespielten.
@@ -140,9 +166,9 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       const alle = [...gefunden, a.pairId]
       setGefunden(alle)
       setOffen([])
-      addXp(XP.QUIZ_RICHTIG)
+      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
       if (alle.length === paare.length) {
-        addXp(XP.SPIEL)
+        belohne(XP.SPIEL, 'Geschafft!')
         setFertig(true)
       }
     } else {
@@ -168,6 +194,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
 
   return (
     <>
+      {xpAnzeige}
       <p className="training-progress">
         {gefunden.length}/{anzahl} Paare · {versuche} Versuche
       </p>
@@ -197,6 +224,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
 // Links Spanisch, rechts Deutsch (gemischt). Tippe die zusammen-
 // gehörenden Wörter an, bis alle Paare verbunden sind.
 function WortPaare({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Die rechte Spalte wird NICHT zufällig gemischt und eingefroren.
   // Grund: Wenn sich die Vokabeln während des Spiels ändern – etwa
   // weil der Abgleich mit dem Konto durchläuft – blieb die alte
@@ -218,9 +246,9 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
       const alle = [...geloest, p.es]
       setGeloest(alle)
       setWahlLinks(null)
-      addXp(XP.QUIZ_RICHTIG)
+      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
       if (alle.length === paare.length) {
-        addXp(XP.SPIEL)
+        belohne(XP.SPIEL, 'Geschafft!')
         setFertig(true)
       }
     } else {
@@ -245,6 +273,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
 
   return (
     <>
+      {xpAnzeige}
       <p className="training-progress">
         Tippe links ein Wort an und dann rechts die passende Übersetzung
       </p>
@@ -292,7 +321,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
 // wird in der Liste darunter durchgestrichen und zeigt die
 // Übersetzung – so lernt man beim Suchen mit.
 
-const GITTER = 10 // 10x10 Felder
+const GITTER = 8 // 8x8 Felder – uebersichtlicher als 10x10
 const RICHTUNGEN = [
   [1, 0],   // waagerecht
   [0, 1],   // senkrecht
@@ -300,18 +329,22 @@ const RICHTUNGEN = [
   [1, -1],  // diagonal hoch
 ]
 
+/** Wort auf reine Gitter-Buchstaben reduzieren (ohne Akzente, ohne Leerzeichen). */
+function nurBuchstaben(wort) {
+  return wort
+    .toUpperCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u0302\u0308]/g, '') // Akzente entfernen, Ñ behalten
+    .replace(/[^A-ZÑ]/g, '')
+}
+
 /** Legt die Wörter ins Gitter und füllt den Rest mit Buchstaben. */
 function baueGitter(woerter) {
   const feld = Array.from({ length: GITTER }, () => Array(GITTER).fill(null))
   const platziert = []
 
   for (const wort of woerter) {
-    // Umlaute und Akzente raus – im Gitter stehen nur A–Z und Ñ
-    const buchstaben = wort.es
-      .toUpperCase()
-      .normalize('NFD')
-      .replace(/[̀-̂̈]/g, '') // Akzente entfernen, Ñ behalten
-      .replace(/[^A-ZÑ]/g, '')
+    const buchstaben = nurBuchstaben(wort.es)
     if (!buchstaben || buchstaben.length > GITTER) continue
 
     // Bis zu 60 Versuche, einen freien Platz zu finden
@@ -355,9 +388,16 @@ function baueGitter(woerter) {
 }
 
 function Wortsuche({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Gitter EINMAL bauen – sonst springen die Buchstaben bei jedem
   // Neuzeichnen.
-  const [{ feld, platziert }] = useState(() => baueGitter(paare.slice(0, 7)))
+  // Nur Wörter nehmen, die überhaupt ins Gitter passen. Sonst
+  // fallen lange wie "izquierda" (9 Buchstaben) still hinten runter
+  // und man sucht plötzlich nur 3 statt 5 Wörter.
+  const [{ feld, platziert }] = useState(() => {
+    const passend = paare.filter((w) => nurBuchstaben(w.es).length <= GITTER - 1)
+    return baueGitter(passend.slice(0, 5))
+  })
   const [gefunden, setGefunden] = useState([])
   const [zug, setZug] = useState(null) // {start:[x,y], jetzt:[x,y]}
 
@@ -417,7 +457,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
 
     if (treffer) {
       setGefunden((g) => [...g, treffer.es])
-      addXp(XP.QUIZ_RICHTIG)
+      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
     }
   }
 
@@ -440,11 +480,27 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
 
   return (
     <div className="spiel-buehne">
+      {xpAnzeige}
       <div className="spiel-kopf">
         <span className="spiel-titel">🔍 Wortsuche</span>
         <span className="spiel-stand">
           {gefunden.length} / {platziert.length}
         </span>
+      </div>
+
+      <div className="such-auftrag">
+        <span className="such-label">Diese Wörter sind versteckt</span>
+        <div className="such-liste">
+          {platziert.map((w) => {
+            const fertig = gefunden.includes(w.es)
+            return (
+              <span key={w.es} className={'such-wort' + (fertig ? ' wort-gefunden' : '')}>
+                <b>{w.es}</b>
+                {fertig && <em> – {w.de}</em>}
+              </span>
+            )
+          })}
+        </div>
       </div>
 
       <p className="spiel-hinweis">
@@ -482,18 +538,6 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
         )}
       </div>
 
-      <div className="such-liste">
-        {platziert.map((w) => {
-          const fertig = gefunden.includes(w.es)
-          return (
-            <span key={w.es} className={'such-wort' + (fertig ? ' wort-gefunden' : '')}>
-              <b>{w.es}</b>
-              {fertig && <em> – {w.de}</em>}
-            </span>
-          )
-        })}
-      </div>
-
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
         Abbrechen
       </button>
@@ -517,6 +561,7 @@ const RUNDEN = 8        // so viele Wörter muss man fangen
 const BAHNEN = [2, 28, 54] // linker Rand in Prozent
 
 function Wortfang({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Ziele einmal festlegen, damit sie nicht neu gemischt werden
   const [ziele] = useState(() => paare.slice(0, RUNDEN))
   const [runde, setRunde] = useState(0)
@@ -572,7 +617,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
 
     if (eintrag.richtig) {
       setBlitz('gut')
-      addXp(XP.QUIZ_RICHTIG)
+      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
       setGefangen((g) => [...g, ziel.es])
       setFallend([])          // Runde räumen
       setRunde((r) => r + 1)
@@ -601,6 +646,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
 
   return (
     <div className="spiel-buehne">
+      {xpAnzeige}
       <div className="spiel-kopf">
         <span className="spiel-titel">🎣 Wortfang</span>
         <span className="spiel-stand">
