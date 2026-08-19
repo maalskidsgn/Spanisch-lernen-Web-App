@@ -686,12 +686,14 @@ function DialogChat({ dialog, onWeiter }) {
   const ersterSprecher = dialog[0].sprecher
   const alleDa = anzahl >= dialog.length
 
-  // Nach jeder neuen Blase kurz "tippen", dann erscheint die nächste
+  // Nach jeder neuen Blase kurz "tippen", dann erscheint die nächste.
+  // Laeuft gerade eine Wiedergabe, uebernimmt sie das Blaettern – der
+  // Takt wuerde ihr sonst vorauseilen.
   useEffect(() => {
-    if (alleDa) return
+    if (alleDa || laeuft) return
     const timer = setTimeout(() => setAnzahl((a) => a + 1), anzahl === 0 ? 700 : 1600)
     return () => clearTimeout(timer)
-  }, [anzahl, alleDa])
+  }, [anzahl, alleDa, laeuft])
 
 
   function toggle(i) {
@@ -706,7 +708,13 @@ function DialogChat({ dialog, onWeiter }) {
       setLaeuft(null)
       return
     }
-    const steuerung = dialogAbspielen(dialog)
+    // Waehrend der Wiedergabe fuehrt der Ton die Anzeige: Jede Blase
+    // erscheint genau dann, wenn ihre Zeile erklingt. Ohne das lief
+    // die Anzeige im festen 1,6-Sekunden-Takt weiter, waehrend eine
+    // laengere Zeile noch gesprochen wurde.
+    const steuerung = dialogAbspielen(dialog, {
+      beiZeile: (i) => setAnzahl(i + 1),
+    })
     setLaeuft(steuerung)
     steuerung.fertig.then(() => setLaeuft(null))
   }
