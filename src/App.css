@@ -5242,3 +5242,12 @@ body.liest-video .word-card {
   .start-aktion:hover { transform: translateY(-2px); box-shadow: 0 9px 24px rgba(255, 108, 0, .32); }
 }
 .start-ziel { max-width: none; margin-bottom: 26px; }
+
+/* ===== Lücke im Lückentext: eine saubere Linie ===== */
+.luecke-linie {
+  display: inline-block;
+  width: 4.5em;
+  border-bottom: 2.5px solid var(--primary);
+  margin: 0 4px;
+  vertical-align: baseline;
+}
