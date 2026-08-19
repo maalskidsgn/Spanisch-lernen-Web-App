@@ -4782,6 +4782,8 @@ body.liest-video .word-card {
   display: grid;
   grid-template-columns: repeat(var(--spalten), 1fr);
   gap: 3px;
+  max-width: 420px;   /* auf grossen Schirmen nicht ausufern */
+  margin-inline: auto;
   touch-action: none; /* damit das Ziehen nicht die Seite scrollt */
   user-select: none;
   margin-bottom: 18px;
@@ -4794,9 +4796,20 @@ body.liest-video .word-card {
   border: 1px solid var(--line);
   border-radius: 7px;
   font-weight: 800;
-  font-size: clamp(11px, 3.2vw, 16px);
   cursor: pointer;
   transition: background .1s, color .1s;
+
+  /* Ohne diese beiden Zeilen sprengt das Gitter den Bildschirm:
+     Die allgemeine button-Regel gibt jedem Feld 22px Innenabstand,
+     und Gitterfelder duerfen von Haus aus nicht unter ihre
+     Inhaltsbreite schrumpfen (min-width: auto). */
+  padding: 0;
+  min-width: 0;
+
+  /* Schrift richtet sich nach der Feldgroesse, nicht nach dem
+     Bildschirm – so bleibt sie in jeder Gitterbreite stimmig. */
+  font-size: min(4.2vw, 17px);
+  line-height: 1;
 }
 .gitter-feld.feld-aktiv {
   background: var(--primary);
@@ -4827,10 +4840,27 @@ body.liest-video .word-card {
 /* ===== Wortfang: fallende Wörter ===== */
 .fang-auftrag {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
-.fang-label { display: block; font-size: 13px; color: var(--muted); }
-.fang-wort { font-size: 24px; }
+.fang-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.fang-wort {
+  display: inline-block;
+  font-size: clamp(19px, 5.5vw, 26px);
+  line-height: 1.25;
+  background: #fff3e8;
+  border: 1px solid #ffd9b8;
+  border-radius: 14px;
+  padding: 9px 18px;
+  max-width: 100%;
+}
 
 .fang-feld {
   position: relative;
@@ -4850,16 +4880,30 @@ body.liest-video .word-card {
   background: var(--card);
   border: 2px solid var(--primary);
   border-radius: 999px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   font-weight: 800;
-  font-size: 15px;
+  font-size: clamp(12px, 3.6vw, 15px);
   cursor: pointer;
-  white-space: nowrap;
   box-shadow: 0 3px 10px rgba(0, 0, 65, .1);
   animation: fallen linear forwards;
+
+  /* Ohne das wartet iOS ~300ms auf einen moeglichen Doppeltipp.
+     In der Zeit faellt das Wort weiter – es fuehlt sich an, als
+     wuerde es beim Antippen wegrutschen. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Lange Woerter duerfen die Bahn nicht sprengen */
+  max-width: 44%;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
 }
+.fang-tropfen:active { transform: scale(.94); }
 @keyframes fallen {
-  to { transform: translateY(380px); }
+  /* Weiter als das Feld hoch ist (340px) plus Worthoehe – sonst
+     bleiben die Woerter am unteren Rand halb sichtbar kleben. */
+  to { transform: translateY(440px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .fang-tropfen { animation-duration: 12s !important; }

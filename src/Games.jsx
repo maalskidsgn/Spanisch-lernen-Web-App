@@ -511,6 +511,11 @@ const ABSTAND = 1400    // Abstand zwischen zwei Würfen
 const LEBEN = 3
 const RUNDEN = 8        // so viele Wörter muss man fangen
 
+// Drei feste Bahnen statt Zufallsposition. Vorher konnten lange
+// Wörter wie "la existencia" rechts aus dem Feld ragen und zwei
+// Wörter auf derselben Höhe übereinanderliegen.
+const BAHNEN = [2, 28, 54] // linker Rand in Prozent
+
 function Wortfang({ paare, addXp, onClose, onGespielt }) {
   // Ziele einmal festlegen, damit sie nicht neu gemischt werden
   const [ziele] = useState(() => paare.slice(0, RUNDEN))
@@ -520,6 +525,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
   const [gefangen, setGefangen] = useState([])
   const [blitz, setBlitz] = useState(null)    // 'gut' | 'schlecht'
   const naechsteId = useRef(0)
+  const naechsteBahn = useRef(0)
 
   const ziel = ziele[runde]
   const vorbei = runde >= ziele.length || leben <= 0
@@ -543,10 +549,13 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
       const eintrag = mischung[index % mischung.length]
       index++
       const id = naechsteId.current++
-      setFallend((f) => [
-        ...f,
-        { id, ...eintrag, links: 8 + Math.random() * 72 },
-      ])
+      // Reihum durch die Bahnen – so überlappt nichts
+      const bahn = BAHNEN[naechsteBahn.current++ % BAHNEN.length]
+      setFallend((f) => {
+        // Dasselbe Wort nie zweimal gleichzeitig zeigen
+        if (f.some((x) => x.wort === eintrag.wort)) return f
+        return [...f, { id, ...eintrag, links: bahn }]
+      })
       // Nach der Fallzeit wieder entfernen
       setTimeout(() => {
         setFallend((f) => f.filter((x) => x.id !== id))
@@ -601,7 +610,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <div className="fang-auftrag">
-        <span className="fang-label">Fang das Wort für</span>
+        <span className="fang-label">Finde</span>
         <b className="fang-wort">{ziel.de}</b>
       </div>
 
