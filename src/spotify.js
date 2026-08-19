@@ -46,6 +46,10 @@ export async function starteAnmeldung() {
     scope: RECHTE,
     code_challenge_method: 'S256',
     code_challenge: await pruefsumme(geheimnis),
+    // Nach einem "Trennen" soll man das Konto wirklich neu waehlen
+    // koennen. Ohne show_dialog winkt Spotify die alte Freigabe
+    // still durch und verbindet wieder dasselbe Konto.
+    show_dialog: 'true',
   })
   window.location.href = 'https://accounts.spotify.com/authorize?' + params
 }

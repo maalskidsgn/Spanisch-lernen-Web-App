@@ -72,11 +72,15 @@ export async function findeSpanischeInterpreten(kuenstler) {
           role: 'system',
           content:
             'Du bekommst eine Liste von Musikkünstlern und gibst nur die zurück, ' +
-            'die überwiegend auf Spanisch singen. Streng sein: Künstler, die du ' +
-            'nicht kennst oder die hauptsächlich in einer anderen Sprache singen, ' +
-            'lässt du weg. Portugiesisch (brasilianische Musik) ist NICHT Spanisch. ' +
-            'Bei Künstlern, die zwischen Englisch und Spanisch wechseln, setzt du ' +
-            '"sicher" auf false, nimmst sie aber auf.',
+            'deren Repertoire GRÖSSTENTEILS spanischsprachig ist. Sei sehr streng: ' +
+            'Künstler, die hauptsächlich auf Deutsch, Englisch, Französisch oder ' +
+            'Portugiesisch singen, lässt du IMMER weg – auch wenn sie einzelne ' +
+            'spanische Wörter, Songtitel oder Latin-Einflüsse haben. Beispiele für ' +
+            'FALSCHE Treffer, die du weglassen musst: RAF Camora, Gzuz, RIN ' +
+            '(deutsche Rapper mit Latin-Sound, singen aber Deutsch). Künstler, die ' +
+            'du nicht sicher kennst, lässt du ebenfalls weg. "sicher" auf false ' +
+            'setzt du NUR bei Künstlern, deren Katalog etwa zur Hälfte wirklich ' +
+            'spanischsprachige Lieder enthält (z. B. Shakira, Enrique Iglesias).',
         },
         {
           role: 'user',

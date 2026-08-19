@@ -68,6 +68,30 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     ladeSongs()
   }, [])
 
+  // Interpreten aus der Zeit VOR der Song-Funktion haben noch keine
+  // Songs gespeichert. Einmal still nachladen statt den Nutzer mit
+  // "keine Songs gefunden" und einem Extra-Klick stehenzulassen.
+  useEffect(() => {
+    if (!verbunden || interpreten.length === 0) return
+    if (interpreten.some((k) => k.songs?.length)) return
+    ;(async () => {
+      const token = await zugang()
+      if (!token) return
+      setAnalyse('Hole die Songs deiner Interpreten …')
+      try {
+        const mitSongs = await holeSongsZuInterpreten(interpreten, token)
+        setInterpreten(mitSongs)
+        merkeInterpreten(mitSongs)
+      } catch {
+        // beim naechsten Besuch erneut versuchen
+      } finally {
+        setAnalyse('')
+      }
+    })()
+    // bewusst nur einmal beim Laden
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Zurück von Spotify? Dann den Code eintauschen und gleich prüfen.
   useEffect(() => {
     if (!new URLSearchParams(window.location.search).get('code')) return
