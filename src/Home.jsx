@@ -1,4 +1,5 @@
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
+import { MODULE, LEKTIONEN, lektionenVon, baueSchritte } from './lektionen.js'
 import { letzteWoche } from './aktivitaet.js'
 import {
   IconLektion, IconKarten, IconMediathek, IconMehr,
@@ -7,10 +8,18 @@ import {
 
 // Die Startseite – im selben Sektionen-Stil wie der Vokabeltrainer:
 // große Zahl, klare Ansage, ein Knopf. Kein Aufgabenzettel.
-export default function Home({ progress, settings, counts, nextLesson, onNavigate }) {
+export default function Home({ progress, settings, counts, nextLesson, lessonProgress = {}, onNavigate }) {
   const level = levelFromXp(progress.xp)
   const heute = xpHeute(progress)
   const zielProzent = Math.min(100, Math.round((heute / settings.tagesziel) * 100))
+
+  // Alles, was die Heute-Karte zeigt, aus der Lektion selbst ableiten –
+  // damit die Karte nicht luegt, wenn sich die Lektion aendert.
+  const heuteKarte = nextLesson ? beschreibeLektion(nextLesson) : null
+  const modul = nextLesson
+    ? MODULE.find((m) => m.lektionen.includes(nextLesson.id))
+    : null
+  const modulListe = modul ? lektionenVon(modul) : []
 
   const woche = letzteWoche()
   const wochenSumme = woche.reduce((s, t) => s + t.anzahl, 0)
@@ -28,14 +37,67 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
 
       {/* ============ 1. ZWEI KLARE WEGE ============ */}
       {/* Kein Plan, keine Liste: zwei grosse Knoepfe. */}
-      <div className="start-aktionen">
-        <button className="start-aktion" onClick={() => onNavigate('lektionen')}>
-          <span className="start-aktion-icon" aria-hidden="true"><IconLektion groesse={26} /></span>
-          <span className="start-aktion-titel">Nächste Lektion</span>
-          <span className="start-aktion-sub">
-            {nextLesson ? nextLesson.titel : 'Alle geschafft ✓'}
+      {/* ============ 1. HEUTE ============ */}
+      {/* Eine Karte statt einer Karte voller Punkte: Der Startbildschirm
+          hat genau eine Aufgabe – in die naechste Lektion bringen. Was
+          gleich passiert, steht drauf. */}
+      {heuteKarte ? (
+        <button className="heute" onClick={() => onNavigate('lektionen')}>
+          <span className="heute-kopf">
+            <span className="heute-marke">
+              Lektion {nextLesson.kursNr} · {nextLesson.niveau}
+            </span>
+            <span className="heute-dauer">ca. {heuteKarte.minuten} Min</span>
+          </span>
+          <span className="heute-titel">{nextLesson.titel}</span>
+          <span className="heute-lernst">{heuteKarte.lernst}</span>
+
+          <span className="heute-zeilen">
+            {heuteKarte.zeilen.map((z) => (
+              <span className="heute-zeile" key={z}>
+                <i className="heute-punkt" aria-hidden="true" />
+                {z}
+              </span>
+            ))}
+          </span>
+
+          <span className="heute-los">Los geht’s</span>
+        </button>
+      ) : (
+        <button className="heute heute-fertig" onClick={() => onNavigate('lektionen')}>
+          <span className="heute-titel">Alle Lektionen geschafft</span>
+          <span className="heute-lernst">
+            Neue kommen laufend dazu – bis dahin halten dich die Wörter fit.
           </span>
         </button>
+      )}
+
+      {/* Der Modulfortschritt als schmaler Streifen: Uebersicht ohne
+          eigene Bildschirmflaeche */}
+      {modul && (
+        <button className="streifen" onClick={() => onNavigate('lektionen')}>
+          <span className="streifen-titel">{modul.titel}</span>
+          <span className="streifen-punkte">
+            {modulListe.map((l) => (
+              <i
+                key={l.id}
+                className={
+                  lessonProgress[l.id]?.fertig
+                    ? 'pkt pkt-fertig'
+                    : l.id === nextLesson?.id
+                      ? 'pkt pkt-dran'
+                      : 'pkt'
+                }
+              />
+            ))}
+          </span>
+          <span className="streifen-alle">
+            Alle {modulListe.length} Lektionen ansehen <IconPfeil groesse={13} />
+          </span>
+        </button>
+      )}
+
+      <div className="start-aktionen start-aktionen-schmal">
         <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
           <span className="start-aktion-icon" aria-hidden="true"><IconKarten groesse={26} /></span>
           <span className="start-aktion-titel">Vokabeln wiederholen</span>
@@ -144,4 +206,31 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
       </section>
     </div>
   )
+}
+
+/**
+ * Was steht auf der Heute-Karte?
+ *
+ * Alles wird aus der Lektion berechnet, nichts gepflegt: So kann die
+ * Karte nicht veralten, wenn sich eine Lektion aendert.
+ */
+function beschreibeLektion(l) {
+  const schritte = baueSchritte(l)
+  // Grob gemessen: ein Schritt braucht rund 15 Sekunden.
+  const minuten = Math.max(3, Math.round((schritte.length * 15) / 60))
+
+  const zeilen = [`${l.items.length} neue Wörter`]
+
+  const sprecher = [...new Set((l.dialog ?? []).map((z) => z.sprecher))]
+  if (sprecher.length === 2) zeilen.push(`Dialog mit ${sprecher[0]} und ${sprecher[1]}`)
+  else if (sprecher.length > 2) zeilen.push(`Dialog mit ${sprecher.length} Personen`)
+
+  // Die Wiederholung sichtbar machen – sie ist der Grund, warum der
+  // Kurs ein Kurs ist und nicht 150 Einzelstuecke.
+  const quellen = (l.wiederholt ?? [])
+    .map((id) => LEKTIONEN.find((x) => x.id === id)?.titel)
+    .filter(Boolean)
+  if (quellen.length) zeilen.push(`Wiederholung aus: ${quellen.join(', ')}`)
+
+  return { minuten, lernst: l.grammatik?.[0] ?? l.beschreibung, zeilen }
 }

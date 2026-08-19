@@ -6010,3 +6010,215 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   text-align: left;
 }
 .kulturnotiz b { color: var(--primary); }
+
+/* ===== Kursplan: eine Zeile je Lektion =====
+   Loest die Duolingo-Bahn ab. Jede Zeile nennt das Thema, damit man
+   vor dem Tippen weiss, was kommt. Genau EINE Zeile traegt Orange
+   und einen Knopf – der naechste Schritt ist damit eindeutig. */
+.kursplan {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.plan-zeile {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 11px;
+  align-items: center;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 11px 13px;
+  box-shadow: none; /* keine 3D-Kante – die traegt nur die eine Aktion */
+}
+
+.plan-nr {
+  font-size: 13px;
+  font-weight: 800;
+  color: #a99e91;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-text { display: block; min-width: 0; }
+
+.plan-titel {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--navy);
+}
+
+.plan-lernst {
+  display: block;
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+.plan-haken { font-size: 15px; font-weight: 800; color: var(--success); }
+
+.plan-schloss {
+  width: 13px;
+  height: 13px;
+  border: 2px solid #cfc4b6;
+  border-radius: 4px;
+}
+
+/* Die eine naechste Lektion */
+.plan-dran {
+  border: 2px solid var(--primary);
+  box-shadow: 0 3px 0 var(--primary-press);
+}
+.plan-dran .plan-nr { color: var(--primary); }
+
+.plan-knopf {
+  background: var(--primary);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 800;
+  border-radius: 99px;
+  padding: 6px 13px;
+}
+
+.plan-fertig .plan-nr { color: var(--success); }
+
+.plan-zu { opacity: 0.5; }
+
+/* ===== Heute: die eine Karte des Startbildschirms =====
+   Ersetzt den grossen "Nächste Lektion"-Knopf. Statt nur des Titels
+   steht drauf, was gleich passiert – Dauer, Wörter, wer im Dialog
+   spricht und welche alten Wörter zurückkommen. */
+.heute {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 4px 0 var(--line);
+}
+
+.heute-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.heute-marke {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.heute-dauer { font-size: 11.5px; font-weight: 700; color: var(--muted); }
+
+.heute-titel {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.heute-lernst {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.heute-zeilen { display: grid; gap: 7px; margin-bottom: 16px; }
+
+.heute-zeile {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+.heute-punkt {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex: none;
+}
+
+/* Die EINE Hauptaktion – nur sie traegt die 3D-Kante */
+.heute-los {
+  display: block;
+  text-align: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  border-radius: 14px;
+  padding: 13px;
+  box-shadow: 0 4px 0 var(--primary-press);
+}
+
+.heute-fertig { text-align: center; }
+.heute-fertig .heute-lernst { margin-bottom: 0; }
+
+/* Modulfortschritt als schmaler Streifen */
+.streifen {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 16px 4px 0;
+}
+
+.streifen-titel {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.streifen-punkte { display: flex; gap: 5px; align-items: center; }
+
+.pkt {
+  height: 6px;
+  border-radius: 99px;
+  flex: 1;
+  background: var(--line);
+}
+.pkt-fertig { background: var(--success); }
+.pkt-dran { background: var(--primary); }
+
+.streifen-alle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Der verbliebene Knopf steht allein – keine Zweierreihe mehr */
+.start-aktionen-schmal { grid-template-columns: 1fr; margin-top: 14px; }

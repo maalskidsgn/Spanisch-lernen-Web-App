@@ -391,6 +391,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   if (modul) {
     const liste = lektionenVon(modul)
     const { fertig: modulFertig, gesamt } = modulFortschritt(modul, lessonProgress)
+    // Die erste noch nicht geschaffte Lektion – und NUR sie ist "dran".
+    // Vorher galt jede offene als aktuell; mit ALLES_OFFEN waren das
+    // alle, weshalb mehrere "Los geht's!" gleichzeitig standen.
+    const naechsteId = liste.find((l) => !lessonProgress[l.id]?.fertig)?.id ?? null
     return (
       <div className="lessons">
         <button className="btn-plain back-link" onClick={() => setModul(null)}>
@@ -411,56 +415,49 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           </span>
         </div>
 
-        {/* Lernpfad im Duolingo-Stil: die Knoten schlängeln sich nach unten */}
-        <div className="lernpfad">
-          {liste.map((l, i) => {
+        {/* Der Kursplan: eine Zeile je Lektion.
+            Jede sagt, WAS man dort lernt – diese Angabe steht laengst in
+            den Lektionsdaten (grammatik), wurde aber nirgends gezeigt.
+            Genau EINE Zeile ist die naechste: siehe naechsteId. */}
+        <ol className="kursplan">
+          {liste.map((l) => {
             const geschafft = lessonProgress[l.id]?.fertig
-            // Die erste Lektion ist offen, danach muss die vorherige geschafft sein
-            const offen =
-              ALLES_OFFEN || i === 0 || lessonProgress[liste[i - 1].id]?.fertig
-            const aktuell = offen && !geschafft // hier geht es weiter
-            // Sanfter Zickzack nach links und rechts
-            const versatz = Math.round(Math.sin(i * 0.95) * 64)
+            const offen = ALLES_OFFEN || l.id === naechsteId || geschafft
+            const dran = l.id === naechsteId
 
             return (
-              <div
-                key={l.id}
-                className="pfad-halt"
-                style={{ '--versatz': `${versatz}px` }}
-              >
-                {aktuell && <span className="pfad-hinweis">Los geht's!</span>}
-
+              <li key={l.id}>
                 <button
                   className={
-                    'pfad-knoten' +
-                    (geschafft ? ' knoten-fertig' : '') +
-                    (aktuell ? ' knoten-aktuell' : '') +
-                    (!offen ? ' knoten-zu' : '')
+                    'plan-zeile' +
+                    (geschafft ? ' plan-fertig' : '') +
+                    (dran ? ' plan-dran' : '') +
+                    (!offen ? ' plan-zu' : '')
                   }
                   disabled={!offen}
                   onClick={() => starten(l)}
-                  aria-label={`Lektion ${i + 1}: ${l.titel}`}
                 >
-                  <span className="knoten-symbol">
-                    {geschafft ? '✓' : offen ? l.emoji : '🔒'}
+                  <span className="plan-nr">
+                    {String(l.kursNr ?? '').padStart(2, '0')}
                   </span>
+                  <span className="plan-text">
+                    <span className="plan-titel">{l.titel}</span>
+                    <span className="plan-lernst">
+                      {l.grammatik?.[0] ?? l.beschreibung} · {l.items.length} Wörter
+                    </span>
+                  </span>
+                  {geschafft ? (
+                    <span className="plan-haken">✓</span>
+                  ) : dran ? (
+                    <span className="plan-knopf">Start</span>
+                  ) : (
+                    <span className="plan-schloss" aria-label="noch zu" />
+                  )}
                 </button>
-
-                <span className="pfad-name">{l.titel}</span>
-              </div>
+              </li>
             )
           })}
-
-          {/* Ziel am Ende des Pfades */}
-          <div className="pfad-halt pfad-ziel" style={{ '--versatz': '0px' }}>
-            <div className={'pfad-knoten knoten-ziel' + (modulFertig === gesamt ? ' knoten-fertig' : '')}>
-              <span className="knoten-symbol">🏆</span>
-            </div>
-            <span className="pfad-name">
-              {modulFertig === gesamt ? 'Modul geschafft!' : 'Modul-Abschluss'}
-            </span>
-          </div>
-        </div>
+        </ol>
       </div>
     )
   }
