@@ -79,6 +79,15 @@ export function hebeHervor(satz, wort) {
     wort,
     ...wort.split('/'),
     wort.replace(/\([^)]*\)/g, ''),
+    // Reflexive Verben stehen im Eintrag mit -se, im Satz ohne:
+    // "levantarse" wird zu "me levanto". Ohne das Abschneiden ist der
+    // gemeinsame Stamm zu kurz und die Hervorhebung faellt aus.
+    wort.replace(/se$/, ''),
+    // Adjektive wechseln das Geschlecht: "rojo" steht im Satz als
+    // "roja". Bei vier Buchstaben ist der gemeinsame Stamm sonst zu
+    // kurz, um als Treffer zu zaehlen.
+    wort.replace(/o$/, 'a'),
+    wort.replace(/a$/, 'o'),
   ]
     .map((v) => v.replace(/[¿¡?!….]/g, '').replace(ARTIKEL, '').trim())
     .filter(Boolean)
