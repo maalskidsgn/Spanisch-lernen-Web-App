@@ -634,7 +634,18 @@ function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0 }) {
           else klasse += ' option-inaktiv'
         }
         return (
-          <button key={o} className={klasse} onClick={() => onAntwort(o, richtig)}>
+          // Der Rundenzähler MUSS in den key: Ohne ihn erkennt React
+          // zwei Runden mit derselben Antwort als denselben Knopf,
+          // behält ihn samt Fokus – und er sieht auf dem Handy aus,
+          // als wäre er schon ausgewählt.
+          <button
+            key={runde + '-' + o}
+            className={klasse}
+            onClick={(e) => {
+              e.currentTarget.blur()
+              onAntwort(o, richtig)
+            }}
+          >
             {o}
           </button>
         )
