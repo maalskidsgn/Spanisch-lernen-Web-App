@@ -10,7 +10,7 @@ import {
 } from './lektionen.js'
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
-import { sprich } from './sprich.js'
+import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -163,7 +163,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               <div className="flash-word">{schritt.item.es}</div>
               <button
                 className="speak-btn"
-                onClick={() => sprich(schritt.item.es)}
+                onClick={() => spiele(schritt.item.es)}
                 title="Anhören"
               >
                 🔊
@@ -176,7 +176,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                   {hebeHervor(schritt.item.beispielEs, schritt.item.es)}
                   <button
                     className="speak-btn speak-btn-mini"
-                    onClick={() => sprich(schritt.item.beispielEs)}
+                    onClick={() => spiele(schritt.item.beispielEs)}
                     title="Satz anhören"
                   >
                     🔊
@@ -394,6 +394,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 // Tippe auf eine Blase, um ihre deutsche Übersetzung zu sehen.
 function DialogChat({ dialog, onWeiter }) {
   const [anzahl, setAnzahl] = useState(0) // wie viele Blasen schon sichtbar sind
+  const [laeuft, setLaeuft] = useState(null) // laufende Gespraechs-Wiedergabe
   const [uebersetzt, setUebersetzt] = useState([]) // welche Blasen Deutsch zeigen
   const [alleDe, setAlleDe] = useState(false) // alle Übersetzungen eingeblendet?
   const ersterSprecher = dialog[0].sprecher
@@ -410,6 +411,22 @@ function DialogChat({ dialog, onWeiter }) {
   function toggle(i) {
     setUebersetzt((u) => (u.includes(i) ? u.filter((x) => x !== i) : [...u, i]))
   }
+
+  // Den ganzen Dialog als Gespraech abspielen – jede Rolle mit
+  // eigener Stimme, mit Atempausen dazwischen.
+  function gespraech() {
+    if (laeuft) {
+      laeuft.stop()
+      setLaeuft(null)
+      return
+    }
+    const steuerung = dialogAbspielen(dialog)
+    setLaeuft(steuerung)
+    steuerung.fertig.then(() => setLaeuft(null))
+  }
+
+  // Beim Verlassen der Lektion nicht weiterreden
+  useEffect(() => () => laeuft?.stop(), [laeuft])
 
   // Auf welcher Seite steht der Sprecher, der als Nächstes "tippt"?
   const naechsteRechts = !alleDa && dialog[anzahl].sprecher !== ersterSprecher
@@ -431,6 +448,13 @@ function DialogChat({ dialog, onWeiter }) {
                   <span className="chat-de">{zeile.de}</span>
                 )}
               </button>
+              <button
+                className="chat-ton"
+                title="Diese Zeile anhören"
+                onClick={() => spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher) })}
+              >
+                🔊
+              </button>
             </div>
           )
         })}
@@ -448,6 +472,9 @@ function DialogChat({ dialog, onWeiter }) {
 
       {alleDa && (
         <div className="flash-actions dialog-actions">
+          <button className="btn-plain" onClick={gespraech}>
+            {laeuft ? '⏹ Stopp' : '▶ Gespräch anhören'}
+          </button>
           <button className="btn-plain" onClick={() => setAlleDe(!alleDe)}>
             {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung zeigen'}
           </button>

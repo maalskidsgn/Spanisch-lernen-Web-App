@@ -4706,3 +4706,16 @@ body.liest-video .word-card {
   box-shadow: 0 0 0 3px #ffe6d0;
 }
 .liste-mehr { margin: 14px auto 0; display: block; }
+
+/* ===== Ton-Knopf an einer Dialogzeile ===== */
+.chat-ton {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  font-size: 15px;
+  cursor: pointer;
+  opacity: .45;
+  align-self: center;
+  transition: opacity .15s, transform .15s;
+}
+.chat-ton:hover { opacity: 1; transform: scale(1.15); }
