@@ -53,24 +53,25 @@ export default function Home({ progress, settings, counts, nextLesson, onNavigat
         </span>
       </div>
 
-      {/* ============ 2. LIVE-UNTERRICHT (Skizze) ============ */}
-      <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Live-Unterricht</h2>
-          <p>
-            Einmal pro Woche Spanisch mit einer echten Lehrerin – Fragen
-            stellen, sprechen üben, gemeinsam lernen.
-          </p>
+      {/* ============ 2. UNTERRICHT MIT TUTORIN ============ */}
+      <section className="tutor-karte">
+        <div className="tutor-bild">
+          {/* Bis ein Foto da ist: die Anfangsbuchstaben als Platzhalter */}
+          <span className="tutor-initialen" aria-hidden="true">Y</span>
         </div>
-        <div className="unterricht-karte">
-          <div className="unterricht-avatar" aria-hidden="true">👩‍🏫</div>
-          <div className="unterricht-text">
-            <b>Wöchentliche Gruppenstunde</b>
-            <span>Donnerstags · 18:00 Uhr · 45 Minuten</span>
-            <span className="unterricht-premium">Für Premium-Mitglieder</span>
-          </div>
-          <button className="btn-outline" disabled title="Startet nach dem Launch">
-            Bald buchbar
+        <h2 className="tutor-titel">
+          Lerne in der <span className="accent">Praxis!</span>
+        </h2>
+        <p className="tutor-text">
+          Lerne jeden Donnerstag in Gruppenunterricht mit{' '}
+          <b className="accent">Yulibeth</b>!
+        </p>
+        <div className="tutor-knoepfe">
+          <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
+            Lets go <span aria-hidden="true">➤</span>
+          </button>
+          <button className="tutor-knopf tutor-knopf-zweit" onClick={() => onNavigate('trainer')}>
+            KI Hilfe <span aria-hidden="true">✦</span>
           </button>
         </div>
       </section>
