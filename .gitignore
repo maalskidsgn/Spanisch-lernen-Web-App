@@ -32,3 +32,4 @@ android/keystore.properties
 
 # Hörproben fürs Casting – lokal, gehören nicht ins Repo
 stimmen-proben/
+hoerprobe.html

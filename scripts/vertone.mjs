@@ -33,13 +33,15 @@ function audioName(text, stimme) {
   )
 }
 
-// Welche echte ElevenLabs-Stimme hinter welcher Kennung steckt.
-// Die IDs stammen aus der ElevenLabs-Bibliothek und werden hier
-// FEST verdrahtet, damit Ana in Lektion 12 wie in Lektion 1 klingt.
-const ELEVEN_STIMMEN = {
-  'es-a': null, // TODO: Voice-ID eintragen, z.B. weibliche Stimme (Spanien)
-  'es-b': null, // TODO: Voice-ID eintragen, z.B. männliche Stimme (Lateinamerika)
-}
+// Welche echte Stimme hinter welcher Rolle steckt, steht in
+// scripts/besetzung.json – nicht hier im Code. So ist ein
+// Rollenwechsel eine Datenaenderung, kein Eingriff ins Skript.
+const BESETZUNG = JSON.parse(readFileSync('scripts/besetzung.json', 'utf8'))
+const ELEVEN_STIMMEN = Object.fromEntries(
+  Object.entries(BESETZUNG)
+    .filter(([k]) => !k.startsWith('_'))
+    .map(([k, v]) => [k, v.id])
+)
 
 // ---- Alle zu vertonenden Schnipsel einsammeln ----
 const nurLektion = process.argv.includes('--lektion')

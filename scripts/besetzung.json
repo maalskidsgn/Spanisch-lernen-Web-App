@@ -1,0 +1,8 @@
+{
+  "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: alle Aufnahmen dieser Rolle neu erzeugen.",
+  "_tarif": "premade-Stimmen laufen im kostenlosen Tarif. Die echten spanischen Stimmen (Kategorie professional, z.B. Elena tXgbXPnsMpKXkuTgvE3h peninsular) brauchen Starter, 5 $/Monat.",
+  "es-w1": { "id": "Xb7hH8MSUJpSbSDYk0k2", "wer": "Ana – Alice, Clear Engaging Educator" },
+  "es-m1": { "id": "cjVigY5qzO86Huf0OWal", "wer": "Tom – Eric, Smooth Trustworthy" },
+  "es-m2": { "id": "JBFqnCBsd6RMkjVDRZzb", "wer": "Luis – George, Warm Storyteller" },
+  "es-w2": { "id": "EXAVITQu4vr4xnSDxMaL", "wer": "Carmen – Sarah, Mature Reassuring" }
+}
