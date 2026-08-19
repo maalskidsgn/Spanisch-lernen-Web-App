@@ -9,8 +9,11 @@ import { useState, useEffect } from 'react'
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Spanisch nebenbei,
 // während man etwas Interessantes schaut.
+// Eine Reihe je Kategorie mit wenigen Videos – statt einer langen
+// Liste aus allen. Wer mehr will, klappt die Reihe auf.
+const PRO_REIHE = 4
+
 const KATEGORIEN = [
-  { wert: 'alle', label: 'Alle', emoji: '✨' },
   { wert: 'sprache', label: 'Spanisch lernen', emoji: '🎓' },
   { wert: 'gesundheit', label: 'Gesundheit', emoji: '🩺' },
   { wert: 'sport', label: 'Sport', emoji: '🏃' },
@@ -18,6 +21,9 @@ const KATEGORIEN = [
   { wert: 'produktivitaet', label: 'Produktivität', emoji: '⚡' },
   { wert: 'stoizismus', label: 'Stoizismus', emoji: '🏛' },
   { wert: 'psychologie', label: 'Psychologie', emoji: '🧠' },
+  // Videos, die jemand selbst gesucht hat. Ohne eigene Reihe waeren
+  // sie unsichtbar – sie tragen keine der kuratierten Kategorien.
+  { wert: 'gefunden', label: 'Selbst gefunden', emoji: '🔎' },
 ]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
@@ -95,7 +101,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     )
   })
   const [sucheOffen, setSucheOffen] = useState(false)
-  const [kategorie, setKategorie] = useState('alle')
+  const [offeneReihe, setOffeneReihe] = useState(null) // welche Kategorie ist ausgeklappt
   const [bibliothekFehler, setbibliothekFehler] = useState('')
 
   useEffect(() => {
@@ -103,7 +109,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     let abgebrochen = false
 
     setbibliothekFehler('')
-    holeBibliothek(kategorie)
+    holeBibliothek('alle')
       .then((videos) => {
         if (abgebrochen) return
         // Auf das Format bringen, das VideoKarte erwartet
@@ -124,7 +130,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       })
 
     return () => { abgebrochen = true }
-  }, [kategorie])
+  }, [])
 
   // Eine neue Buchzusammenfassung generieren lassen
   async function generiereBuch(e) {
@@ -373,41 +379,53 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
             </p>
           </div>
 
-          <div className="themen-leiste">
-            {KATEGORIEN.map((k) => (
-              <button
-                key={k.wert}
-                className={'thema' + (kategorie === k.wert ? ' thema-aktiv' : '')}
-                onClick={() => setKategorie(k.wert)}
-              >
-                <span className="thema-emoji">{k.emoji}</span>
-                {k.label}
-              </button>
-            ))}
-          </div>
-
           {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
           {!bibliothek && !bibliothekFehler && (
             <p className="intro">Lade Mediathek…</p>
           )}
-          {bibliothek && bibliothek.length === 0 && (
-            <p className="intro">Zu diesem Thema ist noch nichts dabei.</p>
-          )}
-          {bibliothek && bibliothek.length > 0 && (
-            <div className="video-grid">
-              {bibliothek.map((v) => (
-                <div key={v.videoId} className="biblio-karte">
-                  <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
-                  {/* fortschritt zeigt, wie weit man im Video schon ist */}
-                  <VideoKarte
-                    video={v}
-                    onOpen={onOpenVideo}
-                    fortschritt={fortschritt[v.videoId] ?? 0}
-                  />
+
+          {/* Eine Reihe je Kategorie mit vier Videos. Die alte
+              Gesamtliste zeigte 45 Videos am Stueck – man wusste
+              nicht, wo anfangen. */}
+          {bibliothek &&
+            KATEGORIEN.map((k) => {
+              const videos = bibliothek.filter((v) => v.kategorie === k.wert)
+              if (videos.length === 0) return null
+              const offen = offeneReihe === k.wert
+              const sichtbar = offen ? videos : videos.slice(0, PRO_REIHE)
+
+              return (
+                <div key={k.wert} className="kategorie-reihe">
+                  <div className="reihen-kopf">
+                    <h3 className="reihen-titel">
+                      <span className="reihen-emoji" aria-hidden="true">{k.emoji}</span>
+                      {k.label}
+                    </h3>
+                    {videos.length > PRO_REIHE && (
+                      <button
+                        className="reihen-mehr"
+                        onClick={() => setOffeneReihe(offen ? null : k.wert)}
+                      >
+                        {offen ? 'Weniger' : `Alle ${videos.length}`}
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="video-grid">
+                    {sichtbar.map((v) => (
+                      <div key={v.videoId} className="biblio-karte">
+                        <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
+                        <VideoKarte
+                          video={v}
+                          onOpen={onOpenVideo}
+                          fortschritt={fortschritt[v.videoId] ?? 0}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
+              )
+            })}
         </section>
       )}
 

@@ -3976,6 +3976,7 @@ body.liest-video .fab-panel {
 .start-aktion-zweit *,
 .weiter-hinweis,
 .text-warnung,
+.reihen-mehr,
 .song-vorschlag,
 .song-vorschlag .song-vorschlag-titel,
 .vorschlag-chip,
@@ -5598,3 +5599,42 @@ body.liest-video .word-card {
   box-shadow: 0 1px 0 var(--primary-press);
 }
 .tutor-knopf span { font-size: 13px; }
+
+/* ===== Mediathek: eine Reihe je Kategorie ===== */
+.kategorie-reihe { margin-bottom: 30px; }
+.kategorie-reihe:last-child { margin-bottom: 0; }
+
+.reihen-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.reihen-titel {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 17px;
+  font-weight: 800;
+  margin: 0;
+}
+.reihen-emoji { font-size: 19px; }
+
+.reihen-mehr {
+  flex: none;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary);
+  background: #fff3e8;
+  border: none;
+  border-radius: 999px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background .12s;
+}
+.reihen-mehr:active { transform: scale(.96); box-shadow: none; }
+@media (hover: hover) {
+  .reihen-mehr:hover { background: #ffe4cc; }
+}
