@@ -828,7 +828,37 @@ export default function App() {
           ← Zu den Videos
         </button>
 
-        {loading && <p className="intro">Lade Transkript…</p>}
+        {/* Statt "Lade Transkript…" ein Geruest, das schon so
+            aussieht wie das, was gleich kommt. Wartezeit fuehlt
+            sich kuerzer an, wenn man sieht, WAS geladen wird. */}
+        {loading && (
+          <div className="lade-geruest" aria-label="Video wird geladen" role="status">
+            <div className="lade-buehne">
+              <div className="lade-video schimmer" />
+              <div className="lade-titel schimmer" />
+              <div className="lade-knoepfe">
+                <span className="schimmer" />
+                <span className="schimmer" />
+                <span className="schimmer" />
+              </div>
+              {/* Dieselbe Welle wie in der fertigen Ansicht – so
+                  springt beim Umschalten nichts */}
+              <svg className="buehnen-welle" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0 44 C 180 88, 340 4, 560 30 C 760 54, 900 92, 1200 46 L1200 90 L0 90 Z" />
+              </svg>
+            </div>
+            <div className="lade-zeilen">
+              {[92, 64, 84, 72, 88, 56].map((breite, i) => (
+                <div
+                  key={i}
+                  className="lade-zeile schimmer"
+                  style={{ width: breite + '%', animationDelay: i * 0.09 + 's' }}
+                />
+              ))}
+            </div>
+            <p className="lade-text">Untertitel werden geholt …</p>
+          </div>
+        )}
         {error && <p className="error">{error}</p>}
         {!video && !loading && !error && (
           <div className="empty-reader">
