@@ -67,6 +67,23 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     ladeSongs()
   }, [])
 
+  // Zurück von Spotify? Dann den Code einlösen und gleich auswerten.
+  // OHNE diesen Schritt passiert nach der Anmeldung gar nichts.
+  useEffect(() => {
+    if (!new URLSearchParams(window.location.search).get('code')) return
+    schliesseAnmeldungAb()
+      .then((ok) => {
+        window.history.replaceState({}, '', '/')
+        if (ok) {
+          setVerbunden(true)
+          interpretenPruefen()
+        }
+      })
+      .catch((f) => setSpotifyFehler(f.message))
+    // Nur einmal beim Laden – deshalb keine Abhängigkeiten
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Interpreten aus alten Auswertungen haben noch keine Songs.
   // Einmal still neu auswerten, statt den Nutzer mit "keine Songs
   // gefunden" stehenzulassen.

@@ -7,6 +7,7 @@ import {
   modulFortschritt,
   modulOffen,
   ALLES_OFFEN,
+  LUECKE_MARKE,
 } from './lektionen.js'
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
@@ -226,6 +227,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               {schritt.richtung === 'es-de' ? schritt.item.es : schritt.item.de}
             </div>
             <QuizOptionen
+              runde={index}
               optionen={optionen}
               feedback={feedback}
               richtig={schritt.richtung === 'es-de' ? schritt.item.de : schritt.item.es}
@@ -245,6 +247,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <p className="lesson-hint">🎓 Vertiefung: Was bedeutet dieser Satz?</p>
             <div className="gap-sentence">{schritt.zeile.es}</div>
             <QuizOptionen
+              runde={index}
               optionen={optionen}
               feedback={feedback}
               richtig={schritt.zeile.de}
@@ -257,9 +260,17 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'luecke' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">✏️ Setze das fehlende Wort ein</p>
-            <div className="gap-sentence">{schritt.luecke.satz}</div>
+            <div className="gap-sentence">
+              {schritt.luecke.satz.split(LUECKE_MARKE).map((teil, i, alle) => (
+                <span key={i}>
+                  {teil}
+                  {i < alle.length - 1 && <span className="luecke-linie" />}
+                </span>
+              ))}
+            </div>
             <p className="gap-help">{schritt.item.beispielDe}</p>
             <QuizOptionen
+              runde={index}
               optionen={optionen}
               feedback={feedback}
               richtig={schritt.luecke.loesung}
@@ -507,7 +518,7 @@ function DialogChat({ dialog, onWeiter }) {
 }
 
 // Die vier Antwort-Knöpfe einer Übung, mit grün/rot-Feedback
-function QuizOptionen({ optionen, feedback, richtig, onAntwort }) {
+function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0 }) {
   return (
     <div className="quiz-options">
       {optionen.map((o) => {

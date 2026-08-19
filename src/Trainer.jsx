@@ -617,7 +617,15 @@ function AuswahlKnoepfe({ loesung, entries, gewaehlt, onWahl }) {
           else klasse += ' option-inaktiv'
         }
         return (
-          <button key={o} className={klasse} onClick={() => onWahl(o)} disabled={Boolean(gewaehlt)}>
+          <button
+            key={o}
+            className={klasse}
+            onClick={(e) => {
+              e.currentTarget.blur() // kein Fokus-Rest auf dem Touchscreen
+              onWahl(o)
+            }}
+            disabled={Boolean(gewaehlt)}
+          >
             {o}
           </button>
         )

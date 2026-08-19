@@ -582,12 +582,17 @@ function kernwort(es) {
 
 // Baut aus einem Beispielsatz eine Lücken-Übung: das gelernte Wort
 // wird im Satz durch ___ ersetzt. Klappt das nicht, gibt es keine Lücke.
+/** Platzhalter fuer die Luecke im Satz – wird als Linie gezeichnet. */
+export const LUECKE_MARKE = '\u0000LUECKE\u0000'
+
 export function baueLuecke(item) {
   const kern = kernwort(item.es)
   const regex = new RegExp(kern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i')
   const treffer = item.beispielEs.match(regex)
   if (!treffer) return null
-  return { satz: item.beispielEs.replace(regex, '_____'), loesung: treffer[0] }
+  // Marke statt Unterstrichen: Die Luecke wird als saubere Linie
+  // gezeichnet, nicht als fuenf einzelne Striche.
+  return { satz: item.beispielEs.replace(regex, LUECKE_MARKE), loesung: treffer[0] }
 }
 
 // Baut den geführten Ablauf einer Lektion:
