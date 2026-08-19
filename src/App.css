@@ -1881,181 +1881,6 @@ button:disabled {
    aktuell = orange mit Puls, noch zu = grau.
    ============================================================ */
 
-.lernpfad {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 14px 0 40px;
-  position: relative;
-}
-
-.pfad-halt {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  /* --versatz kommt aus dem JSX und erzeugt den Zickzack */
-  transform: translateX(var(--versatz, 0px));
-  padding-bottom: 26px;
-  position: relative;
-  animation: pfad-auf 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-.pfad-halt:nth-child(1) { animation-delay: 0.02s; }
-.pfad-halt:nth-child(2) { animation-delay: 0.09s; }
-.pfad-halt:nth-child(3) { animation-delay: 0.16s; }
-.pfad-halt:nth-child(4) { animation-delay: 0.23s; }
-.pfad-halt:nth-child(5) { animation-delay: 0.30s; }
-.pfad-halt:nth-child(6) { animation-delay: 0.37s; }
-
-@keyframes pfad-auf {
-  from { opacity: 0; transform: translateX(var(--versatz, 0px)) translateY(18px) scale(0.9); }
-  to   { opacity: 1; transform: translateX(var(--versatz, 0px)) scale(1); }
-}
-
-/* Gepunktete Verbindung zum nächsten Halt */
-.pfad-halt:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  left: 50%;
-  width: 4px;
-  height: 20px;
-  margin-left: -2px;
-  border-radius: 2px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--line) 0 5px,
-    transparent 5px 10px
-  );
-}
-
-/* ---------- Der runde Knopf ---------- */
-
-.pfad-knoten {
-  width: 74px;
-  height: 74px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  font-size: 1.9rem;
-  background: var(--line);
-  color: #fff;
-  /* Der 3D-Rand unten – Duolingos Markenzeichen */
-  box-shadow: 0 6px 0 #ded0be;
-  transition: transform 0.12s, box-shadow 0.12s, filter 0.15s;
-}
-.pfad-knoten:not(:disabled):hover { filter: brightness(1.06); }
-.pfad-knoten:not(:disabled):active {
-  transform: translateY(6px);
-  box-shadow: 0 0 0 currentColor;
-}
-
-.knoten-symbol { line-height: 1; }
-
-/* Erledigt – smaragdgrün mit Häkchen */
-.knoten-fertig {
-  background: var(--success);
-  box-shadow: 0 6px 0 #1f9450;
-  font-size: 2.1rem;
-  font-weight: 900;
-}
-
-/* Aktuell – orange, größer, mit pulsierendem Ring */
-.knoten-aktuell {
-  background: var(--primary);
-  box-shadow: 0 6px 0 var(--primary-press, #bf5200);
-  width: 84px;
-  height: 84px;
-  font-size: 2.2rem;
-  position: relative;
-}
-.knoten-aktuell::before {
-  content: '';
-  position: absolute;
-  inset: -7px;
-  border-radius: 50%;
-  border: 3px solid var(--primary);
-  opacity: 0.55;
-  animation: knoten-puls 2s ease-out infinite;
-}
-@keyframes knoten-puls {
-  0%   { transform: scale(1);    opacity: 0.55; }
-  70%  { transform: scale(1.22); opacity: 0; }
-  100% { transform: scale(1.22); opacity: 0; }
-}
-
-/* Noch gesperrt */
-.knoten-zu {
-  background: #ece2d5;
-  box-shadow: 0 6px 0 #ded0be;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-  opacity: 0.75;
-  font-size: 1.6rem;
-}
-
-/* Der Trophäen-Knoten am Ende */
-.knoten-ziel {
-  background: linear-gradient(150deg, #ffc94d, #ffbe3d);
-  box-shadow: 0 6px 0 #d99f1f;
-  cursor: default;
-}
-.knoten-ziel:not(.knoten-fertig) { filter: grayscale(0.55); opacity: 0.7; }
-.pfad-ziel::after { display: none; }
-
-/* ---------- Beschriftung & Hinweis ---------- */
-
-.pfad-name {
-  font-size: 0.86rem;
-  font-weight: 800;
-  color: var(--muted);
-  text-align: center;
-  max-width: 150px;
-  line-height: 1.3;
-}
-
-.pfad-hinweis {
-  background: #fff;
-  color: var(--primary-dark, #e05f00);
-  font-size: 0.76rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 6px 14px;
-  border-radius: 999px;
-  box-shadow: 0 3px 10px rgba(0, 0, 65, 0.14);
-  position: relative;
-  margin-bottom: 2px;
-  animation: hinweis-wippen 1.6s ease-in-out infinite;
-}
-/* kleines Dreieck als Sprechblasen-Spitze */
-.pfad-hinweis::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  margin-left: -5px;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid #fff;
-}
-@keyframes hinweis-wippen {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-4px); }
-}
-
-@media (max-width: 800px) {
-  .pfad-halt { transform: translateX(calc(var(--versatz, 0px) * 0.62)); }
-  @keyframes pfad-auf {
-    from { opacity: 0; transform: translateX(calc(var(--versatz,0px)*0.62)) translateY(18px) scale(0.9); }
-    to   { opacity: 1; transform: translateX(calc(var(--versatz,0px)*0.62)) scale(1); }
-  }
-  .pfad-knoten { width: 66px; height: 66px; font-size: 1.7rem; }
-  .knoten-aktuell { width: 76px; height: 76px; font-size: 2rem; }
-}
 
 /* ---------- Kuratierte Bibliothek ---------- */
 .biblio-karte { position: relative; }
@@ -6225,3 +6050,112 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 
 /* Der verbliebene Knopf steht allein – keine Zweierreihe mehr */
 .start-aktionen-schmal { grid-template-columns: 1fr; margin-top: 14px; }
+
+/* ===== Reiseroute: der Lernpfad als Landkarte ===== */
+.route { margin-top: 16px; }
+
+.route-karte {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.route-grund { fill: #f6f3ed; }
+.route-fleck { fill: #efe9de; }
+
+/* Der Belag: die ganze Strecke, hell */
+.route-belag {
+  fill: none;
+  stroke: #e4dbcb;
+  stroke-width: 15;
+  stroke-linecap: round;
+}
+
+/* Der geschaffte Teil – liegt auf DERSELBEN Kurve, per
+   stroke-dasharray beschnitten. Deshalb kann er nicht abweichen. */
+.route-geschafft {
+  fill: none;
+  stroke: var(--success);
+  stroke-width: 15;
+  stroke-linecap: round;
+}
+
+/* Mittelstreifen wie auf einer echten Straße */
+.route-streifen {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-dasharray: 7 11;
+  opacity: 0.7;
+}
+
+.route-halt { cursor: pointer; }
+.route-halt:focus-visible { outline: none; }
+.route-halt:focus-visible .halt-punkt {
+  stroke: var(--navy);
+  stroke-width: 3;
+}
+
+.halt-punkt { fill: #fff; stroke: #cfc4b6; stroke-width: 3; }
+.halt-fertig .halt-punkt { fill: var(--success); stroke: #fff; }
+.halt-dran .halt-punkt { fill: var(--primary); stroke: #fff; stroke-width: 3.5; }
+.halt-offen .halt-punkt { opacity: 0.75; }
+
+.halt-haken {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Die Fahne: der Standort ist kein Kreis, sondern eine Markierung */
+.halt-schein { fill: var(--primary); opacity: 0.15; }
+.halt-mast { stroke: var(--primary-press); stroke-width: 3; stroke-linecap: round; }
+.halt-fahne { fill: var(--primary); }
+.halt-nummer {
+  fill: #fff;
+  font: 800 11px 'Nunito', sans-serif;
+  text-anchor: middle;
+}
+
+.halt-titel { fill: var(--navy); font: 700 13px 'Nunito', sans-serif; }
+.halt-dran .halt-titel { font-size: 14px; font-weight: 800; }
+.halt-offen .halt-titel { fill: #8b8073; }
+
+.halt-unter { fill: var(--muted); font: 600 10.5px 'Nunito', sans-serif; }
+.halt-dran .halt-unter { fill: var(--primary); font-weight: 800; }
+.halt-fertig .halt-unter { fill: #9aa596; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .route-halt { transition: opacity 0.15s ease; }
+  .route-halt:hover { opacity: 0.85; }
+}
+
+/* Umschalter zwischen Karte und Liste */
+.ansicht-schalter {
+  display: inline-flex;
+  gap: 3px;
+  padding: 3px;
+  margin-top: 14px;
+  background: var(--flaeche);
+  border-radius: 99px;
+}
+.ansicht-schalter button {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 7px 18px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.ansicht-schalter button.aktiv {
+  background: var(--card);
+  color: var(--navy);
+  box-shadow: 0 1px 3px rgba(0, 0, 65, 0.1);
+}

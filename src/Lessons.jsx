@@ -13,6 +13,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
+import Reiseroute from './Reiseroute.jsx'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -54,6 +55,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   const [richtige, setRichtige] = useState(0)
   const [optionen, setOptionen] = useState([])
   const [fertig, setFertig] = useState(false)
+  // Karte oder Liste? Die Karte macht Freude, die Liste laesst einen
+  // in einem langen Modul schnell etwas wiederfinden.
+  const [ansicht, setAnsicht] = useState('karte')
 
   function brauchtOptionen(schritt) {
     return (
@@ -415,6 +419,41 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           </span>
         </div>
 
+        <div className="ansicht-schalter" role="tablist">
+          <button
+            role="tab"
+            aria-selected={ansicht === 'karte'}
+            className={ansicht === 'karte' ? 'aktiv' : ''}
+            onClick={() => setAnsicht('karte')}
+          >
+            Karte
+          </button>
+          <button
+            role="tab"
+            aria-selected={ansicht === 'liste'}
+            className={ansicht === 'liste' ? 'aktiv' : ''}
+            onClick={() => setAnsicht('liste')}
+          >
+            Liste
+          </button>
+        </div>
+
+        {ansicht === 'karte' && (
+          <Reiseroute
+            lektionen={liste}
+            fortschritt={lessonProgress}
+            naechsteId={naechsteId}
+            onStart={(l) => {
+              // Gesperrte Etappen nicht starten
+              if (ALLES_OFFEN || l.id === naechsteId || lessonProgress[l.id]?.fertig) {
+                starten(l)
+              }
+            }}
+          />
+        )}
+
+        {ansicht === 'liste' && (
+        <>
         {/* Der Kursplan: eine Zeile je Lektion.
             Jede sagt, WAS man dort lernt – diese Angabe steht laengst in
             den Lektionsdaten (grammatik), wurde aber nirgends gezeigt.
@@ -458,6 +497,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             )
           })}
         </ol>
+        </>
+        )}
       </div>
     )
   }
