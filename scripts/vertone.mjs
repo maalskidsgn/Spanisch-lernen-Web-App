@@ -24,7 +24,7 @@ const { LEKTIONEN } = await import('../src/lektionen.js')
 // Prüfsummen-Logik und Besetzung kommen aus dem gemeinsamen Modul –
 // so KANN das Skript gar nicht auf einen anderen Dateinamen kommen
 // als die App.
-const { STIMMEN, sprechText, stimmeImDialog, dateiName, pruefsummeQuelle } =
+const { STIMMEN, sprechText, stimmeImDialog, dateiName, pruefsummeQuelle, BESETZUNG_STAND } =
   await import('../src/stimmen.js')
 
 function audioName(text, stimme) {
@@ -37,6 +37,13 @@ function audioName(text, stimme) {
 // scripts/besetzung.json – nicht hier im Code. So ist ein
 // Rollenwechsel eine Datenaenderung, kein Eingriff ins Skript.
 const BESETZUNG = JSON.parse(readFileSync('scripts/besetzung.json', 'utf8'))
+
+// Erinnerung an die Regel aus src/stimmen.js: Wer die Besetzung
+// aendert, MUSS dort BESETZUNG_STAND erhoehen - sonst behaelt jede
+// Aufnahme ihren alten Dateinamen und wird nie neu erzeugt.
+console.log(`Besetzungsstand ${BESETZUNG_STAND}: ` +
+  Object.entries(BESETZUNG).filter(([k]) => !k.startsWith('_'))
+    .map(([k, v]) => `${k}=${v.wer.split(' – ')[0]}`).join(', '))
 const ELEVEN_STIMMEN = Object.fromEntries(
   Object.entries(BESETZUNG)
     .filter(([k]) => !k.startsWith('_'))

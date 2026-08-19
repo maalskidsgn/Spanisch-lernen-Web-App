@@ -41,6 +41,25 @@ export const BESETZUNG = {
 }
 
 /**
+ * Der Stand der Besetzung.
+ *
+ * Diese Zahl geht in JEDE Prüfsumme ein. Warum? Die Prüfsumme kennt
+ * sonst nur Rolle und Text – nicht, welche Stimme tatsächlich
+ * gesprochen hat. Tauschten wir Ana gegen eine andere Stimme,
+ * blieben alle Dateinamen gleich: Das Vertonungs-Skript sähe "ist
+ * schon da" und überspränge alles, und die App spielte ewig die
+ * alte Stimme weiter.
+ *
+ * Also: Bei JEDER Änderung an scripts/besetzung.json diese Zahl um
+ * eins erhöhen. Dann ändern sich alle Dateinamen, die App fällt so
+ * lange auf die Gerätestimme zurück, bis neu vertont ist – und es
+ * kann nie eine Aufnahme laufen, die nicht zur Besetzung passt.
+ *
+ * 1 = Alice und Eric (premade, englischer Akzent)
+ */
+export const BESETZUNG_STAND = 1
+
+/**
  * Text vor dem Vertonen säubern.
  * "alemán / alemana" soll nicht als "alemán Schrägstrich…" enden.
  */
@@ -81,5 +100,5 @@ export function dateiName(hexPruefsumme) {
 
 /** Was in die Prüfsumme eingeht – für beide Seiten identisch. */
 export function pruefsummeQuelle(text, stimme) {
-  return stimme + '|' + sprechText(text)
+  return BESETZUNG_STAND + '|' + stimme + '|' + sprechText(text)
 }
