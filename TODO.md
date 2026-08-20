@@ -22,18 +22,30 @@ daran kein Weg vorbei. Claude kann die vollständige Liste der
 Datenempfänger aus dem Code zusammenstellen — welcher Dienst, welche
 Daten, wofür, welcher Endpunkt. Die juristische Bewertung nicht.
 
-### Der Karteikasten wächst nicht – Wörter bleiben bei 2,5 Tagen
-**Manuel, 20.08.:** „Habe das Gefühl es endet dort." Stimmt.
+### ⚠️ Karteikasten: Der SQL-Befehl fehlt noch
+**Code ist fertig (20.08.), die Datenbank noch nicht.**
 
-`src/srs.js` rechnet richtig. `src/sync.js` speichert aber nur
-`stufe` und `faellig_am` in die Datenbank (`zuDatenbank`, Zeile 21-33)
-– die beiden Felder, von denen die Rechnung lebt, `intervall` und
-`leichtigkeit`, fallen weg. Bei jedem App-Start holt
-`zusammenfuehren()` die Datenbankfassung, und die gewinnt bei
-gleicher Stufe (Zeile 178). Damit fällt `intervall` auf die grobe
-Leiter `[0,1,3,7,14,30,90]` zurück.
+Das hier ist das Einzige, was Manuel selbst tun muss. Im Supabase-
+Dashboard unter „SQL Editor" ausführen:
 
-Acht Wiederholungen mit „Gut", nachgerechnet:
+```sql
+alter table vokabeln
+  add column if not exists intervall real,
+  add column if not exists leichtigkeit real;
+```
+
+**Solange das nicht läuft, bleibt der Fehler bestehen.** Die App
+merkt es und arbeitet weiter wie bisher – sie stürzt nicht ab –, aber
+die Abstände bleiben grob. In der Browser-Konsole steht dann ein
+Hinweis. Nach dem SQL: nichts weiter zu tun, es greift beim nächsten
+Abgleich von selbst.
+
+<details><summary>Was der Fehler war</summary>
+
+`src/srs.js` rechnete richtig. `src/sync.js` speicherte aber nur
+`stufe` und `faellig_am` – `intervall` und `leichtigkeit`, von denen
+die Rechnung lebt, fielen weg. Beim nächsten App-Start fiel der
+Abstand auf die grobe Leiter `[0,1,3,7,14,30,90]` zurück:
 
 ```
 ohne Sync:  1 → 2,5 → 6,3 → 15,8 → 39,5 → 98,8 → 247 → 365
@@ -42,30 +54,14 @@ mit Sync:   1 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5
 
 2,5 Tage runden auf Stufe 1 ab, Stufe 1 heißt wieder 1 Tag, mal 2,5
 sind wieder 2,5 – ein Kreis. Bei „Schwer" dasselbe bei 0,5 Tagen.
-Nur „Einfach" klettert, weil 3,25 gerade über die nächste Sprosse
-rutscht. Wer täglich übt, sieht dieselben Wörter für immer alle drei
-Tage. Bei einer Vokabel-App ist das die Kernmechanik.
 
-**Die Behebung, zwei Teile.** Erst in Supabase:
-
-```sql
-alter table vokabeln
-  add column if not exists intervall real,
-  add column if not exists leichtigkeit real;
-```
-
-Dann `zuDatenbank` und `zuApp` in `src/sync.js` um die beiden Felder
-erweitern. Vorhandene Zeilen haben `null` – `zustand()` in srs.js
-faellt dann auf das bisherige Verhalten zurueck, es geht also nichts
-kaputt.
-
-Zusätzlich: In `vorschau()` stehen bei „Gut" und „Einfach" beide
-Male „3 Tage" (2,5 und 3,25 auf ganze Tage gerundet). Reine
-Anzeigesache – unter 3 Tagen eine Nachkommastelle zeigen.
-
-Nachweis: `scripts/` hat dafür nichts, die Rechnung oben stammt aus
-einem Wegwerf-Skript. Beim Beheben einen echten Test dafür anlegen –
-das ist ein Fehler, den man nur mit einer Simulation sieht.
+Behoben in `sync.js` (beide Felder werden mitgespeichert, die
+Zusammenführung vergleicht jetzt den Abstand statt der groben Stufe)
+und in `srs.js` (unter einer Woche mit Nachkommastelle, sonst stand
+auf zwei Knöpfen dasselbe). `pruefe-srs.mjs` prüft die Rundreise vor
+jedem Build und wurde gegen den alten Stand gegengeprüft – er schlägt
+an.
+</details>
 
 ### Stripe steht im Testmodus
 `STRIPE_SECRET_KEY` beginnt mit `sk_test`. Die Premium-Karte trägt
@@ -83,6 +79,34 @@ Vokabeln (17.642) sind seit dem 20.08. erledigt.
 
 Aufruf: `node scripts/vertone.mjs --los` (ohne `--ohne-saetze`).
 Das Skript überspringt, was schon im Speicher liegt.
+
+### Der Lautsprecher: hässlich und springt nach
+**Manuel, 20.08.:** „Dieses Icon mag ich nicht. Außerdem lädt es
+immer erst nach und es wirkt unsauber und wie ein Bug."
+
+Beides stimmt, und beides geht auf meine Kappe.
+
+**Das Nachspringen** ist eine Folge davon, wie `HoerKnopf`
+(`src/HoerKnopf.jsx`) arbeitet: Er startet mit „weiß ich noch nicht",
+zeigt nichts an, fragt per HEAD beim Speicher nach, ob es die
+Aufnahme gibt – und erscheint erst, wenn die Antwort da ist. Auf der
+fertigen Karte poppt er also nachträglich rein und schiebt das Wort
+zur Seite.
+
+Die saubere Behebung: Die App muss gar nicht mehr fragen. Seit dem
+20.08. sind **alle** 4.518 Schnipsel des Kurses vertont – welche
+Dateien es gibt, steht beim Bauen fest. Ein erzeugtes Verzeichnis der
+Prüfsummen (rund 110 KB, gezippt ein Bruchteil) macht die Auskunft
+sofort und ohne Netz. Die HEAD-Abfrage bleibt nur für Wörter aus
+eigenen Listen, Videos und Ebooks – und dort ist der Knopf ohnehin
+selten.
+
+**Das Symbol** ist das Emoji 🔊 in einem orangen Kreis
+(`.speak-btn`, `src/App.css:1056`). Emojis sehen auf jedem System
+anders aus – auf dem Mac dieses graue Ding mit den Wellen, das nicht
+zum Rest passt. Ersatz: ein echtes SVG wie die anderen Symbole in
+`src/icons.jsx`, in der Farbe der App. Der Hörverstehen-Knopf
+(`.hoeren-knopf`) hat so eines schon, das Muster steht also da.
 
 ### „Deine Sammlung" im Trainer
 Aus dem Entwurf vom 20.08.: zwei Kennzahlen (Wörter / sicher gelernt)
@@ -116,6 +140,29 @@ Vorschlag: drei bis vier Karten nach der Registrierung – Vorkenntnisse,
 Tagesziel, wofür er Spanisch lernt – und danach direkt in Lektion 1
 statt auf die Startseite. Das Tagesziel gibt es in den Einstellungen
 schon, es wird nur nie erfragt.
+
+---
+
+### „Mitgehört" – Hörverstehen zwischen den Lektionen
+**Manuel, 20.08.:** Dialoge hören, Fragen zum Inhalt beantworten,
+danach den Dialog lesen können. Zum Thema passend.
+
+Heute prüft die App nur Übersetzen: `hoeren` spielt einen Satz vor
+und fragt nach der Bedeutung, `dialogquiz` zeigt ihn und fragt
+dasselbe. Nirgends wird gefragt, worum es **ging**.
+
+Ablauf: Dialog einmal ohne Text → 4–5 Inhaltsfragen, Wiederhören
+erlaubt → danach die Abschrift mit Ton je Zeile. Eine Übung pro
+Modul, in der Mitte; die Prüfstation bleibt am Ende.
+
+Budget: **bis 30.000 Credits** (Manuel, 20.08.) – das reicht für
+deutlich längere Dialoge als die 12 Zeilen im ersten Entwurf.
+
+Der Prüfer muss auf die typische Falle achten: ob die richtige
+Antwort die einzige ist, deren Wörter im Dialog vorkommen. Dann rät
+man nach Stichwort statt zu verstehen. Ein Wortschatz-Prüfer wäre
+dagegen unbrauchbar – in den bestehenden Dialogen sind 39 % der
+Wörter beim ersten Hören nicht aus den Wortlisten (gemessen).
 
 ---
 

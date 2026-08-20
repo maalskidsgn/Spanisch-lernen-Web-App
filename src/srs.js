@@ -144,7 +144,15 @@ export function vorschau(entry, bewertung) {
 
   tage = Math.min(tage, MAX_TAGE)
   if (tage < 1) return Math.round(tage * 24) + ' Std'
-  if (tage < 30) return Math.round(tage) + (Math.round(tage) === 1 ? ' Tag' : ' Tage')
+  // Unter einer Woche mit Nachkommastelle. Sonst stuenden auf zwei
+  // Knoepfen dieselben "3 Tage" – 2,5 und 3,25 runden beide dorthin –
+  // und es saehe aus, als taeten sie dasselbe.
+  if (tage < 7) {
+    const gerundet = Math.round(tage * 10) / 10
+    if (gerundet === 1) return '1 Tag'
+    return String(gerundet).replace('.', ',') + ' Tage'
+  }
+  if (tage < 30) return Math.round(tage) + ' Tage'
   if (tage < 365) return Math.round(tage / 30) + ' Mon.'
   return '1 Jahr'
 }
