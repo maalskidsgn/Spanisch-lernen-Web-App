@@ -1004,9 +1004,13 @@ button:disabled {
 .intro-goals {
   list-style: none;
   padding: 0;
-  margin: 0 0 20px;
+  /* display:table statt inline-block: Beides schrumpft auf die
+     Textbreite, aber inline-block laesst den Knopf danach in
+     dieselbe Zeile rutschen, sobald die Ziele kurz genug sind.
+     Genau das passierte bei den Pruefstationen. */
+  display: table;
+  margin: 0 auto 20px;
   text-align: left;
-  display: inline-block;
   font-weight: 700;
   color: #6d6152;
   line-height: 1.9;
@@ -6895,3 +6899,79 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   cursor: pointer;
 }
 .gram-abbrechen:active { transform: none; }
+
+/* ===== Die Pruefstation am Ende eines Moduls ===== */
+.station {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  margin: 26px 0 10px;
+  padding: 18px 16px;
+  border: 2px dashed var(--primary);
+  border-radius: var(--radius);
+  background: #fff8f2;
+  box-shadow: none;
+  cursor: pointer;
+}
+.station:active { transform: scale(.99); }
+/* Gesperrt und bestanden sind ruhig – nur die offene Station ruft. */
+.station-zu {
+  border-style: solid;
+  border-color: var(--line);
+  background: var(--flaeche);
+  cursor: default;
+}
+.station-zu:active { transform: none; }
+.station-fertig {
+  border-style: solid;
+  border-color: var(--success);
+  background: #f2fbf5;
+}
+.station-emoji {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--success);
+}
+.station-text { flex: 1; min-width: 0; }
+.station-marke {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.station-zu .station-marke { color: var(--muted); }
+.station-fertig .station-marke { color: var(--success-press); }
+.station-text h3 {
+  margin: 2px 0 3px;
+  font-size: 16.5px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.station-text p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.station-knopf {
+  flex-shrink: 0;
+  padding: 9px 15px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 900;
+}
+.station-fertig .station-knopf { background: var(--success); }

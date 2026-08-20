@@ -15,6 +15,14 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
+import {
+  stationVon,
+  stationOffen,
+  stationGeschafft,
+  stationAlsLektion,
+  baueSchritteStation,
+  nochOffen,
+} from './pruefstationen.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -163,6 +171,10 @@ function suchStelle(satz, ziel) {
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
 export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
+  // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
+  // Sonst baut "Noch einmal" am Ende den Lektions-Ablauf ueber das
+  // Stations-Objekt – mit 226 Vorstell-Schritten statt 25 Aufgaben.
+  const [laufendeStation, setLaufendeStation] = useState(null)
   const [lektion, setLektion] = useState(null) // die gerade geöffnete Lektion
   const [schritte, setSchritte] = useState([])
   const [index, setIndex] = useState(0)
@@ -201,8 +213,18 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     return brauchtOptionen(schritt) || schritt.typ === 'satzbau'
   }
 
-  function starten(l) {
-    const s = baueSchritte(l)
+  /**
+   * Eine Lektion starten – oder eine Pruefstation.
+   *
+   * Die Station kommt als fertiges Lektions-Objekt herein und
+   * bringt ihren eigenen Bauplan mit. Dadurch laeuft sie durch
+   * genau diesen Ablauf: dieselben Quiz-Knoepfe, derselbe Satzbau,
+   * derselbe Abschluss mit der 80-Prozent-Marke. Eine zweite
+   * Oberflaeche waere eine zweite Stelle zum Kaputtgehen.
+   */
+  function starten(l, station = null) {
+    setLaufendeStation(station)
+    const s = station ? baueSchritteStation(station) : baueSchritte(l)
     setLektion(l)
     setSchritte(s)
     setIndex(0)
@@ -210,6 +232,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     setFertig(false)
     setFeedback(null)
     setOptionen(brauchtOptionen(s[0]) ? baueOptionen(s[0], l) : [])
+  }
+
+  function startenStation(station) {
+    starten(stationAlsLektion(station), station)
   }
 
   function weiter() {
@@ -275,7 +301,13 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <span className="quote-zahl">{quote}<i>%</i></span>
           </div>
 
-          <h2>{sitzt ? 'Lektion geschafft!' : 'Fast geschafft'}</h2>
+          <h2>
+            {sitzt
+              ? lektion.istStation
+                ? 'Prüfstation bestanden!'
+                : 'Lektion geschafft!'
+              : 'Fast geschafft'}
+          </h2>
           <p>
             {richtige} von {uebungen} Aufgaben richtig · +{XP.LEKTION} Bonus-XP
           </p>
@@ -285,14 +317,18 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             </p>
           )}
           <p className="bonus-note">
-            {sitzt
-              ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
-              : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'}
+            {lektion.istStation
+              ? sitzt
+                ? 'Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.'
+                : 'Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.'
+              : sitzt
+                ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
+                : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'}
           </p>
 
           <div className="abschluss-knoepfe">
             {!sitzt && (
-              <button onClick={() => starten(lektion)}>Noch einmal</button>
+              <button onClick={() => starten(lektion, laufendeStation)}>Noch einmal</button>
             )}
             <button
               className={sitzt ? '' : 'btn-outline'}
@@ -330,7 +366,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           <div className="flashcard" key={'s' + index}>
             <div className="lesson-done-emoji">{lektion.emoji}</div>
             <div className="flash-word">{lektion.titel}</div>
-            <p className="lesson-hint">Das lernst du in dieser Lektion</p>
+            <p className="lesson-hint">
+              {lektion.istStation ? 'Was hier auf dich zukommt' : 'Das lernst du in dieser Lektion'}
+            </p>
             <ul className="intro-goals">
               {lektion.ziele.map((z) => (
                 <li key={z}>✓ {z}</li>
@@ -378,7 +416,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'info' && (
           <div className="flashcard info-card" key={'s' + index}>
             <span className="info-icon">💡</span>
-            <p className="lesson-hint">Gut zu wissen</p>
+            <p className="lesson-hint">{lektion.istStation ? 'Rückblick' : 'Gut zu wissen'}</p>
             <div className="info-list">
               {lektion.wissen.map((tipp, i) => (
                 <div key={i} className="info-tip" style={{ '--i': i }}>
@@ -517,6 +555,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   // ---------- Lektionen eines Moduls ----------
   if (modul) {
     const liste = lektionenVon(modul)
+    const station = stationVon(modul)
     const { fertig: modulFertig, gesamt } = modulFortschritt(modul, lessonProgress)
     // Die erste noch nicht geschaffte Lektion – und NUR sie ist "dran".
     // Vorher galt jede offene als aktuell; mit ALLES_OFFEN waren das
@@ -621,6 +660,21 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           })}
         </ol>
         </>
+        )}
+
+        {/* Die Pruefstation am Ende des Moduls.
+            Sie steht bewusst UNTER beiden Ansichten statt in der
+            Reiseroute: Die Route rechnet ihren Pfad aus der Anzahl
+            der Lektionen aus – ein Sonderpunkt darin haette diese
+            Rechnung verbogen, und in der Liste haette er gefehlt. */}
+        {station && (
+          <Stationskarte
+            station={station}
+            offen={stationOffen(station, lessonProgress)}
+            geschafft={stationGeschafft(station, lessonProgress)}
+            fehlend={nochOffen(station, lessonProgress)}
+            onStart={() => startenStation(station)}
+          />
         )}
       </div>
     )
@@ -944,5 +998,46 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
         </button>
       </div>
     </div>
+  )
+}
+
+/**
+ * Die Pruefstation am Ende eines Moduls.
+ *
+ * Drei Zustaende, bewusst getrennt gehalten statt in verschachtelten
+ * Fragezeichen: zu, offen, geschafft. Eine geschaffte Station bleibt
+ * anklickbar – Wiederholen ist der ganze Zweck.
+ */
+function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
+  if (!offen) {
+    return (
+      <div className="station station-zu">
+        <span className="station-emoji" aria-hidden="true">🔒</span>
+        <div className="station-text">
+          <span className="station-marke">Prüfstation</span>
+          <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
+          <p>
+            Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann kannst du das
+            ganze Modul am Stück prüfen.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <button className={'station' + (geschafft ? ' station-fertig' : '')} onClick={onStart}>
+      <span className="station-emoji" aria-hidden="true">
+        {geschafft ? '✓' : station.emoji}
+      </span>
+      <div className="station-text">
+        <span className="station-marke">{geschafft ? 'Bestanden' : 'Prüfstation'}</span>
+        <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
+        <p>
+          Rückblick und rund 25 Aufgaben aus dem ganzen Modul – ohne neue Wörter.
+        </p>
+      </div>
+      <span className="station-knopf">{geschafft ? 'Nochmal' : 'Start'}</span>
+    </button>
   )
 }
