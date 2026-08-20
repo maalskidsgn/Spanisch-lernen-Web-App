@@ -6670,3 +6670,228 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: #fff;
   cursor: default;
 }
+
+/* ===================================================================
+   Der Grammatik-Trainer (Bausteine)
+   ===================================================================
+   Alle Klassen tragen das Praefix "gram-". Grund: ".satz-baustein"
+   und ".baustein-gesetzt" gehoeren schon dem Satzbau in den
+   Lektionen – ein zweites ".baustein-..." haette sich mit ihnen
+   vermischt. Den Satzbau selbst benutzen die Bausteine bewusst
+   wieder, damit er ueberall gleich aussieht. */
+
+/* ---------- Der Umschalter Vokabeln | Grammatik ---------- */
+.gram-deck {
+  display: flex;
+  gap: 6px;
+  background: var(--flaeche);
+  border-radius: 14px;
+  padding: 5px;
+  margin: 0 0 18px;
+}
+.gram-deck button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 8px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: pointer;
+}
+.gram-deck button:active { transform: none; }
+.gram-deck .gram-deck-aktiv {
+  background: var(--card);
+  color: var(--navy);
+  box-shadow: 0 1px 4px rgba(0, 0, 65, .1);
+}
+.gram-deck-zahl {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 9px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* ---------- Uebersicht ---------- */
+.gram-heute-titel {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.gram-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.gram-karte {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 13px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: none;
+  cursor: pointer;
+}
+.gram-karte:active { transform: scale(.99); }
+.gram-karte-zu { opacity: .45; cursor: default; }
+.gram-karte-zu:active { transform: none; }
+.gram-karte-text { flex: 1; min-width: 0; }
+.gram-karte-titel {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.gram-karte-regel {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.gram-stand {
+  flex-shrink: 0;
+  padding: 4px 9px;
+  border-radius: 9px;
+  background: var(--flaeche);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.gram-stand-faellig { background: var(--primary); color: #fff; }
+.gram-fuss {
+  margin: 18px 0 6px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------- Die Aufgabenkarte ---------- */
+.gram-deutsch {
+  margin: 0 0 14px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.gram-satz {
+  margin: 0 0 18px;
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 700;
+  color: var(--navy);
+}
+.gram-luecke {
+  display: inline-block;
+  min-width: 74px;
+  padding: 0 8px;
+  border-bottom: 2.5px solid var(--primary);
+  color: var(--primary);
+  text-align: center;
+}
+.gram-eingabe {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 13px;
+  background: var(--flaeche);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--navy);
+  text-align: center;
+}
+.gram-eingabe:focus { outline: none; border-color: var(--primary); background: var(--card); }
+.gram-hilfe {
+  margin: 10px 0 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.gram-aufloesung {
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--navy);
+}
+
+/* ---------- Auswahl ---------- */
+.gram-optionen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  justify-content: center;
+}
+.gram-option {
+  padding: 12px 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy);
+  box-shadow: none;
+  cursor: pointer;
+}
+.gram-option:active { transform: scale(.97); }
+.gram-option-richtig { border-color: var(--success); background: #eafaf0; color: var(--success-press); }
+.gram-option-falsch { border-color: var(--red); background: #ffeded; color: var(--red-press); }
+
+/* ---------- Fehlersuche ---------- */
+.gram-woerter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+}
+.gram-wort {
+  padding: 10px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  background: var(--card);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--navy);
+  box-shadow: none;
+  cursor: pointer;
+}
+.gram-wort:active { transform: scale(.95); }
+.gram-wort-treffer { border-color: var(--success); background: #eafaf0; }
+.gram-wort-daneben { border-color: var(--red); background: #ffeded; }
+
+/* ---------- Rueckmeldung auf der ganzen Karte ---------- */
+.flashcard.gram-richtig { border-color: var(--success); }
+.flashcard.gram-falsch { border-color: var(--red); }
+
+.gram-naechster {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.gram-abbrechen {
+  display: block;
+  margin: 20px auto 0;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: pointer;
+}
+.gram-abbrechen:active { transform: none; }

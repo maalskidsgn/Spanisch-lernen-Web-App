@@ -12,6 +12,8 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
+import Bausteine from './Bausteine.jsx'
+import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
 
@@ -32,9 +34,21 @@ import {
   stimmtUeberein,
 } from './uebungen.js'
 
-// Der Vokabeltrainer: Übersicht aller Wörter mit Filter nach Stufen
-// und ein Karteikarten-Training für die fälligen Wörter.
-export default function Trainer({ vocab, setVocab, addXp }) {
+// Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
+//
+// Sie teilen sich review() aus srs.js und damit alle Stufen und
+// Abstände – nur der Inhalt einer Karte ist ein anderer. Deshalb
+// steht die Grammatik hier drin und nicht in einem eigenen Tab
+// unten: Es ist derselbe Karteikasten, nicht ein zweiter Bereich.
+export default function Trainer({
+  vocab,
+  setVocab,
+  addXp,
+  bausteinStand,
+  setBausteinStand,
+  lessonProgress,
+}) {
+  const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
   // deshalb eingeklappt und laedt nur haeppchenweise nach.
   const [listeOffen, setListeOffen] = useState(false)
@@ -93,6 +107,13 @@ export default function Trainer({ vocab, setVocab, addXp }) {
     : filtered
 
   const trainable = filtered.filter(isDue)
+
+  // Wie viele Grammatik-Bausteine warten? Nur fuer die Zahl am
+  // Umschalter – geuebt wird drueben in Bausteine.jsx.
+  const faelligeGrammatik = useMemo(
+    () => faelligeBausteine(bausteinStand, lessonProgress),
+    [bausteinStand, lessonProgress]
+  )
 
   function startTraining(gewaehlteArt) {
     setArt(gewaehlteArt)
@@ -184,6 +205,59 @@ export default function Trainer({ vocab, setVocab, addXp }) {
       delete copy[word]
       return copy
     })
+  }
+
+  /**
+   * Der Umschalter zwischen den beiden Karteikästen.
+   *
+   * Er wandert als fertiges Stück Oberfläche in die jeweilige
+   * Übersicht – nicht als eigener Rahmen darum herum. Sonst stünde
+   * er auch noch da, während man mitten in einer Übung ist.
+   */
+  const schalter = (
+    <>
+      <h1 className="trainer-titel">
+        Dein{' '}
+        <span className="accent">
+          {deck === 'woerter' ? 'Vokabeltrainer' : 'Grammatik-Trainer'}
+        </span>
+      </h1>
+      <div className="gram-deck" role="tablist">
+        <button
+          role="tab"
+          aria-selected={deck === 'woerter'}
+          className={deck === 'woerter' ? 'gram-deck-aktiv' : ''}
+          onClick={() => setDeck('woerter')}
+        >
+          Vokabeln
+          {trainable.length > 0 && <span className="gram-deck-zahl">{trainable.length}</span>}
+        </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'grammatik'}
+          className={deck === 'grammatik' ? 'gram-deck-aktiv' : ''}
+          onClick={() => setDeck('grammatik')}
+        >
+          Grammatik
+          {faelligeGrammatik.length > 0 && (
+            <span className="gram-deck-zahl">{faelligeGrammatik.length}</span>
+          )}
+        </button>
+      </div>
+    </>
+  )
+
+  // ---------- Der zweite Karteikasten: Grammatik ----------
+  if (deck === 'grammatik') {
+    return (
+      <Bausteine
+        kopf={schalter}
+        stand={bausteinStand}
+        setStand={setBausteinStand}
+        lessonProgress={lessonProgress}
+        addXp={addXp}
+      />
+    )
   }
 
   // ---------- Mini-Spiel-Ansicht ----------
@@ -406,9 +480,7 @@ export default function Trainer({ vocab, setVocab, addXp }) {
   // ---------- Übersichts-Ansicht ----------
   return (
     <div className="trainer">
-      <h1 className="trainer-titel">
-        Dein <span className="accent">Vokabeltrainer</span>
-      </h1>
+      {schalter}
 
       {/* ============ 1. WIEDERHOLEN ============ */}
       {/* Das Wichtigste zuerst: was heute dran ist */}

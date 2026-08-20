@@ -148,6 +148,18 @@ function loadVocab() {
   }
 }
 
+// Der Grammatik-Karteikasten liegt getrennt von den Vokabeln:
+// { bausteinId: srsEintrag }. Getrennt, weil die Schluessel sonst
+// kollidieren koennten – eine Vokabel "tener" und der Baustein
+// "tener" waeren im selben Objekt dasselbe Feld.
+function loadBausteine() {
+  try {
+    return JSON.parse(localStorage.getItem('bausteine')) || {}
+  } catch {
+    return {}
+  }
+}
+
 // Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen,
 // damit "Hola," und "hola" als dasselbe Wort zählen.
 function cleanWord(word) {
@@ -175,6 +187,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [video, setVideo] = useState(null) // { videoId, title, lines }
   const [vocab, setVocab] = useState(loadVocab)
+  const [bausteinStand, setBausteinStand] = useState(loadBausteine)
   const [selected, setSelected] = useState(null) // { word, translation, loading }
   const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
   const [genOpen, setGenOpen] = useState(false) // Vokabelgenerator-Panel offen?
@@ -251,6 +264,14 @@ export default function App() {
   // Bei jeder Änderung die Vokabeln speichern – im Browser sofort,
   // in der Datenbank kurz verzögert (damit nicht bei jedem Tastendruck
   // eine Anfrage rausgeht)
+  // Der Grammatik-Karteikasten wird nur lokal gehalten. Er haengt an
+  // den Lektionen, die ohnehin schon synchronisiert werden – und ein
+  // eigener Tabellen-Anbau in Supabase waere fuer 55 Zahlenpaare
+  // mehr Aufwand als Nutzen.
+  useEffect(() => {
+    localStorage.setItem('bausteine', JSON.stringify(bausteinStand))
+  }, [bausteinStand])
+
   useEffect(() => {
     localStorage.setItem('vokabeln', JSON.stringify(vocab))
 
@@ -805,7 +826,14 @@ export default function App() {
 
       {view === 'trainer' && (
         <main>
-          <Trainer vocab={vocab} setVocab={setVocab} addXp={addXp} />
+          <Trainer
+            vocab={vocab}
+            setVocab={setVocab}
+            addXp={addXp}
+            bausteinStand={bausteinStand}
+            setBausteinStand={setBausteinStand}
+            lessonProgress={lessonProgress}
+          />
         </main>
       )}
 
