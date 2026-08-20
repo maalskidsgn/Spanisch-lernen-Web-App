@@ -7152,7 +7152,12 @@ export const LEKTIONEN = [
       'Höflichkeit ohne Steifheit',
     ],
     items: [
-      { es: 'tutear', de: 'duzen', beispielEs: 'Aquí nos tuteamos todos.', beispielDe: 'Hier duzen wir uns alle.' },
+      // Wortstellung umgestellt, damit der Satz vertont werden kann:
+      // Die Sprecherin Ana lehnt genau die Folge "nos tuteamos todos"
+      // ab (403 vom Inhaltsfilter, dreimal nachgeprueft), dieselben
+      // Woerter in anderer Reihenfolge laesst sie durch. Bedeutung und
+      // Uebersetzung bleiben gleich, beides ist gaengiges Spanisch.
+      { es: 'tutear', de: 'duzen', beispielEs: 'Aquí todos nos tuteamos.', beispielDe: 'Hier duzen wir uns alle.' },
       { es: 'tratar de usted', de: 'siezen', beispielEs: 'A los mayores los trato de usted.', beispielDe: 'Ältere sieze ich.' },
       { es: 'podemos tutearnos', de: 'wir können uns duzen', beispielEs: 'Podemos tutearnos, ¿no?', beispielDe: 'Wir können uns duzen, oder?' },
       { es: 'sin problema', de: 'gern, kein Problem', beispielEs: 'Sin problema, encantado.', beispielDe: 'Gern, sehr erfreut.' },
