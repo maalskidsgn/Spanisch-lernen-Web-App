@@ -672,44 +672,67 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   }
 
   // ---------- Modul-Übersicht: die Sprach-Reise ----------
+  // Das laufende Modul steht oben als eigene Karte und taucht in der
+  // Liste darunter NICHT noch einmal auf. Sonst muesste man beim
+  // Oeffnen der App erst suchen, wo man stehengeblieben ist – und
+  // genau das ist die eine Frage, die diese Seite beantworten soll.
+  const laufendesModul = MODULE.find((m, i) => {
+    if (!modulOffen(i, lessonProgress) || kommtBald(m)) return false
+    const { fertig: f, gesamt } = modulFortschritt(m, lessonProgress)
+    return gesamt > 0 && f < gesamt
+  })
+
   return (
     <div className="lessons">
-      <h1>
-        Deine <span className="accent">Sprach-Reise</span>
+      <h1 className="reise-titel">
+        Deine <span className="accent accent-strich">Sprach-Reise</span>
       </h1>
-      {/* Solange ALLES_OFFEN gilt, waere "schalte das naechste frei"
-          schlicht falsch – die Module stehen ja alle offen. */}
       <p className="intro">
-        {ALLES_OFFEN
-          ? 'Modul für Modul zum Spanisch-Können – alle Module stehen dir offen, fang an, wo du magst.'
-          : 'Modul für Modul zum Spanisch-Können – schließe ein Modul ab, um das nächste freizuschalten.'}
+        Lerne Schritt für Schritt Spanisch –<br />
+        mit kurzen Videos, Übungen und echten Erfolgserlebnissen.
       </p>
 
-      <div className="lesson-list">
+      {laufendesModul && (
+        <WeiterlernenKarte
+          modul={laufendesModul}
+          nummer={MODULE.indexOf(laufendesModul) + 1}
+          fortschritt={modulFortschritt(laufendesModul, lessonProgress)}
+          onOeffnen={() => setModul(laufendesModul)}
+        />
+      )}
+
+      <h2 className="reise-abschnitt">
+        <span aria-hidden="true">📖</span> Alle Module
+      </h2>
+
+      <div className="modul-liste">
         {MODULE.map((m, i) => {
+          if (m === laufendesModul) return null
           const offen = modulOffen(i, lessonProgress)
           const { fertig: f, gesamt } = modulFortschritt(m, lessonProgress)
           const komplett = gesamt > 0 && f === gesamt
+          const bald = kommtBald(m)
           return (
             <button
               key={m.id}
               className={
-                'lesson-card modul-card' +
-                (komplett ? ' lesson-done' : '') +
-                (!offen ? ' lesson-locked' : '')
+                'modul-kachel' +
+                (komplett ? ' modul-fertig' : '') +
+                (!offen ? ' modul-zu' : '')
               }
               disabled={!offen}
               onClick={() => setModul(m)}
             >
-              <span className="lesson-emoji">{kommtBald(m) ? '🔜' : offen ? m.emoji : '🔒'}</span>
-              <span className="lesson-text">
-                <span className="lesson-title">
+              <span className="modul-ring" aria-hidden="true">
+                {bald ? '🔜' : offen ? m.emoji : '🔒'}
+              </span>
+
+              <span className="modul-text">
+                <span className="modul-titel">
                   Modul {i + 1}: {m.titel}
                 </span>
-                <span className="lesson-sub">
-                  {kommtBald(m) ? 'Kommt bald!' : m.beschreibung}
-                </span>
-                {!kommtBald(m) && (
+                <span className="modul-sub">{bald ? 'Kommt bald!' : m.beschreibung}</span>
+                {!bald && (
                   <span className="modul-bar">
                     <span className="xp-bar goal-bar">
                       <span
@@ -718,12 +741,19 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                       />
                     </span>
                     <span className="modul-count">
-                      {f}/{gesamt}
+                      {f} / {gesamt} Lektionen
                     </span>
                   </span>
                 )}
               </span>
-              {komplett && <span className="lesson-check">✓</span>}
+
+              {!bald && (
+                <span className={'modul-zahl' + (komplett ? ' modul-zahl-fertig' : '')}>
+                  <b>{f}</b>
+                  <i>/{gesamt}</i>
+                  <em>Lektionen</em>
+                </span>
+              )}
             </button>
           )
         })}
@@ -1069,5 +1099,55 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
 
       <button onClick={onWeiter}>{letzte ? 'Verstanden' : 'Weiter'}</button>
     </div>
+  )
+}
+
+/**
+ * Die Karte "Weiterlernen" ganz oben.
+ *
+ * Sie beantwortet die einzige Frage, mit der jemand diese Seite
+ * oeffnet: Wo war ich? Deshalb steht sie ueber der Liste und nicht
+ * darin – und deshalb faellt sie in der Liste darunter weg.
+ */
+function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
+  const { fertig, gesamt } = fortschritt
+  return (
+    <button className="weiterlernen" onClick={onOeffnen}>
+      <span className="weiterlernen-ring" aria-hidden="true">
+        {modul.emoji}
+      </span>
+      <span className="weiterlernen-text">
+        <span className="weiterlernen-marke">Weiterlernen</span>
+        <span className="weiterlernen-titel">
+          Modul {nummer}: {modul.titel}
+        </span>
+        <span className="weiterlernen-sub">{modul.beschreibung}</span>
+        <span className="modul-bar">
+          <span className="xp-bar goal-bar">
+            <span
+              className="xp-bar-fill"
+              style={{ width: (fertig / gesamt) * 100 + '%', display: 'block' }}
+            />
+          </span>
+          <span className="modul-count">
+            {fertig} / {gesamt} Lektionen
+          </span>
+        </span>
+      </span>
+      {/* Als Grafik, nicht als Schriftzeichen: Das "›" ist in Nunito
+          winzig und sitzt zu hoch in seiner Zeile. */}
+      <span className="weiterlernen-pfeil" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20">
+          <path
+            d="M9 5l7 7-7 7"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </button>
   )
 }

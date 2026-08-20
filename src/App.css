@@ -6986,3 +6986,208 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   font-weight: 900;
 }
 .station-fertig .station-knopf { background: var(--success); }
+
+/* ===================================================================
+   Die Sprach-Reise: Modul-Uebersicht
+   =================================================================== */
+
+.reise-titel { margin-bottom: 10px; }
+
+/* Der Schwung unter "Sprach-Reise". Ein Pseudo-Element statt einer
+   Grafik: Es waechst automatisch mit der Textbreite mit. */
+.accent-strich {
+  position: relative;
+  display: inline-block;
+}
+.accent-strich::after {
+  content: '';
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: -7px;
+  height: 5px;
+  border-radius: 4px;
+  background: var(--primary);
+  opacity: .85;
+}
+
+.intro { line-height: 1.55; }
+
+/* ---------- Die Karte "Weiterlernen" ---------- */
+.weiterlernen {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: left;
+  margin: 26px 0 30px;
+  padding: 18px 18px 18px 16px;
+  border: 1.5px solid #ffd9b8;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #fff4ea, #fdece0);
+  box-shadow: none;
+  cursor: pointer;
+}
+.weiterlernen:active { transform: scale(.995); }
+.weiterlernen-ring {
+  flex-shrink: 0;
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 4px solid #ffe4cd;
+  font-size: 2.1rem;
+  line-height: 1;
+}
+.weiterlernen-text { flex: 1; min-width: 0; }
+.weiterlernen-marke {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.weiterlernen-titel {
+  display: block;
+  margin: 3px 0 3px;
+  font-size: 1.18rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+.weiterlernen-sub {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.weiterlernen-pfeil {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  /* Der Pfeil ist ein SVG (siehe Lessons.jsx). Es erbt seine Farbe
+     ueber currentColor und braucht keine Schrift-Korrekturen. */
+  text-indent: 1px;
+}
+
+/* ---------- "Alle Module" ---------- */
+.reise-abschnitt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 14px;
+  font-size: 1.18rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+
+.modul-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.modul-kachel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 17px 15px;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: none;
+  cursor: pointer;
+}
+.modul-kachel:active { transform: scale(.995); }
+.modul-zu { opacity: .5; cursor: default; }
+.modul-zu:active { transform: none; }
+.modul-fertig { border-color: #bfe6cd; }
+
+.modul-ring {
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fdf1e6;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+.modul-fertig .modul-ring { background: #eafaf0; }
+
+.modul-text { flex: 1; min-width: 0; }
+.modul-titel {
+  display: block;
+  font-size: 1.12rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+.modul-sub {
+  display: block;
+  margin: 3px 0 9px;
+  font-size: 13.5px;
+  /* Ausdruecklich gesetzt: Der Knopf drumherum vererbt sonst sein
+     fettes Gewicht, und die Beschreibung draengt sich neben den
+     Titel statt sich unterzuordnen. */
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+/* Die Zahl rechts: auf einen Blick, wie weit das Modul ist –
+   ohne den Fortschrittsbalken lesen zu muessen. */
+.modul-zahl {
+  flex-shrink: 0;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  min-width: 74px;
+  padding: 9px 8px;
+  border-radius: 15px;
+  background: #fdf1e6;
+  line-height: 1.1;
+}
+.modul-zahl b {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+.modul-zahl i {
+  font-style: normal;
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--primary);
+  opacity: .7;
+}
+.modul-zahl em {
+  font-style: normal;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--primary);
+  opacity: .8;
+}
+.modul-zahl-fertig { background: #eafaf0; }
+.modul-zahl-fertig b,
+.modul-zahl-fertig i,
+.modul-zahl-fertig em { color: var(--success-press); }
+
+/* Die grosse Zahl steht direkt daneben – der Balken darf schmal
+   bleiben und braucht seine Zahl nicht doppelt. */
+.modul-kachel .modul-count { font-size: .76rem; }
+
+/* Ein fertiges Modul ist durchgaengig gruen: Kreis, Zahl und
+   Balken. Vorher blieb allein der Balken orange und sah aus,
+   als waere doch noch etwas offen. */
+.modul-fertig .xp-bar-fill { background: var(--success); }
