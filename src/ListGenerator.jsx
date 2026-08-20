@@ -7,8 +7,8 @@ import { IconFunken } from './icons.jsx'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
-export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
-  const [thema, setThema] = useState(startThema)
+export default function ListGenerator({ vocab, setVocab }) {
+  const [thema, setThema] = useState('')
   const [fertigThema, setFertigThema] = useState('') // Thema der fertigen Liste
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -32,11 +32,11 @@ export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
    * Holt eine Liste. Ohne Thema übernimmt die KI die Auswahl und
    * richtet sich nach dem, was schon im Trainer liegt.
    */
-  async function generieren(e, automatisch = false, vorgabe = null) {
+  async function generieren(e, automatisch = false) {
+    // Das Ereignis ist freiwillig: Der runde Pfeil im Feld hat
+    // preventDefault() schon selbst erledigt.
     e?.preventDefault()
-    // vorgabe schlaegt den Zustand: Beim Aufruf direkt nach dem
-    // Setzen ist setThema() noch nicht durchgelaufen.
-    const gefragt = (vorgabe ?? thema).trim()
+    const gefragt = thema.trim()
     if ((!automatisch && !gefragt) || uebrig <= 0) return
     setLaden(true)
     setFehler('')
@@ -66,16 +66,6 @@ export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
       setLaden(false)
     }
   }
-
-  // Kam das Thema von der Startseite, ist die Frage schon gestellt –
-  // dann gleich generieren, statt den Nutzer noch einmal tippen zu
-  // lassen. Das Thema wandert nur EINMAL herein: startThema aendert
-  // sich erst wieder, wenn drueben etwas Neues eingegeben wird.
-  useEffect(() => {
-    if (!startThema) return
-    setThema(startThema)
-    generieren(null, false, startThema)
-  }, [startThema]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function uebernehmen() {

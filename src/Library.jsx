@@ -112,7 +112,7 @@ function ladeBuecher() {
 
 // Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
-export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {}, sucheVorgabe = '' }) {
+export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
   const savedVideos = alleGemerkten.filter((v) => v.art !== 'musik')
@@ -140,17 +140,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   const [sucheOffen, setSucheOffen] = useState(false)
   const [suchFeld, setSuchFeld] = useState('')
   const [alleGemerkt, setAlleGemerkt] = useState(false)
-  const [startBegriff, setStartBegriff] = useState(sucheVorgabe)
-
-  // Wer die Frage schon auf der Startseite getippt hat, soll sie
-  // nicht zweimal stellen muessen: Die Suche oeffnet sich hier
-  // sofort mit dem Begriff von drueben.
-  useEffect(() => {
-    if (!sucheVorgabe) return
-    setBereich('videos')
-    setStartBegriff(sucheVorgabe)
-    setSucheOffen(true)
-  }, [sucheVorgabe])
+  const [startBegriff, setStartBegriff] = useState('')
   const [kategorie, setKategorie] = useState('alle')
   const [sichtbareVideos, setSichtbareVideos] = useState(SCHRITT)
   const [bibliothekFehler, setbibliothekFehler] = useState('')
@@ -355,6 +345,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         })}
       </div>
 
+      {/* Der Schluessel ist Absicht: Wechselt der Bereich, baut React
+          den Block neu auf – und die Einblend-Animation laeuft von
+          vorn. Ohne ihn wuerde nur der Inhalt getauscht, und der
+          Wechsel saehe aus wie ein Sprung. */}
+      <div className="wechsel" key={bereich}>
+
       {/* ---------- Songs: Musik mit mitlaufendem Text ---------- */}
       {bereich === 'songs' && <Songs onOpenVideo={onOpenVideo} vocab={vocab} />}
 
@@ -404,6 +400,8 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />
         </>
       )}
+
+      </div>
 
       {sucheOffen && (
         <VideoSuche

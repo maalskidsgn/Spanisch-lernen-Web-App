@@ -47,7 +47,6 @@ export default function Trainer({
   bausteinStand,
   setBausteinStand,
   lessonProgress,
-  listenVorgabe = '',
 }) {
   const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
@@ -256,13 +255,18 @@ export default function Trainer({
   // ---------- Der zweite Karteikasten: Grammatik ----------
   if (deck === 'grammatik') {
     return (
-      <Bausteine
-        kopf={schalter}
-        stand={bausteinStand}
-        setStand={setBausteinStand}
-        lessonProgress={lessonProgress}
-        addXp={addXp}
-      />
+      // Derselbe Trick wie drueben: eigener Schluessel, eigene
+      // Einblendung. Ohne die Huelle traegt nur das Vokabel-Deck die
+      // Animation, und der Wechsel wirkt einseitig.
+      <div className="wechsel" key="grammatik">
+        <Bausteine
+          kopf={schalter}
+          stand={bausteinStand}
+          setStand={setBausteinStand}
+          lessonProgress={lessonProgress}
+          addXp={addXp}
+        />
+      </div>
     )
   }
 
@@ -487,6 +491,10 @@ export default function Trainer({
   return (
     <div className="trainer">
       {schalter}
+      {/* Der Schluessel laesst React den Block neu aufbauen, sobald
+          das Deck wechselt – erst dadurch laeuft die Einblend-
+          Animation ueberhaupt los. */}
+      <div className="wechsel" key="woerter">
 
       {/* ============ 1. WIEDERHOLEN ============ */}
       {/* Das Wichtigste zuerst: was heute dran ist */}
@@ -556,7 +564,7 @@ export default function Trainer({
 
       {/* ============ 3. NEUE WÖRTER ============ */}
       <section className="bereich">
-        <ListGenerator vocab={vocab} setVocab={setVocab} startThema={listenVorgabe} />
+        <ListGenerator vocab={vocab} setVocab={setVocab} />
       </section>
 
       {/* ============ 4. ALLE WÖRTER ============ */}
@@ -678,6 +686,7 @@ export default function Trainer({
           </>
         )}
       </section>
+      </div>
     </div>
   )
 }

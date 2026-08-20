@@ -322,7 +322,12 @@ button {
   box-shadow: 0 4px 0 var(--primary-press);
   transition: filter 0.12s ease, transform 0.08s ease, box-shadow 0.08s ease;
 }
-button:hover { filter: brightness(1.06); }
+/* Ein Hover-Effekt fuer die ganze App: leicht wachsen.
+   Vorher hob sich mal eine Karte an, mal wurde eine heller, mal
+   bekam eine einen Schatten – drei Sprachen fuer dieselbe Sache. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  button:hover:not(:disabled) { transform: scale(1.02); filter: none; }
+}
 button:active {
   transform: translateY(4px);
   box-shadow: 0 0 0 var(--primary-press);
@@ -825,8 +830,7 @@ button:disabled {
   animation: fade-up 0.3s ease;
 }
 .video-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 10px 26px rgba(0, 0, 65, 0.14);
+  transform: scale(1.02);
 }
 .video-card img {
   width: 100%;
@@ -898,7 +902,7 @@ button:disabled {
   animation: fade-up 0.3s ease;
 }
 .home-card:hover {
-  transform: translateY(-3px);
+  transform: scale(1.02);
   filter: none;
   box-shadow: 0 8px 22px rgba(0, 0, 65, 0.13);
 }
@@ -939,11 +943,7 @@ button:disabled {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   animation: fade-up 0.3s ease;
 }
-.lesson-card:hover {
-  transform: translateY(-2px);
-  filter: none;
-  box-shadow: 0 8px 20px rgba(0, 0, 65, 0.12);
-}
+.lesson-card:hover { transform: scale(1.02); filter: none; }
 .lesson-card:active { transform: scale(0.98); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
 
 .lesson-emoji {
@@ -1451,8 +1451,7 @@ button:disabled {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .journey-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0, 0, 65, 0.12);
+  transform: scale(1.02);
 }
 .journey-row {
   display: flex;
@@ -1523,7 +1522,7 @@ button:disabled {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .game-card:hover {
-  transform: translateY(-3px);
+  transform: scale(1.02);
   filter: none;
   box-shadow: 0 8px 22px rgba(0, 0, 65, 0.13);
 }
@@ -2147,7 +2146,7 @@ button:disabled {
   position: relative; cursor: pointer;
   transition: transform .2s;
 }
-.ebook-karte:hover { transform: translateY(-4px); }
+.ebook-karte:hover { transform: scale(1.02); }
 
 .ebook-cover {
   aspect-ratio: 3 / 4;
@@ -2646,7 +2645,7 @@ button:disabled {
   transition: transform .3s, box-shadow .3s,
               opacity .65s cubic-bezier(.22,1,.36,1);
 }
-.wk-schritt:hover { transform: translateY(-5px); box-shadow: 0 16px 38px rgba(0,0,65,.11); }
+.wk-schritt:hover { transform: scale(1.02); }
 .wk-schritt-nr {
   display: grid; place-items: center;
   width: 44px; height: 44px; margin-bottom: 16px;
@@ -2665,7 +2664,7 @@ button:disabled {
   transition: transform .3s, box-shadow .3s,
               opacity .65s cubic-bezier(.22,1,.36,1);
 }
-.wk-kachel:hover { transform: translateY(-5px); box-shadow: 0 16px 38px rgba(0,0,65,.11); }
+.wk-kachel:hover { transform: scale(1.02); }
 .wk-kachel-breit { grid-column: span 2; }
 .wk-kachel-dunkel {
   background: linear-gradient(140deg, var(--navy), #1e1e64);
@@ -2765,7 +2764,7 @@ button:disabled {
   transition: transform .3s, box-shadow .3s,
               opacity .65s cubic-bezier(.22,1,.36,1);
 }
-.wk-tarif:hover { transform: translateY(-5px); }
+.wk-tarif:hover { transform: scale(1.02); }
 .wk-tarif-beste {
   border-color: var(--primary);
   box-shadow: 0 16px 40px rgba(255, 108, 0, .18);
@@ -3287,7 +3286,7 @@ body.liest-video .fab-panel {
   cursor: pointer;
   transition: transform .12s, border-color .15s, background .15s;
 }
-.bewertung:hover { transform: translateY(-2px); }
+.bewertung:hover { transform: scale(1.03); }
 .bewertung:active { transform: translateY(1px); }
 
 .bewertung-text { font-size: .92rem; font-weight: 900; }
@@ -4164,11 +4163,7 @@ body.liest-video .word-card {
   cursor: pointer;
   transition: border-color .15s, transform .15s, background .15s;
 }
-.spiel-karte:hover {
-  border-color: var(--primary);
-  background: #fff;
-  transform: translateY(-3px);
-}
+.spiel-karte:hover { transform: scale(1.02); }
 .spiel-karte:active { transform: translateY(0); }
 
 /* Gesperrt, solange zu wenige Woerter da sind – ein Klick fuehrte
@@ -4494,10 +4489,7 @@ body.liest-video .word-card {
   cursor: pointer;
   transition: border-color .15s, transform .15s;
 }
-.interpret-karte:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-}
+.interpret-karte:hover { transform: scale(1.02); }
 .interpret-name { font-weight: 700; font-size: 15px; }
 .interpret-meta { font-size: 12px; color: var(--muted); }
 .interpret-hinweis {
@@ -4840,7 +4832,7 @@ body.liest-video .word-card {
   cursor: pointer;
   transition: border-color .15s, transform .15s;
 }
-.art-karte:hover { border-color: var(--primary); transform: translateY(-2px); }
+.art-karte:hover { transform: scale(1.02); }
 .art-emoji {
   font-size: 26px;
   width: 52px; height: 52px;
@@ -5162,7 +5154,7 @@ body.liest-video .word-card {
 .start-aktion-sub { font-size: 12.5px; opacity: .85; }
 .start-aktion-zweit .start-aktion-sub { color: var(--primary); font-weight: 700; opacity: 1; }
 @media (hover: hover) {
-  .start-aktion:hover { transform: translateY(-2px); box-shadow: 0 9px 24px rgba(255, 108, 0, .32); }
+  .start-aktion:hover { transform: scale(1.02); }
 }
 .start-ziel { max-width: none; margin-bottom: 26px; }
 
@@ -5636,7 +5628,7 @@ body:has(.trainer) { background: #fff; }
 }
 .trainer .spiel-karte:active { transform: scale(.98); box-shadow: none; }
 @media (hover: hover) {
-  .trainer .spiel-karte:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .trainer .spiel-karte:hover { transform: scale(1.02); }
 }
 
 .trainer .vorschlag-chip,
@@ -6288,9 +6280,9 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .karte-fertig { border-color: #d7eede; }
 .karte-dran { border-color: #ffd9b8; }
 
-@media (prefers-reduced-motion: no-preference) {
-  .etappe-karte { transition: box-shadow .15s ease; }
-  .etappe-karte:hover:not(:disabled) { box-shadow: 0 3px 10px rgba(0, 0, 65, .08); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .etappe-karte { transition: transform .15s ease; }
+  .etappe-karte:hover:not(:disabled) { transform: scale(1.015); }
 }
 
 /* ===== Kopf der Modulseite ===== */
@@ -7465,75 +7457,112 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: var(--muted);
 }
 
-.schnell-paar {
-  display: grid;
-  /* minmax(0, 1fr) statt 1fr: Eine Grid-Spalte ist sonst mindestens
-     so breit wie ihr Inhalt – das Eingabefeld schob die zweite Karte
-     ueber den Rand der Karte hinaus. */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+/* ---------- "So nutzt du Habloo": die Reise durch die App ----------
+   Die Linie laeuft durch alle Stationen, der letzte Punkt beendet
+   sie. Gezeichnet wird sie an den Stationen selbst und nicht als ein
+   Balken dahinter: So ist sie automatisch genau so lang wie die
+   Liste – auch wenn eine Station dazukommt. */
+.reise-liste {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
 }
-/* Auf schmalen Geraeten stehen zwei Felder nebeneinander zu eng –
-   dann untereinander. */
-@media (max-width: 430px) {
-  .schnell-paar { grid-template-columns: 1fr; }
-}
-.schnell {
-  padding: 15px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 17px;
-  background: #fdfcfa;
-}
-.schnell h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 900;
-  color: var(--navy);
-}
-.schnell p {
-  margin: 3px 0 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.schnell-feld {
+.reise-station {
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 5px 5px 13px;
-  border: 1.5px solid var(--line);
-  border-radius: 99px;
-  background: var(--card);
+  gap: 14px;
+  padding-bottom: 22px;
 }
-.schnell-feld:focus-within { border-color: var(--primary); }
-.schnell-feld input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: none;
-  padding: 8px 0;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--navy);
+.reise-station::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
 }
-.schnell-feld input:focus { outline: none; }
-.schnell-feld button {
+.reise-station:last-child { padding-bottom: 6px; }
+.reise-station:last-child::before { display: none; }
+
+.reise-punkt {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
+  border-radius: 50%;
+  background: #ffeedf;
+  color: var(--primary-dark);
+  font-size: 14px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.reise-inhalt { flex: 1; min-width: 0; padding-top: 3px; }
+.reise-inhalt h3 {
+  margin: 0 0 5px;
+  font-size: 15.5px;
+  font-weight: 900;
+  color: var(--navy);
+  text-wrap: balance;
+}
+.reise-inhalt p {
+  margin: 0 0 9px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.reise-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 0;
   border: none;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
+  background: none;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--primary);
   box-shadow: none;
   cursor: pointer;
 }
-.schnell-feld button:disabled { opacity: .4; cursor: default; }
-.schnell-feld button:active:not(:disabled) { transform: scale(.94); }
+.reise-link:active { transform: scale(.98); }
+
+/* Das Ziel der Reise: gemeinsam weitermachen */
+.reise-ziel {
+  margin-top: 6px;
+  padding: 18px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fff4ea, #fdece0);
+}
+.reise-ziel h3 {
+  margin: 0 0 5px;
+  font-size: 15.5px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.reise-ziel p {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.einladen {
+  width: 100%;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 15px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.einladen:active { transform: scale(.99); }
 
 /* ---------- 3. Die Woche ---------- */
 .woche-reihe {
@@ -7766,9 +7795,9 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 }
 .video-zeile:active .zeile-play { background: #fff4ea; }
 
-@media (prefers-reduced-motion: no-preference) {
-  .video-zeile { transition: box-shadow .15s ease, border-color .15s ease; }
-  .video-zeile:hover { border-color: #ffd9b8; box-shadow: 0 3px 10px rgba(0, 0, 65, .07); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .video-zeile { transition: transform .15s ease; }
+  .video-zeile:hover { transform: scale(1.01); }
 }
 
 /* ---------- Ebooks: das Formular fuer ein eigenes Buch ---------- */
@@ -7872,3 +7901,59 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   gap: 6px;
   flex-wrap: nowrap;
 }
+
+
+/* ===== Wechsel zwischen Bereichen =====
+   Der Umschalter tauscht den ganzen Inhalt aus. Ohne Uebergang
+   springt die Seite hart um; mit dem kurzen Einblenden merkt man,
+   dass etwas Neues gekommen ist – und wohin man schauen muss.
+
+   Ausgeloest wird es ueber ein key= am Inhalt: React baut den Block
+   dann neu auf, und die Animation laeuft von vorn. */
+@keyframes bereich-ein {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: none; }
+}
+.wechsel { animation: bereich-ein .28s ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wechsel { animation: none; }
+}
+
+/* ---------- Die Tür zum Leitfaden auf dem Start ---------- */
+.leitfaden-tuer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+.leitfaden-text { flex: 1; min-width: 0; }
+.leitfaden-text h2 {
+  margin: 3px 0 3px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+.leitfaden-text p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.leitfaden-pfeil {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffeedf;
+  color: var(--primary);
+}
+
+/* Die Leitfaden-Seite selbst */
+.leitfaden-seite .reise-liste { margin-top: 6px; }

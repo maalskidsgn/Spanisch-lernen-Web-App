@@ -7,15 +7,10 @@ import { IconPfeil } from './icons.jsx'
 
 // Die Startseite.
 //
-// Drei Karten, in dieser Reihenfolge: weiterlernen, schnell etwas
-// erzeugen, und was diese Woche passiert ist. Das ist die Antwort
-// auf "Was mache ich jetzt?" – von der klarsten zur lockersten.
-//
-// Die beiden Felder im Schnellzugriff erzeugen NICHTS selbst. Sie
-// nehmen die Frage entgegen und reichen sie an die Stelle weiter,
-// die es ohnehin kann: Wortlisten an den Trainer, Videos an die
-// Mediathek. Sonst gaebe es zwei Stellen, an denen dasselbe
-// entsteht – und eine davon waere irgendwann veraltet.
+// Drei Karten, in dieser Reihenfolge: weiterlernen, verstehen, wie
+// die App gedacht ist, und was diese Woche passiert ist. Das ist die
+// Antwort auf "Was mache ich jetzt?" – von der klarsten zur
+// lockersten.
 
 // Die Gruppenstunde steht nicht mehr auf dem Start. Ihr Bauplan ist
 // unten erhalten: Diese eine Zeile holt sie zurueck.
@@ -27,12 +22,7 @@ export default function Home({
   nextLesson,
   lessonProgress = {},
   onNavigate,
-  onVideoFrage,
-  onListenFrage,
 }) {
-  const [listeFeld, setListeFeld] = useState('')
-  const [videoFeld, setVideoFeld] = useState('')
-
   const modul = nextLesson
     ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
     : null
@@ -96,28 +86,20 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2. SCHNELLZUGRIFF ============ */}
-      <section className="start-karte">
-        <h2 className="start-abschnitt">Schnellzugriff</h2>
-        <div className="schnell-paar">
-          <SchnellFeld
-            titel="Vokabel-Listengenerator"
-            text="Neue Wörter nach Thema"
-            platzhalter="z. B. Restaurant, Reisen …"
-            wert={listeFeld}
-            onWert={setListeFeld}
-            onAbsenden={() => onListenFrage(listeFeld.trim())}
-          />
-          <SchnellFeld
-            titel="Video finden"
-            text="Passende spanische Videos"
-            platzhalter="z. B. Ernährung, Schlaf …"
-            wert={videoFeld}
-            onWert={setVideoFeld}
-            onAbsenden={() => onVideoFrage(videoFeld.trim())}
-          />
-        </div>
-      </section>
+      {/* ============ 2. DER WEG ZUM LEITFADEN ============ */}
+      {/* Nur die Tuer, nicht der ganze Raum: Der Leitfaden ist lang
+          und liest sich einmal – auf dem Start stuende er jeden Tag
+          im Weg. */}
+      <button className="start-karte leitfaden-tuer" onClick={() => onNavigate('leitfaden')}>
+        <span className="leitfaden-text">
+          <span className="start-marke">Neu hier?</span>
+          <h2>So nutzt du Habloo</h2>
+          <p>Deine Reise durch die App – und was wir uns dabei gedacht haben.</p>
+        </span>
+        <span className="leitfaden-pfeil" aria-hidden="true">
+          <IconPfeil groesse={18} />
+        </span>
+      </button>
 
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
@@ -164,32 +146,6 @@ export default function Home({
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
     </div>
-  )
-}
-
-/** Eines der beiden Felder im Schnellzugriff. */
-function SchnellFeld({ titel, text, platzhalter, wert, onWert, onAbsenden }) {
-  return (
-    <form
-      className="schnell"
-      onSubmit={(e) => {
-        e.preventDefault()
-        if (wert.trim()) onAbsenden()
-      }}
-    >
-      <h3>{titel}</h3>
-      <p>{text}</p>
-      <div className="schnell-feld">
-        <input
-          value={wert}
-          onChange={(e) => onWert(e.target.value)}
-          placeholder={platzhalter}
-        />
-        <button type="submit" disabled={!wert.trim()} aria-label={titel + ' starten'}>
-          <IconPfeil groesse={17} />
-        </button>
-      </div>
-    </form>
   )
 }
 
@@ -320,5 +276,128 @@ function Gruppenstunde({ onNavigate }) {
         </p>
       )}
     </section>
+  )
+}
+
+/**
+ * Die Stationen der Reise durch die App.
+ *
+ * Sie stehen hier als Daten und nicht als Markup, weil sie eine
+ * Reihenfolge HABEN: Die Nummer links kommt aus der Position, nicht
+ * aus einer gepflegten Zahl. Wer eine Station einschiebt, muss nichts
+ * nachzaehlen.
+ */
+const STATIONEN = [
+  {
+    titel: 'Jeden Tag eine Etappe',
+    text: 'Zwölf neue Wörter, ein Dialog, ein paar Übungen – acht bis zehn Minuten. Mehr braucht ein Tag nicht. Die Reiseroute zeigt dir immer genau die eine Lektion, die als Nächstes dran ist. Suchen musst du nichts.',
+    ziel: 'lektionen',
+    link: 'Zur Reiseroute',
+  },
+  {
+    titel: 'Was du lernst, geht nicht wieder weg',
+    text: 'Jede Vokabel aus einer Lektion landet im Trainer. Der merkt sich, wann du sie zuletzt konntest, und legt sie dir genau dann wieder vor, wenn du sie zu vergessen drohst – nach einem Tag, nach dreien, nach einer Woche. Das ist der Unterschied zwischen „schon mal gesehen“ und „kann ich“.',
+    ziel: 'trainer',
+    link: 'Zum Vokabeltrainer',
+  },
+  {
+    titel: 'Grammatik in kleinen Bausteinen',
+    text: 'Ser oder estar, Indefinido oder Imperfekt: 55 Regeln, jede mit fünf Aufgaben. Jeden Tag ist eine andere dran – im selben Karteikasten wie die Vokabeln. Zwei Minuten, und die Regel bleibt.',
+    ziel: 'trainer',
+    link: 'Zu den Bausteinen',
+  },
+  {
+    titel: 'Lernen, ohne zu lernen',
+    text: 'In der Mediathek sagst du auf Deutsch, worüber du etwas schauen willst – Ernährung, Sport, Psychologie – und bekommst spanische Videos dazu. Dazu Songs mit mitlaufendem Text und Buchzusammenfassungen. Unbekannte Wörter tippst du an, sie wandern in den Trainer.',
+    ziel: 'videos',
+    link: 'Zur Mediathek',
+  },
+  {
+    titel: 'Und an den Tagen ohne Lust',
+    text: 'Vier Spiele: Memory, Wortpaare, Wortsuche, Wortfang. Sie nehmen genau die Wörter, die als Nächstes fällig wären. Wer sie im Spiel wiedererkennt, schiebt sie eine Stufe weiter. Lernen, das sich nicht danach anfühlt.',
+    ziel: 'trainer',
+    link: 'Zu den Spielen',
+  },
+  {
+    titel: 'Was die KI dir abnimmt',
+    text: 'Sie stellt Wortlisten zu jedem Thema zusammen – ohne die Wörter, die du längst hast. Sie sucht Videos zu deinen Interessen. Sie schreibt dir eine Buchzusammenfassung auf Spanisch. Sie lernt nicht für dich, sie nimmt dir das Suchen ab.',
+    ziel: 'trainer',
+    link: 'Liste erstellen lassen',
+  },
+  {
+    titel: 'Warum es Level und Serien gibt',
+    text: 'Ehrlich gesagt: weil Lernen ohne sichtbaren Fortschritt aufhört. XP, Level, die Tage-Serie und die Prüfstation am Ende jedes Moduls sind kleine Beweise, dass etwas passiert – gerade an den Tagen, an denen es sich nicht so anfühlt.',
+    ziel: 'mehr',
+    link: 'Zu deinen Zielen',
+  },
+]
+
+/**
+ * "So nutzt du Habloo" – die Reise durch die App.
+ *
+ * Warum das auf dem Start steht und nicht in einer Hilfe: Eine Hilfe
+ * liest niemand. Die Frage "Was mache ich hier eigentlich?" stellt
+ * sich aber genau hier, in den ersten Wochen, immer wieder.
+ */
+export function Leitfaden({ onNavigate, onZurueck }) {
+  const [geteilt, setGeteilt] = useState(false)
+
+  async function einladen() {
+    const daten = {
+      title: 'Habloo',
+      text: 'Ich lerne gerade Spanisch mit Habloo – Lektionen, echte Videos und ein Trainer, der sich merkt, wann du wiederholen musst. Kommst du mit?',
+      url: 'https://habloo.de',
+    }
+    // Auf dem Handy oeffnet das die Teilen-Auswahl des Systems. Auf
+    // dem Rechner gibt es die meist nicht – dann in die Zwischenablage.
+    try {
+      if (navigator.share) return await navigator.share(daten)
+      await navigator.clipboard.writeText(daten.text + ' ' + daten.url)
+      setGeteilt(true)
+      setTimeout(() => setGeteilt(false), 2500)
+    } catch {
+      // Abgebrochen ist kein Fehler – dann passiert einfach nichts.
+    }
+  }
+
+  return (
+    <div className="trainer home leitfaden-seite">
+      <button className="btn-plain back-link" onClick={onZurueck}>
+        ← Zurück
+      </button>
+      <h1 className="trainer-titel">
+        So nutzt du <span className="accent">Habloo</span>
+      </h1>
+      <p className="intro">
+        Deine Reise durch die App – und was wir uns dabei gedacht haben.
+      </p>
+
+      <ol className="reise-liste">
+        {STATIONEN.map((s, i) => (
+          <li className="reise-station" key={s.titel}>
+            <span className="reise-punkt" aria-hidden="true">{i + 1}</span>
+            <div className="reise-inhalt">
+              <h3>{s.titel}</h3>
+              <p>{s.text}</p>
+              <button className="reise-link" onClick={() => onNavigate(s.ziel)}>
+                {s.link}
+                <IconPfeil groesse={15} />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div className="reise-ziel">
+        <h3>Zu zweit hält man länger durch</h3>
+        <p>
+          Die Serie reißt seltener, wenn noch jemand mitzählt. Schnapp dir jemanden,
+          der auch schon immer mal Spanisch lernen wollte.
+        </p>
+        <button className="einladen" onClick={einladen}>
+          {geteilt ? 'Link kopiert ✓' : 'Freunde einladen'}
+        </button>
+      </div>
+    </div>
   )
 }

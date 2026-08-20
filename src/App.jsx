@@ -24,7 +24,7 @@ import Library from './Library.jsx'
 import VocabGenerator from './VocabGenerator.jsx'
 import Settings from './Settings.jsx'
 import Lessons from './Lessons.jsx'
-import Home from './Home.jsx'
+import Home, { Leitfaden } from './Home.jsx'
 import { naechsteLektion } from './lektionen.js'
 
 // Der Name der App – an dieser einen Stelle änderbar
@@ -188,10 +188,6 @@ export default function App() {
   const [video, setVideo] = useState(null) // { videoId, title, lines }
   const [vocab, setVocab] = useState(loadVocab)
   const [bausteinStand, setBausteinStand] = useState(loadBausteine)
-  // Die Videofrage von der Startseite zur Mediathek durchreichen
-  const [videoFrage, setVideoFrage] = useState('')
-  // Das Wortlisten-Thema von der Startseite zum Trainer durchreichen
-  const [listenFrage, setListenFrage] = useState('')
   const [selected, setSelected] = useState(null) // { word, translation, loading }
   const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
   const [genOpen, setGenOpen] = useState(false) // Vokabelgenerator-Panel offen?
@@ -824,16 +820,6 @@ export default function App() {
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
-            vocab={vocab}
-            setVocab={setVocab}
-            onVideoFrage={(frage) => {
-              setVideoFrage(frage)
-              setView('videos')
-            }}
-            onListenFrage={(frage) => {
-              setListenFrage(frage)
-              setView('trainer')
-            }}
           />
         </main>
       )}
@@ -847,7 +833,6 @@ export default function App() {
             bausteinStand={bausteinStand}
             setBausteinStand={setBausteinStand}
             lessonProgress={lessonProgress}
-            listenVorgabe={listenFrage}
           />
         </main>
       )}
@@ -861,8 +846,14 @@ export default function App() {
             onLoadUrl={openUrl}
             onAddVocab={addVocabWords}
             vocab={vocab}
-            sucheVorgabe={videoFrage}
           />
+        </main>
+      )}
+
+      {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
+      {view === 'leitfaden' && (
+        <main>
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} />
         </main>
       )}
 
