@@ -4,10 +4,12 @@ dist/
 *.log
 
 # Zugangsdaten – niemals ins Git!
-.env
-.env.local
-.env.*.local
-.env.production
+# Alles ausschließen, dann eine Ausnahme: Die frühere Liste zählte die
+# Dateien einzeln auf, und jede neue (.env.stationstest) rutschte
+# durch. Bei einem öffentlichen Repo darf das nicht am Gedächtnis
+# hängen. .env.example enthält nur leere Platzhalter und bleibt drin.
+.env*
+!.env.example
 
 # Android: erzeugte Dateien und Schlüssel
 android/app/build/

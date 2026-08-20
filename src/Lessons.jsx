@@ -13,7 +13,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
+import { spiele, dialogAbspielen, stimmeImDialog, gibtEsAufnahme } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
 import {
@@ -385,26 +385,18 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <p className="lesson-hint">📖 Neues Wort</p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
-              <button
-                className="speak-btn"
-                onClick={() => spiele(schritt.item.es)}
-                title="Anhören"
-              >
-                🔊
-              </button>
+              <HoerKnopf text={schritt.item.es} titel="Anhören" />
             </div>
             <div className="flash-translation">{schritt.item.de}</div>
             {schritt.item.beispielEs && (
               <div className="example-box">
                 <div className="example-es">
                   {hebeHervor(schritt.item.beispielEs, schritt.item.es)}
-                  <button
-                    className="speak-btn speak-btn-mini"
-                    onClick={() => spiele(schritt.item.beispielEs)}
-                    title="Satz anhören"
-                  >
-                    🔊
-                  </button>
+                  <HoerKnopf
+                    text={schritt.item.beispielEs}
+                    titel="Satz anhören"
+                    klein
+                  />
                 </div>
                 <div className="example-de">{schritt.item.beispielDe}</div>
               </div>
@@ -1169,6 +1161,41 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
           />
         </svg>
       </span>
+    </button>
+  )
+}
+
+/**
+ * Ein Lautsprecher – aber nur, wenn es wirklich etwas zu hoeren gibt.
+ *
+ * Frueher stand der Knopf immer da und fiel auf die Browser-Stimme
+ * zurueck, wenn keine Aufnahme existierte. In einem Aussprachekurs
+ * ist das schlimmer als kein Knopf: Wer "La eñe es una letra
+ * española" von der Blechstimme hoert, lernt eine Aussprache, die es
+ * so nicht gibt.
+ *
+ * Der Platz bleibt NICHT reserviert – der Knopf verschwindet ganz.
+ * Sobald das Vertonungsskript den Satz nachliefert, ist er wieder da,
+ * ohne dass hier etwas geaendert werden muesste.
+ */
+function HoerKnopf({ text, titel, klein = false, stimme }) {
+  const [gibtEs, setGibtEs] = useState(null) // null = wird noch geprueft
+
+  useEffect(() => {
+    let abgebrochen = false
+    gibtEsAufnahme(text, stimme).then((da) => !abgebrochen && setGibtEs(da))
+    return () => { abgebrochen = true }
+  }, [text, stimme])
+
+  if (!gibtEs) return null
+
+  return (
+    <button
+      className={'speak-btn' + (klein ? ' speak-btn-mini' : '')}
+      onClick={() => spiele(text, stimme ? { stimme } : undefined)}
+      title={titel}
+    >
+      🔊
     </button>
   )
 }

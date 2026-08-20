@@ -38,6 +38,30 @@ export async function audioName(text, stimme = STIMMEN.standard) {
 // Merkt sich pro Sitzung, welche Dateien existieren (oder fehlen),
 // damit wir nicht bei jedem Klick erneut nachfragen.
 const bekannt = new Map()
+
+/**
+ * Gibt es zu diesem Text eine echte Aufnahme?
+ *
+ * Damit kann die Oberflaeche den Lautsprecher weglassen, statt eine
+ * Blechstimme anzubieten. In einer Sprach-App ist keine Stimme
+ * besser als eine schlechte: Wer "La eñe es una letra española" von
+ * der Browser-Stimme hoert, lernt eine Aussprache, die es nicht gibt.
+ *
+ * WICHTIG: Ein Netzfehler wird NICHT als "gibt es nicht" gemerkt.
+ * Sonst bliebe der Knopf die ganze Sitzung weg, nur weil eine
+ * Abfrage einmal gezuckt hat.
+ */
+export async function gibtEsAufnahme(text, stimme = STIMMEN.standard) {
+  const name = await audioName(text, stimme)
+  if (bekannt.has(name)) return bekannt.get(name)
+  try {
+    const antwort = await fetch(`${ABLAGE}/${name}`, { method: 'HEAD' })
+    bekannt.set(name, antwort.ok)
+    return antwort.ok
+  } catch {
+    return false // nur fuer dieses Mal – nicht merken
+  }
+}
 let laufend = null // das gerade spielende Audio
 
 /**
@@ -64,10 +88,11 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     try {
       const antwort = await fetch(url, { method: 'HEAD' })
       vorhanden = antwort.ok
+      bekannt.set(name, vorhanden) // nur eine echte Antwort merken
     } catch {
+      // Netz gezuckt: diesmal Browser-Stimme, aber nicht fuer immer
       vorhanden = false
     }
-    bekannt.set(name, vorhanden)
   }
 
   if (vorhanden) {

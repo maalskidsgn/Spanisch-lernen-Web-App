@@ -20,7 +20,7 @@
 // Und: KEIN neuer Wortschatz. Ausgerechnet an der Stelle, an der
 // gefestigt werden soll, wären zwölf neue Vokabeln verkehrt.
 
-import { LEKTIONEN, MODULE, lektionenVon, mischen, baueLuecke, baueSatzbau } from './lektionen.js'
+import { LEKTIONEN, MODULE, lektionenVon, mischen, baueLuecke, baueSatzbau, kernwort } from './lektionen.js'
 
 /**
  * Die sieben Stationen.
@@ -230,6 +230,13 @@ export function nochOffen(station, lessonProgress = {}) {
  * Lektionen des Moduls vor, stünde dieselbe Übersetzung zweimal
  * unter den vier Antworten – und die Aufgabe wäre nicht mehr
  * eindeutig lösbar.
+ *
+ * Verglichen wird über kernwort() – dieselbe Funktion, mit der
+ * baueOptionen() die falschen Antworten baut. Ein reiner
+ * Zeichenvergleich reichte nicht: "menudo susto" und
+ * "¡menudo susto!" sind zwei verschiedene Zeichenketten, aber
+ * dieselbe Antwort, sobald die Satzzeichen weg sind. Genau das ist
+ * einmal durchgerutscht.
  */
 export function woerterVon(station) {
   const modul = modulVon(station)
@@ -239,8 +246,8 @@ export function woerterVon(station) {
   const raus = []
   for (const lektion of lektionenVon(modul)) {
     for (const item of lektion.items) {
-      const de = item.de.toLowerCase()
-      const es = item.es.toLowerCase()
+      const de = kernwort(item.de).toLowerCase()
+      const es = kernwort(item.es).toLowerCase()
       if (gesehenDe.has(de) || gesehenEs.has(es)) continue
       gesehenDe.add(de)
       gesehenEs.add(es)

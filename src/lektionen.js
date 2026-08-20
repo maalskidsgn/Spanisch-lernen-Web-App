@@ -5524,7 +5524,7 @@ export const LEKTIONEN = [
       { es: 'no te lo vas a creer', de: 'du glaubst es nicht', beispielEs: 'No te lo vas a creer, pero funcionó.', beispielDe: 'Du glaubst es nicht, aber es funktionierte.' },
       { es: 'imagínate', de: 'stell dir vor', beispielEs: 'Imagínate la cara que puse.', beispielDe: 'Stell dir mein Gesicht vor.' },
       { es: '¿y qué pasó?', de: 'und was geschah dann?', beispielEs: '¿Y qué pasó después?', beispielDe: 'Und was geschah danach?' },
-      { es: 'menudo susto', de: 'was für ein Schreck', beispielEs: '¡Menudo susto me llevé!', beispielDe: 'Was für einen Schreck ich bekam!' },
+      { es: '¿en serio?', de: 'im Ernst?', beispielEs: '¿En serio? ¿Y qué hiciste?', beispielDe: 'Im Ernst? Und was hast du gemacht?' },
     ],
     wissen: [
       {
@@ -8864,7 +8864,7 @@ export function mischen(liste) {
 }
 
 // Das "Kernwort" eines Eintrags: ohne Satzzeichen wie ¿? ¡! und …
-function kernwort(es) {
+export function kernwort(es) {
   return es.replace(/[¿¡?!….]/g, '').trim()
 }
 
