@@ -16,15 +16,14 @@ import {
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
 
-// Ein paar Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt
-const STILE = [
-  'Latin Pop',
-  'Reggaetón',
-  'Bachata',
-  'Rock en español',
-  'Balada romántica',
-  'Flamenco',
-]
+// Vier Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt.
+//
+// Bewusst vier und nicht sechs: Sie stehen jetzt IN der Karte, und
+// dort passt genau eine Zeile. Und bewusst diese vier – es sind die
+// Stile, die zwischen zwanzig und vierzig tatsaechlich gehoert
+// werden. Rock en español, Balada romántica und Flamenco waren
+// vollstaendiger, aber an der Zielgruppe vorbei.
+const STILE = ['Reggaetón', 'Latin Pop', 'Bachata', 'Trap latino']
 
 /**
  * Songs: Musik mit mitlaufendem Text.
@@ -254,19 +253,24 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           knopf="Songs suchen"
           laedt={laedt}
         />
+
+        {/* Die Stilrichtungen gehoeren in die Karte: Sie beantworten
+            genau die Frage, die das Feld darueber stellt. Unter der
+            Karte sahen sie aus wie ein eigener Bereich. */}
+        <div className="stil-vorschlaege">
+          {STILE.map((s) => (
+            <button key={s} type="button" className="vorschlag-chip" onClick={() => songSuchen(s)}>
+              {s}
+            </button>
+          ))}
+        </div>
       </Hero>
 
-      {/* Die Stilrichtungen stehen unter der Karte, nicht darin:
-          In der Zeile waere kein Platz, und sie sind Vorschlaege,
-          keine Hauptaktion. */}
-      <div className="stil-vorschlaege">
-        {STILE.map((s) => (
-          <button key={s} type="button" className="vorschlag-chip" onClick={() => songSuchen(s)}>
-            {s}
-          </button>
-        ))}
-      </div>
-
+      {/* Nur zeigen, wenn es etwas zu zeigen gibt.
+          Seit jeder Abschnitt eine Karte ist, stand hier sonst ein
+          leerer weisser Kasten – vorher war er unsichtbar, weil
+          Abschnitte keinen Hintergrund hatten. */}
+      {(fehler || treffer) && (
       <section className="bereich">
         {fehler && <p className="error">{fehler}</p>}
 
@@ -295,6 +299,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           </div>
         )}
       </section>
+      )}
 
       {/* ============ 2. DEINE SONGS ============ */}
       <section className="bereich">

@@ -15,12 +15,17 @@
   --red-press: #d33131;
   --navy: #000041;
   --muted: #756a5c; /* gedaempfte Zweitschrift, 4,9:1 auf Creme */
-  --bg: #ffffff; /* Der Seitengrund: clean weiss */
-  /* Kleine Flaechen AUF dem Weiss - Eingabefelder, Chips, Hover.
-     Ohne einen eigenen Ton wuerden sie unsichtbar, seit --bg weiss ist. */
-  --flaeche: #f5f3f0;
+  /* Der Seitengrund: ein Hauch Orange, kein Weiss.
+     Der Sinn ist nicht die Farbe, sondern der Abstand: Auf reinem
+     Weiss verschwanden die weissen Karten im Grund und mussten sich
+     ihre Kante ueber Raender und Schatten erkaempfen. Auf dem
+     getoenten Grund heben sie sich von selbst ab. */
+  --bg: #fdf7f1;
+  /* Kleine Flaechen AUF den Karten - Eingabefelder, Chips, Hover.
+     Bleibt merklich dunkler als --card, sonst waeren sie unsichtbar. */
+  --flaeche: #f5f1ea;
   --card: #ffffff;
-  --line: #ebe8e4; /* zarte Trennlinien, auf Weiss abgestimmt */
+  --line: #eee8e0; /* zarte Trennlinien, auf den warmen Ton abgestimmt */
   --radius: 18px;
   --blau-neu: #d6e8ff;
   --gelb-lernen: #ffe9a8;
@@ -639,7 +644,7 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   animation: fade-up 0.3s ease;
 }
 .vocab-table th {
@@ -1672,14 +1677,16 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   padding: 18px;
-  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   display: flex;
   flex-direction: column;
 }
 .plan-active { border: 2px solid var(--line); }
+/* Weiss wie jede Karte. Der orange Rand markiert sie – die
+   Fuellung tat es nur, solange die Seite weiss war. */
 .plan-premium {
   border: 2px solid var(--primary);
-  background: var(--flaeche);
+  background: var(--card);
 }
 .plan-name {
   font-weight: 900;
@@ -1751,7 +1758,7 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   padding: 6px 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 .settings-row {
   display: flex;
@@ -2063,7 +2070,7 @@ button:disabled {
   background: #fff;
   border-radius: 18px;
   padding: 16px 18px;
-  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.07);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 .konto-avatar {
   width: 46px; height: 46px;
@@ -5519,13 +5526,16 @@ body.liest-video .word-card {
 }
 
 /* ==========================================================
-   Vokabeltrainer: clean auf Weiß
-   Vorher: grauer Grund mit weißen Karten darauf – dazu erbten
-   mehrere Elemente die 3D-Kante der allgemeinen button-Regel
-   (box-shadow: 0 4px 0), was zerschossen aussah.
+   Vokabeltrainer: flache Elemente, feine Linien
+   Vorher erbten hier mehrere Elemente die 3D-Kante der
+   allgemeinen button-Regel (box-shadow: 0 4px 0), was
+   zerschossen aussah.
+
+   Den Grund setzen diese Regeln NICHT mehr: Sie standen auf
+   #fff und ueberschrieben damit --bg. Seit der Seitengrund
+   getoent ist, war der Trainer als einziger Bereich weiss –
+   und die weissen Karten darin unsichtbar.
    ========================================================== */
-body:has(.trainer) { background: #fff; }
-.trainer { background: #fff; }
 
 /* Keine Karten mehr – nur Abschnitte mit einer feinen Trennlinie */
 /* Auch im Trainer ist jeder Abschnitt eine Karte.
@@ -5552,12 +5562,16 @@ body:has(.trainer) { background: #fff; }
    Doppelung schlaegt ".trainer .bereich", das Hintergrund und
    Rundung zurueckdreht. Mit nur einer Klasse verlor die Karte im
    Trainer ihren Verlauf. */
+/* Weiss wie jede andere Karte. Getoent war sie, solange die Seite
+   weiss war – auf dem warmen Grund verschwimmt sie damit. Ihre
+   Sonderrolle traegt jetzt der orange Rand, nicht die Fuellung. */
 .bereich.bereich-wiederholen {
-  background: linear-gradient(135deg, #fff6ee, #fffdfb);
-  border: 1px solid #ffe0c4;
-  border-radius: 20px;
+  background: var(--card);
+  border: 1.5px solid #ffd9b8;
+  border-radius: 22px;
   padding: 22px;
-  margin: 4px 0 8px;
+  margin: 4px 0 16px;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 
 /* Die große Zahl: Text darf nicht mehr aus dem Kasten laufen */
@@ -5653,12 +5667,14 @@ body:has(.trainer) { background: #fff; }
 }
 
 /* ==========================================================
-   Design-Vereinheitlichung: Weiß, eine Knopf-Sprache
-   Der Trainer-Look (weißer Grund, flache Elemente, feine
-   Linien) gilt jetzt überall.
+   Design-Vereinheitlichung: eine Knopf-Sprache
+   Der Trainer-Look (flache Elemente, feine Linien) gilt
+   ueberall.
+
+   Der Seitengrund kommt aus --bg und wird hier bewusst NICHT
+   mehr gesetzt. Diese drei Zeilen standen auf #fff und haben
+   jede Aenderung an --bg still verschluckt.
    ========================================================== */
-body, .app { background: #fff; }
-main { background: #fff; }
 
 /* Alle Bereiche wie im Trainer: keine Karten, feine Trennlinien */
 /* Jeder Abschnitt ist eine Karte.
@@ -6116,7 +6132,10 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   margin-top: 16px;
   padding: 10px 0 4px;
   border-radius: 20px;
-  background: #faf7f2;
+  /* var(--flaeche) statt eines eigenen Fast-Weiss: Seit der
+     Seitengrund getoent ist, verschwand das alte #faf7f2 darin – die
+     Route hatte keine Kante mehr. */
+  background: var(--flaeche);
   border: 1px solid var(--line);
   overflow: hidden;
 }
@@ -6169,7 +6188,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   place-items: center;
   border-radius: 50%;
   background: #ece3d5;
-  border: 4px solid #faf7f2;
+  border: 4px solid var(--flaeche); /* muss die Feldfarbe der Route treffen */
   color: #fff;
 }
 .punkt-fertig { background: var(--success); }
@@ -6815,11 +6834,22 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .mehr-videos:hover { border-color: var(--primary); color: var(--primary); }
 
 /* Stilrichtungen unter der Songs-Karte */
+/* Die Stilrichtungen stehen jetzt IN der Hauptkarte, direkt unter
+   dem Suchfeld – flex-basis 100 %, damit sie eine eigene Zeile
+   bekommen und nicht neben dem Feld landen. */
 .stil-vorschlaege {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
-  margin: -14px 0 22px;
+  flex: 1 1 100%;
+  margin: 2px 0 0;
+}
+.stil-vorschlaege .vorschlag-chip {
+  background: var(--card);
+  border-width: 1.5px;
+  font-weight: 700;
+  font-size: .78rem;
+  padding: 8px 11px;
 }
 
 /* Der Suchknopf bleibt auch gesperrt erkennbar: Die globale
@@ -7071,8 +7101,8 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   padding: 18px 16px;
   border: 2px dashed var(--primary);
   border-radius: var(--radius);
-  background: #fff8f2;
-  box-shadow: none;
+  background: var(--card);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   cursor: pointer;
 }
 .station:active { transform: scale(.99); }
@@ -7173,8 +7203,8 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   padding: 18px 18px 18px 16px;
   border: 1.5px solid #ffd9b8;
   border-radius: 22px;
-  background: linear-gradient(135deg, #fff4ea, #fdece0);
-  box-shadow: none;
+  background: var(--card);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   cursor: pointer;
 }
 .weiterlernen:active { transform: scale(.995); }
@@ -7254,7 +7284,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   border: 1.5px solid var(--line);
   border-radius: 20px;
   background: var(--card);
-  box-shadow: none;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   cursor: pointer;
 }
 .modul-kachel:active { transform: scale(.995); }
@@ -7353,6 +7383,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   border: 1.5px solid var(--line);
   border-radius: 22px;
   background: var(--card);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 
 /* ---------- 1. Weiterlernen ---------- */
@@ -7618,7 +7649,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   padding: 16px 0;
   border: 1.5px solid var(--line);
   border-radius: 17px;
-  background: #fdfcfa;
+  background: var(--flaeche);
 }
 .start-zahl {
   display: flex;
@@ -7971,7 +8002,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   border-radius: 16px;
   background: var(--card);
   color: var(--muted);
-  box-shadow: none;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   cursor: pointer;
 }
 .leitfaden-zeile-text { flex: 1; min-width: 0; }
@@ -7989,3 +8020,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   line-height: 1.35;
   color: var(--muted);
 }
+
+
+/* ===== Wann bekommt eine Karte den orangen Schein? =====
+   Karten, die direkt auf dem getoenten Seitengrund stehen, bekommen
+   ihn – er ersetzt die Kante, die sie auf reinem Weiss gebraucht
+   haetten. Karten INNERHALB einer Karte (Etappen in der Route,
+   Videozeilen, Bausteine) bekommen ihn nicht: Dort trennt schon der
+   Rand, und ein zweiter Schatten machte die Seite unruhig. */
