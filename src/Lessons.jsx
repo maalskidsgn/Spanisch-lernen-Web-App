@@ -15,6 +15,7 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
+import { IconLandkarte, IconListe } from './icons.jsx'
 import {
   stationVon,
   stationOffen,
@@ -557,18 +558,28 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         <button className="btn-plain back-link" onClick={() => setModul(null)}>
           ← Alle Module
         </button>
-        <h1>
-          {modul.emoji} {modul.titel}
-        </h1>
-        <div className="goal-progress">
-          <div className="xp-bar goal-bar">
-            <div
-              className="xp-bar-fill"
-              style={{ width: (modulFertig / gesamt) * 100 + '%' }}
-            />
+        <div className="modul-kopf">
+          <span className="modul-kopf-ring" aria-hidden="true">
+            {modul.emoji}
+          </span>
+          <div className="modul-kopf-text">
+            <h1>{modul.titel}</h1>
+            <p>{modul.beschreibung}</p>
           </div>
-          <span className="goal-text">
-            {modulFertig}/{gesamt} Lektionen
+        </div>
+
+        <div className="modul-stand">
+          <span className="xp-bar goal-bar">
+            <span
+              className="xp-bar-fill"
+              style={{ width: (modulFertig / gesamt) * 100 + '%', display: 'block' }}
+            />
+          </span>
+          <span className="modul-stand-text">
+            {modulFertig} / {gesamt} Lektionen
+          </span>
+          <span className={'modul-stand-chip' + (modulFertig === gesamt ? ' chip-fertig' : '')}>
+            {modulFertig === gesamt ? 'Alles geschafft' : `${modulFertig} geschafft`}
           </span>
         </div>
 
@@ -579,6 +590,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             className={ansicht === 'karte' ? 'aktiv' : ''}
             onClick={() => setAnsicht('karte')}
           >
+            <IconLandkarte groesse={18} />
             Karte
           </button>
           <button
@@ -587,6 +599,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             className={ansicht === 'liste' ? 'aktiv' : ''}
             onClick={() => setAnsicht('liste')}
           >
+            <IconListe groesse={18} />
             Liste
           </button>
         </div>

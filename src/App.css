@@ -6121,89 +6121,239 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 /* Der verbliebene Knopf steht allein – keine Zweierreihe mehr */
 .start-aktionen-schmal { grid-template-columns: 1fr; margin-top: 14px; }
 
-/* ===== Reiseroute: der Lernpfad als Landkarte ===== */
-.route { margin-top: 16px; }
-
-.route-karte {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 18px;
+/* ===== Reiseroute: der Lernpfad eines Moduls =====
+   Der Weg liegt in einer schmalen SVG-Spur links, die Etappen sind
+   HTML-Karten rechts daneben. Damit der Pfad die Punkte trifft,
+   haben die Zeilen feste Hoehen – siehe Reiseroute.jsx. */
+.route {
+  position: relative;
+  margin-top: 16px;
+  padding: 10px 0 4px;
+  border-radius: 20px;
+  background: #faf7f2;
   border: 1px solid var(--line);
   overflow: hidden;
 }
 
-.route-grund { fill: #f6f3ed; }
-.route-fleck { fill: #efe9de; }
-
-/* Der Belag: die ganze Strecke, hell */
+.route-spur {
+  position: absolute;
+  top: 0;
+  left: 12px;
+  width: 74px;
+  /* Der Weg ist Kulisse – angefasst werden die Karten daneben. */
+  pointer-events: none;
+}
 .route-belag {
   fill: none;
-  stroke: #e4dbcb;
-  stroke-width: 15;
+  stroke: #e7ded0;
+  stroke-width: 9;
   stroke-linecap: round;
 }
-
-/* Der geschaffte Teil – liegt auf DERSELBEN Kurve, per
-   stroke-dasharray beschnitten. Deshalb kann er nicht abweichen. */
 .route-geschafft {
   fill: none;
   stroke: var(--success);
-  stroke-width: 15;
+  stroke-width: 9;
   stroke-linecap: round;
 }
 
-/* Mittelstreifen wie auf einer echten Straße */
-.route-streifen {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 2;
-  stroke-dasharray: 7 11;
-  opacity: 0.7;
+.etappen {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 10px 0 0;
+}
+.etappe {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.route-halt { cursor: pointer; }
-.route-halt:focus-visible { outline: none; }
-.route-halt:focus-visible .halt-punkt {
-  stroke: var(--navy);
-  stroke-width: 3;
+/* Der Punkt sitzt genau auf dem Weg – seine x-Position kommt aus
+   derselben Rechnung wie der Pfad. */
+/* Die Mitte des Punktes liegt auf dem Weg: "left" ist der x-Wert
+   aus derselben Rechnung, der negative Rand zieht ihn um die halbe
+   Breite zurueck. */
+.etappe-punkt {
+  position: absolute;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ece3d5;
+  border: 4px solid #faf7f2;
+  color: #fff;
+}
+.punkt-fertig { background: var(--success); }
+.punkt-dran {
+  background: var(--primary);
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  box-shadow: 0 0 0 6px rgba(255, 108, 0, .16);
 }
 
-.halt-punkt { fill: #fff; stroke: #cfc4b6; stroke-width: 3; }
-.halt-fertig .halt-punkt { fill: var(--success); stroke: #fff; }
-.halt-dran .halt-punkt { fill: var(--primary); stroke: #fff; stroke-width: 3.5; }
-.halt-offen .halt-punkt { opacity: 0.75; }
-
-.halt-haken {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 2.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+/* Die Fahne steht UEBER dem Punkt, nicht darauf: Der Mast reicht
+   vom unteren Rand der Fahne bis an den Punkt heran. */
+.etappe-fahne {
+  position: absolute;
+  bottom: 30px;
+  left: 15px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 3px 8px 8px 3px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+.etappe-fahne::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 3px;
+  height: 30px;
+  border-radius: 2px;
+  background: var(--primary-press);
 }
 
-/* Die Fahne: der Standort ist kein Kreis, sondern eine Markierung */
-.halt-schein { fill: var(--primary); opacity: 0.15; }
-.halt-mast { stroke: var(--primary-press); stroke-width: 3; stroke-linecap: round; }
-.halt-fahne { fill: var(--primary); }
-.halt-nummer {
-  fill: #fff;
-  font: 800 11px 'Nunito', sans-serif;
-  text-anchor: middle;
+/* Die Karte rechts vom Weg */
+.etappe-karte {
+  margin-left: 96px;
+  margin-right: 14px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 13px 15px;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 65, .04);
+  cursor: pointer;
 }
+.etappe-karte:active { transform: scale(.99); }
+/* Leichter Versatz, damit die Reihe nicht wie eine Tabelle wirkt */
+.karte-versetzt { margin-left: 112px; }
+.karte-zu { opacity: .55; cursor: default; }
+.karte-zu:active { transform: none; }
 
-.halt-titel { fill: var(--navy); font: 700 13px 'Nunito', sans-serif; }
-.halt-dran .halt-titel { font-size: 14px; font-weight: 800; }
-.halt-offen .halt-titel { fill: #8b8073; }
-
-.halt-unter { fill: var(--muted); font: 600 10.5px 'Nunito', sans-serif; }
-.halt-dran .halt-unter { fill: var(--primary); font-weight: 800; }
-.halt-fertig .halt-unter { fill: #9aa596; }
+.karte-marke {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .04em;
+  color: var(--primary);
+}
+.karte-kopf {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+}
+.karte-titel {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.25;
+}
+.karte-dran .karte-titel { font-size: 16.5px; }
+.karte-unter {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.karte-status {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--success-press);
+}
+.karte-dauer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.karte-los {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--primary);
+}
+.karte-fertig { border-color: #d7eede; }
+.karte-dran { border-color: #ffd9b8; }
 
 @media (prefers-reduced-motion: no-preference) {
-  .route-halt { transition: opacity 0.15s ease; }
-  .route-halt:hover { opacity: 0.85; }
+  .etappe-karte { transition: box-shadow .15s ease; }
+  .etappe-karte:hover:not(:disabled) { box-shadow: 0 3px 10px rgba(0, 0, 65, .08); }
 }
+
+/* ===== Kopf der Modulseite ===== */
+.modul-kopf {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 6px 0 16px;
+}
+.modul-kopf-ring {
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+.modul-kopf-text { min-width: 0; }
+.modul-kopf-text h1 { margin: 0; font-size: 1.75rem; letter-spacing: -.02em; }
+.modul-kopf-text p {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+.modul-stand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+}
+.modul-stand .goal-bar { flex: 1; min-width: 60px; height: 9px; display: block; }
+.modul-stand-text {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.modul-stand-chip {
+  flex-shrink: 0;
+  padding: 7px 13px;
+  border-radius: 12px;
+  background: #ffeedf;
+  color: var(--primary-dark);
+  font-size: 13px;
+  font-weight: 900;
+}
+.modul-stand-chip.chip-fertig { background: #eafaf0; color: var(--success-press); }
 
 /* Umschalter zwischen Karte und Liste */
 .ansicht-schalter {
@@ -6215,15 +6365,19 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   border-radius: 99px;
 }
 .ansicht-schalter button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   background: none;
   border: none;
   box-shadow: none;
-  padding: 7px 18px;
+  padding: 8px 20px;
   border-radius: 99px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 13.5px;
+  font-weight: 800;
   color: var(--muted);
 }
+.ansicht-schalter button.aktiv svg { color: var(--primary); }
 .ansicht-schalter button.aktiv {
   background: var(--card);
   color: var(--navy);

@@ -192,3 +192,36 @@ export const IconAlle = (p) => (
     <rect x="13.5" y="13.5" width="7" height="7" rx="2" />
   </>} />
 )
+
+/* Landkarte – fuer den Umschalter der Reiseroute */
+export const IconLandkarte = (p) => (
+  <Icon {...p} kinder={<>
+    <path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z" />
+    <path d="M9 4v13" />
+    <path d="M15 6.5v13" />
+  </>} />
+)
+
+/* Liste – fuer den Umschalter der Reiseroute */
+export const IconListe = (p) => (
+  <Icon {...p} kinder={<>
+    <path d="M8 6.5h12M8 12h12M8 17.5h12" />
+    <path d="M4 6.5h.01M4 12h.01M4 17.5h.01" />
+  </>} />
+)
+
+/* Uhr – die geschaetzte Dauer einer Lektion */
+export const IconUhr = (p) => (
+  <Icon {...p} kinder={<>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 2" />
+  </>} />
+)
+
+/* Schloss – eine noch gesperrte Etappe */
+export const IconSchloss = (p) => (
+  <Icon {...p} kinder={<>
+    <rect x="4.5" y="10.5" width="15" height="9.5" rx="2.5" />
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+  </>} />
+)

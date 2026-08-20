@@ -8885,6 +8885,28 @@ export function sammleWiederholung(lektion) {
 
 // Baut den geführten Ablauf einer Lektion:
 // Einleitung → Wörter → Gut zu wissen → Dialog → Auswahl-Übungen → Lücken-Übungen
+/**
+ * Wie lange dauert diese Lektion ungefaehr?
+ *
+ * Eine Schaetzung, keine Messung – aber eine, die sich aus dem
+ * Inhalt ergibt und nicht geraten ist: Jedes Wort wird einmal
+ * vorgestellt und zweimal abgefragt, jede Wissenskarte gelesen,
+ * der Dialog einmal gehoert. Die Zahlen sind Erfahrungswerte in
+ * Sekunden, wie schon in tagesplan.js.
+ *
+ * Zurueck kommt eine Spanne, kein Punkt: "8-10 Min." ist ehrlicher
+ * als "9 Min.", weil niemand gleich schnell liest.
+ */
+export function dauerMinuten(lektion) {
+  const sekunden =
+    (lektion.items?.length ?? 0) * 20 +
+    (lektion.wissen?.length ?? 0) * 25 +
+    (lektion.dialog?.length ?? 0) * 8 +
+    90 // Einstieg, Wortpaare, Abschluss
+  const mitte = Math.round(sekunden / 60)
+  return { von: Math.max(3, mitte - 1), bis: mitte + 1 }
+}
+
 export function baueSchritte(lektion) {
   const schritte = [{ typ: 'intro' }]
   for (const item of lektion.items) schritte.push({ typ: 'lernen', item })
