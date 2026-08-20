@@ -13,6 +13,10 @@
 
 import { BAUSTEINE, FAMILIEN, RUNDE_GROESSE } from './src/bausteine.js'
 import { LEKTIONEN } from './src/lektionen.js'
+// Die Regeln stehen in src/aufgabePruefen.js, nicht hier: Die App
+// prueft die KI-Varianten zur Laufzeit nach genau denselben. Zwei
+// Kopien waeren zwei Wahrheiten.
+import { pruefeAufgabe } from './src/aufgabePruefen.js'
 
 const fehler = []
 const meckern = (b, text) => fehler.push(`[${b?.id ?? '???'}] ${text}`)
@@ -34,13 +38,6 @@ if (fehler.length > 0) {
 
 const familienIds = new Set(FAMILIEN.map((f) => f.id))
 const lektionenIds = new Set(LEKTIONEN.map((l) => l.id))
-
-// Wörter eines Satzes ohne Satzzeichen – für die Fehler-Aufgaben
-const woerter = (satz) =>
-  String(satz)
-    .split(/\s+/)
-    .map((w) => w.replace(/[.,;:¿?¡!«»"'()]/g, ''))
-    .filter(Boolean)
 
 for (const b of BAUSTEINE) {
   // --- Die Pflichtfelder ------------------------------------------
@@ -65,62 +62,9 @@ for (const b of BAUSTEINE) {
     continue
   }
 
-  // Jede Aufgabe braucht die deutsche Bedeutung – sonst steht der
-  // Lernende vor einem spanischen Satz, den er nicht einordnen kann.
   b.aufgaben.forEach((a, i) => {
-    const wo = `Aufgabe ${i + 1}`
-    if (!a.de) meckern(b, `${wo}: die deutsche Bedeutung fehlt`)
-
-    if (a.typ === 'luecke') {
-      if (!a.satz?.includes('___')) meckern(b, `${wo}: im Satz fehlt die Lücke ___`)
-      if (!a.loesung) meckern(b, `${wo}: die Lösung fehlt`)
-      // Eine Lücke, die schon im Satz steht, ist keine Aufgabe
-      if (a.satz?.includes(a.loesung) && a.loesung.length > 2) {
-        meckern(b, `${wo}: die Lösung "${a.loesung}" steht schon im Satz`)
-      }
-    } else if (a.typ === 'wahl') {
-      if (!a.satz?.includes('___')) meckern(b, `${wo}: im Satz fehlt die Lücke ___`)
-      if (!Array.isArray(a.optionen) || a.optionen.length < 2) {
-        meckern(b, `${wo}: braucht mindestens zwei Optionen`)
-      } else {
-        if (!a.optionen.includes(a.loesung)) {
-          meckern(b, `${wo}: die Lösung "${a.loesung}" steht nicht unter den Optionen`)
-        }
-        if (new Set(a.optionen).size !== a.optionen.length) {
-          meckern(b, `${wo}: eine Option kommt doppelt vor`)
-        }
-      }
-    } else if (a.typ === 'fehler') {
-      if (!a.satz) meckern(b, `${wo}: der Satz fehlt`)
-      if (!a.falsch || !a.richtig) meckern(b, `${wo}: falsch oder richtig fehlt`)
-      // Das gesuchte Wort muss als ganzes Wort dastehen, sonst kann
-      // man es in der App nicht antippen.
-      else {
-        const treffer = woerter(a.satz).filter((w) => w === a.falsch).length
-        if (treffer === 0) {
-          meckern(b, `${wo}: "${a.falsch}" steht so nicht als Wort im Satz`)
-        } else if (treffer > 1) {
-          // Steht das gesuchte Wort zweimal da, weiss niemand, welches
-          // gemeint ist – und die App kann die Antwort nicht bewerten.
-          meckern(b, `${wo}: "${a.falsch}" kommt ${treffer}× vor, das ist nicht eindeutig`)
-        }
-      }
-      if (a.falsch === a.richtig) meckern(b, `${wo}: falsch und richtig sind identisch`)
-      // Die Verbesserung ist ein Wort, kein Kommentar
-      else if (a.richtig && /\s/.test(a.richtig.trim())) {
-        meckern(b, `${wo}: "${a.richtig}" ist keine einzelne Verbesserung`)
-      }
-    } else if (a.typ === 'bauen') {
-      const teile = woerter(a.loesung ?? '')
-      if (teile.length < 3) meckern(b, `${wo}: zum Bauen braucht es mindestens drei Wörter`)
-      if (teile.length > 8) meckern(b, `${wo}: ${teile.length} Wörter sind zu viele zum Sortieren`)
-      // Zweimal dasselbe Wort macht die Reihenfolge mehrdeutig
-      if (new Set(teile.map((w) => w.toLowerCase())).size !== teile.length) {
-        meckern(b, `${wo}: ein Wort kommt doppelt vor, die Reihenfolge wäre nicht eindeutig`)
-      }
-    } else {
-      meckern(b, `${wo}: unbekannter Aufgabentyp "${a.typ}"`)
-    }
+    const klage = pruefeAufgabe(a)
+    if (klage) meckern(b, `Aufgabe ${i + 1}: ${klage}`)
   })
 
   // --- Abwechslung ------------------------------------------------

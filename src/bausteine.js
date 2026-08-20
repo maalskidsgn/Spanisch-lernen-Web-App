@@ -938,16 +938,27 @@ export function faelligeBausteine(stand = {}, lessonProgress = {}) {
 }
 
 /**
+ * Wie viele Aufgaben einer Runde von der KI stammen dürfen.
+ *
+ * Zwei von fünf, nicht mehr. Die Formprüfung in aufgabePruefen.js
+ * fängt unlösbare Aufgaben ab – aber kein Regelwerk erkennt einen
+ * Satz, der grammatisch geht und trotzdem das Falsche übt. Bleibt
+ * die Mehrheit jeder Runde geprüft, wiegt ein Ausrutscher nicht
+ * schwer.
+ */
+export const KI_JE_RUNDE = 2
+
+/**
  * Die Aufgaben für eine Runde zusammenstellen.
  *
- * Gemischt, damit nicht jedes Mal dieselbe Reihenfolge kommt – aber
- * alle fünf, damit man die Regel von allen Seiten sieht. Kommen
- * später KI-Varianten dazu, werden sie hier eingehängt: Sie ersetzen
- * einzelne Aufgaben, nie die ganze Runde.
+ * Erst die KI-Varianten begrenzen, dann alles zusammen mischen: So
+ * ist die Reihenfolge jedes Mal anders, ohne dass eine Runde
+ * überwiegend aus ungeprüftem Stoff besteht.
  */
 export function baueRunde(baustein, zusatz = []) {
-  const alle = [...baustein.aufgaben, ...zusatz]
-  return mischen(alle).slice(0, RUNDE_GROESSE)
+  const ki = mischen(zusatz).slice(0, KI_JE_RUNDE)
+  const basis = mischen(baustein.aufgaben).slice(0, RUNDE_GROESSE - ki.length)
+  return mischen([...basis, ...ki])
 }
 
 /** Die Bausteine einer Familie – für die Übersicht. */

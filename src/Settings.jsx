@@ -4,6 +4,7 @@ import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.j
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
+import { IconPfeil } from './icons.jsx'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
@@ -18,6 +19,7 @@ export default function Settings({
   nutzer,
   syncStatus,
   onLoginOeffnen,
+  onNavigate,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   const [bezahlbar, setBezahlbar] = useState(false)
@@ -214,6 +216,19 @@ export default function Settings({
           </div>
         </div>
       </div>
+
+      {/* ---------- Der Leitfaden ----------
+          Zweiter Weg dorthin: Auf dem Start ist er die Karte "Neu
+          hier?" – die verschwindet aber gedanklich, sobald man
+          nicht mehr neu ist. Hier findet man ihn wieder. */}
+      <h2 className="settings-heading">Hilfe</h2>
+      <button className="leitfaden-zeile" onClick={() => onNavigate('leitfaden')}>
+        <span className="leitfaden-zeile-text">
+          <b>So nutzt du Habloo</b>
+          <span>Deine Reise durch die App – und was wir uns dabei gedacht haben.</span>
+        </span>
+        <IconPfeil groesse={17} />
+      </button>
 
       {/* ---------- Konto ---------- */}
       {supabaseBereit && (

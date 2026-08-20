@@ -20,6 +20,7 @@ import {
   satzWoerter,
 } from './uebungenGrammatik.js'
 import { review, withSrsDefaults, isDue, formatDue } from './srs.js'
+import { gemerkteVarianten, brauchtNachschub, holeVarianten } from './kiAufgaben.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 
@@ -40,11 +41,27 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
   const heute = bausteinDesTages(stand, lessonProgress)
   const faellig = faelligeBausteine(stand, lessonProgress)
 
+  /**
+   * Eine Runde starten.
+   *
+   * Die Aufgaben kommen aus zwei Quellen: den fuenf
+   * handgeschriebenen und den gemerkten KI-Varianten. Gemischt wird
+   * beides zusammen – so ist nie im Voraus klar, was kommt.
+   *
+   * Nachgeladen wird NACH dem Start und im Hintergrund. Die Runde
+   * soll nicht auf das Netz warten; die neuen Aufgaben liegen dann
+   * beim naechsten Mal bereit.
+   */
   function starte(baustein) {
-    setRunde({ baustein, aufgaben: baueRunde(baustein) })
+    const varianten = gemerkteVarianten(baustein.id)
+    setRunde({ baustein, aufgaben: baueRunde(baustein, varianten) })
     setSchritt(0)
     setErgebnis({ richtig: 0, falsch: 0 })
     setRueckmeldung(null)
+
+    if (brauchtNachschub(baustein.id, Boolean(stand[baustein.id]))) {
+      holeVarianten(baustein)
+    }
   }
 
   /**

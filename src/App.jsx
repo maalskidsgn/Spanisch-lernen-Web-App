@@ -881,6 +881,7 @@ export default function App() {
             nutzer={nutzer}
             syncStatus={syncStatus}
             onLoginOeffnen={() => setLoginOffen(true)}
+            onNavigate={setView}
           />
         </main>
       )}

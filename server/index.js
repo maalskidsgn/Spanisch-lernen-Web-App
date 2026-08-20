@@ -7,6 +7,7 @@ import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
+import { erzeugeBausteinAufgaben } from './bausteine.js'
 import { findeSpanischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { loescheKonto } from './konto.js'
 import {
@@ -517,6 +518,29 @@ app.post('/api/vokabelliste', async (req, res) => {
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Zusatzaufgaben zu einem Grammatik-Baustein.
+//
+// Die App schickt den Baustein samt seiner fuenf handgeschriebenen
+// Aufgaben mit – die dienen dem Modell als Muster fuer Form und
+// Schwierigkeit. Geprueft wird das Ergebnis in der App, nicht hier:
+// Dort liegen dieselben Regeln, die auch die handgeschriebenen
+// Aufgaben bestehen mussten.
+app.post('/api/baustein-uebungen', async (req, res) => {
+  const baustein = req.body.baustein
+  if (!baustein?.titel || !baustein?.regel) {
+    return res.status(400).json({ error: 'Kein Baustein angegeben.' })
+  }
+  const anzahl = Math.min(8, Math.max(1, Number(req.body.anzahl) || 5))
+
+  try {
+    const aufgaben = await erzeugeBausteinAufgaben(baustein, anzahl)
+    res.json({ aufgaben })
+  } catch (err) {
+    console.error('Baustein-Uebungen:', err.message)
     res.status(500).json({ error: err.message })
   }
 })

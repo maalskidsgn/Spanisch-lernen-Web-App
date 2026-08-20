@@ -7957,3 +7957,35 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 
 /* Die Leitfaden-Seite selbst */
 .leitfaden-seite .reise-liste { margin-top: 6px; }
+
+/* Der Weg zum Leitfaden unter "Mehr" */
+.leitfaden-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 15px 16px;
+  margin-bottom: 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--muted);
+  box-shadow: none;
+  cursor: pointer;
+}
+.leitfaden-zeile-text { flex: 1; min-width: 0; }
+.leitfaden-zeile-text b {
+  display: block;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.leitfaden-zeile-text span {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--muted);
+}
