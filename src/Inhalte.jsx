@@ -12,7 +12,7 @@ import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 // Hörtext eine Tonspur hat und ein Lesetext in Kapitel zerfällt.
 // Das rechtfertigt keine zwei Komponenten.
 
-export default function Inhalte({ art, onAddVocab, vocab = {} }) {
+export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, ohneHero = false }) {
   const [verzeichnis, setVerzeichnis] = useState(null)
   const [fehler, setFehler] = useState('')
   const [offen, setOffen] = useState(null) // der gerade gelesene Text
@@ -59,25 +59,43 @@ export default function Inhalte({ art, onAddVocab, vocab = {} }) {
 
   return (
     <>
-      <Hero
-        symbol={hoeren ? <IconMediathek groesse={26} /> : <IconBuch groesse={26} />}
-        titel={hoeren ? 'Hör dich durch echte Themen' : 'Lies dich durch echte Themen'}
-        text={
-          hoeren
-            ? 'Jede Folge mit Tonspur, spanischem Text und deutscher Fassung daneben.'
-            : 'Jedes Kapitel auf Spanisch – die Übersetzung holst du dir mit einem Tipp.'
-        }
-      >
-        <SuchFeld
-          wert={suche}
-          onWert={setSuche}
-          onAbsenden={() => {}}
-          platzhalter={`${ARTEN[art].titel} durchsuchen`}
-          knopf="Filtern"
-        />
-      </Hero>
+      {/* Ohne eigene Hauptkarte: Dann hat der Bereich schon eine –
+          bei den Ebooks ist das das Formular zum Erzeugen. Zwei
+          grosse Karten uebereinander waeren eine zu viel. */}
+      {!ohneHero && (
+        <Hero
+          symbol={hoeren ? <IconMediathek groesse={26} /> : <IconBuch groesse={26} />}
+          titel={hoeren ? 'Hör dich durch echte Themen' : 'Ebook finden'}
+          text={
+            hoeren
+              ? 'Jede Folge mit Tonspur, spanischem Text und deutscher Fassung daneben.'
+              : 'Jedes Kapitel auf Spanisch – die Übersetzung holst du dir mit einem Tipp.'
+          }
+        >
+          <SuchFeld
+            wert={suche}
+            onWert={setSuche}
+            onAbsenden={() => {}}
+            platzhalter={`${ARTEN[art].titel} durchsuchen`}
+            knopf="Filtern"
+          />
+        </Hero>
+      )}
+
+      {zusatz}
 
       <section className="bereich">
+      {ohneHero && (
+        <label className="inhalt-suche">
+          <IconSuche groesse={17} />
+          <input
+            type="search"
+            value={suche}
+            onChange={(e) => setSuche(e.target.value)}
+            placeholder={`${ARTEN[art].titel} durchsuchen`}
+          />
+        </label>
+      )}
       <Kopf
         symbol={<IconLesezeichen groesse={19} />}
         titel={begriff ? `Treffer für „${suche.trim()}“` : ARTEN[art].titel}
@@ -141,7 +159,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
       onAddVocab?.([{
         wort,
         uebersetzung: d.translation,
-        quelle: (art === 'hoertexte' ? 'Hörtext: ' : 'Lesetext: ') + eintrag.titel,
+        quelle: (art === 'hoertexte' ? 'Hörtext: ' : 'Ebook: ') + eintrag.titel,
       }])
     } catch (f) {
       setWortFehler(`„${wort}“ ließ sich nicht übernehmen: ${f.message}`)

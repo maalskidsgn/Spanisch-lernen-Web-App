@@ -6849,8 +6849,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
    vermischt. Den Satzbau selbst benutzen die Bausteine bewusst
    wieder, damit er ueberall gleich aussieht. */
 
-/* ---------- Der Umschalter Vokabeln | Grammatik ---------- */
-.gram-deck {
+/* ---------- Der Umschalter: Vokabeln|Grammatik, Videos|Songs|Ebooks ----------
+   Eine Klasse fuer beide Stellen. Waere sie doppelt, liefe sie
+   irgendwann auseinander – genau daran ist die Hauptkarte der
+   Mediathek schon einmal gescheitert. */
+.deck {
   display: flex;
   gap: 6px;
   background: var(--flaeche);
@@ -6858,7 +6861,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   padding: 5px;
   margin: 0 0 18px;
 }
-.gram-deck button {
+.deck button {
   flex: 1;
   border: none;
   background: transparent;
@@ -6871,13 +6874,13 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   box-shadow: none;
   cursor: pointer;
 }
-.gram-deck button:active { transform: none; }
-.gram-deck .gram-deck-aktiv {
+.deck button:active { transform: none; }
+.deck .deck-aktiv {
   background: var(--card);
   color: var(--navy);
   box-shadow: 0 1px 4px rgba(0, 0, 65, .1);
 }
-.gram-deck-zahl {
+.deck-zahl {
   display: inline-block;
   min-width: 20px;
   margin-left: 5px;
@@ -7762,3 +7765,34 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   .video-zeile { transition: box-shadow .15s ease, border-color .15s ease; }
   .video-zeile:hover { border-color: #ffd9b8; box-shadow: 0 3px 10px rgba(0, 0, 65, .07); }
 }
+
+/* ---------- Ebooks: das Formular fuer ein eigenes Buch ---------- */
+.ebook-form {
+  display: flex;
+  gap: 9px;
+  margin-bottom: 4px;
+}
+.ebook-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 15px;
+  border: 1.5px solid var(--line);
+  border-radius: 13px;
+  background: var(--flaeche);
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.ebook-form input:focus { outline: none; border-color: var(--primary); background: var(--card); }
+.ebook-form .btn { flex-shrink: 0; }
+
+/* Selbst erzeugte Buecher: dieselbe Zeile wie die fertigen, nur mit
+   einem Loeschknopf daneben. */
+.ebook-eigene li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ebook-eigene .inhalt-zeile { flex: 1; min-width: 0; }
+.ebook-weg { flex-shrink: 0; }

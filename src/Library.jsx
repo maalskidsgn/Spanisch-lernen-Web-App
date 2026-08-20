@@ -1,12 +1,11 @@
 import { API_URL } from './api.js'
-import { holeBibliothek, supabaseBereit } from './supabase.js'
-import Ebooks from './Ebooks.jsx'
+import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
 import VideoSuche from './VideoSuche.jsx'
 import Songs from './Songs.jsx'
 import {
   IconAlle, IconSprache, IconGesundheit, IconSport, IconErnaehrung,
   IconProduktiv, IconStoa, IconPsyche, IconSuche,
-  IconLesezeichen, IconPfeil,
+  IconLesezeichen, IconPfeil, IconBuch,
 } from './icons.jsx'
 
 const KATEGORIE_ICONS = {
@@ -23,6 +22,7 @@ const KATEGORIE_ICONS = {
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
+import { holeVerzeichnis } from './inhalte.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -34,6 +34,20 @@ const SCHRITT = 4
 
 // So viele gemerkte Videos stehen ohne "Alle anzeigen" da
 const SICHTBAR_GEMERKT = 4
+
+// Die Bereiche der Mediathek.
+//
+// Hoertexte sind vorerst ausgeblendet – die elf importierten Folgen
+// bleiben liegen, der Bereich ist nur nicht mehr erreichbar. Diese
+// eine Zeile holt ihn zurueck.
+const HOERTEXTE_ZEIGEN = false
+
+const BEREICHE = [
+  { wert: 'videos', label: 'Videos' },
+  { wert: 'songs', label: 'Songs' },
+  ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'Hörtexte' }] : []),
+  { wert: 'ebooks', label: 'Ebooks' },
+]
 
 const KATEGORIEN = [
   { wert: 'alle', label: 'Alle' },
@@ -106,7 +120,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // dort wird der Code eingeloest und die Auswertung gestartet.
   const [bereich, setBereich] = useState(() =>
     new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
-  ) // 'videos', 'songs' oder 'buecher'
+  ) // 'videos', 'songs' oder 'ebooks'
   const [buecher, setBuecher] = useState(ladeBuecher)
   const [buchTitel, setBuchTitel] = useState('')
   const [buchLaden, setBuchLaden] = useState(false)
@@ -140,6 +154,26 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   const [kategorie, setKategorie] = useState('alle')
   const [sichtbareVideos, setSichtbareVideos] = useState(SCHRITT)
   const [bibliothekFehler, setbibliothekFehler] = useState('')
+  // Die Zahlen am Umschalter. Sie stehen bewusst hier und nicht in
+  // den Bereichen selbst: Ein Bereich, den man noch nicht geoeffnet
+  // hat, koennte seine eigene Zahl gar nicht kennen.
+  const [songAnzahl, setSongAnzahl] = useState(null)
+  const [ebookAnzahl, setEbookAnzahl] = useState(null)
+
+  useEffect(() => {
+    let abgebrochen = false
+    if (supabaseBereit) {
+      zaehleSongs()
+        .then((n) => !abgebrochen && setSongAnzahl(n))
+        .catch(() => {}) // eine fehlende Zahl ist kein Grund fuer eine Fehlermeldung
+    }
+    // holeVerzeichnis merkt sich das Ergebnis – der Ebooks-Bereich
+    // holt es also nicht ein zweites Mal.
+    holeVerzeichnis('lesetexte')
+      .then((v) => !abgebrochen && setEbookAnzahl(v.length))
+      .catch(() => {})
+    return () => { abgebrochen = true }
+  }, [])
 
   useEffect(() => {
     if (!supabaseBereit) return
@@ -171,7 +205,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
   // Eine neue Buchzusammenfassung generieren lassen
   async function generiereBuch(e) {
-    e.preventDefault()
+    // Das Ereignis ist freiwillig: Das Suchfeld der Hauptkarte hat
+    // preventDefault() schon selbst erledigt und ruft ohne Argument.
+    e?.preventDefault()
     if (!buchTitel.trim()) return
     setBuchLaden(true)
     setBuchFehler('')
@@ -289,26 +325,34 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           videos: 'Finde spanische Videos, die zu deinem Niveau passen.',
           songs: 'Spanische Songs mit mitlaufendem Text.',
           hoertexte: 'Hörtexte mit Tonspur und Übersetzung daneben.',
-          lesetexte: 'Lesetexte auf Spanisch – die Übersetzung holst du dir mit einem Tipp.',
+          ebooks: 'Buchzusammenfassungen auf Spanisch – oder lass dir selbst eine schreiben.',
         }[bereich]}
       </p>
 
-      {/* Umschalter: Videos, Songs oder Bücher */}
-      <div className="chips bereich-schalter">
-        {[
-          { wert: 'videos', label: 'Videos' },
-          { wert: 'songs', label: 'Songs' },
-          { wert: 'hoertexte', label: 'Hörtexte' },
-          { wert: 'lesetexte', label: 'Lesetexte' },
-        ].map((b) => (
-          <button
-            key={b.wert}
-            className={'chip ' + (bereich === b.wert ? 'chip-active' : '')}
-            onClick={() => setBereich(b.wert)}
-          >
-            {b.label}
-          </button>
-        ))}
+      {/* Der Umschalter – dieselbe Bauart wie Vokabeln|Grammatik im
+          Trainer, damit die App an beiden Stellen gleich umschaltet. */}
+      <div className="deck" role="tablist">
+        {BEREICHE.map((b) => {
+          const zahl = {
+            videos: bibliothek?.length ?? null,
+            songs: songAnzahl,
+            // Die fertigen Zusammenfassungen plus die selbst erzeugten
+            ebooks: ebookAnzahl == null ? null : ebookAnzahl + buecher.length,
+            hoertexte: null,
+          }[b.wert]
+          return (
+            <button
+              key={b.wert}
+              role="tab"
+              aria-selected={bereich === b.wert}
+              className={bereich === b.wert ? 'deck-aktiv' : ''}
+              onClick={() => setBereich(b.wert)}
+            >
+              {b.label}
+              {zahl != null && <span className="deck-zahl">{zahl}</span>}
+            </button>
+          )
+        })}
       </div>
 
       {/* ---------- Songs: Musik mit mitlaufendem Text ---------- */}
@@ -321,8 +365,44 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {bereich === 'hoertexte' && (
         <Inhalte art="hoertexte" onAddVocab={onAddVocab} vocab={vocab} />
       )}
-      {bereich === 'lesetexte' && (
-        <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} />
+      {bereich === 'ebooks' && (
+        <>
+          {/* Die Hauptkarte des Bereichs ist das Formular – genau wie
+              bei den Videos die Suche. Der Filter fuer die fertigen
+              Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
+          <Hero
+            symbol={<IconBuch groesse={26} />}
+            titel="Ebook erstellen"
+            text="Nenn einen Buchtitel oder ein Thema – die KI schreibt eine Zusammenfassung auf Spanisch."
+          >
+            <SuchFeld
+              rund
+              wert={buchTitel}
+              onWert={setBuchTitel}
+              onAbsenden={generiereBuch}
+              platzhalter="z. B. „Ikigai“ oder „Besser schlafen“"
+              knopf="Ebook erstellen"
+              laedt={buchLaden}
+            />
+          </Hero>
+
+          {buchFehler && <p className="error">{buchFehler}</p>}
+          {buchLaden && (
+            <p className="inhalt-hinweis">
+              Das dauert einen Moment – die KI schreibt gerade beide Fassungen.
+            </p>
+          )}
+
+          {buecher.length > 0 && (
+            <EigeneEbooks
+              buecher={buecher}
+              onOeffnen={setOffenesBuch}
+              onLoeschen={loescheBuch}
+            />
+          )}
+
+          <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />
+        </>
       )}
 
       {sucheOffen && (
@@ -527,6 +607,49 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
 // Die Lese-Ansicht einer Buchzusammenfassung: einfache spanische Absätze,
 // Übersetzung einblendbar, Vokabeln mit einem Klick in den Trainer
+/**
+ * Die selbst erzeugten Ebooks.
+ *
+ * Sie liegen im Browser, nicht in der Bibliothek – deshalb stehen
+ * sie in einem eigenen Abschnitt ueber den fertigen und tragen
+ * einen Loeschknopf.
+ */
+function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
+  return (
+    <section className="bereich">
+      <Kopf
+        symbol={<IconBuch groesse={19} />}
+        titel="Deine eigenen Ebooks"
+        text="Auf diesem Gerät gespeichert."
+        zahl={buecher.length}
+      />
+      <ul className="inhalt-liste ebook-eigene">
+        {buecher.map((b) => (
+          <li key={b.id}>
+            <button className="inhalt-zeile" onClick={() => onOeffnen(b)}>
+              <span className="inhalt-text">
+                <span className="inhalt-titel">{b.titel}</span>
+                <span className="inhalt-meta">
+                  selbst erstellt
+                  {b.kapitel ? ` · ${b.kapitel.length} Kapitel` : ''}
+                </span>
+              </span>
+              <IconPfeil groesse={17} />
+            </button>
+            <button
+              className="btn-delete ebook-weg"
+              title="Löschen"
+              onClick={() => onLoeschen(b.id)}
+            >
+              ✕
+            </button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 function BuchView({ buch, onClose, onAddVocab }) {
   const [zeigeDe, setZeigeDe] = useState(false)
   const [uebernommen, setUebernommen] = useState(false)

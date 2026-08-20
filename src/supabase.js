@@ -49,6 +49,25 @@ export async function holeBibliothek(kategorie) {
   return data
 }
 
+/**
+ * Wie viele Songs liegen bereit?
+ *
+ * Nur die Zahl, nicht die Zeilen: head=true laedt keine Daten, das
+ * Ergebnis steckt allein im count. Fuer eine Zahl am Umschalter
+ * waere es Verschwendung, die ganze Liste zu holen – die holt der
+ * Songs-Bereich sich ohnehin selbst, sobald man ihn oeffnet.
+ */
+export async function zaehleSongs() {
+  const { count, error } = await db
+    .from('videos')
+    .select('id', { count: 'exact', head: true })
+    .eq('aktiv', true)
+    .eq('kategorie', 'musik')
+
+  if (error) throw new Error(error.message)
+  return count ?? 0
+}
+
 /** Holt ein einzelnes Video samt fertigem Transkript. */
 export async function holeVideoMitTranskript(youtubeId) {
   const { data, error } = await db

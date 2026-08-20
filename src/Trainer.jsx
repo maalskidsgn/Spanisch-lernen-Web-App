@@ -223,25 +223,25 @@ export default function Trainer({
           {deck === 'woerter' ? 'Vokabeltrainer' : 'Grammatik-Trainer'}
         </span>
       </h1>
-      <div className="gram-deck" role="tablist">
+      <div className="deck" role="tablist">
         <button
           role="tab"
           aria-selected={deck === 'woerter'}
-          className={deck === 'woerter' ? 'gram-deck-aktiv' : ''}
+          className={deck === 'woerter' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('woerter')}
         >
           Vokabeln
-          {trainable.length > 0 && <span className="gram-deck-zahl">{trainable.length}</span>}
+          {trainable.length > 0 && <span className="deck-zahl">{trainable.length}</span>}
         </button>
         <button
           role="tab"
           aria-selected={deck === 'grammatik'}
-          className={deck === 'grammatik' ? 'gram-deck-aktiv' : ''}
+          className={deck === 'grammatik' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('grammatik')}
         >
           Grammatik
           {faelligeGrammatik.length > 0 && (
-            <span className="gram-deck-zahl">{faelligeGrammatik.length}</span>
+            <span className="deck-zahl">{faelligeGrammatik.length}</span>
           )}
         </button>
       </div>

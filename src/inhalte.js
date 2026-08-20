@@ -10,7 +10,10 @@ const ABLAGE = 'https://okwegzwsjrxusmznohis.supabase.co/storage/v1/object/publi
 
 export const ARTEN = {
   hoertexte: { titel: 'Hörtexte', einzahl: 'Hörtext' },
-  lesetexte: { titel: 'Lesetexte', einzahl: 'Lesetext' },
+  // Die 89 importierten Buchzusammenfassungen. Sie hiessen frueher
+  // "Lesetexte" – der Schluessel bleibt, weil er den Ablageort
+  // bestimmt, nur die Beschriftung wurde umbenannt.
+  lesetexte: { titel: 'Ebooks', einzahl: 'Ebook' },
 }
 
 // Einmal geholt, für die Sitzung gemerkt – das Verzeichnis ändert
