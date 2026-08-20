@@ -22,6 +22,51 @@ daran kein Weg vorbei. Claude kann die vollständige Liste der
 Datenempfänger aus dem Code zusammenstellen — welcher Dienst, welche
 Daten, wofür, welcher Endpunkt. Die juristische Bewertung nicht.
 
+### Der Karteikasten wächst nicht – Wörter bleiben bei 2,5 Tagen
+**Manuel, 20.08.:** „Habe das Gefühl es endet dort." Stimmt.
+
+`src/srs.js` rechnet richtig. `src/sync.js` speichert aber nur
+`stufe` und `faellig_am` in die Datenbank (`zuDatenbank`, Zeile 21-33)
+– die beiden Felder, von denen die Rechnung lebt, `intervall` und
+`leichtigkeit`, fallen weg. Bei jedem App-Start holt
+`zusammenfuehren()` die Datenbankfassung, und die gewinnt bei
+gleicher Stufe (Zeile 178). Damit fällt `intervall` auf die grobe
+Leiter `[0,1,3,7,14,30,90]` zurück.
+
+Acht Wiederholungen mit „Gut", nachgerechnet:
+
+```
+ohne Sync:  1 → 2,5 → 6,3 → 15,8 → 39,5 → 98,8 → 247 → 365
+mit Sync:   1 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5
+```
+
+2,5 Tage runden auf Stufe 1 ab, Stufe 1 heißt wieder 1 Tag, mal 2,5
+sind wieder 2,5 – ein Kreis. Bei „Schwer" dasselbe bei 0,5 Tagen.
+Nur „Einfach" klettert, weil 3,25 gerade über die nächste Sprosse
+rutscht. Wer täglich übt, sieht dieselben Wörter für immer alle drei
+Tage. Bei einer Vokabel-App ist das die Kernmechanik.
+
+**Die Behebung, zwei Teile.** Erst in Supabase:
+
+```sql
+alter table vokabeln
+  add column if not exists intervall real,
+  add column if not exists leichtigkeit real;
+```
+
+Dann `zuDatenbank` und `zuApp` in `src/sync.js` um die beiden Felder
+erweitern. Vorhandene Zeilen haben `null` – `zustand()` in srs.js
+faellt dann auf das bisherige Verhalten zurueck, es geht also nichts
+kaputt.
+
+Zusätzlich: In `vorschau()` stehen bei „Gut" und „Einfach" beide
+Male „3 Tage" (2,5 und 3,25 auf ganze Tage gerundet). Reine
+Anzeigesache – unter 3 Tagen eine Nachkommastelle zeigen.
+
+Nachweis: `scripts/` hat dafür nichts, die Rechnung oben stammt aus
+einem Wegwerf-Skript. Beim Beheben einen echten Test dafür anlegen –
+das ist ein Fehler, den man nur mit einer Simulation sieht.
+
 ### Stripe steht im Testmodus
 `STRIPE_SECRET_KEY` beginnt mit `sk_test`. Die Premium-Karte trägt
 „Bald verfügbar". Es kann niemand bezahlen — die Mechanik ist fertig,
