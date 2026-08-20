@@ -5557,7 +5557,10 @@ export const LEKTIONEN = [
 ]
 
 // Die Module der Sprach-Reise: Jedes Modul bündelt Lektionen zu einem Thema.
-// "kommtBald"-Module zeigen, wohin die Reise geht (noch ohne Inhalt).
+// Module ohne Lektionen zeigen nur, wohin die Reise geht. Ob das so
+// ist, wird BERECHNET (siehe kommtBald weiter unten) – der frueher
+// gepflegte Haken stand bei Modul 3 und 5 noch auf "kommt bald",
+// obwohl dort 20 bzw. 8 Lektionen lagen.
 export const MODULE = [
   {
     id: 'm1',
@@ -5585,7 +5588,6 @@ export const MODULE = [
     emoji: '👋',
     beschreibung: 'Der obere Weg: über dich und andere sprechen',
     farbe: '#c96f4a', // Terrakotta
-    kommtBald: true,
     geplant: ['Familie', 'Aussehen & Charakter', 'Hobbys', 'Verabreden', 'Gefühle'],
   },
   {
@@ -5606,7 +5608,6 @@ export const MODULE = [
     emoji: '📖',
     beschreibung: 'Wo beide Wege zusammenlaufen – die Vergangenheit',
     farbe: '#7d3350', // Wein
-    kommtBald: true,
     geplant: ['Gestern & letzte Woche', 'Der Urlaub', 'Früher war das so', 'Eine Geschichte erzählen', 'Meinungen sagen'],
   },
   {
@@ -5617,7 +5618,6 @@ export const MODULE = [
     emoji: '🌊',
     beschreibung: 'Ein Abstecher: Spanien und Lateinamerika',
     farbe: '#4a9d9c', // Meer
-    kommtBald: true,
     geplant: ['Feste & Traditionen', 'Essen der Regionen', 'Spanisch in Amerika', 'Redewendungen'],
   },
   {
@@ -5628,7 +5628,6 @@ export const MODULE = [
     emoji: '💼',
     beschreibung: 'Das letzte Gebiet: Zukunft und Berufliches',
     farbe: '#5b7596', // Blaugrau
-    kommtBald: true,
     geplant: ['Beruf & Studium', 'Termine machen', 'Telefonieren', 'Pläne schmieden', 'Höflich schreiben'],
   },
 ]
@@ -5643,6 +5642,14 @@ export const MODULE = [
  * Nummern in andere Module gehoeren. Solche Fehler faellt niemandem
  * auf – die Lektion ist ja da, nur an der falschen Stelle.
  */
+/**
+ * Ist dieses Modul noch leer? Dann zeigt die Uebersicht "Kommt bald"
+ * statt eines Einstiegs. Abgeleitet, damit es nicht veralten kann.
+ */
+export function kommtBald(modul) {
+  return lektionenVon(modul).length === 0
+}
+
 export function lektionenVon(modul) {
   return LEKTIONEN
     .filter((l) => l.kursNr >= modul.von && l.kursNr <= modul.bis)
@@ -5661,11 +5668,11 @@ export function modulFortschritt(modul, lessonProgress) {
 export const ALLES_OFFEN = true
 
 export function modulOffen(index, lessonProgress) {
-  if (MODULE[index].kommtBald) return false
+  if (kommtBald(MODULE[index])) return false
   if (ALLES_OFFEN) return true
   if (index === 0) return true
   const vorher = MODULE[index - 1]
-  if (vorher.kommtBald) return false
+  if (kommtBald(vorher)) return false
   const { fertig, gesamt } = modulFortschritt(vorher, lessonProgress)
   return gesamt > 0 && fertig === gesamt
 }

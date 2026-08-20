@@ -6,6 +6,7 @@ import {
   lektionenVon,
   modulFortschritt,
   modulOffen,
+  kommtBald,
   ALLES_OFFEN,
   LUECKE_MARKE,
 } from './lektionen.js'
@@ -648,15 +649,15 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               disabled={!offen}
               onClick={() => setModul(m)}
             >
-              <span className="lesson-emoji">{m.kommtBald ? '🔜' : offen ? m.emoji : '🔒'}</span>
+              <span className="lesson-emoji">{kommtBald(m) ? '🔜' : offen ? m.emoji : '🔒'}</span>
               <span className="lesson-text">
                 <span className="lesson-title">
                   Modul {i + 1}: {m.titel}
                 </span>
                 <span className="lesson-sub">
-                  {m.kommtBald ? 'Kommt bald!' : m.beschreibung}
+                  {kommtBald(m) ? 'Kommt bald!' : m.beschreibung}
                 </span>
-                {!m.kommtBald && (
+                {!kommtBald(m) && (
                   <span className="modul-bar">
                     <span className="xp-bar goal-bar">
                       <span
