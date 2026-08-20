@@ -1373,9 +1373,8 @@ function HoerSzene({ szene, onWeiter }) {
 
       <div className="hoerszene-buehne">
         <div className={'hoerszene-welle' + (laeuft ? ' welle-an' : '')} aria-hidden="true">
-          {Array.from({ length: 7 }, (_, i) => (
-            <span key={i} style={{ '--i': i }} />
-          ))}
+          <span />
+          <span />
         </div>
         <div className="hoerszene-sprecher">
           {spricht ? <><b>{spricht}</b> spricht</> : genugGehoert ? 'Gespräch zu Ende' : 'Gleich geht es los'}

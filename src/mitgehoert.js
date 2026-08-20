@@ -56,6 +56,9 @@ export const FRAGEN_MINDESTENS = 4
  * Gesprochen wird von der festen Besetzung (Ana, Tom, Luis, Carmen,
  * Lena). Wer dort nicht steht, bekäme eine Stimme nach Position
  * zugeteilt – ein Kellner klänge dann wie Tom.
+ *
+ * `sofortOffen` hat nur die erste Szene: Sie ist die Kostprobe und
+ * wartet nicht auf die halbe Modulstrecke.
  */
 export const SZENEN = [
   // =============================================================
@@ -66,6 +69,12 @@ export const SZENEN = [
     emoji: '☕',
     ort: 'Ein Café in Madrid, kurz vor Mittag. Tom ist neu in der Stadt.',
     fragenAuf: 'de',
+    // Die Kostprobe. Als einzige Szene von Anfang an offen: Wer neu
+    // ist, soll einmal erleben, dass er einem echten Gespraech schon
+    // folgen kann – das ueberzeugt mehr als jede Beschreibung. Und es
+    // erklaert, was "Mitgehört" ueberhaupt ist, bevor die Karte in
+    // Modul 2 zum ersten Mal verschlossen dasteht.
+    sofortOffen: true,
     dialog: [
       { sprecher: 'Tom', es: 'Buenos días. Un café, por favor.', de: 'Guten Tag. Einen Kaffee, bitte.' },
       { sprecher: 'Ana', es: 'Buenos días. ¿Solo o con leche?', de: 'Guten Tag. Schwarz oder mit Milch?' },
@@ -740,6 +749,7 @@ export function modulVonSzene(szene) {
  * dort steht schon die Prüfung.
  */
 export function szeneOffen(szene, lessonProgress = {}) {
+  if (szene.sofortOffen) return true
   const modul = modulVonSzene(szene)
   if (!modul) return false
   const lektionen = lektionenVon(modul)
@@ -750,6 +760,7 @@ export function szeneOffen(szene, lessonProgress = {}) {
 
 /** Wie viele Lektionen fehlen noch bis zur Szene? */
 export function nochBisSzene(szene, lessonProgress = {}) {
+  if (szene.sofortOffen) return 0
   const modul = modulVonSzene(szene)
   if (!modul) return 0
   const lektionen = lektionenVon(modul)

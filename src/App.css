@@ -8213,32 +8213,58 @@ body.lektion-laeuft .lessons > .player-top,
   gap: 14px;
   padding: 26px 0 20px;
 }
-/* Die Welle zeigt, dass wirklich etwas laeuft. Ohne sie sitzt man
-   vor einer stillen Karte und fragt sich, ob der Ton kaputt ist. */
+/* Der Ruhepuls.
+   Vorher stand hier ein Equalizer aus sieben Balken im Sekundentakt.
+   Manuel am 20.08.: "Das muss viel langsamer oder was anderes was
+   nicht so ablenkt." Er hat recht, und der Fehler war grundsaetzlich:
+   Auf einer Karte, deren einzige Aufgabe das ZUHOEREN ist, darf nichts
+   um Aufmerksamkeit buhlen. Ein Equalizer tut genau das – das Auge
+   folgt der Bewegung, und das Ohr macht Pause.
+
+   Jetzt atmet ein weicher Ring, sechs Sekunden ein und aus. Langsamer
+   als jeder Puls, langsam genug, dass man ihn nach zwei Sekunden nicht
+   mehr wahrnimmt – aber schnell genug, dass man sieht, dass etwas
+   laeuft und der Ton nicht haengt. */
 .hoerszene-welle {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  height: 46px;
+  position: relative;
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
 }
 .hoerszene-welle span {
-  width: 6px;
-  height: 12px;
-  border-radius: 3px;
-  background: #d8dee9;
-  transition: background 0.3s ease;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f0e9e0;
+  opacity: 0;
 }
-.hoerszene-welle.welle-an span {
+.hoerszene-welle span:nth-child(1) { opacity: 1; }
+
+.hoerszene-welle.welle-an span:nth-child(1) {
   background: var(--primary);
-  animation: welle 1s ease-in-out infinite;
-  animation-delay: calc(var(--i) * 0.11s);
+  animation: puls-kern 6s ease-in-out infinite;
 }
-@keyframes welle {
-  0%, 100% { height: 12px; }
-  50% { height: 40px; }
+.hoerszene-welle.welle-an span:nth-child(2) {
+  opacity: 1;
+  background: none;
+  border: 2px solid var(--primary);
+  animation: puls-ring 6s ease-in-out infinite;
+}
+@keyframes puls-kern {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+}
+@keyframes puls-ring {
+  0%, 100% { transform: scale(1.1); opacity: 0.5; }
+  50% { transform: scale(2.5); opacity: 0.12; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hoerszene-welle.welle-an span { animation: none; height: 26px; }
+  .hoerszene-welle.welle-an span { animation: none; }
+  .hoerszene-welle.welle-an span:nth-child(2) { transform: scale(2); opacity: 0.25; }
 }
 .hoerszene-sprecher {
   font-size: 1.05rem;
