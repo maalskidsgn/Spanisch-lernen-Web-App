@@ -3624,61 +3624,63 @@ body.liest-video .fab-panel {
 }
 
 /* ---------- Automatik im Vokabelgenerator ---------- */
-.automatik {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-}
-.automatik-kopf {
+/* Die beiden Wege: Thema eingeben oder die KI waehlen lassen.
+   Sie stehen nebeneinander, weil sie gleichwertig sind – der eine
+   ist nicht die Ausnahme des anderen. */
+.gen-knoepfe {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 11px;
+  align-items: stretch;
+  gap: 8px;
 }
-.automatik-titel { display: grid; gap: 2px; }
-.automatik-titel b { font-size: .93rem; }
-.automatik-titel span { font-size: .81rem; color: var(--muted); font-weight: 700; }
-
-.automatik-info {
-  width: 26px; height: 26px;
+/* Alle drei in einer Zeile: Ohne nowrap brach "Liste erstellen" auf
+   dem Handy um und der Knopf wurde doppelt so hoch wie die anderen. */
+.gen-knoepfe button { white-space: nowrap; }
+.gen-los {
+  flex: 1;
+  justify-content: center;
+  padding-left: 14px;
+  padding-right: 14px;
+  font-size: 14.5px;
+}
+.gen-ki {
   flex-shrink: 0;
-  display: grid; place-items: center;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-size: 14.5px;
+}
+.gen-ki:disabled { opacity: .5; cursor: not-allowed; }
+.gen-info {
+  flex-shrink: 0;
+  width: 38px;
+  padding: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--muted);
   font-family: inherit;
-  font-size: .9rem; font-weight: 900;
-  color: var(--muted);
-  background: var(--flaeche);
-  border: 2px solid var(--line);
-  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: none;
   cursor: pointer;
-  transition: border-color .15s, color .15s;
 }
-.automatik-info:hover { border-color: var(--primary); color: var(--primary-dark, #e05f00); }
+.gen-info:hover { border-color: var(--primary); color: var(--primary-dark); }
 
-.automatik-erklaerung {
-  background: var(--flaeche);
+.gen-erklaerung {
+  margin-top: 12px;
+  padding: 14px 15px;
   border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  animation: fade-up .25s ease;
+  background: var(--flaeche);
 }
-.automatik-erklaerung p {
-  font-size: .86rem;
-  line-height: 1.55;
+.gen-erklaerung p {
+  margin: 0 0 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--muted);
-  margin-bottom: 9px;
 }
-.automatik-erklaerung p:last-child { margin-bottom: 0; }
-.automatik-erklaerung b { color: var(--navy); }
-.automatik-klein {
-  font-size: .79rem !important;
-  color: var(--muted-light, #a89d8d) !important;
-  border-top: 1px solid var(--line);
-  padding-top: 9px;
-}
-
-.automatik-los { width: 100%; justify-content: center; }
-.automatik-los:disabled { opacity: .5; cursor: not-allowed; }
+.gen-erklaerung p:last-child { margin-bottom: 0; }
+.gen-erklaerung b { color: var(--navy); font-weight: 900; }
+.gen-klein { font-size: 12.5px !important; opacity: .85; }
 
 /* Die Begründung über der fertigen Liste */
 .gen-begruendung {
@@ -3816,7 +3818,7 @@ body.liest-video .fab-panel {
 .chip,
 .btn-outline,
 .btn-still,
-.automatik-info,
+.gen-info,
 .filter-stufe,
 .spiel-karte,
 .spiel-karte *,
@@ -4301,13 +4303,6 @@ body.liest-video .word-card {
 .vorschlag-chip:active { transform: scale(.96); }
 
 .wort-los { width: 100%; justify-content: center; }
-
-/* Die Automatik als abgesetzter Block darunter */
-.automatik {
-  margin-top: 20px;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
-}
 
 /* ---------- Bibliothek im Bereichs-Stil ---------- */
 .such-knopf {
@@ -5541,12 +5536,16 @@ body:has(.trainer) { background: #fff; }
 .trainer { background: #fff; }
 
 /* Keine Karten mehr – nur Abschnitte mit einer feinen Trennlinie */
+/* Auch im Trainer ist jeder Abschnitt eine Karte.
+   Diese Regel muss die Kartenwerte WIEDERHOLEN statt sie nur
+   wegzulassen: ".trainer .bereich" schlaegt ".bereich", also wuerde
+   ein leerer Block hier die Karte still wieder abschalten. */
 .trainer .bereich {
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 26px 0;
-  margin-bottom: 0;
+  background: var(--card);
+  border-radius: 22px;
+  padding: 20px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 
 
@@ -5587,19 +5586,15 @@ body:has(.trainer) { background: #fff; }
   opacity: .95;
 }
 
-/* Das Fragezeichen: ein schlichter Kreis, keine 3D-Kante */
-.trainer .automatik-info {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border-radius: 50%;
+/* Das Fragezeichen: schlicht, keine 3D-Kante. Die Hoehe kommt aus
+   der Knopfreihe (align-items: stretch), damit es genau so hoch ist
+   wie die beiden Knoepfe daneben. */
+.trainer .gen-info {
   background: var(--flaeche);
-  border: 1.5px solid var(--line);
   box-shadow: none;
-  font-size: 13px;
   line-height: 1;
 }
-.trainer .automatik-info:active { transform: scale(.92); box-shadow: none; }
+.trainer .gen-info:active { transform: scale(.94); box-shadow: none; }
 
 /* Die aufklappbare Wortliste: reine Kopfzeile, kein Knopf-Look */
 .trainer .liste-kopf {
@@ -5612,17 +5607,14 @@ body:has(.trainer) { background: #fff; }
 .trainer .liste-kopf:active { transform: none; box-shadow: none; }
 
 /* "Für mich auswählen lassen" – flacher Umriss statt Kante */
-.trainer .automatik-los,
 .trainer .btn-outline {
   box-shadow: none;
   border: 2px solid var(--line);
   background: #fff;
   color: var(--navy);
 }
-.trainer .automatik-los:active,
 .trainer .btn-outline:active { transform: scale(.98); box-shadow: none; }
 @media (hover: hover) {
-  .trainer .automatik-los:hover,
   .trainer .btn-outline:hover { border-color: var(--primary); }
 }
 
@@ -5677,14 +5669,16 @@ body, .app { background: #fff; }
 main { background: #fff; }
 
 /* Alle Bereiche wie im Trainer: keine Karten, feine Trennlinien */
+/* Jeder Abschnitt ist eine Karte.
+   Getrennt wird ueber einen weichen orangen Schein, nicht ueber
+   Linien: Eine duenne Linie zerschneidet die Seite, ein Schatten
+   hebt den Abschnitt ab, ohne etwas zu zerteilen. */
 .bereich {
-  background: transparent;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 26px 0;
-  margin-bottom: 0;
-  /* Keine Trennlinien mehr: Die Abschnittskoepfe mit Symbol trennen
-     schon deutlich genug, und die Linien zerschnitten die Seite. */
+  background: var(--card);
+  border-radius: 22px;
+  padding: 20px 18px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 
 /* Beschreibungs-Sätze unter Überschriften: kleiner und leiser.
@@ -7877,17 +7871,6 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 }
 .gen-pfeil:disabled { opacity: .4; cursor: default; }
 .gen-pfeil:active:not(:disabled) { transform: scale(.94); }
-
-/* Der Generator ist eine eigene Karte.
-   .bereich ist inzwischen durchsichtig und ohne Schatten – ohne
-   eigenen Rahmen stuende der Generator auf weissem Grund im
-   Nichts. */
-.list-gen {
-  padding: 20px 18px;
-  border: 1.5px solid var(--line);
-  border-radius: 22px;
-  background: var(--card);
-}
 
 /* Die Vorschlaege: heller und schmaler als die Filter-Chips, sie
    sind nur ein Angebot. Klein genug, dass alle vier auf einem

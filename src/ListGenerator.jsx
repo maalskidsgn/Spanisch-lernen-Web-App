@@ -16,6 +16,9 @@ export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
   const [erfolg, setErfolg] = useState(false)
   const { premium } = usePremium()
   const [uebrig, setUebrig] = useState(() => verbleibend())
+  // Unter fuenf gesammelten Woertern kann die KI nichts erkennen –
+  // dann bleibt der KI-Gen-Knopf gesperrt.
+  const zuWenige = Object.keys(vocab).length < 5
 
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
@@ -175,65 +178,60 @@ export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
           ))}
         </div>
 
-        <button type="submit" className="btn wort-los" disabled={laden}>
-          {laden ? (
-            <>Stellt deine Liste zusammen<span className="studio-punkte" /></>
-          ) : (
-            'Liste erstellen'
-          )}
-        </button>
-      </form>
+        <div className="gen-knoepfe">
+          <button type="submit" className="btn gen-los" disabled={laden || !thema.trim()}>
+            {laden ? (
+              <>Stellt zusammen<span className="studio-punkte" /></>
+            ) : (
+              'Liste erstellen'
+            )}
+          </button>
 
-      {/* ---------- Die Automatik ---------- */}
-      <div className="automatik">
-          <div className="automatik-kopf">
-            <div className="automatik-titel">
-              <b>Oder passend zu deinem Stand</b>
-              <span>Die KI wählt selbst aus, was als Nächstes dran ist</span>
-            </div>
-            <button
-              type="button"
-              className="automatik-info"
-              onClick={() => setInfoOffen(!infoOffen)}
-              title="Wie funktioniert das?"
-              aria-expanded={infoOffen}
-            >
-              {infoOffen ? '×' : '?'}
-            </button>
-          </div>
-
-          {infoOffen && (
-            <div className="automatik-erklaerung">
-              <p>
-                <b>Was passiert hier?</b> Deine gesammelten Wörter werden an die
-                KI geschickt. Sie schaut sich an, welche Themen darin vorkommen
-                und was noch fehlt – etwa passende Verben zu Wörtern, die du
-                schon kennst.
-              </p>
-              <p>
-                <b>Was du davon hast:</b> Keine Wiederholungen von Wörtern, die
-                du längst hast. Und die Vorschläge bauen aufeinander auf, statt
-                zufällig zu sein. Warum die KI genau diese Auswahl getroffen hat,
-                erklärt sie dir direkt über der Liste.
-              </p>
-              <p className="automatik-klein">
-                Du brauchst mindestens 5 gesammelte Wörter, damit die KI etwas
-                erkennen kann. Aktuell hast du {Object.keys(vocab).length}.
-              </p>
-            </div>
-          )}
+          {/* Derselbe Aufruf, nur ohne Thema: Dann sucht die KI
+              selbst aus, was zum bisherigen Stand passt. */}
+          <button
+            type="button"
+            className="btn-outline gen-ki"
+            onClick={(e) => generieren(e, true)}
+            disabled={laden || zuWenige}
+            title={zuWenige ? 'Dafür brauchst du erst 5 gesammelte Wörter' : undefined}
+          >
+            KI-Gen
+          </button>
 
           <button
             type="button"
-            className="btn-outline automatik-los"
-            onClick={(e) => generieren(e, true)}
-            disabled={laden || Object.keys(vocab).length < 5}
+            className="gen-info"
+            onClick={() => setInfoOffen(!infoOffen)}
+            aria-expanded={infoOffen}
+            title="Was ist der Unterschied?"
           >
-            {Object.keys(vocab).length < 5
-              ? 'Sammle erst 5 Wörter'
-              : 'Für mich auswählen lassen'}
+            {infoOffen ? '×' : '?'}
           </button>
-      </div>
+        </div>
+
+        {infoOffen && (
+          <div className="gen-erklaerung">
+            <p>
+              <b>Liste erstellen</b> nimmt dein Thema. Du sagst „Restaurant“,
+              und die KI stellt zwölf Wörter dazu zusammen – ohne die, die du
+              schon hast.
+            </p>
+            <p>
+              <b>KI-Gen</b> braucht kein Thema. Die KI sieht sich deine
+              gesammelten Wörter an, erkennt, worum es dir bisher ging, und
+              schlägt vor, was als Nächstes fehlt – etwa passende Verben zu
+              Wörtern, die du schon kennst. Warum sie genau diese Auswahl
+              getroffen hat, schreibt sie über die Liste.
+            </p>
+            <p className="gen-klein">
+              Für KI-Gen brauchst du mindestens 5 gesammelte Wörter. Du hast{' '}
+              {Object.keys(vocab).length}.
+            </p>
+          </div>
+        )}
+      </form>
+
 
       {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}
 
