@@ -414,22 +414,13 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
         {/* --- Gut zu wissen: strukturierte Tipps mit Wort-Chips --- */}
         {schritt.typ === 'info' && (
-          <div className="flashcard info-card" key={'s' + index}>
-            <span className="info-icon">💡</span>
-            <p className="lesson-hint">{lektion.istStation ? 'Rückblick' : 'Gut zu wissen'}</p>
-            <div className="info-list">
-              {lektion.wissen.map((tipp, i) => (
-                <div key={i} className="info-tip" style={{ '--i': i }}>
-                  <span className="info-emoji">{tipp.emoji}</span>
-                  <div className="info-body">
-                    <div className="info-title">{tipp.titel}</div>
-                    <p className="info-text">{mitChips(tipp.text)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button onClick={weiter}>Verstanden</button>
-          </div>
+          <WissensKarte
+            key={'s' + index}
+            karten={lektion.wissen}
+            nummer={schritt.karte ?? 0}
+            istStation={lektion.istStation}
+            onWeiter={weiter}
+          />
         )}
 
         {/* --- Dialog als animierter Chat --- */}
@@ -1039,5 +1030,44 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
       </div>
       <span className="station-knopf">{geschafft ? 'Nochmal' : 'Start'}</span>
     </button>
+  )
+}
+
+/**
+ * Eine einzelne Wissenskarte.
+ *
+ * Frueher standen alle drei untereinander auf einem Bildschirm. Das
+ * war der Punkt, an dem eine Lektion sich nach Lehrbuch anfuehlte:
+ * drei Erklaerungen am Stueck, bevor es weitergeht. Jetzt bekommt
+ * jede ihren eigenen Schritt – und damit Platz, ein eigenes Symbol
+ * und einen sichtbaren Fortschritt.
+ *
+ * Die Punkte unten sind nicht nur Zierde: Ohne sie wuesste niemand,
+ * ob nach dieser Karte noch zwei kommen oder ob es weitergeht.
+ */
+function WissensKarte({ karten, nummer, istStation, onWeiter }) {
+  const tipp = karten[nummer]
+  const letzte = nummer === karten.length - 1
+
+  return (
+    <div className="flashcard info-card">
+      <span className="info-icon">{tipp.emoji}</span>
+      <p className="lesson-hint">{istStation ? 'Rückblick' : 'Gut zu wissen'}</p>
+
+      <div className="info-einzeln">
+        <h3 className="info-title">{tipp.titel}</h3>
+        <p className="info-text">{mitChips(tipp.text)}</p>
+      </div>
+
+      {karten.length > 1 && (
+        <div className="info-punkte" aria-label={`Karte ${nummer + 1} von ${karten.length}`}>
+          {karten.map((_, i) => (
+            <i key={i} className={i === nummer ? 'punkt-aktiv' : ''} />
+          ))}
+        </div>
+      )}
+
+      <button onClick={onWeiter}>{letzte ? 'Verstanden' : 'Weiter'}</button>
+    </div>
   )
 }

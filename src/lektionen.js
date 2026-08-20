@@ -8888,7 +8888,13 @@ export function sammleWiederholung(lektion) {
 export function baueSchritte(lektion) {
   const schritte = [{ typ: 'intro' }]
   for (const item of lektion.items) schritte.push({ typ: 'lernen', item })
-  if (lektion.wissen) schritte.push({ typ: 'info' })
+  // Ein Schritt JE Karte, nicht ein Schritt fuer alle drei.
+  // Vorher standen drei Erklaerungen gestapelt auf einem Bildschirm –
+  // zusammen rund 600 Zeichen, die man am Stueck lesen sollte. Einzeln
+  // sind es 200, und man kommt nach jeder einmal zum Luftholen.
+  if (lektion.wissen) {
+    lektion.wissen.forEach((_, i) => schritte.push({ typ: 'info', karte: i }))
+  }
 
   // Hörverstehen VOR dem Dialog: eine Zeile nur hören, Bedeutung
   // wählen. Wer den Dialog schon gelesen hat, hört nicht mehr

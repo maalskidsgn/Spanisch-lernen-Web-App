@@ -295,7 +295,12 @@ export const STATION_AUFGABEN = 25
 export function baueSchritteStation(station) {
   const lektion = stationAlsLektion(station)
   const modul = modulVon(station)
-  const schritte = [{ typ: 'intro' }, { typ: 'info' }]
+  // Der Rueckblick blaettert genauso wie die Wissenskarten einer
+  // Lektion: eine Karte je Schritt.
+  const schritte = [
+    { typ: 'intro' },
+    ...station.rueckblick.map((_, i) => ({ typ: 'info', karte: i })),
+  ]
 
   const woerter = mischen(lektion.items)
 

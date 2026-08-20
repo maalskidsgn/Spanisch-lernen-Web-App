@@ -1108,51 +1108,62 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
-  margin: 0 auto 8px;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 10px;
   border-radius: 50%;
-  font-size: 1.6rem;
+  /* Groesser als frueher: Hier stand einmal fuer alle Karten ein
+     festes 💡. Jetzt traegt jede Karte ihr eigenes Symbol – und das
+     soll man auch erkennen. */
+  font-size: 1.95rem;
+  line-height: 1;
   background: linear-gradient(135deg, #ffd76e, #ffbe3d);
   box-shadow: 0 4px 14px rgba(255, 190, 61, 0.45);
   animation: wiggle 0.8s ease 0.3s;
 }
-.info-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 22px;
+/* Eine Wissenskarte je Schritt.
+   Frueher lagen hier drei Kaesten untereinander (.info-list /
+   .info-tip). Die Karte steht jetzt allein – deshalb darf sie
+   groesser atmen: mehr Zeilenabstand, groessere Schrift, kein
+   eigener Rahmen mehr. Der Rahmen der .flashcard reicht. */
+.info-einzeln {
+  margin: 4px 0 20px;
   text-align: left;
+  animation: fade-up 0.35s ease backwards;
 }
-.info-tip {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  background: #fdf6ee;
-  border: 1.5px solid var(--line);
-  border-radius: 16px;
-  padding: 14px 16px;
-  animation: fade-up 0.4s ease backwards;
-  animation-delay: calc(var(--i) * 0.15s);
+.info-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--navy);
+  margin: 0 0 8px;
+  text-wrap: balance;
 }
-.info-emoji {
-  width: 40px;
-  height: 40px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  font-size: 1.1rem;
-}
-.info-title { font-weight: 900; margin-bottom: 3px; }
 .info-text {
   font-weight: 600;
   color: #6d6152;
-  line-height: 1.8;
+  font-size: 1.02rem;
+  line-height: 1.85;
   margin: 0;
+}
+
+/* Wie viele Karten kommen noch? Ohne diese Punkte weiss niemand,
+   ob nach dieser Erklaerung noch zwei folgen. */
+.info-punkte {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 0 18px;
+}
+.info-punkte i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background .2s, transform .2s;
+}
+.info-punkte .punkt-aktiv {
+  background: var(--primary);
+  transform: scale(1.35);
 }
 
 /* Hervorgehobene Wörter in den Tipps */
