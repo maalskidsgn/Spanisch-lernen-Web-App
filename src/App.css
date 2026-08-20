@@ -6604,46 +6604,48 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 /* Die Hauptkarte: Symbol links, Ansage mittig, Suchfeld rechts.
    Das Feld steht direkt da statt hinter einem Knopf – wer schon
    weiß, wonach er sucht, soll nicht erst ein Fenster öffnen. */
+/* Die Hauptkarte eines Mediathek-Bereichs.
+   Sie sieht jetzt aus wie der Listengenerator im Trainer – das ist
+   ausdruecklich gewollt, also stehen die gemeinsamen Werte auch nur
+   EINMAL da und nicht zweimal nebeneinander. */
 .video-hero {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 13px;
   flex-wrap: wrap;
-  /* Der Schimmer sitzt oben rechts in der Karte und laeuft nach
-     innen aus – radial-gradient statt Bild, damit er sich mit der
-     Karte streckt. */
-  background:
-    radial-gradient(120% 150% at 88% -30%, #ffe4c9 0%, rgba(255, 228, 201, 0) 62%),
-    var(--card);
-  border: 1px solid var(--primary);
-  border-radius: 20px;
-  padding: 20px 22px;
-  margin: 4px 0 26px;
-  overflow: hidden;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 22px;
+  padding: 20px 18px;
+  margin: 4px 0 16px;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
 }
 
+/* Das Symbol im abgerundeten Quadrat – bei beiden gleich */
+.gen-symbol,
 .video-hero-symbol {
+  flex: none;
+  width: 46px;
+  height: 46px;
   display: grid;
   place-items: center;
-  width: 72px;
-  height: 72px;
-  flex: none;
-  border-radius: 50%;
-  background: #ffe9d6;
-  color: var(--primary-press);
+  border-radius: 14px;
+  background: #ffeedf;
+  color: var(--primary);
 }
 
-.video-hero-text { flex: 1 1 15rem; min-width: 0; }
+.video-hero-text { flex: 1 1 12rem; min-width: 0; }
 .video-hero-text h2 {
-  margin: 0 0 4px;
-  font-size: 17px;
-  font-weight: 800;
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 900;
   color: var(--navy);
 }
 .video-hero-text p {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 13.5px;
-  line-height: 1.5;
+  font-weight: 600;
+  line-height: 1.4;
   color: var(--muted);
 }
 
@@ -6651,11 +6653,15 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1 1 22rem;
+  /* flex-basis 100 %: Das Feld steht IMMER unter Symbol und Text,
+     nie daneben. Vorher sprang es je nach Breite mal hoch, mal
+     runter – und die Karte sah auf jedem Geraet anders aus. */
+  flex: 1 1 100%;
   background: var(--flaeche);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 5px 5px 5px 14px;
+  margin-top: 3px;
 }
 .video-hero-form input {
   flex: 1;
@@ -7614,13 +7620,12 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: var(--muted);
 }
 
-/* Das Suchfeld der Hauptkarte mit rundem Pfeil statt Knopftext */
+/* Das Suchfeld mit rundem Pfeil – identisch zum Generator */
 .hero-form-rund {
-  align-items: center;
   gap: 8px;
-  padding: 5px 5px 5px 16px;
+  padding: 6px 6px 6px 16px;
   border: 1.5px solid var(--line);
-  border-radius: 99px;
+  border-radius: 15px;
   background: var(--card);
 }
 .hero-form-rund:focus-within { border-color: var(--primary); }
@@ -7629,12 +7634,16 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   background: none;
   padding: 10px 0;
   border-radius: 0;
+  font-size: 14.5px;
+  font-weight: 600;
 }
 .hero-form-rund input:focus { outline: none; box-shadow: none; }
+
+.gen-pfeil,
 .hero-rund {
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
   padding: 0;
@@ -7645,7 +7654,9 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   box-shadow: none;
   cursor: pointer;
 }
+.gen-pfeil:disabled,
 .hero-rund:disabled { opacity: .4; cursor: default; }
+.gen-pfeil:active:not(:disabled),
 .hero-rund:active:not(:disabled) { transform: scale(.94); }
 
 /* ---------- Videos als Zeilen ---------- */
@@ -7804,16 +7815,6 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   gap: 13px;
   margin-bottom: 16px;
 }
-.gen-symbol {
-  flex-shrink: 0;
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  background: #ffeedf;
-  color: var(--primary);
-}
 .gen-text { flex: 1; min-width: 0; }
 .gen-text h2 {
   margin: 0;
@@ -7855,22 +7856,6 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 }
 .gen-feld input:focus { outline: none; }
 .gen-feld input:disabled { opacity: .55; }
-.gen-pfeil {
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: var(--primary);
-  color: #fff;
-  box-shadow: none;
-  cursor: pointer;
-}
-.gen-pfeil:disabled { opacity: .4; cursor: default; }
-.gen-pfeil:active:not(:disabled) { transform: scale(.94); }
 
 /* Die Vorschlaege: heller und schmaler als die Filter-Chips, sie
    sind nur ein Angebot. Klein genug, dass alle vier auf einem
