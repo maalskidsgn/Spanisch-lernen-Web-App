@@ -225,16 +225,54 @@ export default function App() {
   // Geraet mit einem zweiten Konto anmeldet, ist ein neuer Mensch und
   // bekommt seine eigenen drei Fragen.
   const [onboardingFertig, setOnboardingFertig] = useState(false)
+  // Laeuft gerade der Trichter VOR der Anmeldung?
+  const [trichterOffen, setTrichterOffen] = useState(false)
+
+  // Das Paket aus dem Trichter überlebt die Anmeldung im Speicher des
+  // Geräts. Es MUSS dort liegen und nicht im Zustand: Zwischen "Konto
+  // anlegen" und der fertigen Sitzung liegt bei Supabase je nach
+  // Einstellung eine Bestätigungs-Mail und ein neuer Seitenaufruf.
+  const PAKET_SCHLUESSEL = 'startpaket:offen'
+
+  function merkeOffenesPaket(antworten, paket) {
+    try {
+      localStorage.setItem(PAKET_SCHLUESSEL, JSON.stringify({ antworten, paket }))
+    } catch { /* dann geht das Paket eben verloren, nicht die Anmeldung */ }
+  }
+
+  function holeOffenesPaket() {
+    try {
+      const roh = localStorage.getItem(PAKET_SCHLUESSEL)
+      return roh ? JSON.parse(roh) : null
+    } catch {
+      return null
+    }
+  }
+
 
   useEffect(() => {
     if (!nutzer) return setOnboardingFertig(false)
+    let schonDurch = true
     try {
-      setOnboardingFertig(localStorage.getItem('onboarding:' + nutzer.id) === 'fertig')
+      schonDurch = localStorage.getItem('onboarding:' + nutzer.id) === 'fertig'
     } catch {
-      // Kein Speicher (privater Modus): dann eben jedes Mal. Besser
-      // als jemanden auszusperren.
-      setOnboardingFertig(true)
+      // Kein Speicher (privater Modus): dann lieber durchlassen als
+      // jemanden im Onboarding einsperren.
+      schonDurch = true
     }
+
+    // Frisch angemeldet und ein Paket aus dem Trichter liegt bereit:
+    // einräumen und den Trichter NICHT noch einmal zeigen.
+    if (!schonDurch) {
+      const offen = holeOffenesPaket()
+      if (offen?.paket) {
+        onboardingFertigMachen(offen.antworten, offen.paket)
+        try { localStorage.removeItem(PAKET_SCHLUESSEL) } catch { /* egal */ }
+        return
+      }
+    }
+    setOnboardingFertig(schonDurch)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nutzer])
 
   function merkeOnboarding() {
@@ -256,9 +294,9 @@ export default function App() {
     if (antworten?.ziel) {
       setSettings((s) => ({ ...s, tagesziel: antworten.ziel }))
     }
-    if (paket?.woerter?.length) {
+    if (paket?.vokabeln?.length) {
       addVocabWords(
-        paket.woerter.map((w) => ({
+        paket.vokabeln.map((w) => ({
           wort: w.wort,
           uebersetzung: w.uebersetzung,
           quelle: 'Startpaket',
@@ -764,21 +802,45 @@ export default function App() {
     // damit die Willkommensseite nicht kurz aufblitzt
     if (nutzerLaedt) return <div className="app app-laedt" />
 
+    // key sorgt dafür, dass der Dialog bei jedem Öffnen frisch
+    // startet – sonst bliebe der zuletzt gewählte Modus stehen.
+    const anmeldung = loginOffen && (
+      <Login
+        key={loginStart}
+        startModus={loginStart}
+        onSchliessen={() => setLoginOffen(false)}
+      />
+    )
+
+    // Der Trichter läuft VOR der Anmeldung. Wer die drei Fragen
+    // beantwortet hat, sieht sein Startpaket und ERST DANN das
+    // Anmeldefenster – über dem Paket, nicht statt seiner. Das ist
+    // der ganze Trick: Man legt kein Konto "für nichts" an, sondern
+    // um etwas zu behalten, das schon da ist.
+    if (trichterOffen) {
+      return (
+        <>
+          <Onboarding
+            kontoNoetig
+            onFertig={(antworten, paket) => {
+              merkeOffenesPaket(antworten, paket)
+              setLoginStart('registrieren')
+              setLoginOffen(true)
+            }}
+            onUeberspringen={() => setTrichterOffen(false)}
+          />
+          {anmeldung}
+        </>
+      )
+    }
+
     return (
       <>
         <Willkommen
-          onStarten={() => { setLoginStart('registrieren'); setLoginOffen(true) }}
+          onStarten={() => setTrichterOffen(true)}
           onAnmelden={() => { setLoginStart('anmelden'); setLoginOffen(true) }}
         />
-        {/* key sorgt dafür, dass der Dialog bei jedem Öffnen frisch
-            startet – sonst bliebe der zuletzt gewählte Modus stehen */}
-        {loginOffen && (
-          <Login
-            key={loginStart}
-            startModus={loginStart}
-            onSchliessen={() => setLoginOffen(false)}
-          />
-        )}
+        {anmeldung}
       </>
     )
   }
