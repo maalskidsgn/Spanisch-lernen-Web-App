@@ -80,34 +80,6 @@ Vokabeln (17.642) sind seit dem 20.08. erledigt.
 Aufruf: `node scripts/vertone.mjs --los` (ohne `--ohne-saetze`).
 Das Skript überspringt, was schon im Speicher liegt.
 
-### Der Lautsprecher: hässlich und springt nach
-**Manuel, 20.08.:** „Dieses Icon mag ich nicht. Außerdem lädt es
-immer erst nach und es wirkt unsauber und wie ein Bug."
-
-Beides stimmt, und beides geht auf meine Kappe.
-
-**Das Nachspringen** ist eine Folge davon, wie `HoerKnopf`
-(`src/HoerKnopf.jsx`) arbeitet: Er startet mit „weiß ich noch nicht",
-zeigt nichts an, fragt per HEAD beim Speicher nach, ob es die
-Aufnahme gibt – und erscheint erst, wenn die Antwort da ist. Auf der
-fertigen Karte poppt er also nachträglich rein und schiebt das Wort
-zur Seite.
-
-Die saubere Behebung: Die App muss gar nicht mehr fragen. Seit dem
-20.08. sind **alle** 4.518 Schnipsel des Kurses vertont – welche
-Dateien es gibt, steht beim Bauen fest. Ein erzeugtes Verzeichnis der
-Prüfsummen (rund 110 KB, gezippt ein Bruchteil) macht die Auskunft
-sofort und ohne Netz. Die HEAD-Abfrage bleibt nur für Wörter aus
-eigenen Listen, Videos und Ebooks – und dort ist der Knopf ohnehin
-selten.
-
-**Das Symbol** ist das Emoji 🔊 in einem orangen Kreis
-(`.speak-btn`, `src/App.css:1056`). Emojis sehen auf jedem System
-anders aus – auf dem Mac dieses graue Ding mit den Wellen, das nicht
-zum Rest passt. Ersatz: ein echtes SVG wie die anderen Symbole in
-`src/icons.jsx`, in der Farbe der App. Der Hörverstehen-Knopf
-(`.hoeren-knopf`) hat so eines schon, das Muster steht also da.
-
 ### „Deine Sammlung" im Trainer
 Aus dem Entwurf vom 20.08.: zwei Kennzahlen (Wörter / sicher gelernt)
 und drei Wortkarten mit Status-Chips. Umgesetzt ist bisher nur der

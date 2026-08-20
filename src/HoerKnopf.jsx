@@ -5,7 +5,8 @@
 // wann ein Lautsprecher erscheint und wann er schweigt.
 
 import { useState, useEffect } from 'react'
-import { spiele, spieleVonSelbst, gibtEsAufnahme } from './audio.js'
+import { spiele, spieleVonSelbst, gibtEsAufnahme, sicherVertont } from './audio.js'
+import { IconLautsprecher } from './icons.jsx'
 
 /**
  * Ein Lautsprecher – aber nur, wenn es wirklich etwas zu hoeren gibt.
@@ -31,7 +32,11 @@ export default function HoerKnopf({
   stimme,
   vonSelbst = false,
 }) {
-  const [gibtEs, setGibtEs] = useState(null) // null = wird noch geprueft
+  // Beim ERSTEN Zeichnen schon wissen, ob es die Aufnahme gibt.
+  // Alles aus dem Kurs steht ohne Nachfrage fest – dadurch ist der
+  // Knopf sofort da, statt nach einer Netzanfrage nachzuspringen und
+  // die fertige Karte noch einmal zu verschieben.
+  const [gibtEs, setGibtEs] = useState(() => (text ? sicherVertont(text, stimme) : false))
 
   useEffect(() => {
     if (!text) return
@@ -56,8 +61,9 @@ export default function HoerKnopf({
       className={'speak-btn' + (klein ? ' speak-btn-mini' : '')}
       onClick={() => spiele(text, stimme ? { stimme } : undefined)}
       title={titel}
+      aria-label={titel}
     >
-      🔊
+      <IconLautsprecher groesse={klein ? 15 : 20} />
     </button>
   )
 }

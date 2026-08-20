@@ -11,6 +11,7 @@
 // ein Audio laufen, das nicht zum Text passt.
 
 import { sprich } from './sprich.js'
+import { LEKTIONEN } from './lektionen.js'
 import {
   STIMMEN,
   sprechText,
@@ -85,6 +86,61 @@ export function spieleVonSelbst(text, einstellungen) {
   return spiele(text, einstellungen)
 }
 
+// ---- Was der Kurs selbst mitbringt ----------------------------
+//
+// Seit dem 20.08. ist jeder Text des Kurses vertont – alle 4.518
+// Woerter, Beispielsaetze und Dialogzeilen. Fuer die muss niemand
+// mehr beim Speicher nachfragen: Es steht in lektionen.js, und die
+// Datei liegt ohnehin in der App.
+//
+// Das war vorher der sichtbare Fehler. Der Lautsprecher fragte per
+// HEAD nach, zeigte solange nichts an und sprang danach nach – auf
+// einer fertig gezeichneten Karte, die dadurch noch einmal
+// verrutschte. Es sah aus wie ein Bug, und es war einer.
+//
+// Ein erzeugtes Verzeichnis der Pruefsummen waere die andere
+// Loesung gewesen: 57 KB gezippt, gemessen, also 16 % mehr Bundle
+// fuer eine Auskunft, die schon da ist.
+//
+// Verglichen werden Texte, nicht Pruefsummen: Ein Set aufzubauen
+// kostet nichts, 4.518 SHA-256-Summen im Browser auszurechnen schon.
+let vertonteTexte = null
+
+function tonSchluessel(text, stimme) {
+  return `${stimme}|${sprechText(text)}`
+}
+
+function verzeichnis() {
+  if (vertonteTexte) return vertonteTexte
+  vertonteTexte = new Set()
+  for (const l of LEKTIONEN) {
+    for (const i of l.items) {
+      vertonteTexte.add(tonSchluessel(i.es, STIMMEN.standard))
+      if (i.beispielEs) vertonteTexte.add(tonSchluessel(i.beispielEs, STIMMEN.standard))
+    }
+    for (const z of l.dialog ?? []) {
+      vertonteTexte.add(tonSchluessel(z.es, stimmeImDialog(l.dialog, z.sprecher)))
+    }
+  }
+  return vertonteTexte
+}
+
+/**
+ * Steht fest, dass es diese Aufnahme gibt? Ohne Netz, ohne Warten.
+ *
+ * Nur fuer Kursinhalte wahr. Woerter aus eigenen Listen, Videos und
+ * Ebooks kann niemand vorher vertonen – dort bleibt es beim Nachfragen.
+ *
+ * WICHTIG: Wer einen Lektionstext aendert, aendert die Pruefsumme und
+ * damit den Dateinamen. Diese Auskunft waere dann falsch, bis das
+ * Vertonungsskript nachgelaufen ist. `node scripts/vertone.mjs`
+ * (ohne --los) sagt, ob noch etwas fehlt – vor einer Veroeffentlichung
+ * gehoert das gelaufen.
+ */
+export function sicherVertont(text, stimme = STIMMEN.standard) {
+  return verzeichnis().has(tonSchluessel(text, stimme))
+}
+
 // Merkt sich pro Sitzung, welche Dateien existieren (oder fehlen),
 // damit wir nicht bei jedem Klick erneut nachfragen.
 const bekannt = new Map()
@@ -102,6 +158,9 @@ const bekannt = new Map()
  * Abfrage einmal gezuckt hat.
  */
 export async function gibtEsAufnahme(text, stimme = STIMMEN.standard) {
+  // Kursinhalt: Antwort steht fest, kein Netz noetig.
+  if (sicherVertont(text, stimme)) return true
+
   const name = await audioName(text, stimme)
   if (bekannt.has(name)) return bekannt.get(name)
   try {
@@ -133,7 +192,9 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     laufend = null
   }
 
-  let vorhanden = bekannt.get(name)
+  // Kursinhalt braucht keine Nachfrage – sonst wartet der erste
+  // Klick auf jedes Wort erst eine Anfrage lang.
+  let vorhanden = sicherVertont(text, stimme) || bekannt.get(name)
   if (vorhanden === undefined) {
     try {
       const antwort = await fetch(url, { method: 'HEAD' })

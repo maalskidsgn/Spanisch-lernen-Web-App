@@ -233,3 +233,15 @@ export const IconFunken = (p) => (
     <path d="M6 15.5 6.9 17.6 9 18.5 6.9 19.4 6 21.5 5.1 19.4 3 18.5 5.1 17.6 6 15.5z" />
   </>} />
 )
+
+/* Lautsprecher – anhoeren.
+   Statt des Emojis 🔊, das auf jedem System anders aussieht: auf dem
+   Mac ein graues Ding mit Wellen, das neben den Linien-Icons der App
+   wie ein Fremdkoerper wirkt. Manuel am 20.08.: "Dieses Icon mag ich
+   nicht." */
+export const IconLautsprecher = (p) => (
+  <Icon {...p} kinder={<>
+    <path d="M11 5.5 6.5 9.5H3.5v5h3l4.5 4z" />
+    <path d="M15 9.8a3.2 3.2 0 0 1 0 4.4M17.8 7.2a7 7 0 0 1 0 9.6" />
+  </>} />
+)

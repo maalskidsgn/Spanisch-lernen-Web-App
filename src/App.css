@@ -1053,29 +1053,47 @@ button:disabled {
 .word-step .word-row { margin-bottom: 16px; }
 
 /* Der runde Vorlese-Knopf */
+/* Der Lautsprecher.
+   Traegt jetzt das Linien-Icon der App statt des Emojis 🔊 – das sah
+   auf jedem System anders aus und passte neben den uebrigen Symbolen
+   nicht. Die Farbe kommt vom Text: Das Icon erbt sie ueber
+   currentColor, hier muss nichts doppelt gepflegt werden. */
 .speak-btn {
-  background: #fff0e3;
-  color: var(--primary-dark);
-  width: 44px;
-  height: 44px;
+  background: var(--primary);
+  color: #fff;
+  width: 40px;
+  height: 40px;
   padding: 0;
   border-radius: 50%;
-  font-size: 1.15rem;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
+  box-shadow: 0 3px 10px rgba(255, 108, 0, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.speak-btn:hover { background: #ffe4cc; filter: none; }
-.speak-btn:active { transform: scale(0.88); box-shadow: none; }
+@media (hover: hover) {
+  .speak-btn:hover {
+    background: var(--primary);
+    filter: none;
+    transform: scale(1.08);
+    box-shadow: 0 5px 16px rgba(255, 108, 0, 0.38);
+  }
+}
+.speak-btn:active { transform: scale(0.9); }
+/* Am Beispielsatz: kleiner und zurueckhaltend, damit er den Satz
+   nicht uebertoent. Der am Wort ist der Hauptknopf. */
 .speak-btn-mini {
-  width: 28px;
-  height: 28px;
-  font-size: 0.8rem;
+  width: 26px;
+  height: 26px;
   margin-left: 8px;
   vertical-align: middle;
-  background: #fff;
+  background: #fff0e3;
+  color: var(--primary-dark);
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .speak-btn-mini:hover { background: #ffe0c4; box-shadow: none; }
 }
 
 /* Übersetzung als freundliche Pille */
