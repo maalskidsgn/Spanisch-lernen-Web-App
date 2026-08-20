@@ -14,6 +14,7 @@ import {
   merkeInterpreten,
 } from './spotify.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import InfoKnopf from './InfoKnopf.jsx'
 import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
 
 // Vier Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt.
@@ -366,9 +367,13 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         {spotifyBereit && !verbunden && (
           <div className="spotify-box">
             <p className="spotify-erklaerung">
-              Wir lesen ausschließlich deine gespeicherten Titel und Playlists.
-              Nichts wird abgespielt, geändert oder geteilt.
+              {/* Die alte Fassung nannte nur Titel und Playlists – die App
+                  fragt aber auch user-top-read an, also die meistgehoerten
+                  Kuenstler. In einem Datenschutz-Satz gehoert das dazu. */}
+              Gelesen werden deine gespeicherten Titel, deine Playlists und deine
+              meistgehörten Künstler. Nichts wird abgespielt, geändert oder geteilt.
             </p>
+            <InfoKnopf thema="spotify" />
             <button className="btn spotify-los" onClick={starteAnmeldung}>
               Mit Spotify verbinden
             </button>

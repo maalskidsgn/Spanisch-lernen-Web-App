@@ -604,6 +604,12 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           </button>
         </div>
 
+        {/* Der Schluessel laesst React den Block neu aufbauen, sobald
+            man zwischen Karte und Liste wechselt – erst dadurch
+            laeuft die Einblend-Animation los. Dieselbe Bauart wie
+            beim Umschalter der Mediathek und des Trainers. */}
+        <div className="wechsel" key={ansicht}>
+
         {ansicht === 'karte' && (
           <Reiseroute
             lektionen={liste}
@@ -665,6 +671,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         </ol>
         </>
         )}
+
+        </div>
 
         {/* Die Pruefstation am Ende des Moduls.
             Sie steht bewusst UNTER beiden Ansichten statt in der

@@ -23,6 +23,7 @@ import { review, withSrsDefaults, isDue, formatDue } from './srs.js'
 import { gemerkteVarianten, brauchtNachschub, holeVarianten } from './kiAufgaben.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
+import InfoKnopf from './InfoKnopf.jsx'
 
 // Der Grammatik-Trainer.
 //
@@ -175,6 +176,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
       {/* Das Wichtigste zuerst – genau wie "Heute wiederholen"
           im Vokabeltrainer. */}
       <section className="bereich bereich-wiederholen">
+        <InfoKnopf thema="grammatik" />
         <div className="wiederholen-zahl">
           <b>{faellig.length}</b>
           <span>{faellig.length === 1 ? 'Baustein wartet' : 'Bausteine warten'}</span>

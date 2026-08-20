@@ -13,6 +13,7 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
+import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
@@ -499,6 +500,7 @@ export default function Trainer({
       {/* ============ 1. WIEDERHOLEN ============ */}
       {/* Das Wichtigste zuerst: was heute dran ist */}
       <section className="bereich bereich-wiederholen">
+        <InfoKnopf thema="woerter" />
         <div className="wiederholen-zahl">
           <b>{trainable.length}</b>
           <span>{trainable.length === 1 ? 'Wort wartet' : 'Wörter warten'}</span>

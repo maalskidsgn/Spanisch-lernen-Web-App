@@ -366,7 +366,7 @@ button:disabled {
   border-radius: var(--radius);
   overflow: hidden;
   background: #000;
-  box-shadow: 0 8px 24px rgba(0, 0, 65, 0.14);
+  box-shadow: 0 8px 24px rgba(255, 108, 0, 0.14);
 }
 .player-wrap iframe,
 .player-wrap #yt-player {
@@ -459,7 +459,7 @@ button:disabled {
   border-radius: var(--radius);
   padding: 16px 18px;
   margin-top: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.1);
+  box-shadow: 0 4px 16px rgba(255, 108, 0, 0.1);
   animation: pop-in 0.3s ease;
   border: 2px solid transparent;
 }
@@ -578,7 +578,7 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   padding: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 65, 0.1);
+  box-shadow: 0 4px 16px rgba(255, 108, 0, 0.1);
   animation: pop-in 0.3s ease;
 }
 .gen-item {
@@ -705,7 +705,7 @@ button:disabled {
   max-width: 720px;
   margin: 0 auto 16px;
   animation: pop-in 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
-  box-shadow: 0 10px 30px rgba(0, 0, 65, 0.12);
+  box-shadow: 0 10px 30px rgba(255, 108, 0, 0.12);
   border: 2px solid transparent;
   position: relative;
   overflow: hidden;
@@ -830,7 +830,7 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   animation: fade-up 0.3s ease;
 }
@@ -873,7 +873,7 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   padding: 20px;
-  box-shadow: 0 6px 20px rgba(0, 0, 65, 0.09);
+  box-shadow: 0 6px 20px rgba(255, 108, 0, 0.09);
   animation: pop-in 0.3s ease;
 }
 .hero-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
@@ -902,16 +902,16 @@ button:disabled {
   color: var(--navy);
   border-radius: var(--radius);
   padding: 16px;
-  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   animation: fade-up 0.3s ease;
 }
 .home-card:hover {
   transform: scale(1.02);
   filter: none;
-  box-shadow: 0 8px 22px rgba(0, 0, 65, 0.13);
+  box-shadow: 0 8px 22px rgba(255, 108, 0, 0.13);
 }
-.home-card:active { transform: scale(0.97); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
+.home-card:active { transform: scale(0.97); box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08); }
 .home-emoji {
   width: 42px;
   height: 42px;
@@ -944,12 +944,12 @@ button:disabled {
   color: var(--navy);
   border-radius: var(--radius);
   padding: 16px 18px;
-  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   animation: fade-up 0.3s ease;
 }
 .lesson-card:hover { transform: scale(1.02); filter: none; }
-.lesson-card:active { transform: scale(0.98); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
+.lesson-card:active { transform: scale(0.98); box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08); }
 
 .lesson-emoji {
   width: 48px;
@@ -986,7 +986,7 @@ button:disabled {
 /* :disabled schlägt sonst die Karten-Optik (orange Knopf-Kante) */
 .lesson-card:disabled {
   cursor: not-allowed;
-  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.05);
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.05);
   transform: none;
 }
 
@@ -1263,7 +1263,7 @@ button:disabled {
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.45;
-  box-shadow: 0 2px 8px rgba(0, 0, 65, 0.07);
+  box-shadow: 0 2px 8px rgba(255, 108, 0, 0.07);
   animation: bubble-in-links 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
   cursor: pointer;
 }
@@ -1451,7 +1451,7 @@ button:disabled {
   background: var(--card);
   border-radius: var(--radius);
   padding: 14px 16px;
-  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -1523,15 +1523,15 @@ button:disabled {
   color: var(--navy);
   border-radius: var(--radius);
   padding: 14px;
-  box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08);
+  box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .game-card:hover {
   transform: scale(1.02);
   filter: none;
-  box-shadow: 0 8px 22px rgba(0, 0, 65, 0.13);
+  box-shadow: 0 8px 22px rgba(255, 108, 0, 0.13);
 }
-.game-card:active { transform: scale(0.97); box-shadow: 0 4px 14px rgba(0, 0, 65, 0.08); }
+.game-card:active { transform: scale(0.97); box-shadow: 0 4px 14px rgba(255, 108, 0, 0.08); }
 
 .game-title { margin: 0; font-size: 1.15rem; }
 
@@ -1855,7 +1855,7 @@ button:disabled {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(10px);
     border-top: 1px solid var(--line);
-    box-shadow: 0 -8px 24px rgba(0, 0, 65, 0.08);
+    box-shadow: 0 -8px 24px rgba(255, 108, 0, 0.08);
     padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
     gap: 0;
   }
@@ -2266,7 +2266,7 @@ button:disabled {
   z-index: 60;
   background: #fff;
   border-top: 1px solid var(--line);
-  box-shadow: 0 -8px 24px rgba(0, 0, 65, .08);
+  box-shadow: 0 -8px 24px rgba(255, 108, 0, .08);
   padding: 12px 18px calc(12px + env(safe-area-inset-bottom));
   display: flex; align-items: center; gap: 16px;
   justify-content: space-between;
@@ -2324,7 +2324,7 @@ button:disabled {
 }
 .buch-vokabel {
   background: #fff; border-radius: 12px; padding: 11px 14px;
-  box-shadow: 0 3px 10px rgba(0,0,65,.06);
+  box-shadow: 0 3px 10px rgba(255, 108, 0, .06);
   display: flex; flex-direction: column; gap: 2px;
 }
 .buch-vokabel b { color: var(--primary-dark, #e05f00); font-size: .96rem; }
@@ -2341,7 +2341,7 @@ button:disabled {
   border-radius: 22px;
   padding: 22px;
   margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 65, 0.08);
+  box-shadow: 0 10px 30px rgba(255, 108, 0, 0.08);
   border: 1px solid var(--line);
   overflow: hidden;
 }
@@ -2571,7 +2571,7 @@ button:disabled {
 .wk-punkt {
   background: #fff; border-radius: 999px;
   padding: 8px 15px; font-size: .87rem; font-weight: 800;
-  box-shadow: 0 3px 12px rgba(0, 0, 65, .07);
+  box-shadow: 0 3px 12px rgba(255, 108, 0, .07);
 }
 
 .wk-knoepfe {
@@ -2648,7 +2648,7 @@ button:disabled {
 }
 .wk-schritt {
   background: #fff; border-radius: 22px; padding: 30px 26px;
-  box-shadow: 0 8px 26px rgba(0, 0, 65, .07);
+  box-shadow: 0 8px 26px rgba(255, 108, 0, .07);
   transition: transform .3s, box-shadow .3s,
               opacity .65s cubic-bezier(.22,1,.36,1);
 }
@@ -2667,7 +2667,7 @@ button:disabled {
 .wk-bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .wk-kachel {
   background: #fff; border-radius: 22px; padding: 28px;
-  box-shadow: 0 8px 26px rgba(0, 0, 65, .07);
+  box-shadow: 0 8px 26px rgba(255, 108, 0, .07);
   transition: transform .3s, box-shadow .3s,
               opacity .65s cubic-bezier(.22,1,.36,1);
 }
@@ -2765,7 +2765,7 @@ button:disabled {
 .wk-tarif {
   position: relative;
   background: #fff; border-radius: 22px; padding: 30px 26px;
-  box-shadow: 0 8px 26px rgba(0, 0, 65, .07);
+  box-shadow: 0 8px 26px rgba(255, 108, 0, .07);
   border: 2px solid transparent;
   display: grid; gap: 4px;
   transition: transform .3s, box-shadow .3s,
@@ -2803,7 +2803,7 @@ button:disabled {
   position: relative; overflow: hidden;
   text-align: center; background: #fff;
   border-radius: 30px; padding: 64px 30px;
-  box-shadow: 0 16px 44px rgba(0, 0, 65, .09);
+  box-shadow: 0 16px 44px rgba(255, 108, 0, .09);
   transition: opacity .65s cubic-bezier(.22,1,.36,1), transform .65s cubic-bezier(.22,1,.36,1);
 }
 .wk-abschluss h2 {
@@ -3016,7 +3016,7 @@ body.liest-video .app > main { padding-top: 14px; }
   border-radius: 20px;
   padding: 18px;
   margin-top: 16px;
-  box-shadow: 0 6px 22px rgba(0, 0, 65, .07);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .07);
 }
 
 .werkzeug-gruppe { display: grid; gap: 8px; }
@@ -3204,7 +3204,7 @@ body.liest-video .text-pane .line.active {
   background: rgba(255, 255, 255, .96);
   backdrop-filter: blur(12px);
   border-top: 1px solid var(--line);
-  box-shadow: 0 -4px 20px rgba(0, 0, 65, .07);
+  box-shadow: 0 -4px 20px rgba(255, 108, 0, .07);
 }
 
 
@@ -4095,7 +4095,7 @@ body.liest-video .word-card {
   border-radius: 22px;
   padding: 24px;
   margin-bottom: 18px;
-  box-shadow: 0 6px 22px rgba(0, 0, 65, .06);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .06);
 }
 .bereich-kopf { margin-bottom: 18px; }
 .bereich-kopf h2 {
@@ -4794,7 +4794,7 @@ body.liest-video .word-card {
   font-weight: 800;
   font-size: clamp(12px, 3.6vw, 15px);
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 0, 65, .1);
+  box-shadow: 0 3px 10px rgba(255, 108, 0, .1);
   animation: fallen linear forwards;
 
   /* Ohne das wartet iOS ~300ms auf einen moeglichen Doppeltipp.
@@ -5264,7 +5264,7 @@ body.liest-video .word-card {
   font-size: 13px;
   font-weight: 700;
   color: var(--navy);
-  box-shadow: 0 3px 12px rgba(0, 0, 65, .14);
+  box-shadow: 0 3px 12px rgba(255, 108, 0, .14);
   animation: hinweis-rein .35s ease-out;
 }
 @keyframes hinweis-rein {
@@ -5294,7 +5294,7 @@ body.liest-video .word-card {
   font-size: 13px;
   line-height: 1.5;
   color: var(--navy);
-  box-shadow: 0 3px 12px rgba(0, 0, 65, .12);
+  box-shadow: 0 3px 12px rgba(255, 108, 0, .12);
 }
 
 /* ==========================================================
@@ -5311,7 +5311,7 @@ body.liest-video .word-card {
   backdrop-filter: saturate(180%) blur(16px);
   -webkit-backdrop-filter: saturate(180%) blur(16px);
   border-top: 1px solid rgba(0, 0, 65, .06);
-  box-shadow: 0 -6px 24px rgba(0, 0, 65, .06);
+  box-shadow: 0 -6px 24px rgba(255, 108, 0, .06);
   flex-wrap: nowrap;
 }
 
@@ -6132,11 +6132,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   margin-top: 16px;
   padding: 10px 0 4px;
   border-radius: 20px;
-  /* var(--flaeche) statt eines eigenen Fast-Weiss: Seit der
-     Seitengrund getoent ist, verschwand das alte #faf7f2 darin – die
-     Route hatte keine Kante mehr. */
-  background: var(--flaeche);
-  border: 1px solid var(--line);
+  /* Etwas tiefer als --flaeche: Die Route ist die einzige Flaeche,
+     auf der wieder weisse Karten liegen – sie braucht mehr Abstand
+     nach oben UND nach unten als ein Eingabefeld. */
+  background: #f2ebe0;
+  border: 1px solid #e8ded0;
   overflow: hidden;
 }
 
@@ -6188,7 +6188,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   place-items: center;
   border-radius: 50%;
   background: #ece3d5;
-  border: 4px solid var(--flaeche); /* muss die Feldfarbe der Route treffen */
+  border: 4px solid #f2ebe0; /* muss die Feldfarbe der Route treffen */
   color: #fff;
 }
 .punkt-fertig { background: var(--success); }
@@ -6240,7 +6240,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   border-radius: 16px;
   background: var(--card);
   text-align: left;
-  box-shadow: 0 1px 3px rgba(0, 0, 65, .04);
+  /* Derselbe Schein wie bei den Karten auf der Seite.
+     Ausgerechnet: Route (#f5f1ea) gegen Karte (#ffffff) sind 1,13 –
+     als Helligkeitsstufe unsichtbar. Der Rand allein trug die
+     Trennung, und das war zu wenig. */
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .10);
   cursor: pointer;
 }
 .etappe-karte:active { transform: scale(.99); }
@@ -6386,7 +6390,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .ansicht-schalter button.aktiv {
   background: var(--card);
   color: var(--navy);
-  box-shadow: 0 1px 3px rgba(0, 0, 65, 0.1);
+  box-shadow: 0 1px 3px rgba(255, 108, 0, 0.1);
 }
 
 /* ===== Hörtexte und Lesetexte =====
@@ -6900,7 +6904,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .deck .deck-aktiv {
   background: var(--card);
   color: var(--navy);
-  box-shadow: 0 1px 4px rgba(0, 0, 65, .1);
+  box-shadow: 0 1px 4px rgba(255, 108, 0, .1);
 }
 .deck-zahl {
   display: inline-block;
@@ -7958,8 +7962,10 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   gap: 14px;
   width: 100%;
   text-align: left;
-  box-shadow: none;
   cursor: pointer;
+  /* KEIN "box-shadow: none": Die Klasse steht zusammen mit
+     .start-karte am selben Element und kommt spaeter in der Datei –
+     ein none haette deren Schein still abgeschaltet. */
 }
 .leitfaden-text { flex: 1; min-width: 0; }
 .leitfaden-text h2 {
@@ -8023,8 +8029,103 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 
 
 /* ===== Wann bekommt eine Karte den orangen Schein? =====
-   Karten, die direkt auf dem getoenten Seitengrund stehen, bekommen
-   ihn – er ersetzt die Kante, die sie auf reinem Weiss gebraucht
-   haetten. Karten INNERHALB einer Karte (Etappen in der Route,
-   Videozeilen, Bausteine) bekommen ihn nicht: Dort trennt schon der
-   Rand, und ein zweiter Schatten machte die Seite unruhig. */
+   Jede Karte, die auf einer getoenten Flaeche liegt – auf dem
+   Seitengrund ebenso wie im Feld der Reiseroute. Der Schein ersetzt
+   die Kante, die sie auf reinem Weiss gehabt haette.
+
+   Warum nicht "alles ausser verschachtelt": Das war die erste
+   Regel, und sie ging schief. Gemessen liegen Seite, Routenfeld und
+   Karte alle bei rund 1,1 zu 1 – als Helligkeitsstufe unsichtbar.
+   Wo kein Helligkeitsunterschied ist, muss der Schatten die Arbeit
+   machen, egal wie tief das Element steckt.
+
+   Ohne Schein bleiben nur Zeilen IN einer weissen Karte
+   (Videozeilen, Bausteine): Dort steht Weiss auf Weiss, und der
+   Rand reicht. */
+
+/* ===== Laufende Übungen stehen vertikal mittig =====
+   Lektion, Trainerrunde und Spiele benutzen dieselben zwei
+   Container – deshalb reicht hier eine Regel für alle drei.
+
+   Zentriert wird der ganze Stapel samt Fortschrittsleiste, nicht
+   nur die Karte. Der Grund ist Robustheit: Was unter der Leiste
+   steht, ist je nach Ansicht ein anderes (eine Karte, ein Spielfeld,
+   Karte plus Abbrechen-Knopf). Jede Regel, die nur "den Inhalt"
+   greifen wollte, hätte für einen der drei Fälle danebengelegen.
+
+   100dvh statt 100vh: Auf dem Handy zählt vh die eingeklappte
+   Adressleiste mit, dvh nicht – sonst stünde die Karte dort zu tief. */
+body.lektion-laeuft .lessons,
+.training-stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100dvh - 200px);
+}
+
+/* Die Leiste oben behält ihren Abstand zur Karte, statt sich im
+   Freiraum mit zu strecken. */
+body.lektion-laeuft .lessons > .player-top,
+.training-stage > .player-top,
+.training-stage > .lern-fortschritt {
+  flex: 0 0 auto;
+}
+
+/* ---------- Das Fragezeichen in der Wiederhol-Karte ---------- */
+.bereich-wiederholen { position: relative; }
+.wieder-info {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
+}
+.wieder-info:hover { border-color: var(--primary); color: var(--primary-dark); }
+
+/* Die Erklärung spannt sich über die ganze Karte – sie steht unter
+   allem anderen, nicht neben der Zahl. */
+.wieder-erklaerung {
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  /* Die Erklaerung steht im Markup direkt hinter dem Fragezeichen –
+     also weit oben. In der Karte gehoert sie ans Ende, unter alles
+     andere. In einem Flex-Container erledigt das "order". */
+  order: 99;
+  margin-top: 14px;
+  padding: 15px 16px;
+  border-radius: 15px;
+  background: var(--flaeche);
+}
+.wieder-erklaerung h3 {
+  margin: 0 0 9px;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.wieder-erklaerung p {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.wieder-erklaerung p:last-child { margin-bottom: 0; }
+.wieder-erklaerung b { color: var(--navy); font-weight: 900; }
+
+/* Das Fragezeichen sitzt auch in der Spotify-Karte oben rechts */
+.spotify-box { position: relative; }
+.spotify-box .wieder-info { top: 0; right: 0; }
+.spotify-box .wieder-erklaerung { order: 0; }
