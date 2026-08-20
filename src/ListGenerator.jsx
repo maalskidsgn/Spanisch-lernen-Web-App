@@ -6,8 +6,8 @@ import { usePremium } from './premium.js'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
-export default function ListGenerator({ vocab, setVocab }) {
-  const [thema, setThema] = useState('')
+export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
+  const [thema, setThema] = useState(startThema)
   const [fertigThema, setFertigThema] = useState('') // Thema der fertigen Liste
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -28,9 +28,12 @@ export default function ListGenerator({ vocab, setVocab }) {
    * Holt eine Liste. Ohne Thema übernimmt die KI die Auswahl und
    * richtet sich nach dem, was schon im Trainer liegt.
    */
-  async function generieren(e, automatisch = false) {
+  async function generieren(e, automatisch = false, vorgabe = null) {
     e?.preventDefault()
-    if ((!automatisch && !thema.trim()) || uebrig <= 0) return
+    // vorgabe schlaegt den Zustand: Beim Aufruf direkt nach dem
+    // Setzen ist setThema() noch nicht durchgelaufen.
+    const gefragt = (vorgabe ?? thema).trim()
+    if ((!automatisch && !gefragt) || uebrig <= 0) return
     setLaden(true)
     setFehler('')
     setErfolg(false)
@@ -42,7 +45,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         // Die schon gesammelten Wörter mitschicken: so kommen keine
         // Dopplungen zurück und die Liste passt zum eigenen Stand.
         body: JSON.stringify({
-          thema: automatisch ? '' : thema.trim(),
+          thema: automatisch ? '' : gefragt,
           bekannt: Object.keys(vocab),
         }),
       })
@@ -50,7 +53,7 @@ export default function ListGenerator({ vocab, setVocab }) {
       if (!res.ok) throw new Error(data.error)
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
       setBegruendung(data.begruendung || '')
-      setFertigThema(data.thema || thema.trim())
+      setFertigThema(data.thema || gefragt)
       zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
       setUebrig(verbleibend(premium))
     } catch (err) {
@@ -59,6 +62,16 @@ export default function ListGenerator({ vocab, setVocab }) {
       setLaden(false)
     }
   }
+
+  // Kam das Thema von der Startseite, ist die Frage schon gestellt –
+  // dann gleich generieren, statt den Nutzer noch einmal tippen zu
+  // lassen. Das Thema wandert nur EINMAL herein: startThema aendert
+  // sich erst wieder, wenn drueben etwas Neues eingegeben wird.
+  useEffect(() => {
+    if (!startThema) return
+    setThema(startThema)
+    generieren(null, false, startThema)
+  }, [startThema]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function uebernehmen() {

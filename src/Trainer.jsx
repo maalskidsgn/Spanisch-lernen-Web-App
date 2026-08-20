@@ -47,6 +47,7 @@ export default function Trainer({
   bausteinStand,
   setBausteinStand,
   lessonProgress,
+  listenVorgabe = '',
 }) {
   const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
@@ -550,7 +551,7 @@ export default function Trainer({
 
       {/* ============ 3. NEUE WÖRTER ============ */}
       <section className="bereich">
-        <ListGenerator vocab={vocab} setVocab={setVocab} />
+        <ListGenerator vocab={vocab} setVocab={setVocab} startThema={listenVorgabe} />
       </section>
 
       {/* ============ 4. ALLE WÖRTER ============ */}

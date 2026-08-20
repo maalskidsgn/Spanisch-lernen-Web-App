@@ -25,7 +25,7 @@ import VocabGenerator from './VocabGenerator.jsx'
 import Settings from './Settings.jsx'
 import Lessons from './Lessons.jsx'
 import Home from './Home.jsx'
-import { LEKTIONEN } from './lektionen.js'
+import { naechsteLektion } from './lektionen.js'
 
 // Der Name der App – an dieser einen Stelle änderbar
 export const APP_NAME = 'Habloo'
@@ -188,6 +188,10 @@ export default function App() {
   const [video, setVideo] = useState(null) // { videoId, title, lines }
   const [vocab, setVocab] = useState(loadVocab)
   const [bausteinStand, setBausteinStand] = useState(loadBausteine)
+  // Die Videofrage von der Startseite zur Mediathek durchreichen
+  const [videoFrage, setVideoFrage] = useState('')
+  // Das Wortlisten-Thema von der Startseite zum Trainer durchreichen
+  const [listenFrage, setListenFrage] = useState('')
   const [selected, setSelected] = useState(null) // { word, translation, loading }
   const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
   const [genOpen, setGenOpen] = useState(false) // Vokabelgenerator-Panel offen?
@@ -817,9 +821,19 @@ export default function App() {
               woerter: Object.keys(vocab).length,
               videos: savedVideos.length,
             }}
-            nextLesson={LEKTIONEN.find((l) => !lessonProgress[l.id]?.fertig) || null}
+            nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
+            vocab={vocab}
+            setVocab={setVocab}
+            onVideoFrage={(frage) => {
+              setVideoFrage(frage)
+              setView('videos')
+            }}
+            onListenFrage={(frage) => {
+              setListenFrage(frage)
+              setView('trainer')
+            }}
           />
         </main>
       )}
@@ -833,6 +847,7 @@ export default function App() {
             bausteinStand={bausteinStand}
             setBausteinStand={setBausteinStand}
             lessonProgress={lessonProgress}
+            listenVorgabe={listenFrage}
           />
         </main>
       )}
@@ -846,6 +861,7 @@ export default function App() {
             onLoadUrl={openUrl}
             onAddVocab={addVocabWords}
             vocab={vocab}
+            sucheVorgabe={videoFrage}
           />
         </main>
       )}

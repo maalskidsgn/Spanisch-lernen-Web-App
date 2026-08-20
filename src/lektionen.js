@@ -8811,6 +8811,21 @@ export function kommtBald(modul) {
   return lektionenVon(modul).length === 0
 }
 
+/**
+ * Alle Lektionen in KURSREIHENFOLGE.
+ *
+ * LEKTIONEN selbst steht in der Reihenfolge, in der geschrieben
+ * wurde – an Position 0 liegt Kurs-Nr. 5, Kurs-Nr. 1 liegt an
+ * Position 26. Wer "die naechste offene Lektion" sucht, muss diese
+ * Liste nehmen; ein find() ueber LEKTIONEN liefert die falsche.
+ */
+export const KURSFOLGE = [...LEKTIONEN].sort((a, b) => a.kursNr - b.kursNr)
+
+/** Die naechste Lektion, die noch nicht geschafft ist. */
+export function naechsteLektion(lessonProgress = {}) {
+  return KURSFOLGE.find((l) => !lessonProgress?.[l.id]?.fertig) ?? null
+}
+
 export function lektionenVon(modul) {
   return LEKTIONEN
     .filter((l) => l.kursNr >= modul.von && l.kursNr <= modul.bis)

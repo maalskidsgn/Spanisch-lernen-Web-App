@@ -7345,3 +7345,264 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
    Balken. Vorher blieb allein der Balken orange und sah aus,
    als waere doch noch etwas offen. */
 .modul-fertig .xp-bar-fill { background: var(--success); }
+
+/* ===================================================================
+   Startseite
+   =================================================================== */
+.start-gruss { margin-bottom: 6px; font-size: 2.6rem; }
+.home .intro { margin-bottom: 22px; font-size: 15px; }
+
+.start-karte {
+  margin-bottom: 16px;
+  padding: 20px 18px;
+  border: 1.5px solid var(--line);
+  border-radius: 22px;
+  background: var(--card);
+}
+
+/* ---------- 1. Weiterlernen ---------- */
+.start-lektion {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.mini-route {
+  flex-shrink: 0;
+  width: 64px;
+  height: 150px;
+}
+.mini-weg {
+  fill: none;
+  stroke: #e7ded0;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.mini-weg-fertig {
+  fill: none;
+  stroke: #d9d0c2;
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.mini-punkt { fill: #e2d9cb; stroke: #fff; stroke-width: 4; }
+.mini-punkt-dran { fill: var(--primary); }
+.mini-punkt-fertig { fill: var(--success); }
+.mini-haken {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.start-lektion-text { flex: 1; min-width: 0; }
+.start-marke {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.start-lektion-text h2 {
+  margin: 3px 0 4px;
+  font-size: 1.42rem;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  color: var(--navy);
+}
+.start-lektion-text > p {
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.start-lektion-stand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.start-lektion-stand .goal-bar { flex: 1; min-width: 50px; height: 10px; display: block; }
+.start-lektion-zahl {
+  flex-shrink: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.start-lektion-zahl b { font-weight: 900; color: var(--navy); }
+
+.start-weiter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 18px;
+  border: none;
+  border-radius: 15px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.start-weiter:active { transform: scale(.99); }
+
+/* ---------- 2. Schnellzugriff ---------- */
+.start-abschnitt {
+  margin: 0 0 14px;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+.start-abschnitt-sub {
+  margin: -10px 0 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.schnell-paar {
+  display: grid;
+  /* minmax(0, 1fr) statt 1fr: Eine Grid-Spalte ist sonst mindestens
+     so breit wie ihr Inhalt – das Eingabefeld schob die zweite Karte
+     ueber den Rand der Karte hinaus. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+/* Auf schmalen Geraeten stehen zwei Felder nebeneinander zu eng –
+   dann untereinander. */
+@media (max-width: 430px) {
+  .schnell-paar { grid-template-columns: 1fr; }
+}
+.schnell {
+  padding: 15px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 17px;
+  background: #fdfcfa;
+}
+.schnell h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.schnell p {
+  margin: 3px 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.schnell-feld {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 5px 5px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 99px;
+  background: var(--card);
+}
+.schnell-feld:focus-within { border-color: var(--primary); }
+.schnell-feld input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 8px 0;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.schnell-feld input:focus { outline: none; }
+.schnell-feld button {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  box-shadow: none;
+  cursor: pointer;
+}
+.schnell-feld button:disabled { opacity: .4; cursor: default; }
+.schnell-feld button:active:not(:disabled) { transform: scale(.94); }
+
+/* ---------- 3. Die Woche ---------- */
+.woche-reihe {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  position: relative;
+}
+/* Die Linie liegt hinter den Kreisen, auf ihrer Hoehe. */
+.woche-reihe::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 13px;
+  height: 2px;
+  /* Etwas kraeftiger als --line: Auf der weissen Karte verschwand
+     die Linie zwischen den Kreisen sonst voellig. */
+  background: #e3ddd4;
+}
+.woche-punkt {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+.woche-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.punkt-heute .woche-name { color: var(--primary); font-weight: 900; }
+.woche-kreis {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e6ddcf;
+  color: #fff;
+}
+.woche-kreis.kreis-halb { background: var(--primary); }
+.woche-kreis.kreis-voll { background: var(--success); }
+.punkt-heute .woche-kreis { box-shadow: 0 0 0 4px #ffe4cd; }
+
+.start-zahlen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 16px 0;
+  border: 1.5px solid var(--line);
+  border-radius: 17px;
+  background: #fdfcfa;
+}
+.start-zahl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+/* Duenne Trennlinien statt drei einzelner Kaesten */
+.start-zahl + .start-zahl { border-left: 1.5px solid var(--line); }
+.start-zahl b {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--navy);
+}
+.start-zahl span {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+}

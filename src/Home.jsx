@@ -1,236 +1,226 @@
-import { levelFromXp, levelName, xpHeute } from './gamification.js'
-import { MODULE, LEKTIONEN, lektionenVon, baueSchritte } from './lektionen.js'
+import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
 import { letzteWoche } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
-import {
-  IconLektion, IconKarten, IconMediathek, IconMehr,
-  IconSerie, IconLevel, IconPfeil,
-} from './icons.jsx'
+import { IconPfeil } from './icons.jsx'
 
 // Die Startseite.
 //
-// AUFGERAEUMTER START: Zurzeit sind nur die Gruppenstunde und die
-// Wochenuebersicht sichtbar. Alles andere ist NICHT geloescht,
-// sondern haengt an diesem Schalter – zurueckholen ist eine Zeile.
-// Die Wege dorthin gibt es weiterhin ueber die untere Leiste.
-const NUR_KERN = true
-export default function Home({ progress, settings, counts, nextLesson, lessonProgress = {}, onNavigate }) {
-  const level = levelFromXp(progress.xp)
-  const heute = xpHeute(progress)
-  const zielProzent = Math.min(100, Math.round((heute / settings.tagesziel) * 100))
+// Drei Karten, in dieser Reihenfolge: weiterlernen, schnell etwas
+// erzeugen, und was diese Woche passiert ist. Das ist die Antwort
+// auf "Was mache ich jetzt?" – von der klarsten zur lockersten.
+//
+// Die beiden Felder im Schnellzugriff erzeugen NICHTS selbst. Sie
+// nehmen die Frage entgegen und reichen sie an die Stelle weiter,
+// die es ohnehin kann: Wortlisten an den Trainer, Videos an die
+// Mediathek. Sonst gaebe es zwei Stellen, an denen dasselbe
+// entsteht – und eine davon waere irgendwann veraltet.
 
-  // Alles, was die Heute-Karte zeigt, aus der Lektion selbst ableiten –
-  // damit die Karte nicht luegt, wenn sich die Lektion aendert.
-  const heuteKarte = nextLesson ? beschreibeLektion(nextLesson) : null
+// Die Gruppenstunde steht nicht mehr auf dem Start. Ihr Bauplan ist
+// unten erhalten: Diese eine Zeile holt sie zurueck.
+const PRAXIS_ZEIGEN = false
+
+export default function Home({
+  progress,
+  counts,
+  nextLesson,
+  lessonProgress = {},
+  onNavigate,
+  onVideoFrage,
+  onListenFrage,
+}) {
+  const [listeFeld, setListeFeld] = useState('')
+  const [videoFeld, setVideoFeld] = useState('')
+
   const modul = nextLesson
     ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
     : null
   const modulListe = modul ? lektionenVon(modul) : []
+  const modulFertig = modulListe.filter((l) => lessonProgress[l.id]?.fertig).length
 
   const woche = letzteWoche()
   const wochenSumme = woche.reduce((s, t) => s + t.anzahl, 0)
-  const maxTag = Math.max(1, ...woche.map((t) => t.anzahl))
+
+  // Nur echte Lektionen zaehlen. Im selben Objekt liegen auch die
+  // Pruefstationen – die sind Abschluesse, keine Lektionen.
+  const lektionenFertig = Object.keys(lessonProgress).filter(
+    (id) => lessonProgress[id]?.fertig && !id.startsWith('station-')
+  ).length
 
   return (
     <div className="trainer home">
-      <h1 className="trainer-titel">
-        ¡<span className="accent">Hola</span>!
+      <h1 className="trainer-titel start-gruss">
+        ¡Hola<span className="accent">!</span>
       </h1>
-      {!NUR_KERN && (
-        <div className="hero-row">
-          <span className="hero-chip"><IconSerie groesse={15} /> {progress.streak} Tage</span>
-          <span className="hero-chip"><IconLevel groesse={15} /> Level {level} · {levelName(level)}</span>
-        </div>
-      )}
+      <p className="intro">Bereit für deinen nächsten Schritt?</p>
 
-      {/* ============ 1. HEUTE, FORTSCHRITT, VOKABELN ============ */}
-      {!NUR_KERN && (
-        <>
-      {/* Kein Plan, keine Liste: zwei grosse Knoepfe. */}
-      {/* ============ 1. HEUTE ============ */}
-      {/* Eine Karte statt einer Karte voller Punkte: Der Startbildschirm
-          hat genau eine Aufgabe – in die naechste Lektion bringen. Was
-          gleich passiert, steht drauf. */}
-      {heuteKarte ? (
-        <button className="heute" onClick={() => onNavigate('lektionen')}>
-          <span className="heute-kopf">
-            <span className="heute-marke">
-              Lektion {nextLesson.kursNr} · {nextLesson.niveau}
-            </span>
-            <span className="heute-dauer">ca. {heuteKarte.minuten} Min</span>
+      {/* ============ 1. WEITERLERNEN ============ */}
+      <section className="start-karte start-lektion">
+        <MiniRoute fertig={!nextLesson} />
+        <div className="start-lektion-text">
+          <span className="start-marke">
+            {nextLesson ? 'Nächste aktive Lektion' : 'Alles geschafft'}
           </span>
-          <span className="heute-titel">{nextLesson.titel}</span>
-          <span className="heute-lernst">{heuteKarte.lernst}</span>
-
-          <span className="heute-zeilen">
-            {heuteKarte.zeilen.map((z) => (
-              <span className="heute-zeile" key={z}>
-                <i className="heute-punkt" aria-hidden="true" />
-                {z}
-              </span>
-            ))}
-          </span>
-
-          <span className="heute-los">Los geht’s</span>
-        </button>
-      ) : (
-        <button className="heute heute-fertig" onClick={() => onNavigate('lektionen')}>
-          <span className="heute-titel">Alle Lektionen geschafft</span>
-          <span className="heute-lernst">
-            Neue kommen laufend dazu – bis dahin halten dich die Wörter fit.
-          </span>
-        </button>
-      )}
-
-      {/* Der Modulfortschritt als schmaler Streifen: Uebersicht ohne
-          eigene Bildschirmflaeche */}
-      {modul && (
-        <button className="streifen" onClick={() => onNavigate('lektionen')}>
-          <span className="streifen-titel">{modul.titel}</span>
-          <span className="streifen-punkte">
-            {modulListe.map((l) => (
-              <i
-                key={l.id}
-                className={
-                  lessonProgress[l.id]?.fertig
-                    ? 'pkt pkt-fertig'
-                    : l.id === nextLesson?.id
-                      ? 'pkt pkt-dran'
-                      : 'pkt'
-                }
-              />
-            ))}
-          </span>
-          <span className="streifen-alle">
-            Alle {modulListe.length} Lektionen ansehen <IconPfeil groesse={13} />
-          </span>
-        </button>
-      )}
-
-      <div className="start-aktionen start-aktionen-schmal">
-        <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
-          <span className="start-aktion-icon" aria-hidden="true"><IconKarten groesse={26} /></span>
-          <span className="start-aktion-titel">Vokabeln wiederholen</span>
-          <span className="start-aktion-sub">
-            {counts.faellig > 0 ? `${counts.faellig} Wörter fällig` : 'Nichts fällig – stark!'}
-          </span>
-        </button>
-      </div>
-
-      {/* Tagesziel als schmale Zeile darunter */}
-      <div className="ziel-zeile start-ziel">
-        <div className="lern-balken">
-          <div className="lern-balken-voll" style={{ width: zielProzent + '%' }} />
-        </div>
-        <span className="ziel-text">
-          {zielProzent >= 100
-            ? `${heute} Tages-XP · Ziel erreicht`
-            : `${heute} von ${settings.tagesziel} Tages-XP`}
-        </span>
-      </div>
-        </>
-      )}
-
-      {/* ============ 2. UNTERRICHT MIT TUTORIN ============ */}
-      <Gruppenstunde onNavigate={onNavigate} />
-
-      {/* ============ 3. DEINE WOCHE ============ */}
-      <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Deine Woche</h2>
+          <h2>{nextLesson ? nextLesson.titel : 'Alle 150 Lektionen durch'}</h2>
           <p>
-            {wochenSumme === 0
-              ? 'Jede fertige Einheit zählt hier.'
-              : `${wochenSumme} ${wochenSumme === 1 ? 'Einheit' : 'Einheiten'} diese Woche`}
+            {nextLesson
+              ? (nextLesson.grammatik?.[0] ?? nextLesson.beschreibung)
+              : 'Halte die Sprache mit dem Trainer und der Mediathek wach.'}
           </p>
-        </div>
-        {/* Ohne Daten waeren 150 px Hoehe nur ein grosses Loch unter
-            der Ueberschrift – dann faellt das Diagramm flacher aus. */}
-        <div
-          className={'woche-diagramm' + (wochenSumme === 0 ? ' woche-diagramm-leer' : '')}
-          role="img"
-          aria-label={`Lerneinheiten der letzten 7 Tage, insgesamt ${wochenSumme}`}
-        >
-          {woche.map((t, i) => (
-            <div key={i} className="woche-tag">
-              <span className="woche-wert">{t.anzahl > 0 ? t.anzahl : ''}</span>
-              <div
-                className={'woche-balken' + (t.istHeute ? ' balken-heute' : '')}
-                style={{ height: Math.max(6, (t.anzahl / maxTag) * 100) + '%' }}
-              />
-              <span className={'woche-label' + (t.istHeute ? ' label-heute' : '')}>
-                {t.istHeute ? 'Heute' : t.label}
+
+          {nextLesson && modul && (
+            <div className="start-lektion-stand">
+              <span className="xp-bar goal-bar">
+                <span
+                  className="xp-bar-fill"
+                  style={{
+                    width: (modulFertig / modulListe.length) * 100 + '%',
+                    display: 'block',
+                  }}
+                />
+              </span>
+              <span className="start-lektion-zahl">
+                <b>{modulFertig}</b> / {modulListe.length} Lektionen
               </span>
             </div>
-          ))}
+          )}
+
+          <button
+            className="start-weiter"
+            onClick={() => onNavigate(nextLesson ? 'lektionen' : 'trainer')}
+          >
+            {nextLesson ? 'Weiterlernen' : 'Zum Trainer'}
+            <IconPfeil groesse={18} />
+          </button>
         </div>
       </section>
 
-      {/* ============ 4. ENTDECKEN ============ */}
-      {!NUR_KERN && (
-      <section className="bereich">
-        <div className="bereich-kopf">
-          <h2>Entdecken</h2>
-        </div>
-        <div className="start-aktionen">
-          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('lektionen')}>
-            <span className="start-aktion-icon" aria-hidden="true"><IconLektion groesse={24} /></span>
-            <span className="start-aktion-titel">Lektionen</span>
-            <span className="start-aktion-sub">
-              {nextLesson ? `Weiter: ${nextLesson.titel}` : 'Alle geschafft ✓'}
-            </span>
-          </button>
-          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('trainer')}>
-            <span className="start-aktion-icon" aria-hidden="true"><IconKarten groesse={24} /></span>
-            <span className="start-aktion-titel">Trainer</span>
-            <span className="start-aktion-sub">
-              {counts.faellig > 0 ? `${counts.faellig} Wörter fällig` : `${counts.woerter} Wörter`}
-            </span>
-          </button>
-          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('videos')}>
-            <span className="start-aktion-icon" aria-hidden="true"><IconMediathek groesse={24} /></span>
-            <span className="start-aktion-titel">Mediathek</span>
-            <span className="start-aktion-sub">Videos, Songs & Bücher</span>
-          </button>
-          <button className="start-aktion start-aktion-zweit" onClick={() => onNavigate('mehr')}>
-            <span className="start-aktion-icon" aria-hidden="true"><IconMehr groesse={24} /></span>
-            <span className="start-aktion-titel">Mehr</span>
-            <span className="start-aktion-sub">Abo, Ziele & Daten</span>
-          </button>
+      {/* ============ 2. SCHNELLZUGRIFF ============ */}
+      <section className="start-karte">
+        <h2 className="start-abschnitt">Schnellzugriff</h2>
+        <div className="schnell-paar">
+          <SchnellFeld
+            titel="Vokabel-Listengenerator"
+            text="Neue Wörter nach Thema"
+            platzhalter="z. B. Restaurant, Reisen …"
+            wert={listeFeld}
+            onWert={setListeFeld}
+            onAbsenden={() => onListenFrage(listeFeld.trim())}
+          />
+          <SchnellFeld
+            titel="Video finden"
+            text="Passende spanische Videos"
+            platzhalter="z. B. Ernährung, Schlaf …"
+            wert={videoFeld}
+            onWert={setVideoFeld}
+            onAbsenden={() => onVideoFrage(videoFeld.trim())}
+          />
         </div>
       </section>
-      )}
+
+      {/* ============ 3. DIE WOCHE ============ */}
+      <section className="start-karte">
+        <h2 className="start-abschnitt">Dein Lernfortschritt</h2>
+        <p className="start-abschnitt-sub">Diese Woche</p>
+
+        <ol className="woche-reihe" aria-label={`${wochenSumme} Einheiten diese Woche`}>
+          {woche.map((tag, i) => (
+            <li key={i} className={'woche-punkt' + (tag.istHeute ? ' punkt-heute' : '')}>
+              <span className="woche-name">{tag.istHeute ? 'Heute' : tag.label}</span>
+              <span className={'woche-kreis' + stufe(tag.anzahl)}>
+                {tag.anzahl >= 2 && (
+                  <svg viewBox="0 0 24 24" width="13" height="13">
+                    <path
+                      d="M5 12.5l5 5L19 7"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </span>
+            </li>
+          ))}
+        </ol>
+
+        <div className="start-zahlen">
+          <div className="start-zahl">
+            <b>{progress.streak}</b>
+            <span>Tage Serie</span>
+          </div>
+          <div className="start-zahl">
+            <b>{counts.woerter}</b>
+            <span>Wörter</span>
+          </div>
+          <div className="start-zahl">
+            <b>{lektionenFertig}</b>
+            <span>Lektionen</span>
+          </div>
+        </div>
+      </section>
+
+      {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
     </div>
   )
 }
 
+/** Eines der beiden Felder im Schnellzugriff. */
+function SchnellFeld({ titel, text, platzhalter, wert, onWert, onAbsenden }) {
+  return (
+    <form
+      className="schnell"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (wert.trim()) onAbsenden()
+      }}
+    >
+      <h3>{titel}</h3>
+      <p>{text}</p>
+      <div className="schnell-feld">
+        <input
+          value={wert}
+          onChange={(e) => onWert(e.target.value)}
+          placeholder={platzhalter}
+        />
+        <button type="submit" disabled={!wert.trim()} aria-label={titel + ' starten'}>
+          <IconPfeil groesse={17} />
+        </button>
+      </div>
+    </form>
+  )
+}
+
+/** Wie voll ist der Tageskreis? Nichts, angefangen, erledigt. */
+function stufe(anzahl) {
+  if (anzahl >= 2) return ' kreis-voll'
+  if (anzahl === 1) return ' kreis-halb'
+  return ''
+}
+
 /**
- * Was steht auf der Heute-Karte?
+ * Die kleine Vorschau des Lernpfads.
  *
- * Alles wird aus der Lektion berechnet, nichts gepflegt: So kann die
- * Karte nicht veralten, wenn sich eine Lektion aendert.
+ * Bewusst ohne echte Daten: Sie zeigt nicht den Weg, sondern das
+ * Bild davon – drei Halte, einer aktiv, einer geschafft. Ein
+ * verkleinerter echter Pfad waere bei 22 Etappen ein Gekritzel.
  */
-function beschreibeLektion(l) {
-  const schritte = baueSchritte(l)
-  // Grob gemessen: ein Schritt braucht rund 15 Sekunden.
-  const minuten = Math.max(3, Math.round((schritte.length * 15) / 60))
-
-  const zeilen = [`${l.items.length} neue Wörter`]
-
-  const sprecher = [...new Set((l.dialog ?? []).map((z) => z.sprecher))]
-  if (sprecher.length === 2) zeilen.push(`Dialog mit ${sprecher[0]} und ${sprecher[1]}`)
-  else if (sprecher.length > 2) zeilen.push(`Dialog mit ${sprecher.length} Personen`)
-
-  // Die Wiederholung sichtbar machen – sie ist der Grund, warum der
-  // Kurs ein Kurs ist und nicht 150 Einzelstuecke.
-  const quellen = (l.wiederholt ?? [])
-    .map((id) => LEKTIONEN.find((x) => x.id === id)?.titel)
-    .filter(Boolean)
-  if (quellen.length) zeilen.push(`Wiederholung aus: ${quellen.join(', ')}`)
-
-  return { minuten, lernst: l.grammatik?.[0] ?? l.beschreibung, zeilen }
+function MiniRoute({ fertig = false }) {
+  return (
+    <svg className="mini-route" viewBox="0 0 64 150" aria-hidden="true">
+      <path d="M32 24 C 32 60, 44 66, 44 84 S 32 112, 32 126" className="mini-weg" />
+      <path
+        d={fertig ? 'M32 24 C 32 60, 44 66, 44 84 S 32 112, 32 126' : 'M32 24 C 32 60, 44 66, 44 84'}
+        className="mini-weg-fertig"
+      />
+      <circle cx="32" cy="24" r="13" className="mini-punkt mini-punkt-dran" />
+      <circle cx="44" cy="84" r="13" className="mini-punkt mini-punkt-fertig" />
+      <path d="M39 84 l3.5 3.5 6.5-7" className="mini-haken" />
+      <circle cx="32" cy="126" r="12" className="mini-punkt" />
+    </svg>
+  )
 }
 
 /**
