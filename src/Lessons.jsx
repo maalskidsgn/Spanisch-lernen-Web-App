@@ -93,6 +93,13 @@ export function hebeHervor(satz, wort) {
     // miedo". Die ganze Gruppe findet sich nicht, das Substantiv
     // schon – es ist der Teil, der sich nicht veraendert.
     ...wort.split(/\s+/).filter((w) => w.length > 3),
+    // Beides zusammen: "encargarse de" steht im Satz als "me encargaba
+    // del equipo". Erst das Wort aus der Gruppe loesen, dann das -se
+    // abschneiden – einzeln reicht keiner der beiden Schritte.
+    ...wort
+      .split(/\s+/)
+      .filter((w) => w.length > 3)
+      .map((w) => w.replace(/se$/, '')),
   ]
     .map((v) => v.replace(/[¿¡?!….]/g, '').replace(ARTIKEL, '').trim())
     .filter(Boolean)
