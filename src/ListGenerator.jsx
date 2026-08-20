@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 import { usePremium } from './premium.js'
+import { IconFunken } from './icons.jsx'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
@@ -114,28 +115,52 @@ export default function ListGenerator({ vocab, setVocab, startThema = '' }) {
     <div className="list-gen">
       {/* Gleicher Aufbau wie die anderen Bereiche: Überschrift,
           ein Satz zur Einordnung, dann der Inhalt */}
-      <div className="bereich-kopf">
-        <div className="kopf-zeile">
-          <h2>Neue Wörter sammeln</h2>
+      <div className="gen-kopf">
+        <span className="gen-symbol" aria-hidden="true">
+          <IconFunken groesse={24} />
+        </span>
+        <div className="gen-text">
+          <h2>KI-Listengenerator</h2>
+          <p>Erstelle neue Wortlisten zu jedem Thema.</p>
+        </div>
+        {/* Der Zaehler steht nur da, wenn er etwas zu sagen hat.
+            Bei vollem Kontingent ist er nur Zierde – kurz vor dem
+            Ende ist er die einzige Vorwarnung. */}
+        {uebrig <= 2 && (
           <span className="rest-zaehler" title="Kostenlose Listen diesen Monat">
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
-        </div>
-        <p>
-          Nenn ein Thema, und die KI stellt zwölf passende Wörter mit
-          Beispielsätzen zusammen – ohne das, was du schon kennst.
-        </p>
+        )}
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        <input
-          type="text"
-          value={thema}
-          onChange={(e) => setThema(e.target.value)}
-          placeholder="z.B. Restaurant, Fußball, Arztbesuch…"
-          disabled={laden}
-          required
-        />
+        <div className="gen-feld">
+          <input
+            type="text"
+            value={thema}
+            onChange={(e) => setThema(e.target.value)}
+            placeholder="z. B. Restaurant, Reisen, Arztbesuch …"
+            disabled={laden}
+            required
+          />
+          <button
+            type="submit"
+            className="gen-pfeil"
+            disabled={laden || !thema.trim()}
+            aria-label="Liste erstellen"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path
+                d="M4 12h15M13 6l6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
 
         <div className="wort-vorschlaege">
           {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen'].map((v) => (

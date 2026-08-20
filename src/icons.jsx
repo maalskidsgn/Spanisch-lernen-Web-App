@@ -225,3 +225,11 @@ export const IconSchloss = (p) => (
     <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
   </>} />
 )
+
+/* Funken – die KI-gestuetzte Erzeugung */
+export const IconFunken = (p) => (
+  <Icon {...p} kinder={<>
+    <path d="M13 3 15 8.5 20.5 10.5 15 12.5 13 18 11 12.5 5.5 10.5 11 8.5 13 3z" />
+    <path d="M6 15.5 6.9 17.6 9 18.5 6.9 19.4 6 21.5 5.1 19.4 3 18.5 5.1 17.6 6 15.5z" />
+  </>} />
+)

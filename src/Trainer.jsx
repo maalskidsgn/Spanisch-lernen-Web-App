@@ -223,6 +223,11 @@ export default function Trainer({
           {deck === 'woerter' ? 'Vokabeltrainer' : 'Grammatik-Trainer'}
         </span>
       </h1>
+      <p className="intro">
+        {deck === 'woerter'
+          ? 'Neue Wörter sammeln und sicher behalten.'
+          : 'Grammatik wiederholen, bis sie sitzt.'}
+      </p>
       <div className="deck" role="tablist">
         <button
           role="tab"
