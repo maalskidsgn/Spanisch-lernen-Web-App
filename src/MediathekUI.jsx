@@ -44,11 +44,19 @@ export function Kopf({ symbol, titel, text, aktion, zahl }) {
   )
 }
 
-/** Ein Suchfeld im Stil der Hauptkarte. */
-export function SuchFeld({ wert, onWert, onAbsenden, platzhalter, knopf = 'Suchen', laedt }) {
+/**
+ * Ein Suchfeld im Stil der Hauptkarte.
+ *
+ * Mit rund={true} wird aus dem beschrifteten Knopf ein runder Pfeil.
+ * Das passt ueberall dort, wo das Feld wirklich SUCHT – die
+ * Beschriftung sagt dann nichts, was der Platzhalter nicht schon
+ * sagt. Wo der Knopf etwas anderes tut (etwa "Filtern"), bleibt die
+ * Beschriftung stehen: Ein Pfeil, der filtert, waere eine Luege.
+ */
+export function SuchFeld({ wert, onWert, onAbsenden, platzhalter, knopf = 'Suchen', laedt, rund }) {
   return (
     <form
-      className="video-hero-form"
+      className={'video-hero-form' + (rund ? ' hero-form-rund' : '')}
       onSubmit={(e) => {
         e.preventDefault()
         onAbsenden()
@@ -62,9 +70,24 @@ export function SuchFeld({ wert, onWert, onAbsenden, platzhalter, knopf = 'Suche
         aria-label={platzhalter}
         disabled={laedt}
       />
-      <button type="submit" className="btn" disabled={laedt || !wert.trim()}>
-        {laedt ? 'Sucht …' : knopf}
-      </button>
+      {rund ? (
+        <button type="submit" className="hero-rund" disabled={laedt || !wert.trim()} aria-label={knopf}>
+          <svg viewBox="0 0 24 24" width="19" height="19">
+            <path
+              d="M4 12h15M13 6l6 6-6 6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      ) : (
+        <button type="submit" className="btn" disabled={laedt || !wert.trim()}>
+          {laedt ? 'Sucht …' : knopf}
+        </button>
+      )}
     </form>
   )
 }

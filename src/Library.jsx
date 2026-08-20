@@ -6,7 +6,7 @@ import Songs from './Songs.jsx'
 import {
   IconAlle, IconSprache, IconGesundheit, IconSport, IconErnaehrung,
   IconProduktiv, IconStoa, IconPsyche, IconSuche,
-  IconLesezeichen, IconStern, IconPfeil,
+  IconLesezeichen, IconPfeil,
 } from './icons.jsx'
 
 const KATEGORIE_ICONS = {
@@ -284,6 +284,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       <h1 className="lib-kopf">
         Deine <span className="accent">Mediathek</span>
       </h1>
+      <p className="lib-unter">
+        {{
+          videos: 'Finde spanische Videos, die zu deinem Niveau passen.',
+          songs: 'Spanische Songs mit mitlaufendem Text.',
+          hoertexte: 'Hörtexte mit Tonspur und Übersetzung daneben.',
+          lesetexte: 'Lesetexte auf Spanisch – die Übersetzung holst du dir mit einem Tipp.',
+        }[bereich]}
+      </p>
 
       {/* Umschalter: Videos, Songs oder Bücher */}
       <div className="chips bereich-schalter">
@@ -336,17 +344,18 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           oeffnen muessen. */}
       <Hero
         symbol={<IconSuche groesse={26} />}
-        titel="Finde dein nächstes Video"
-        text="Gib auf Deutsch ein, worüber du etwas schauen willst – wir suchen passende spanische Videos dazu."
+        titel="Video finden"
+        text="Suche nach Themen und finde passende spanische Videos."
       >
         <SuchFeld
+          rund
           wert={suchFeld}
           onWert={setSuchFeld}
           onAbsenden={() => {
             setStartBegriff(suchFeld.trim())
             setSucheOffen(true)
           }}
-          platzhalter="z.B. gesunde Ernährung, Schlaf …"
+          platzhalter="z. B. gesunde Ernährung, Schlaf …"
         />
       </Hero>
 
@@ -426,9 +435,22 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {supabaseBereit && (
         <section className="bereich">
           <Kopf
-            symbol={<IconStern groesse={19} />}
-            titel="Ausgewählte Videos"
-            zahl={bibliothek ? bibliothek.length : null}
+            symbol={<IconGesundheit groesse={19} />}
+            titel="Für dich"
+            aktion={
+              kategorie !== 'alle' ? (
+                <button
+                  className="kopf-aktion"
+                  onClick={() => {
+                    setKategorie('alle')
+                    setSichtbareVideos(SCHRITT)
+                  }}
+                >
+                  Alle ansehen <IconPfeil groesse={15} />
+                </button>
+              ) : null
+            }
+            zahl={bibliothek && kategorie === 'alle' ? bibliothek.length : null}
           />
 
           <div className="themen-leiste">
@@ -467,16 +489,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
             return (
               <>
-                <div className="video-grid">
+                <div className="video-zeilen">
                   {sichtbar.map((v) => (
-                    <div key={v.videoId} className="biblio-karte">
-                      <span className={'niveau-badge niveau-' + v.niveau}>{v.niveau}</span>
-                      <VideoKarte
-                        video={v}
-                        onOpen={onOpenVideo}
-                        fortschritt={fortschritt[v.videoId] ?? 0}
-                      />
-                    </div>
+                    <VideoZeile
+                      key={v.videoId}
+                      video={v}
+                      onOpen={onOpenVideo}
+                      fortschritt={fortschritt[v.videoId] ?? 0}
+                    />
                   ))}
                 </div>
 
@@ -571,6 +591,50 @@ function BuchView({ buch, onClose, onAddVocab }) {
 }
 
 // Eine Video-Karte mit Vorschaubild, Titel und Kanal
+/**
+ * Ein Video als Zeile: Vorschaubild links, Text daneben, rechts der
+ * Abspielknopf.
+ *
+ * Frueher lagen die Videos in einem Raster mit dem Bild obenauf. Bei
+ * zwei Spalten auf einem Handy blieb fuer den Titel so wenig Platz,
+ * dass fast jeder abgeschnitten wurde – als Zeile bekommt er die
+ * ganze Breite.
+ */
+function VideoZeile({ video, onOpen, fortschritt = 0 }) {
+  return (
+    <button className="video-zeile" onClick={() => onOpen(video.videoId)}>
+      <span className="zeile-bild">
+        <img src={video.thumbnail} alt="" loading="lazy" />
+        {fortschritt > 0 && (
+          <span className="video-fortschritt" title={`${fortschritt} % geschaut`}>
+            <span
+              className={'video-fortschritt-balken' + (fortschritt >= 95 ? ' fertig' : '')}
+              style={{ width: fortschritt + '%' }}
+            />
+          </span>
+        )}
+      </span>
+
+      <span className="zeile-text">
+        {video.niveau && (
+          <span className={'niveau-badge niveau-' + video.niveau}>{video.niveau}</span>
+        )}
+        <span className="zeile-titel">{video.title}</span>
+        <span className="zeile-kanal">{video.channel}</span>
+        {video.duration ? (
+          <span className="zeile-dauer">{formatDuration(video.duration)}</span>
+        ) : null}
+      </span>
+
+      <span className="zeile-play" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+        </svg>
+      </span>
+    </button>
+  )
+}
+
 function VideoKarte({ video, onOpen, fortschritt = 0 }) {
   return (
     <div className="video-card">
