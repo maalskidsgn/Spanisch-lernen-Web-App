@@ -5,6 +5,7 @@ import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
+import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
@@ -22,6 +23,10 @@ export default function Settings({
   onNavigate,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
+  // Der Ton-Schalter liegt nicht in settings: Er soll auch ohne
+  // Konto und ohne Abgleich gelten – wer im Buero sitzt, will ihn
+  // sofort aus, nicht nach der naechsten Synchronisierung.
+  const [autoTon, setAutoTon] = useState(tonVonSelbst)
   const [bezahlbar, setBezahlbar] = useState(false)
   const [preis, setPreis] = useState(null)
   const [laedt, setLaedt] = useState(false)
@@ -373,6 +378,31 @@ export default function Settings({
             {heutigeXp}/{settings.tagesziel} XP heute {zielProzent >= 100 && '– geschafft! 🎉'}
           </span>
         </div>
+      </div>
+
+      {/* ---------- Ton ---------- */}
+      <h2 className="settings-heading">Ton</h2>
+      <div className="settings-card">
+        <label className="settings-row">
+          <div>
+            <div className="row-title">Wörter von selbst vorlesen</div>
+            <div className="row-hint">
+              Spielt die Aufnahme, sobald ein neues Wort erscheint – ohne
+              tippen. Aus, wenn du unterwegs oder im Büro lernst.
+            </div>
+          </div>
+          <span className="switch">
+            <input
+              type="checkbox"
+              checked={autoTon}
+              onChange={(e) => {
+                setAutoTon(e.target.checked)
+                setzeTonVonSelbst(e.target.checked)
+              }}
+            />
+            <span className="slider" />
+          </span>
+        </label>
       </div>
 
       {/* ---------- Benachrichtigungen ---------- */}

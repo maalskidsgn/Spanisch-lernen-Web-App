@@ -35,6 +35,56 @@ export async function audioName(text, stimme = STIMMEN.standard) {
   return dateiName(hex)
 }
 
+// ---- Von selbst anhoeren --------------------------------------
+//
+// Auf der Wortkarte spielt die Aufnahme ab, sobald die Karte da ist.
+// Das ist der Punkt einer Sprach-App: Wer erst tippen muss, liest das
+// Wort zuerst still – und praegt sich die falsche Aussprache ein,
+// bevor er die richtige gehoert hat.
+//
+// Der Schalter ist trotzdem noetig. Wer im Zug oder im Buero lernt,
+// will nicht, dass es aus dem Nichts spricht.
+const AUTO_SPEICHER = 'tonVonSelbst'
+
+/** Soll die Aufnahme von selbst starten? Standard: ja. */
+export function tonVonSelbst() {
+  try {
+    return localStorage.getItem(AUTO_SPEICHER) !== 'aus'
+  } catch {
+    return true
+  }
+}
+
+export function setzeTonVonSelbst(an) {
+  try {
+    localStorage.setItem(AUTO_SPEICHER, an ? 'an' : 'aus')
+  } catch {
+    // dann gilt es eben nur fuer diese Sitzung
+  }
+}
+
+// Was zuletzt von selbst lief – gegen das doppelte Abspielen.
+let zuletzt = { text: null, zeit: 0 }
+
+/**
+ * Von selbst abspielen – aber denselben Text nicht zweimal.
+ *
+ * React haengt Bauteile in der Entwicklung absichtlich zweimal ein,
+ * um Effekte ohne Aufraeumen zu entlarven. Ohne diese Sperre spricht
+ * die Karte das Wort deshalb doppelt – und ein Fehler in der
+ * Abhaengigkeitsliste taete in der fertigen App dasselbe.
+ *
+ * Gesperrt wird nur eineinhalb Sekunden. Taucht dasselbe Wort spaeter
+ * in einer Uebung wieder auf, spricht es ganz normal.
+ */
+export function spieleVonSelbst(text, einstellungen) {
+  if (!tonVonSelbst()) return
+  const jetzt = Date.now()
+  if (zuletzt.text === text && jetzt - zuletzt.zeit < 1500) return
+  zuletzt = { text, zeit: jetzt }
+  return spiele(text, einstellungen)
+}
+
 // Merkt sich pro Sitzung, welche Dateien existieren (oder fehlen),
 // damit wir nicht bei jedem Klick erneut nachfragen.
 const bekannt = new Map()

@@ -87,9 +87,32 @@ const KOPF = {
   Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
 }
 
-async function existiert(name) {
-  const r = await fetch(`${ABLAGE}/audio/${name}`, { method: 'HEAD', headers: KOPF })
-  return r.ok
+/**
+ * Liegt die Datei schon im Speicher?
+ *
+ * Mit Wiederholung, und das ist kein Uebereifer: Der Lauf stellt
+ * ueber 4.500 dieser Fragen, zwanzig gleichzeitig. Ein einziger
+ * DNS-Aussetzer hat frueher den ganzen Durchlauf abgebrochen –
+ * ENOTFOUND mitten in der Pruefung, nach einer Dreiviertelstunde
+ * Arbeit. Ein Netzfehler ist keine Antwort, also wird nachgefragt.
+ *
+ * Nach drei Fehlversuchen gilt die Datei als fehlend. Das ist die
+ * sichere Seite: Sie wird dann neu vertont – teurer als noetig,
+ * aber nichts geht verloren.
+ */
+async function existiert(name, versuche = 3) {
+  for (let n = 1; n <= versuche; n++) {
+    try {
+      const r = await fetch(`${ABLAGE}/audio/${name}`, { method: 'HEAD', headers: KOPF })
+      return r.ok
+    } catch (fehler) {
+      if (n === versuche) {
+        console.error(`\n  ! ${name}: ${fehler.cause?.code ?? fehler.message} – gilt als fehlend`)
+        return false
+      }
+      await new Promise((f) => setTimeout(f, 500 * n))
+    }
+  }
 }
 
 /**
@@ -145,21 +168,34 @@ for (const [kennung, id] of Object.entries(ELEVEN_STIMMEN)) {
  * Lautsprecher tippt. Bei 429 (zu schnell) und 5xx (Serverfehler)
  * also warten und noch einmal – bei allem anderen sofort aufgeben,
  * denn ein falscher Schluessel wird beim zweiten Mal nicht richtig.
+ *
+ * Ein Netzfehler (fetch failed, ENOTFOUND) zaehlt wie ein 5xx: Er
+ * sagt nichts ueber die Anfrage aus, nur ueber die Leitung. Frueher
+ * flog er als Ausnahme hoch und beendete den ganzen Lauf.
  */
 async function vertone(text, stimmeId, versuche = 3) {
   for (let n = 1; n <= versuche; n++) {
-    const antwort = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${stimmeId}?output_format=mp3_44100_128`,
-      {
-        method: 'POST',
-        headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: { stability: 0.55, similarity_boost: 0.8 },
-        }),
-      }
-    )
+    let antwort
+    try {
+      antwort = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/${stimmeId}?output_format=mp3_44100_128`,
+        {
+          method: 'POST',
+          headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: { stability: 0.55, similarity_boost: 0.8 },
+          }),
+        }
+      )
+    } catch (fehler) {
+      const grund = fehler.cause?.code ?? fehler.message
+      if (n === versuche) return { fehler: `Netz: ${grund}` }
+      console.log(`  … ${grund}, warte ${2 * n}s und versuche noch einmal`)
+      await new Promise((f) => setTimeout(f, 2000 * n))
+      continue
+    }
     if (antwort.ok) return Buffer.from(await antwort.arrayBuffer())
 
     const wiederholbar = antwort.status === 429 || antwort.status >= 500
@@ -169,6 +205,30 @@ async function vertone(text, stimmeId, versuche = 3) {
     const warten = 2000 * n
     console.log(`  … ${antwort.status}, warte ${warten / 1000}s und versuche noch einmal`)
     await new Promise((f) => setTimeout(f, warten))
+  }
+}
+
+/**
+ * Die fertige Aufnahme in den Speicher legen – ebenfalls mit Geduld.
+ *
+ * Hier haengt mehr dran als bei der Pruefung: Das Audio ist zu
+ * diesem Zeitpunkt schon bezahlt. Geht der Upload verloren, ist das
+ * Geld weg und die Datei trotzdem nicht da.
+ */
+async function hochladen(name, mp3, versuche = 3) {
+  for (let n = 1; n <= versuche; n++) {
+    try {
+      const r = await fetch(`${ABLAGE}/audio/${name}`, {
+        method: 'POST',
+        headers: { ...KOPF, 'Content-Type': 'audio/mpeg' },
+        body: mp3,
+      })
+      if (r.ok) return null
+      if (n === versuche) return (await r.text()).slice(0, 200)
+    } catch (fehler) {
+      if (n === versuche) return fehler.cause?.code ?? fehler.message
+    }
+    await new Promise((f) => setTimeout(f, 1000 * n))
   }
 }
 
@@ -182,13 +242,9 @@ for (const [name, { text, stimme }] of fehlend) {
     continue
   }
 
-  const hochladen = await fetch(`${ABLAGE}/audio/${name}`, {
-    method: 'POST',
-    headers: { ...KOPF, 'Content-Type': 'audio/mpeg' },
-    body: mp3,
-  })
-  if (!hochladen.ok) {
-    console.error(`✗ Upload ${name}: ${await hochladen.text()}`)
+  const klage = await hochladen(name, mp3)
+  if (klage) {
+    console.error(`✗ Upload ${name}: ${klage}`)
     gescheitert.push(text)
     continue
   }

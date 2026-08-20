@@ -13,7 +13,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { spiele, dialogAbspielen, stimmeImDialog, gibtEsAufnahme } from './audio.js'
+import { spiele, dialogAbspielen, stimmeImDialog, gibtEsAufnahme, spieleVonSelbst } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
 import {
@@ -385,7 +385,12 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <p className="lesson-hint">📖 Neues Wort</p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
-              <HoerKnopf text={schritt.item.es} titel="Anhören" />
+              {/* vonSelbst: Das Wort erklingt, sobald die Karte da
+                  ist. Wer erst tippen muss, liest es vorher still –
+                  und merkt sich eine Aussprache, die er sich selbst
+                  ausgedacht hat. Der Satz bleibt auf Tipp: Zwei
+                  Aufnahmen hintereinander wuerden sich abwuergen. */}
+              <HoerKnopf text={schritt.item.es} titel="Anhören" vonSelbst />
             </div>
             <div className="flash-translation">{schritt.item.de}</div>
             {schritt.item.beispielEs && (
@@ -461,6 +466,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'hoeren' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">Hör zu – was bedeutet der Satz?</p>
+            <VonSelbst
+              text={schritt.zeile.es}
+              stimme={stimmeImDialog(schritt.dialog, schritt.zeile.sprecher)}
+            />
             <button
               className="hoeren-knopf"
               onClick={() => spiele(schritt.zeile.es, { stimme: stimmeImDialog(schritt.dialog, schritt.zeile.sprecher) })}
@@ -1178,14 +1187,40 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
  * Sobald das Vertonungsskript den Satz nachliefert, ist er wieder da,
  * ohne dass hier etwas geaendert werden muesste.
  */
-function HoerKnopf({ text, titel, klein = false, stimme }) {
+/**
+ * Spielt eine Aufnahme, sobald sie auf dem Bildschirm erscheint –
+ * und zeigt selbst nichts an.
+ *
+ * Fuer die Hoerverstehen-Aufgabe: Dort IST das Zuhoeren die Aufgabe.
+ * Erst auf einen Knopf warten zu muessen, ist ein Umweg ohne Zweck.
+ * Der "Anhören"-Knopf bleibt daneben stehen – zum Nochmalhoeren.
+ */
+function VonSelbst({ text, stimme }) {
+  useEffect(() => {
+    let abgebrochen = false
+    gibtEsAufnahme(text, stimme).then((da) => {
+      if (da && !abgebrochen) spieleVonSelbst(text, stimme ? { stimme } : undefined)
+    })
+    return () => { abgebrochen = true }
+  }, [text, stimme])
+  return null
+}
+
+function HoerKnopf({ text, titel, klein = false, stimme, vonSelbst = false }) {
   const [gibtEs, setGibtEs] = useState(null) // null = wird noch geprueft
 
   useEffect(() => {
     let abgebrochen = false
-    gibtEsAufnahme(text, stimme).then((da) => !abgebrochen && setGibtEs(da))
+    gibtEsAufnahme(text, stimme).then((da) => {
+      if (abgebrochen) return
+      setGibtEs(da)
+      // Von selbst nur, wenn es auch eine echte Aufnahme gibt. Die
+      // Browser-Stimme ungefragt loszuschicken waere das Gegenteil
+      // von dem, wofuer der Knopf ueberhaupt verschwindet.
+      if (da && vonSelbst) spieleVonSelbst(text, stimme ? { stimme } : undefined)
+    })
     return () => { abgebrochen = true }
-  }, [text, stimme])
+  }, [text, stimme, vonSelbst])
 
   if (!gibtEs) return null
 
