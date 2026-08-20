@@ -8180,3 +8180,162 @@ body.lektion-laeuft .lessons > .player-top,
   color: var(--muted);
 }
 .zitat-quelle { font-style: italic; }
+
+/* ============ Mitgehört: Hörverstehen ============ */
+
+/* Die Karte in der Modulansicht – wie die Pruefstation, aber in
+   Blau statt Orange. Beides sind Haltepunkte, aber nicht dasselbe:
+   Die eine prueft, die andere ist eine Pause vom Pauken. */
+.szene-karte {
+  --station-ton: #2563eb;
+}
+.szene-karte .station-marke { color: var(--station-ton); }
+.szene-karte .station-knopf {
+  background: var(--station-ton);
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.28);
+}
+.szene-karte .station-emoji { background: #e8efff; }
+
+/* ---- Das Hören selbst ---- */
+.hoerszene-ort {
+  color: var(--text-schwach, #6b6b6b);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 22px;
+  text-align: center;
+  max-width: 34ch;
+  margin-inline: auto;
+}
+.hoerszene-buehne {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 0 20px;
+}
+/* Die Welle zeigt, dass wirklich etwas laeuft. Ohne sie sitzt man
+   vor einer stillen Karte und fragt sich, ob der Ton kaputt ist. */
+.hoerszene-welle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 46px;
+}
+.hoerszene-welle span {
+  width: 6px;
+  height: 12px;
+  border-radius: 3px;
+  background: #d8dee9;
+  transition: background 0.3s ease;
+}
+.hoerszene-welle.welle-an span {
+  background: var(--primary);
+  animation: welle 1s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.11s);
+}
+@keyframes welle {
+  0%, 100% { height: 12px; }
+  50% { height: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hoerszene-welle.welle-an span { animation: none; height: 26px; }
+}
+.hoerszene-sprecher {
+  font-size: 1.05rem;
+  color: var(--text-schwach, #6b6b6b);
+  min-height: 1.5em;
+}
+.hoerszene-sprecher b { color: var(--primary-dark); }
+
+.hoerszene-balken {
+  height: 6px;
+  border-radius: 3px;
+  background: #eee8e0;
+  overflow: hidden;
+  margin: 4px 0 22px;
+}
+.hoerszene-balken-voll {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.hoerszene-knoepfe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+.hoerszene-knoepfe > button { width: 100%; max-width: 300px; }
+
+/* ---- Die Fragen ---- */
+.verstehen-frage {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text, #1a1a2e);
+  line-height: 1.45;
+  text-align: center;
+  margin: 6px 0 16px;
+}
+.nochmal-hoeren {
+  background: #fff0e3;
+  color: var(--primary-dark);
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 auto 18px;
+  box-shadow: none;
+}
+@media (hover: hover) {
+  .nochmal-hoeren:hover { background: #ffe0c4; filter: none; }
+}
+
+/* ---- Die Abschrift ---- */
+.abschrift { text-align: left; }
+.abschrift-schalter {
+  background: #f2ebe0;
+  color: var(--text, #1a1a2e);
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  display: block;
+  margin: 0 auto 18px;
+  box-shadow: none;
+}
+.abschrift-liste {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+.abschrift-liste li {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+.abschrift-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  padding-top: 3px;
+  overflow-wrap: anywhere;
+}
+.abschrift-es {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--text, #1a1a2e);
+}
+.abschrift-de {
+  margin: 3px 0 0;
+  font-size: 0.92rem;
+  color: var(--text-schwach, #6b6b6b);
+  line-height: 1.45;
+}

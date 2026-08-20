@@ -13,10 +13,10 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
+import { spiele, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
-import { IconLandkarte, IconListe } from './icons.jsx'
+import { IconLandkarte, IconListe, IconLautsprecher } from './icons.jsx'
 import {
   stationVon,
   stationOffen,
@@ -25,6 +25,14 @@ import {
   baueSchritteStation,
   nochOffen,
 } from './pruefstationen.js'
+import {
+  szeneVon,
+  szeneOffen,
+  szeneGeschafft,
+  szeneAlsLektion,
+  baueSchritteSzene,
+  nochBisSzene,
+} from './mitgehoert.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -202,7 +210,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       schritt.typ === 'luecke' ||
       schritt.typ === 'dialogquiz' ||
       schritt.typ === 'hoeren' ||
-      schritt.typ === 'rueckblick'
+      schritt.typ === 'rueckblick' ||
+      schritt.typ === 'verstehen'
     )
   }
 
@@ -226,7 +235,14 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
    */
   function starten(l, station = null) {
     setLaufendeStation(station)
-    const s = station ? baueSchritteStation(station) : baueSchritte(l)
+    // Szene, Station oder gewoehnliche Lektion – drei Bauplaene, ein
+    // Ablauf. Was laeuft, kommt immer als zweites Argument mit, damit
+    // "Noch einmal" denselben Bauplan noch einmal nimmt.
+    const s = l.istSzene
+      ? baueSchritteSzene(station)
+      : station
+        ? baueSchritteStation(station)
+        : baueSchritte(l)
     setLektion(l)
     setSchritte(s)
     setIndex(0)
@@ -238,6 +254,14 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
   function startenStation(station) {
     starten(stationAlsLektion(station), station)
+  }
+
+  // Eine Hoerszene laeuft durch denselben Ablauf wie eine Lektion.
+  // Die Szene selbst reist in laufendeStation mit – "Noch einmal"
+  // baut den Ablauf sonst aus dem Lektions-Objekt neu, und das hat
+  // weder Fragen noch Abschrift.
+  function startenSzene(szene) {
+    starten({ ...szeneAlsLektion(szene), szene }, szene)
   }
 
   function weiter() {
@@ -307,7 +331,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             {sitzt
               ? lektion.istStation
                 ? 'Prüfstation bestanden!'
-                : 'Lektion geschafft!'
+                : lektion.istSzene
+                  ? 'Alles verstanden!'
+                  : 'Lektion geschafft!'
               : 'Fast geschafft'}
           </h2>
           <p>
@@ -319,7 +345,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             </p>
           )}
           <p className="bonus-note">
-            {lektion.istStation
+            {lektion.istSzene
+              ? sitzt
+                ? 'Ein ganzes Gespräch verstanden – ohne ein Wort mitzulesen. Genau das ist der Punkt.'
+                : 'Hörverstehen kommt langsamer als Vokabeln, bei jedem. Hör die Szene ruhig noch einmal – jetzt kennst du die Abschrift.'
+              : lektion.istStation
               ? sitzt
                 ? 'Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.'
                 : 'Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.'
@@ -369,7 +399,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <div className="lesson-done-emoji">{lektion.emoji}</div>
             <div className="flash-word">{lektion.titel}</div>
             <p className="lesson-hint">
-              {lektion.istStation ? 'Was hier auf dich zukommt' : 'Das lernst du in dieser Lektion'}
+              {lektion.istStation || lektion.istSzene
+                ? 'Was hier auf dich zukommt'
+                : 'Das lernst du in dieser Lektion'}
             </p>
             <ul className="intro-goals">
               {lektion.ziele.map((z) => (
@@ -491,6 +523,37 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           </div>
         )}
 
+        {/* --- Mitgehört: das Gespräch, einmal ohne Text --- */}
+        {schritt.typ === 'hoerszene' && (
+          <HoerSzene key={'s' + index} szene={schritt.szene} onWeiter={weiter} />
+        )}
+
+        {/* --- Mitgehört: eine Frage zum Inhalt --- */}
+        {schritt.typ === 'verstehen' && (
+          <div className="flashcard" key={'s' + index}>
+            <p className="lesson-hint">
+              {schritt.szene.fragenAuf === 'es' ? '🎧 Comprensión' : '🎧 Zum Inhalt'}
+            </p>
+            <div className="verstehen-frage">{schritt.frage.frage}</div>
+            {/* Nochmal hören, so oft man will. Zuhören ist die Übung,
+                nicht Auswendiglernen – und wer beim ersten Mal etwas
+                verpasst hat, soll nicht raten müssen. */}
+            <NochmalHoeren dialog={schritt.szene.dialog} />
+            <QuizOptionen
+              runde={index}
+              optionen={optionen}
+              feedback={feedback}
+              richtig={schritt.frage.loesung}
+              onAntwort={antworten}
+            />
+          </div>
+        )}
+
+        {/* --- Mitgehört: die Abschrift, ganz zum Schluss --- */}
+        {schritt.typ === 'abschrift' && (
+          <Abschrift key={'s' + index} szene={schritt.szene} onWeiter={weiter} />
+        )}
+
         {/* --- Satzbau: Wörter in die richtige Reihenfolge --- */}
         {schritt.typ === 'satzbau' && (
           <SatzbauUebung
@@ -550,6 +613,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   if (modul) {
     const liste = lektionenVon(modul)
     const station = stationVon(modul)
+    const szene = szeneVon(modul)
     const { fertig: modulFertig, gesamt } = modulFortschritt(modul, lessonProgress)
     // Die erste noch nicht geschaffte Lektion – und NUR sie ist "dran".
     // Vorher galt jede offene als aktuell; mit ALLES_OFFEN waren das
@@ -675,6 +739,19 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         )}
 
         </div>
+
+        {/* Mitgehört – die Hoerpause in der Mitte des Moduls.
+            Sie steht ueber der Pruefstation, weil sie frueher
+            aufgeht: nach der Haelfte der Lektionen, nicht am Ende. */}
+        {szene && (
+          <Szenenkarte
+            szene={szene}
+            offen={szeneOffen(szene, lessonProgress)}
+            geschafft={szeneGeschafft(szene, lessonProgress)}
+            fehlend={nochBisSzene(szene, lessonProgress)}
+            onStart={() => startenSzene(szene)}
+          />
+        )}
 
         {/* Die Pruefstation am Ende des Moduls.
             Sie steht bewusst UNTER beiden Ansichten statt in der
@@ -1087,6 +1164,53 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
 }
 
 /**
+ * Mitgehört – die Hoerpause in der Mitte des Moduls.
+ *
+ * Bewusst dieselbe Bauform wie die Pruefstation, nur in anderer
+ * Farbe: Beides sind Haltepunkte auf der Route, keine Lektionen.
+ * Eine dritte Kartenform waere eine dritte Sache zum Lernen.
+ */
+function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
+  const name = szene.titel.replace('Mitgehört: ', '')
+
+  if (!offen) {
+    return (
+      <div className="station szene-karte station-zu">
+        <span className="station-emoji" aria-hidden="true">🔒</span>
+        <div className="station-text">
+          <span className="station-marke">Mitgehört</span>
+          <h3>{name}</h3>
+          <p>
+            Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann hörst du hier
+            ein ganzes Gespräch am Stück.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      className={'station szene-karte' + (geschafft ? ' station-fertig' : '')}
+      onClick={onStart}
+    >
+      <span className="station-emoji" aria-hidden="true">
+        {geschafft ? '✓' : szene.emoji}
+      </span>
+      <div className="station-text">
+        <span className="station-marke">{geschafft ? 'Gehört' : 'Mitgehört'}</span>
+        <h3>{name}</h3>
+        <p>
+          {szene.dialog.length} Zeilen ohne Text hören, {szene.fragen.length} Fragen zum
+          Inhalt – die Abschrift kommt danach.
+        </p>
+      </div>
+      <span className="station-knopf">{geschafft ? 'Nochmal' : 'Anhören'}</span>
+    </button>
+  )
+}
+
+/**
  * Eine einzelne Wissenskarte.
  *
  * Frueher standen alle drei untereinander auf einem Bildschirm. Das
@@ -1175,3 +1299,176 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
   )
 }
 
+
+/**
+ * Mitgehört: das Gespräch, einmal ohne Text.
+ *
+ * Der Ton startet von selbst, sobald die Karte da ist – wie auf der
+ * Wortkarte. Sichtbar ist nur, WER gerade spricht, und wie weit das
+ * Gespräch ist. Kein Wort steht da.
+ *
+ * Der Sprechername ist kein Zugestaendnis: In einem echten Gespraech
+ * sieht man auch, wer redet. Ohne ihn ist es kein Hoerverstehen,
+ * sondern ein Stimmen-Ratespiel.
+ *
+ * "Weiter" gibt es erst, wenn es einmal durchgelaufen ist. Wer sofort
+ * weiterklickt, sitzt danach vor Fragen zu einem Gespraech, das er
+ * nicht gehoert hat – und haelt die Uebung fuer kaputt.
+ */
+function HoerSzene({ szene, onWeiter }) {
+  const [laeuft, setLaeuft] = useState(null)
+  const [zeile, setZeile] = useState(-1)
+  // Wie weit ist das Gespraech schon gelaufen – ueber alle Anlaeufe
+  // hinweg. Nicht der aktuelle Stand: Wer bei Zeile 25 anhaelt und
+  // neu startet, faengt zwar vorn an, hat aber schon zugehoert.
+  const [weiteste, setWeiteste] = useState(-1)
+
+  // Drei Viertel reichen. Der volle Durchlauf als Bedingung war eine
+  // Falle: Wer einmal anhaelt – Tuerklingel, falsche Stelle – kaeme
+  // sonst nur weiter, indem er alle dreissig Zeilen am Stueck noch
+  // einmal aussitzt.
+  const genugGehoert = weiteste >= szene.dialog.length * 0.75 - 1
+
+  function merkeZeile(i) {
+    setZeile(i)
+    setWeiteste((w) => Math.max(w, i))
+  }
+
+  function starten() {
+    if (laeuft) {
+      laeuft.stop()
+      setLaeuft(null)
+      return
+    }
+    const steuerung = dialogAbspielen(szene.dialog, { beiZeile: merkeZeile })
+    setLaeuft(steuerung)
+    steuerung.fertig.then(() => {
+      setLaeuft(null)
+      setWeiteste(szene.dialog.length)
+    })
+  }
+
+  // Von selbst losspielen – aber nur beim ersten Mal, und nur wenn
+  // der Nutzer das will. Der Schalter in den Einstellungen ist fuer
+  // "unterwegs oder im Buero" gedacht; dort ist ein anderthalb
+  // Minuten langes Gespraech noch unangenehmer als ein einzelnes
+  // Wort. Wer ihn aus hat, tippt hier auf "Anhören".
+  useEffect(() => {
+    if (!tonVonSelbst()) return
+    const timer = setTimeout(starten, 600)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Beim Verlassen nicht weiterreden
+  useEffect(() => () => laeuft?.stop(), [laeuft])
+
+  const spricht = zeile >= 0 ? szene.dialog[zeile]?.sprecher : null
+  const anteil = zeile >= 0 ? ((zeile + 1) / szene.dialog.length) * 100 : 0
+
+  return (
+    <div className="flashcard hoerszene">
+      <p className="lesson-hint">🎧 Hör zu – der Text kommt später</p>
+      <p className="hoerszene-ort">{szene.ort}</p>
+
+      <div className="hoerszene-buehne">
+        <div className={'hoerszene-welle' + (laeuft ? ' welle-an' : '')} aria-hidden="true">
+          {Array.from({ length: 7 }, (_, i) => (
+            <span key={i} style={{ '--i': i }} />
+          ))}
+        </div>
+        <div className="hoerszene-sprecher">
+          {spricht ? <><b>{spricht}</b> spricht</> : genugGehoert ? 'Gespräch zu Ende' : 'Gleich geht es los'}
+        </div>
+      </div>
+
+      <div className="hoerszene-balken">
+        <div className="hoerszene-balken-voll" style={{ width: anteil + '%' }} />
+      </div>
+
+      <div className="hoerszene-knoepfe">
+        <button className="hoeren-knopf" onClick={starten}>
+          <IconLautsprecher groesse={22} />
+          {laeuft ? 'Anhalten' : weiteste >= 0 ? 'Noch einmal' : 'Anhören'}
+        </button>
+        <button onClick={onWeiter} disabled={!genugGehoert}>
+          {genugGehoert ? 'Zu den Fragen' : 'Erst zuhören …'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Der Knopf zum Nochmalhoeren waehrend der Fragen.
+ *
+ * Bewusst ohne Begrenzung. Ein Zaehler ("noch 2 Mal") macht aus einer
+ * Uebung eine Pruefung, und wer sich beim Hoeren unsicher ist, lernt
+ * unter Druck nichts dazu.
+ */
+function NochmalHoeren({ dialog }) {
+  const [laeuft, setLaeuft] = useState(null)
+
+  useEffect(() => () => laeuft?.stop(), [laeuft])
+
+  function schalten() {
+    if (laeuft) {
+      laeuft.stop()
+      setLaeuft(null)
+      return
+    }
+    const steuerung = dialogAbspielen(dialog)
+    setLaeuft(steuerung)
+    steuerung.fertig.then(() => setLaeuft(null))
+  }
+
+  return (
+    <button className="nochmal-hoeren" onClick={schalten}>
+      <IconLautsprecher groesse={16} />
+      {laeuft ? 'Anhalten' : 'Noch einmal hören'}
+    </button>
+  )
+}
+
+/**
+ * Die Abschrift – erst ganz zum Schluss.
+ *
+ * Jetzt darf alles dastehen: Spanisch, Deutsch, jede Zeile einzeln
+ * nachhoerbar. Wer eine Stelle nicht verstanden hat, findet hier,
+ * woran es lag – und das ist der Moment, in dem man am meisten
+ * mitnimmt.
+ */
+function Abschrift({ szene, onWeiter }) {
+  const [alleDe, setAlleDe] = useState(false)
+
+  return (
+    <div className="flashcard abschrift">
+      <p className="lesson-hint">📄 Die Abschrift – jetzt zum Nachlesen</p>
+      <button className="abschrift-schalter" onClick={() => setAlleDe((a) => !a)}>
+        {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung einblenden'}
+      </button>
+
+      <ol className="abschrift-liste">
+        {szene.dialog.map((z, i) => (
+          <li key={i}>
+            <span className="abschrift-name">{z.sprecher}</span>
+            <div className="abschrift-text">
+              <p className="abschrift-es">
+                {z.es}
+                <HoerKnopf
+                  text={z.es}
+                  stimme={stimmeImDialog(szene.dialog, z.sprecher)}
+                  titel="Diese Zeile anhören"
+                  klein
+                />
+              </p>
+              {alleDe && <p className="abschrift-de">{z.de}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <button onClick={onWeiter}>Fertig</button>
+    </div>
+  )
+}

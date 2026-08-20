@@ -115,29 +115,6 @@ schon, es wird nur nie erfragt.
 
 ---
 
-### „Mitgehört" – Hörverstehen zwischen den Lektionen
-**Manuel, 20.08.:** Dialoge hören, Fragen zum Inhalt beantworten,
-danach den Dialog lesen können. Zum Thema passend.
-
-Heute prüft die App nur Übersetzen: `hoeren` spielt einen Satz vor
-und fragt nach der Bedeutung, `dialogquiz` zeigt ihn und fragt
-dasselbe. Nirgends wird gefragt, worum es **ging**.
-
-Ablauf: Dialog einmal ohne Text → 4–5 Inhaltsfragen, Wiederhören
-erlaubt → danach die Abschrift mit Ton je Zeile. Eine Übung pro
-Modul, in der Mitte; die Prüfstation bleibt am Ende.
-
-Budget: **bis 30.000 Credits** (Manuel, 20.08.) – das reicht für
-deutlich längere Dialoge als die 12 Zeilen im ersten Entwurf.
-
-Der Prüfer muss auf die typische Falle achten: ob die richtige
-Antwort die einzige ist, deren Wörter im Dialog vorkommen. Dann rät
-man nach Stichwort statt zu verstehen. Ein Wortschatz-Prüfer wäre
-dagegen unbrauchbar – in den bestehenden Dialogen sind 39 % der
-Wörter beim ersten Hören nicht aus den Wortlisten (gemessen).
-
----
-
 ## 💡 Ideen
 
 ### Tägliche zweisprachige Nachrichten

@@ -20,6 +20,7 @@ for (const z of readFileSync('.env.local', 'utf8').split('\n')) {
 }
 
 const { LEKTIONEN } = await import('../src/lektionen.js')
+const { SZENEN } = await import('../src/mitgehoert.js')
 
 // Prüfsummen-Logik und Besetzung kommen aus dem gemeinsamen Modul –
 // so KANN das Skript gar nicht auf einen anderen Dateinamen kommen
@@ -74,6 +75,17 @@ for (const l of LEKTIONEN) {
     const stimme = stimmeImDialog(l.dialog, zeile.sprecher)
     const name = audioName(zeile.es, stimme)
     auftraege.set(name, { text: sprechText(zeile.es), stimme, lektion: l.id })
+  }
+}
+
+// Die Hoerszenen. Sie stehen nicht in LEKTIONEN, brauchen aber
+// dieselben Stimmen – und ohne Ton waeren sie schlicht nichts.
+for (const szene of SZENEN) {
+  if (nurLektion && szene.id !== nurLektion) continue
+  for (const zeile of szene.dialog) {
+    const stimme = stimmeImDialog(szene.dialog, zeile.sprecher)
+    const name = audioName(zeile.es, stimme)
+    auftraege.set(name, { text: sprechText(zeile.es), stimme, lektion: szene.id })
   }
 }
 

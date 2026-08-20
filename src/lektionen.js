@@ -9043,6 +9043,12 @@ export function baueSatzbau(item) {
 
 // Baut die vier Antwort-Möglichkeiten für eine Übung (richtige + drei falsche)
 export function baueOptionen(schritt, lektion) {
+  // Verstehensfragen bringen ihre Antworten selbst mit – sie lassen
+  // sich nicht aus Wortlisten ziehen. Gemischt wird trotzdem: Sonst
+  // steht die richtige beim zweiten Anlauf wieder an derselben
+  // Stelle, und man merkt sich die Position statt des Inhalts.
+  if (schritt.typ === 'verstehen') return mischen(schritt.frage.optionen)
+
   if (schritt.typ === 'rueckblick') {
     // Falsche Antworten aus der AKTUELLEN Lektion – so muss man
     // Altes und Neues auseinanderhalten
