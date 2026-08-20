@@ -9,6 +9,7 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import Willkommen from './Willkommen.jsx'
+import Onboarding from './Onboarding.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
 
@@ -212,11 +213,78 @@ export default function App() {
   const [progress, setProgress] = useState(loadProgress) // XP, Streak, letzter Lerntag
   const [settings, setSettings] = useState(loadSettings) // Tagesziel, Erinnerungen …
   const [lessonProgress, setLessonProgress] = useState(loadLessonProgress) // welche Lektionen geschafft sind
+
   const [levelUp, setLevelUp] = useState(null) // welches Level gerade erreicht wurde
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
 
   // ---------- Konto & Abgleich ----------
   const { nutzer, laedt: nutzerLaedt } = useNutzer()
+
+  // Das Onboarding laeuft genau EINMAL, und zwar je Konto. Der
+  // Schluessel traegt die Nutzerkennung: Wer sich auf demselben
+  // Geraet mit einem zweiten Konto anmeldet, ist ein neuer Mensch und
+  // bekommt seine eigenen drei Fragen.
+  const [onboardingFertig, setOnboardingFertig] = useState(false)
+
+  useEffect(() => {
+    if (!nutzer) return setOnboardingFertig(false)
+    try {
+      setOnboardingFertig(localStorage.getItem('onboarding:' + nutzer.id) === 'fertig')
+    } catch {
+      // Kein Speicher (privater Modus): dann eben jedes Mal. Besser
+      // als jemanden auszusperren.
+      setOnboardingFertig(true)
+    }
+  }, [nutzer])
+
+  function merkeOnboarding() {
+    try {
+      if (nutzer) localStorage.setItem('onboarding:' + nutzer.id, 'fertig')
+    } catch { /* dann gilt es nur fuer diese Sitzung */ }
+    setOnboardingFertig(true)
+  }
+
+  /**
+   * Das Onboarding ist durch: Tagesziel uebernehmen, das Startpaket
+   * einraeumen.
+   *
+   * Die Woerter landen im Trainer, Video und Song in der Mediathek –
+   * genau dort, wo sie hingehoeren. Wer gleich danach auf "Trainer"
+   * tippt, findet etwas vor, statt einer leeren Seite.
+   */
+  function onboardingFertigMachen(antworten, paket) {
+    if (antworten?.ziel) {
+      setSettings((s) => ({ ...s, tagesziel: antworten.ziel }))
+    }
+    if (paket?.woerter?.length) {
+      addVocabWords(
+        paket.woerter.map((w) => ({
+          wort: w.wort,
+          uebersetzung: w.uebersetzung,
+          quelle: 'Startpaket',
+        }))
+      )
+    }
+    const neueVideos = [
+      paket?.video && { ...paket.video, art: 'video', category: 'Startpaket' },
+      paket?.song && { ...paket.song, art: 'musik', category: 'Startpaket' },
+    ].filter(Boolean)
+    if (neueVideos.length) {
+      setSavedVideos((liste) => [
+        ...liste,
+        ...neueVideos
+          .filter((v) => !liste.some((x) => x.videoId === v.videoId))
+          .map((v) => ({
+            videoId: v.videoId,
+            title: v.title,
+            category: v.category,
+            art: v.art,
+            addedAt: Date.now(),
+          })),
+      ])
+    }
+    merkeOnboarding()
+  }
   const [loginOffen, setLoginOffen] = useState(false)
   const [loginStart, setLoginStart] = useState('anmelden') // womit der Dialog aufgeht
   const [syncStatus, setSyncStatus] = useState('') // '' | 'laeuft' | 'fertig' | Fehlertext
@@ -712,6 +780,20 @@ export default function App() {
           />
         )}
       </>
+    )
+  }
+
+  // ---------- Das Onboarding: genau einmal, direkt nach dem Konto ----------
+  // Es steht NACH dem Zugangs-Tor: Ohne Konto gaebe es niemanden, dem
+  // man das Startpaket zuordnen koennte. Und vor der App, weil die
+  // drei Fragen ihre Antworten sofort brauchen – das Tagesziel gilt ab
+  // dem ersten Bildschirm.
+  if (nutzer && !onboardingFertig) {
+    return (
+      <Onboarding
+        onFertig={onboardingFertigMachen}
+        onUeberspringen={merkeOnboarding}
+      />
     )
   }
 

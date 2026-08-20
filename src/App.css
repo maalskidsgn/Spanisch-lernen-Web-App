@@ -8365,3 +8365,400 @@ body.lektion-laeuft .lessons > .player-top,
   color: var(--text-schwach, #6b6b6b);
   line-height: 1.45;
 }
+
+/* ============ Onboarding ============
+   Die ersten neunzig Sekunden. Bewusst in Habloos weicher Handschrift
+   statt in Davaigos harten 3D-Kanten: runde Karten, oranger Schatten,
+   warmer Grund – dieselbe Sprache wie der Rest der App. Wer aus dem
+   Onboarding in die App kommt, soll keinen Bruch bemerken. */
+
+.ob {
+  min-height: 100dvh;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 26px 20px 40px;
+  color: var(--text, #1a1a2e);
+}
+
+/* ---------- Kopf: zurück, Fortschritt, Ausweg ---------- */
+.ob-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 38px;
+}
+.ob-zurueck,
+.ob-skip {
+  background: none;
+  border: none;
+  color: var(--text-schwach, #6b6b6b);
+  font-family: inherit;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.ob-zurueck { font-size: 1.3rem; font-weight: 900; }
+/* Der Ausweg bleibt bewusst leise: Er muss da sein, aber niemanden
+   einladen. Wer ihn sucht, findet ihn. */
+.ob-skip { font-size: 0.85rem; font-weight: 700; white-space: nowrap; }
+@media (hover: hover) {
+  .ob-zurueck:hover,
+  .ob-skip:hover { background: var(--flaeche); color: var(--primary-dark); filter: none; }
+}
+.ob-balken {
+  flex: 1;
+  height: 12px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.ob-balken-voll {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Maskottchen und Frage ---------- */
+.ob-frage-zeile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 26px;
+}
+/* Das Maskottchen ist das Habloo-Zeichen selbst – NICHT die
+   Logo-Kachel aus der Menüleiste. Die ist ein oranges Quadrat mit
+   weißer Blase darin: bei 30 Pixeln eine Marke, auf 70 Pixeln
+   aufgeblasen ein fehlplatziertes App-Icon. Hier zählt die Form der
+   Sprechblase, also Kachel weg und die Blase selbst in Orange. */
+.ob-maskottchen {
+  flex-shrink: 0;
+  display: inline-flex;
+  /* Die Blasenfarbe HIER festhalten, solange --primary noch das
+     Markenorange ist. Eine Zeile tiefer wird --primary umdefiniert –
+     ohne diesen Zwischenschritt müsste der Farbwert doppelt im
+     Stylesheet stehen und könnte auseinanderlaufen. */
+  --blase: var(--primary);
+}
+.ob-maskottchen .logo-badge {
+  width: 64px;
+  height: 64px;
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+  /* Die Blase (currentColor im SVG) trägt jetzt das Orange … */
+  color: var(--blase);
+  /* … und Funke und Punkt kehren sich um, sonst wären sie orange auf
+     orange und damit unsichtbar. Beide holen ihre Farbe im SVG aus
+     diesen Token. */
+  --primary: #fff;
+  --primary-light: #ffd0ac;
+}
+.ob-maskottchen .logo-badge svg { width: 100%; height: 100%; }
+.ob-blase {
+  position: relative;
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px 20px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.4;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, 0.1);
+  animation: pop-in 0.3s ease;
+}
+/* Die Spitze zeigt zum Maskottchen */
+.ob-blase::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* ---------- Die Antwortkarten ---------- */
+.ob-optionen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  animation: fade-up 0.35s ease;
+}
+.ob-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 14px 18px;
+  font-family: inherit;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text, #1a1a2e);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255, 108, 0, 0.08);
+  transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+@media (hover: hover) {
+  .ob-option:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 24px rgba(255, 108, 0, 0.16);
+    filter: none;
+  }
+}
+.ob-option:active { transform: scale(0.98); }
+.ob-option-aktiv {
+  border-color: var(--primary);
+  box-shadow: 0 8px 26px rgba(255, 108, 0, 0.26);
+  animation: pop-in 0.25s ease;
+}
+.ob-option-emoji {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff0e3;
+  border-radius: 13px;
+  font-size: 1.35rem;
+}
+.ob-option-text { display: flex; flex-direction: column; gap: 1px; }
+.ob-option-text small {
+  color: var(--text-schwach, #6b6b6b);
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+/* ---------- Karte für Laden und Abschluss ---------- */
+.ob-karte {
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+  text-align: center;
+  background: #fff;
+  border-radius: 24px;
+  padding: 30px 24px 26px;
+  box-shadow: 0 10px 34px rgba(255, 108, 0, 0.12);
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.ob-karte h1 {
+  font-size: 1.65rem;
+  font-weight: 900;
+  margin: 10px 0 10px;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+.ob-akzent { color: var(--primary); display: block; }
+.ob-text {
+  color: var(--text-schwach, #6b6b6b);
+  font-weight: 600;
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+.ob-karte .ob-maskottchen .logo-badge { width: 84px; height: 84px; }
+
+/* ---------- Ladebildschirm ---------- */
+/* Das Maskottchen schwebt – ein Lebenszeichen, das nicht ablenkt. */
+@keyframes ob-schweben {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+.ob-schwebt { display: inline-block; animation: ob-schweben 3.5s ease-in-out infinite; }
+
+.ob-ladebalken {
+  height: 12px;
+  background: var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 0 30px;
+}
+.ob-ladebalken-voll {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), #ffa34d);
+  transition: width 0.25s linear;
+}
+
+/* Die Funktions-Tour: eine Karte je Bereich, blättert von allein */
+.ob-tour {
+  min-height: 168px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 4px;
+  animation: fade-up 0.45s ease;
+}
+.ob-tour-emoji {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff0e3;
+  border-radius: 17px;
+  font-size: 1.7rem;
+  margin-bottom: 4px;
+}
+.ob-tour h2 {
+  font-size: 1.12rem;
+  font-weight: 900;
+  margin: 0;
+  color: var(--primary-dark);
+}
+.ob-tour p {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--text-schwach, #6b6b6b);
+  font-weight: 600;
+  max-width: 34ch;
+}
+.ob-tour-punkte {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 18px;
+}
+.ob-tour-punkte span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.3s ease, width 0.3s ease;
+}
+.ob-tour-punkte span.aktiv {
+  background: var(--primary);
+  width: 20px;
+  border-radius: 999px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ob-schwebt { animation: none; }
+  .ob-tour { animation: none; }
+}
+
+/* ---------- Abschluss: das Startpaket ---------- */
+.ob-schluss { max-width: 520px; }
+/* Die Begründung der KI – warum genau diese Wörter. Kursiv und
+   eingerückt, damit sie als Stimme erkennbar ist und nicht als
+   weiterer Fließtext der App. */
+.ob-begruendung {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-schwach, #6b6b6b);
+  font-style: italic;
+  text-align: left;
+  border-left: 3px solid var(--primary);
+  padding-left: 12px;
+  margin: 0 0 20px;
+}
+.ob-liste {
+  background: var(--flaeche);
+  border-radius: 16px;
+  padding: 4px 16px;
+  margin: 0 0 20px;
+  text-align: left;
+}
+.ob-liste-zeile {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--line);
+  animation: fade-up 0.3s ease backwards;
+}
+.ob-liste-zeile:last-child { border-bottom: none; }
+.ob-liste-zeile:nth-child(2) { animation-delay: 0.05s; }
+.ob-liste-zeile:nth-child(3) { animation-delay: 0.1s; }
+.ob-liste-zeile:nth-child(4) { animation-delay: 0.15s; }
+.ob-liste-zeile:nth-child(5) { animation-delay: 0.2s; }
+.ob-liste-zeile:nth-child(6) { animation-delay: 0.25s; }
+.ob-liste-es { font-weight: 900; color: var(--primary-dark); }
+.ob-liste-de {
+  color: var(--text-schwach, #6b6b6b);
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-align: right;
+}
+.ob-liste-mehr {
+  color: var(--text-schwach, #6b6b6b);
+  font-weight: 700;
+  font-size: 0.86rem;
+  justify-content: center;
+}
+
+.ob-medien {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 22px;
+}
+.ob-medium {
+  background: var(--flaeche);
+  border-radius: 16px;
+  padding: 8px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+.ob-medium img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 2px;
+}
+.ob-medium-art {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ob-medium-titel {
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.35;
+  /* Zwei Zeilen reichen: YouTube-Titel sind oft absurd lang und
+     würden die Karte sonst auseinanderziehen. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ob-los {
+  width: 100%;
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 15px 28px;
+}
+.ob-hinweis {
+  font-size: 0.86rem;
+  color: var(--text-schwach, #6b6b6b);
+  line-height: 1.55;
+  margin: 14px 0 0;
+}
+
+@media (max-width: 420px) {
+  .ob-medien { grid-template-columns: 1fr; }
+  .ob-karte { padding: 24px 18px 22px; }
+  .ob-karte h1 { font-size: 1.42rem; }
+}
