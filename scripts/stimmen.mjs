@@ -66,12 +66,22 @@ async function holeStimmen() {
   return (await r.json()).voices ?? []
 }
 
-/** Klingt diese Stimme nach Spanisch? */
+/**
+ * Klingt diese Stimme nach Spanisch?
+ *
+ * Entscheidend ist der ACCENT, nicht verified_languages: Fast jede
+ * Stimme im Katalog kann Spanisch aussprechen, aber "Ranbir,
+ * indian" und "Roger, american" klingen dabei wie jemand, der es in
+ * der Schule hatte. Fuer einen Sprachkurs ist genau das unbrauchbar.
+ */
 function istSpanisch(v) {
-  const l = v.labels ?? {}
-  const text = JSON.stringify(l).toLowerCase() + ' ' + (v.name ?? '').toLowerCase()
-  return /spanish|espa|castil|latin|mexic|colomb|argent/.test(text) ||
-    v.verified_languages?.some((s) => s.language === 'es')
+  const akzent = (v.labels?.accent ?? '').toLowerCase()
+  return /peninsular|castil|latin american|mexic|colomb|argent|spanish/.test(akzent)
+}
+
+/** Spanien-Spanisch? Der Kurs lehrt vosotros, vale und Tapas. */
+function istPeninsular(v) {
+  return /peninsular|castil/.test((v.labels?.accent ?? '').toLowerCase())
 }
 
 const befehl = process.argv[2] ?? 'liste'
@@ -94,7 +104,11 @@ if (befehl === 'liste') {
 // ---------------------------------------------------------------
 if (befehl === 'proben') {
   const alle = await holeStimmen()
-  const kandidaten = alle.filter(istSpanisch).slice(0, 8)
+  // Spanien-Spanisch zuerst: Der Kurs spielt in Madrid und Valencia.
+  const kandidaten = alle
+    .filter(istSpanisch)
+    .sort((a, b) => Number(istPeninsular(b)) - Number(istPeninsular(a)))
+    .slice(0, 8)
   if (!kandidaten.length) {
     console.error('Keine spanischen Stimmen gefunden.')
     process.exit(1)

@@ -8129,3 +8129,29 @@ body.lektion-laeuft .lessons > .player-top,
 .spotify-box { position: relative; }
 .spotify-box .wieder-info { top: 0; right: 0; }
 .spotify-box .wieder-erklaerung { order: 0; }
+
+/* ---------- Der Satz des Tages ---------- */
+.zitat {
+  margin: 0 0 24px;
+  padding-left: 14px;
+  /* Ein Strich statt einer Karte: Der Satz soll die Seite eröffnen,
+     nicht mit den Karten darunter um Aufmerksamkeit ringen. */
+  border-left: 3px solid #ffd9b8;
+}
+.zitat-es {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--navy);
+  text-wrap: balance;
+}
+.zitat-de {
+  margin: 3px 0 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.zitat-quelle { font-style: italic; }

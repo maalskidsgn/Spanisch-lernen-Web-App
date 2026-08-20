@@ -55,11 +55,17 @@ const nurLektion = process.argv.includes('--lektion')
   ? process.argv[process.argv.indexOf('--lektion') + 1]
   : null
 
+// Die Beispielsaetze sind mit Abstand der groesste Posten: 1.724
+// Saetze, rund 47.600 Zeichen – mehr als Dialoge und Vokabeln
+// zusammen. Mit --ohne-saetze bleiben sie erst mal die Geraetestimme.
+const ohneSaetze = process.argv.includes('--ohne-saetze')
+
 const auftraege = new Map() // name -> {text, stimme}
 for (const l of LEKTIONEN) {
   if (nurLektion && l.id !== nurLektion) continue
   for (const it of l.items) {
-    for (const text of [it.es, it.beispielEs].filter(Boolean)) {
+    const teile = ohneSaetze ? [it.es] : [it.es, it.beispielEs]
+    for (const text of teile.filter(Boolean)) {
       const name = audioName(text, STIMMEN.standard)
       auftraege.set(name, { text: sprechText(text), stimme: STIMMEN.standard, lektion: l.id })
     }
@@ -86,11 +92,31 @@ async function existiert(name) {
   return r.ok
 }
 
-const fehlend = []
-for (const [name, auftrag] of auftraege) {
-  if (!(await existiert(name))) fehlend.push([name, auftrag])
+/**
+ * Was fehlt noch im Speicher?
+ *
+ * Nacheinander gefragt dauert das bei knapp 2.800 Schnipseln
+ * mehrere Minuten – und das VOR der eigentlichen Arbeit. Zwanzig
+ * Anfragen gleichzeitig sind fuer eine HEAD-Abfrage unproblematisch
+ * und machen aus Minuten Sekunden.
+ */
+async function fehlendeFinden(alle, gleichzeitig = 20) {
+  const liste = [...alle]
+  const fehlt = []
+  let i = 0
+  async function arbeiter() {
+    while (i < liste.length) {
+      const [name, auftrag] = liste[i++]
+      if (!(await existiert(name))) fehlt.push([name, auftrag])
+    }
+  }
+  await Promise.all(Array.from({ length: gleichzeitig }, arbeiter))
+  return fehlt
 }
-console.log(`${fehlend.length} davon fehlen noch`)
+
+process.stdout.write('Pruefe, was schon im Speicher liegt … ')
+const fehlend = await fehlendeFinden(auftraege)
+console.log(`${fehlend.length} von ${auftraege.size} fehlen noch`)
 
 if (!process.argv.includes('--los')) {
   const kosten = fehlend.reduce((s, [, a]) => s + a.text.length, 0)
@@ -110,25 +136,51 @@ for (const [kennung, id] of Object.entries(ELEVEN_STIMMEN)) {
   }
 }
 
-let fertig = 0
-for (const [name, { text, stimme }] of fehlend) {
-  const antwort = await fetch(
-    `https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_STIMMEN[stimme]}?output_format=mp3_44100_128`,
-    {
-      method: 'POST',
-      headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: { stability: 0.55, similarity_boost: 0.8 },
-      }),
+/**
+ * Einen Schnipsel vertonen – mit Geduld.
+ *
+ * Bei knapp 2.800 Aufrufen ist ein Aussetzer nicht die Ausnahme,
+ * sondern sicher. Ohne Wiederholung fehlten am Ende einzelne
+ * Aufnahmen, und man saehe es erst, wenn ein Nutzer auf den
+ * Lautsprecher tippt. Bei 429 (zu schnell) und 5xx (Serverfehler)
+ * also warten und noch einmal – bei allem anderen sofort aufgeben,
+ * denn ein falscher Schluessel wird beim zweiten Mal nicht richtig.
+ */
+async function vertone(text, stimmeId, versuche = 3) {
+  for (let n = 1; n <= versuche; n++) {
+    const antwort = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${stimmeId}?output_format=mp3_44100_128`,
+      {
+        method: 'POST',
+        headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_multilingual_v2',
+          voice_settings: { stability: 0.55, similarity_boost: 0.8 },
+        }),
+      }
+    )
+    if (antwort.ok) return Buffer.from(await antwort.arrayBuffer())
+
+    const wiederholbar = antwort.status === 429 || antwort.status >= 500
+    if (!wiederholbar || n === versuche) {
+      return { fehler: `${antwort.status} ${(await antwort.text()).slice(0, 200)}` }
     }
-  )
-  if (!antwort.ok) {
-    console.error(`✗ ${text.slice(0, 40)} – ElevenLabs: ${antwort.status} ${await antwort.text()}`)
+    const warten = 2000 * n
+    console.log(`  … ${antwort.status}, warte ${warten / 1000}s und versuche noch einmal`)
+    await new Promise((f) => setTimeout(f, warten))
+  }
+}
+
+let fertig = 0
+const gescheitert = []
+for (const [name, { text, stimme }] of fehlend) {
+  const mp3 = await vertone(text, ELEVEN_STIMMEN[stimme])
+  if (mp3?.fehler) {
+    console.error(`✗ ${text.slice(0, 40)} – ElevenLabs: ${mp3.fehler}`)
+    gescheitert.push(text)
     continue
   }
-  const mp3 = Buffer.from(await antwort.arrayBuffer())
 
   const hochladen = await fetch(`${ABLAGE}/audio/${name}`, {
     method: 'POST',
@@ -137,6 +189,7 @@ for (const [name, { text, stimme }] of fehlend) {
   })
   if (!hochladen.ok) {
     console.error(`✗ Upload ${name}: ${await hochladen.text()}`)
+    gescheitert.push(text)
     continue
   }
   fertig++
@@ -144,3 +197,8 @@ for (const [name, { text, stimme }] of fehlend) {
   await new Promise((f) => setTimeout(f, 350)) // ElevenLabs nicht überrennen
 }
 console.log(`Fertig: ${fertig} von ${fehlend.length} vertont.`)
+if (gescheitert.length) {
+  console.log(`\n${gescheitert.length} nicht geschafft. Das Skript einfach noch einmal`)
+  console.log('starten – was schon im Speicher liegt, wird uebersprungen.')
+  for (const t of gescheitert.slice(0, 10)) console.log('  ' + t.slice(0, 60))
+}

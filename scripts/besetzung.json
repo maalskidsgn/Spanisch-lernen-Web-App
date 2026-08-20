@@ -1,9 +1,9 @@
 {
-  "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: alle Aufnahmen dieser Rolle neu erzeugen.",
-  "_tarif": "premade-Stimmen laufen im kostenlosen Tarif. Die echten spanischen Stimmen (Kategorie professional, z.B. Elena tXgbXPnsMpKXkuTgvE3h peninsular) brauchen Starter, 5 $/Monat.",
-  "es-w1": { "id": "Xb7hH8MSUJpSbSDYk0k2", "wer": "Ana – Alice, Clear Engaging Educator" },
-  "es-m1": { "id": "cjVigY5qzO86Huf0OWal", "wer": "Tom – Eric, Smooth Trustworthy" },
-  "es-m2": { "id": "JBFqnCBsd6RMkjVDRZzb", "wer": "Luis – George, Warm Storyteller" },
-  "es-w2": { "id": "EXAVITQu4vr4xnSDxMaL", "wer": "Carmen – Sarah, Mature Reassuring" },
-  "es-w3": { "id": "FGY2WhTYpPnrIDTdsKH5", "wer": "Lena – Laura, Enthusiast" }
+  "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: BESETZUNG_STAND in src/stimmen.js erhoehen, sonst behalten alle Aufnahmen ihren alten Dateinamen und werden nie neu erzeugt.",
+  "_tarif": "Creator (22 $/Monat). Alle fuenf Stimmen sind echtes Spanien-Spanisch (peninsular) - passend zum Kurs mit vosotros, vale und Tapas.",
+  "es-w1": { "id": "tXgbXPnsMpKXkuTgvE3h", "wer": "Ana – Elena, Resolute Engaging Lively (peninsular)" },
+  "es-m1": { "id": "Nh2zY9kknu6z4pZy6FhD", "wer": "Tom – David Martin, Confident Balanced (peninsular)" },
+  "es-m2": { "id": "CnjIcrJsHPgeEdwT3X8q", "wer": "Luis – Christian Avilés, umgangssprachlich (peninsular)" },
+  "es-w2": { "id": "dNjJKg63Fr5AXwIdkATa", "wer": "Carmen – Cristina, Empathetic (peninsular)" },
+  "es-w3": { "id": "LudcwvHIZaqQOcQfVZSY", "wer": "Lena – Clara, Elegant Soft (peninsular)" }
 }

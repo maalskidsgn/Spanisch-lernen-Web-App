@@ -2,6 +2,7 @@ import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
 import { letzteWoche } from './aktivitaet.js'
+import { zitatDesTages } from './zitate.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 
@@ -29,6 +30,8 @@ export default function Home({
   const modulListe = modul ? lektionenVon(modul) : []
   const modulFertig = modulListe.filter((l) => lessonProgress[l.id]?.fertig).length
 
+  const zitat = zitatDesTages()
+
   const woche = letzteWoche()
   const wochenSumme = woche.reduce((s, t) => s + t.anzahl, 0)
 
@@ -43,7 +46,17 @@ export default function Home({
       <h1 className="trainer-titel start-gruss">
         ¡Hola<span className="accent">!</span>
       </h1>
-      <p className="intro">Bereit für deinen nächsten Schritt?</p>
+      {/* Der Satz des Tages steht da, wo vorher eine feste Zeile
+          stand. Er ist zweisprachig: Wer ihn liest, hat schon einen
+          echten spanischen Satz gelesen, bevor die erste Lektion
+          anfaengt. */}
+      <div className="zitat">
+        <p className="zitat-es">{zitat.es}</p>
+        <p className="zitat-de">
+          {zitat.de}
+          {zitat.quelle && <span className="zitat-quelle"> · {zitat.quelle}</span>}
+        </p>
+      </div>
 
       {/* ============ 1. WEITERLERNEN ============ */}
       <section className="start-karte start-lektion">

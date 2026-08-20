@@ -59,8 +59,12 @@ export const BESETZUNG = {
  * kann nie eine Aufnahme laufen, die nicht zur Besetzung passt.
  *
  * 1 = Alice und Eric (premade, englischer Akzent)
+ * 2 = Elena, David, Christian, Cristina, Clara – echtes
+ *     Spanien-Spanisch, Creator-Tarif. Der Kurs lehrt vosotros
+ *     und vale; eine amerikanisch gefaerbte Stimme haette dazu
+ *     nicht gepasst.
  */
-export const BESETZUNG_STAND = 1
+export const BESETZUNG_STAND = 2
 
 /**
  * Text vor dem Vertonen säubern.
