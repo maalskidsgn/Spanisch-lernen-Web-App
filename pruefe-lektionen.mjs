@@ -40,6 +40,16 @@ for (const l of LEKTIONEN) {
   }
 }
 
+// Doppelte Kennungen zuerst: Sie fuehren zu Fehlern, die ganz
+// woanders auftauchen. Zwei Lektionen mit derselben id lassen jeden
+// Verweis auf die zweite zeigen - und die Meldung nennt dann eine
+// unbeteiligte Lektion.
+const gesehen = new Set()
+for (const l of LEKTIONEN) {
+  if (gesehen.has(l.id)) fehler.push(`Die Kennung "${l.id}" gibt es zweimal`)
+  gesehen.add(l.id)
+}
+
 const nrs = LEKTIONEN.map((l) => l.kursNr)
 if (new Set(nrs).size !== nrs.length) fehler.push('kursNr doppelt vergeben')
 
