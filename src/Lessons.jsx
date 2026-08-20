@@ -13,7 +13,8 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { spiele, dialogAbspielen, stimmeImDialog, gibtEsAufnahme, spieleVonSelbst } from './audio.js'
+import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
+import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
 import {
@@ -1174,63 +1175,3 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
   )
 }
 
-/**
- * Ein Lautsprecher – aber nur, wenn es wirklich etwas zu hoeren gibt.
- *
- * Frueher stand der Knopf immer da und fiel auf die Browser-Stimme
- * zurueck, wenn keine Aufnahme existierte. In einem Aussprachekurs
- * ist das schlimmer als kein Knopf: Wer "La eñe es una letra
- * española" von der Blechstimme hoert, lernt eine Aussprache, die es
- * so nicht gibt.
- *
- * Der Platz bleibt NICHT reserviert – der Knopf verschwindet ganz.
- * Sobald das Vertonungsskript den Satz nachliefert, ist er wieder da,
- * ohne dass hier etwas geaendert werden muesste.
- */
-/**
- * Spielt eine Aufnahme, sobald sie auf dem Bildschirm erscheint –
- * und zeigt selbst nichts an.
- *
- * Fuer die Hoerverstehen-Aufgabe: Dort IST das Zuhoeren die Aufgabe.
- * Erst auf einen Knopf warten zu muessen, ist ein Umweg ohne Zweck.
- * Der "Anhören"-Knopf bleibt daneben stehen – zum Nochmalhoeren.
- */
-function VonSelbst({ text, stimme }) {
-  useEffect(() => {
-    let abgebrochen = false
-    gibtEsAufnahme(text, stimme).then((da) => {
-      if (da && !abgebrochen) spieleVonSelbst(text, stimme ? { stimme } : undefined)
-    })
-    return () => { abgebrochen = true }
-  }, [text, stimme])
-  return null
-}
-
-function HoerKnopf({ text, titel, klein = false, stimme, vonSelbst = false }) {
-  const [gibtEs, setGibtEs] = useState(null) // null = wird noch geprueft
-
-  useEffect(() => {
-    let abgebrochen = false
-    gibtEsAufnahme(text, stimme).then((da) => {
-      if (abgebrochen) return
-      setGibtEs(da)
-      // Von selbst nur, wenn es auch eine echte Aufnahme gibt. Die
-      // Browser-Stimme ungefragt loszuschicken waere das Gegenteil
-      // von dem, wofuer der Knopf ueberhaupt verschwindet.
-      if (da && vonSelbst) spieleVonSelbst(text, stimme ? { stimme } : undefined)
-    })
-    return () => { abgebrochen = true }
-  }, [text, stimme, vonSelbst])
-
-  if (!gibtEs) return null
-
-  return (
-    <button
-      className={'speak-btn' + (klein ? ' speak-btn-mini' : '')}
-      onClick={() => spiele(text, stimme ? { stimme } : undefined)}
-      title={titel}
-    >
-      🔊
-    </button>
-  )
-}

@@ -8821,6 +8821,33 @@ export function kommtBald(modul) {
  */
 export const KURSFOLGE = [...LEKTIONEN].sort((a, b) => a.kursNr - b.kursNr)
 
+/**
+ * Vom kleingeschriebenen Wort zurueck zur Schreibweise der Lektion.
+ *
+ * Der Wortschatz des Trainers ist nach kleingeschriebenen Schluesseln
+ * abgelegt – "¿Tiene…?" liegt dort als "¿tiene…?". Der Dateiname der
+ * Aufnahme wird aber aus dem Text berechnet, Grossbuchstaben
+ * eingeschlossen. Ohne diesen Rueckweg fanden 25 der 1.628
+ * Lektionswoerter ihre Aufnahme nicht und blieben im Trainer stumm –
+ * ausgerechnet Fragen wie "¿Cuánto cuesta?", die man am ehesten
+ * einmal gehoert haben will.
+ *
+ * Der andere Weg waere gewesen, dieselben Woerter ein zweites Mal
+ * kleingeschrieben zu vertonen. Zwei Dateien mit demselben Klang.
+ */
+const NACH_KLEIN = new Map()
+for (const l of LEKTIONEN) {
+  for (const i of l.items) {
+    const klein = i.es.toLowerCase()
+    if (klein !== i.es && !NACH_KLEIN.has(klein)) NACH_KLEIN.set(klein, i.es)
+  }
+}
+
+/** Die Schreibweise, unter der die Aufnahme liegt. */
+export function originalWort(wort) {
+  return NACH_KLEIN.get(wort) ?? wort
+}
+
 /** Die naechste Lektion, die noch nicht geschafft ist. */
 export function naechsteLektion(lessonProgress = {}) {
   return KURSFOLGE.find((l) => !lessonProgress?.[l.id]?.fertig) ?? null

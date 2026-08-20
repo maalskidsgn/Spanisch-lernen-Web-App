@@ -51,6 +51,29 @@ Entscheiden: zurückholen oder wegwerfen.
 
 ---
 
+### Onboarding fehlt
+**Manuel, 20.08.:** „Danach müssen wir noch onboarding machen."
+
+Stand heute: `src/Willkommen.jsx` ist eine Werbeseite für alle, die
+noch kein Konto haben – was die App kann, was sie kostet. Wer sich
+registriert, landet danach **ohne ein Wort** direkt in der App
+(`src/App.jsx:694-716`). Kein Begrüßen, kein Ziel, keine Erklärung.
+Der Leitfaden erklärt zwar alles, aber nur, wenn man ihn von sich
+aus öffnet.
+
+Was ein Neuling in den ersten zwei Minuten nicht weiß:
+- Wo er anfangen soll (Lektionen? Trainer? Mediathek?)
+- Dass die 150 Lektionen aufeinander aufbauen
+- Dass der Trainer sich selbst füllt, wenn er Lektionen abschließt
+- Dass Wörter und Sätze echte Stimmen haben
+
+Vorschlag: drei bis vier Karten nach der Registrierung – Vorkenntnisse,
+Tagesziel, wofür er Spanisch lernt – und danach direkt in Lektion 1
+statt auf die Startseite. Das Tagesziel gibt es in den Einstellungen
+schon, es wird nur nie erfragt.
+
+---
+
 ## 💡 Ideen
 
 ### Tägliche zweisprachige Nachrichten
