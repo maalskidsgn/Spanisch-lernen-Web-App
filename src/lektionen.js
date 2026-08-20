@@ -8159,7 +8159,7 @@ export const LEKTIONEN = [
       { es: 'sería', de: 'es wäre wohl', beispielEs: 'Serían las ocho cuando llegó.', beispielDe: 'Es war wohl acht, als er kam.' },
       { es: 'tendría unos treinta', de: 'er war wohl um die dreißig', beispielEs: 'Tendría unos treinta años.', beispielDe: 'Er war wohl um die dreißig.' },
       { es: 'yo que tú', de: 'an deiner Stelle', beispielEs: 'Yo que tú lo pensaría.', beispielDe: 'An deiner Stelle würde ich es überlegen.' },
-      { es: 'en tu lugar', de: 'an deiner Stelle', beispielEs: 'En tu lugar preguntaría antes.', beispielDe: 'An deiner Stelle würde ich vorher fragen.' },
+      { es: 'en tu lugar', de: 'wenn ich du wäre', beispielEs: 'En tu lugar preguntaría antes.', beispielDe: 'Wenn ich du wäre, würde ich vorher fragen.' },
     ],
     wissen: [
       {

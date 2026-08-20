@@ -106,3 +106,6 @@ if (fehler.length) {
   process.exit(1)
 }
 console.log(`Kursaufbau in Ordnung – ${LEKTIONEN.length} Lektionen geprüft.`)
+// Hinweis fuer die Aufrufer: "node pruefe-lektionen.mjs | head" verschluckt
+// den Fehlercode, weil head erfolgreich beendet. Wer den Pruefer in einer
+// Kette benutzt, darf ihn nicht durch eine Pipe schicken.
