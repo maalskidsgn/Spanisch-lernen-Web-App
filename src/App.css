@@ -8831,3 +8831,19 @@ body.lektion-laeuft .lessons > .player-top,
 @media (max-width: 520px) {
   .ew-knoepfe { flex-direction: column; }
 }
+
+/* Meldung, wenn die Übersetzung nicht klappt.
+   Vorher passierte in dem Fall gar nichts – der Schalter sprang um
+   und blieb still. Niemand konnte wissen, ob der Dienst hakt oder
+   man selbst etwas falsch macht. */
+.de-fehler {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #b3261e;
+  background: #fdeceb;
+  border-radius: 10px;
+  padding: 8px 12px;
+}

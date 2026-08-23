@@ -197,6 +197,12 @@ export default function App() {
   const [showDe, setShowDe] = useState(false) // deutsche Übersetzung eingeblendet?
   const [deLines, setDeLines] = useState(null) // die übersetzten Zeilen
   const [deLoading, setDeLoading] = useState(false)
+  // Warum ein Fehlerzustand: Frueher wurde ein Fehlschlag stumm
+  // verschluckt. Der Schalter sprang um, es passierte nichts, und
+  // niemand konnte wissen, ob der Dienst hakt oder man selbst etwas
+  // falsch gemacht hat. Genau so ist der Google-Ausfall wochenlang
+  // unbemerkt geblieben.
+  const [deFehler, setDeFehler] = useState('')
   const [activeLine, setActiveLine] = useState(-1) // welche Zeile gerade gesprochen wird
   const [autoScroll, setAutoScroll] = useState(true)
   const [laeuft, setLaeuft] = useState(false) // spielt das Video gerade?
@@ -690,10 +696,11 @@ export default function App() {
   // Übersetzung ein-/ausschalten – beim ersten Mal werden alle Zeilen
   // auf einen Schlag vom Server übersetzt und dann wiederverwendet
   async function toggleUebersetzung() {
-    if (showDe) return setShowDe(false)
+    if (showDe) { setDeFehler(''); return setShowDe(false) }
     setShowDe(true)
     if (deLines || deLoading || !video) return
     setDeLoading(true)
+    setDeFehler('')
     try {
       const res = await fetch(API_URL + '/api/translate-batch', {
         method: 'POST',
@@ -701,9 +708,10 @@ export default function App() {
         body: JSON.stringify({ lines: video.lines.map((l) => l.text) }),
       })
       const data = await res.json()
-      if (res.ok) setDeLines(data.uebersetzungen)
-    } catch {
-      // klappt es nicht, bleibt einfach nur das Spanische sichtbar
+      if (!res.ok) throw new Error(data.error || `Server antwortet mit ${res.status}`)
+      setDeLines(data.uebersetzungen)
+    } catch (f) {
+      setDeFehler(f.message)
     } finally {
       setDeLoading(false)
     }
@@ -1139,6 +1147,11 @@ export default function App() {
                   >
                     {deLoading ? 'Übersetze …' : 'Übersetzung'}
                   </button>
+                  {deFehler && (
+                    <span className="de-fehler" role="alert">
+                      Übersetzung geht gerade nicht: {deFehler}
+                    </span>
+                  )}
                   <button
                     className="video-aktion"
                     onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
