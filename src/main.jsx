@@ -10,6 +10,6 @@ createRoot(document.getElementById('root')).render(
     {/* Neben der App, nicht darin: Der Hinweis muss auch auf der
         Startseite erscheinen, und die liegt in App hinter einer
         vorzeitigen Rueckgabe. */}
-    <Einwilligung />
+    <Einwilligung onRecht={(s) => { window.dispatchEvent(new CustomEvent('recht', { detail: s })) }} />
   </StrictMode>,
 )

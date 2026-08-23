@@ -9,6 +9,7 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
+import { Impressum, Datenschutz, AGB } from './Recht.jsx'
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
@@ -235,6 +236,19 @@ export default function App() {
   const [onboardingFertig, setOnboardingFertig] = useState(false)
   // Laeuft gerade der Trichter VOR der Anmeldung?
   const [trichterOffen, setTrichterOffen] = useState(false)
+  // Welche Pflichtseite ist offen? Bewusst getrennt von `view`:
+  // Sie muss auch VOR der Anmeldung erreichbar sein, und dort
+  // gibt es `view` noch gar nicht.
+  const [rechtSeite, setRechtSeite] = useState(null)
+
+  // Der Cookie-Banner haengt neben <App/> im Baum (App steigt fuer
+  // Abgemeldete frueh aus), kann also keine Prop bekommen. Deshalb
+  // meldet er sich ueber ein Fenster-Ereignis.
+  useEffect(() => {
+    const auf = (e) => setRechtSeite(e.detail)
+    window.addEventListener('recht', auf)
+    return () => window.removeEventListener('recht', auf)
+  }, [])
 
   // Jeden Ansichtswechsel an die Messung melden.
   //
@@ -827,6 +841,16 @@ export default function App() {
     ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
   )
 
+  // Pflichtseiten zuerst: Impressum, Datenschutz und AGB muessen auch
+  // ohne Konto erreichbar sein – sonst stehen sie hinter der Anmeldung,
+  // und genau das waere der Fehler.
+  if (rechtSeite) {
+    const zu = () => setRechtSeite(null)
+    if (rechtSeite === 'impressum') return <Impressum onZurueck={zu} />
+    if (rechtSeite === 'datenschutz') return <Datenschutz onZurueck={zu} />
+    if (rechtSeite === 'agb') return <AGB onZurueck={zu} />
+  }
+
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
   if (supabaseBereit && !nutzer) {
     // Solange noch geprüft wird, ob eine Sitzung besteht: nichts zeigen,
@@ -868,6 +892,7 @@ export default function App() {
     return (
       <>
         <Willkommen
+          onRecht={setRechtSeite}
           onStarten={() => setTrichterOffen(true)}
           onAnmelden={() => { setLoginStart('anmelden'); setLoginOffen(true) }}
         />
@@ -998,6 +1023,7 @@ export default function App() {
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
+            onRecht={setRechtSeite}
           />
         </main>
       )}

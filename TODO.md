@@ -8,7 +8,9 @@ repariert, Mailversand über lernen@habloo.de im Habloo-Design,
 Google Analytics mit Einwilligung, Onboarding-Trichter vor der
 Anmeldung, Hörverstehen „Mitgehört".
 
-**Der einzige echte Blocker vor dem Start:** Rechtstexte.
+**Der einzige echte Blocker vor dem Start:** Stripe steht noch im
+Testmodus. Die Rechtstexte stehen seit dem 23.08. (Entwürfe – siehe
+unten, juristische Prüfung offen).
 
 ---
 
@@ -67,29 +69,28 @@ Noch prüfen (Manuel):
       eine Woche sauber läuft.
 - [ ] Mail-Passwort im KAS einmal neu setzen (stand mehrfach im Chat).
 
-### Rechtstexte fehlen vollständig
-Kein Impressum, keine Datenschutzerklärung, keine AGB, keine
-Widerrufsbelehrung — und nirgends ein Link darauf. habloo.de ist
-bereits öffentlich erreichbar.
+### ✅ Rechtstexte stehen (23.08.)
+`src/Recht.jsx` enthält Impressum, Datenschutzerklärung und AGB samt
+Widerrufsbelehrung. Erreichbar ohne Konto: Fuß der Startseite, im
+Cookie-Banner (Link auf die Datenschutzerklärung) und unter „Mehr →
+Rechtliches".
 
-Die App verarbeitet Daten über: Supabase (Konto, Fortschritt),
-OpenAI (Wortlisten, Baustein-Varianten), Anthropic (Ebooks),
-ElevenLabs (Audio), YouTube (eingebettete Videos), Spotify (OAuth,
-liest gespeicherte Titel, Playlists und meistgehörte Künstler),
-Stripe (Zahlung), **Google Analytics** (Reichweitenmessung, seit
-23.08., nur nach Einwilligung).
+Impressum aus klarwerk-digital.com übernommen. Die zehn Datenempfänger
+sind aus dem Quelltext **erhoben**, nicht abgeschrieben – Supabase,
+Hetzner, OpenAI, Anthropic (nur Premium), Google/YouTube, Google
+Analytics, Stripe, Spotify, TubeAlfred, ALL-INKL. ElevenLabs steht
+bewusst NICHT drin: Die Stimmen sind vorab erzeugt, im Betrieb geht
+dorthin kein Nutzerdatum. Nachprüfen:
+`grep -rhoE "https://[a-z0-9.-]+\.[a-z]{2,}" src/ server/ | sort -u`
 
-Zu Google Analytics gehören zwei Dinge in die Datenschutzerklärung:
-Google Ireland Ltd. als Empfänger samt Übermittlung in die USA, und
-ein Hinweis, wie man die Einwilligung widerruft (Mehr → Messung).
-Außerdem gehört der Banner dann auf die Datenschutzerklärung
-verlinkt – die Stelle ist in `src/Einwilligung.jsx` als TODO
-markiert. Solange die Seite fehlt, steht dort bewusst kein Link.
-
-Für ein kostenpflichtiges Abo an Verbraucher in Deutschland führt
-daran kein Weg vorbei. Claude kann die vollständige Liste der
-Datenempfänger aus dem Code zusammenstellen — welcher Dienst, welche
-Daten, wofür, welcher Endpunkt. Die juristische Bewertung nicht.
+**Wichtig:** Das sind Entwürfe. Die Empfängerliste ist belegbar
+richtig, die juristische Bewertung kann Claude nicht liefern – für ein
+kostenpflichtiges Verbraucher-Abo in Deutschland gehört das einmal
+über einen Anwalt. Offen bleibt außerdem:
+- [ ] Preise in den AGB gegen Stripe prüfen, sobald live geschaltet
+      (aktuell 5,99 €/Monat, 50 €/Jahr, 89 € einmalig).
+- [ ] Wer einen neuen Dienst einbaut, muss die Liste in `Recht.jsx`
+      nachziehen – sonst stimmt die Erklärung nicht mehr.
 
 ### Stripe steht im Testmodus
 `STRIPE_SECRET_KEY` beginnt mit `sk_test`. Die Premium-Karte trägt

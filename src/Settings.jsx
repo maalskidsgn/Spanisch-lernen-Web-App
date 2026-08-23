@@ -23,6 +23,7 @@ export default function Settings({
   syncStatus,
   onLoginOeffnen,
   onNavigate,
+  onRecht,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   // Der Ton-Schalter liegt nicht in settings: Er soll auch ohne
@@ -453,6 +454,23 @@ export default function Settings({
             <span className="slider" />
           </span>
         </label>
+      </div>
+
+      {/* ---------- Rechtliches ---------- */}
+      <h2 className="settings-heading">Rechtliches</h2>
+      <div className="settings-card">
+        {[
+          ['impressum', 'Impressum'],
+          ['datenschutz', 'Datenschutzerklärung'],
+          ['agb', 'AGB & Widerrufsrecht'],
+        ].map(([kennung, text]) => (
+          <button key={kennung} className="leitfaden-zeile" onClick={() => onRecht(kennung)}>
+            <div>
+              <div className="row-title">{text}</div>
+            </div>
+            <IconPfeil groesse={18} />
+          </button>
+        ))}
       </div>
 
       {/* ---------- Messung ----------

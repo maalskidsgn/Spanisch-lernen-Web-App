@@ -24,11 +24,10 @@ import { einwilligungsStand, messungMoeglich, setzeEinwilligung, messungFortsetz
  * Google-Skript geladen und kein Cookie gesetzt. Nachgemessen am
  * 23.08. – vor dem Klick keine Anfrage, nach dem Klick genau eine.
  *
- * TODO: Sobald die Datenschutzerklärung steht, hier verlinken. Bis
- * dahin steht dort bewusst kein Link – ein toter Verweis auf eine
- * nicht vorhandene Seite wäre schlimmer als keiner.
+ * Seit 23.08. verlinkt der Text auf die Datenschutzerklärung – die
+ * gehört dort hin, damit die Einwilligung informiert erfolgt.
  */
-export default function Einwilligung() {
+export default function Einwilligung({ onRecht }) {
   const [zeigen, setZeigen] = useState(false)
 
   useEffect(() => {
@@ -53,8 +52,10 @@ export default function Einwilligung() {
         <p className="ew-titel">Wir verwenden Cookies</p>
         <p className="ew-text">
           Diese Website verwendet Cookies und ähnliche Technologien, um die Nutzung
-          zu analysieren und unser Angebot zu verbessern. Du kannst deine Auswahl
-          jederzeit unter „Mehr" ändern.
+          zu analysieren und unser Angebot zu verbessern. Einzelheiten stehen in
+          der <button className="ew-link" onClick={() => onRecht('datenschutz')}>
+          Datenschutzerklärung</button>. Du kannst deine Auswahl jederzeit unter
+          „Mehr" ändern.
         </p>
         <div className="ew-knoepfe">
           <button className="ew-knopf" onClick={() => entscheide(false)}>

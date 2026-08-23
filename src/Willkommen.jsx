@@ -8,7 +8,7 @@ import Logo from './Logo.jsx'
  * Oben der Hero mit den beiden Wegen ins Konto, darunter erklärt die
  * Seite, was die App kann – Schritte, Funktionen, Fortschritt, Preise.
  */
-export default function Willkommen({ onStarten, onAnmelden }) {
+export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
   const seite = useRef(null)
 
   // Alles mit der Klasse "zeigt-sich" gleitet herein, sobald es
@@ -308,6 +308,13 @@ export default function Willkommen({ onStarten, onAnmelden }) {
         <span>{APP_NAME}</span>
         <span className="wk-footer-klein">
           Mit Herz entwickelt von Klarwerk Digital
+        </span>
+        {/* Pflichtangaben – muessen von jeder Seite aus in zwei Klicks
+            erreichbar sein, deshalb hier im Fuss der Startseite. */}
+        <span className="wk-footer-recht">
+          <button onClick={() => onRecht('impressum')}>Impressum</button>
+          <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
+          <button onClick={() => onRecht('agb')}>AGB</button>
         </span>
       </footer>
     </div>

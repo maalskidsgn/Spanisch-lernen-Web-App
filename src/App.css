@@ -8880,3 +8880,110 @@ body.lektion-laeuft .lessons > .player-top,
   line-height: 1.5;
   color: var(--primary-dark);
 }
+
+
+/* ---------- Rechtstexte: Impressum, Datenschutz, AGB ----------
+   Bewusst nüchtern und ruhig: Diese Seiten werden gelesen, nicht
+   bedient. Deshalb schmale Spalte (rund 65 Zeichen), viel Luft
+   zwischen den Absätzen und keine Farbakzente außer den Links. */
+.recht {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+  color: var(--navy);
+  background: var(--bg);
+  min-height: 100vh;
+  line-height: 1.7;
+}
+.recht h1 {
+  font-size: 1.75rem;
+  margin: 16px 0 8px;
+  text-wrap: balance;
+}
+.recht-zurueck {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 600;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.recht-h2 {
+  font-size: 1.15rem;
+  margin: 32px 0 8px;
+  text-wrap: balance;
+}
+.recht-h3 {
+  font-size: 1rem;
+  margin: 20px 0 4px;
+}
+.recht-p { margin: 0 0 12px; }
+.recht a { color: var(--primary); overflow-wrap: anywhere; }
+
+/* Ein Datenempfänger: Name fett, darunter die vier Angaben. */
+.recht-dienst {
+  border-left: 3px solid var(--line);
+  padding: 4px 0 4px 14px;
+  margin: 0 0 18px;
+}
+.recht-dienst dt {
+  font-size: .8rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .6;
+  margin-top: 8px;
+}
+.recht-dienst dd { margin: 0; }
+
+/* Widerrufsbelehrung – muss sich vom Fließtext abheben, das
+   verlangt § 246a EGBGB („hervorgehoben"). */
+.recht-kasten {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 16px 0 24px;
+  background: var(--card);
+}
+.recht-hinweis {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.recht-stand {
+  margin-top: 40px;
+  font-size: .85rem;
+  opacity: .6;
+}
+
+/* Pflichtlinks im Fuß der Startseite */
+.wk-footer-recht {
+  display: flex;
+  gap: 4px 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+.wk-footer-recht button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: .85rem;
+  color: inherit;
+  opacity: .75;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.wk-footer-recht button:hover { opacity: 1; }
+
+/* Link im Cookie-Banner */
+.ew-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
