@@ -1,0 +1,25 @@
+# Habloo-Frontend: statische Dateien mit SPA-Regel.
+#
+# Das ersetzt die "rewrites"-Regel aus der vercel.json. Die App
+# verwaltet ihre Ansichten selbst und hat keinen Router – ruft jemand
+# eine Unteradresse direkt auf, gibt es dafür keine Datei. try_files
+# schickt solche Adressen an index.html, und die App entscheidet dann,
+# was zu zeigen ist.
+
+:80 {
+	root * /srv
+	encode gzip zstd
+
+	# Fertige Dateien tragen eine Prüfsumme im Namen und ändern sich
+	# nie – die dürfen lange im Zwischenspeicher bleiben.
+	@statisch path /assets/*
+	header @statisch Cache-Control "public, max-age=31536000, immutable"
+
+	# index.html NIEMALS zwischenspeichern. Sonst sieht jemand nach
+	# einer Aktualisierung noch tagelang die alte App und verweist auf
+	# Dateien, die es nicht mehr gibt.
+	header /index.html Cache-Control "no-cache"
+
+	try_files {path} /index.html
+	file_server
+}

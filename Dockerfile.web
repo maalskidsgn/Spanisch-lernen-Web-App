@@ -1,0 +1,47 @@
+# Bauanleitung für das Habloo-FRONTEND (die Web-App im Browser).
+#
+# Bis zum 23.08. lag das Frontend bei Vercel und das Backend hier auf
+# dem Server. Das war die Ursache eines ganzen verlorenen Nachmittags:
+# Vercel zieht jeden Push von selbst, Coolify tat es nicht. Beide
+# Stände liefen auseinander, längst behobene Fehler traten weiter auf,
+# und niemand konnte sich das erklären. Jetzt liegt beides am selben
+# Ort und wird zusammen ausgeliefert.
+#
+# Zwei Stufen: Erst baut Node die App zu fertigen Dateien, dann
+# liefert ein winziger Caddy-Server sie aus. Der fertige Container
+# enthält kein Node mehr – nur die Dateien und den Webserver.
+#
+# WICHTIG: Die VITE_-Werte werden BEIM BAUEN fest eingebacken, nicht
+# beim Starten gelesen. Sie müssen in Coolify als "Build Variable"
+# gesetzt sein, sonst zeigt die App ins Leere. Geheimnisse gehören
+# hier NICHT hinein – alles, was eingebacken wird, steht später im
+# Quelltext der Seite.
+
+FROM node:22-slim AS bauen
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . .
+
+ARG VITE_API_URL
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_SPOTIFY_CLIENT_ID
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_SUPABASE_URL=$VITE_SUPABASE_URL \
+    VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY \
+    VITE_SPOTIFY_CLIENT_ID=$VITE_SPOTIFY_CLIENT_ID
+
+# Der Build lässt zuerst die fünf Prüfer laufen – 150 Lektionen,
+# 275 Baustein-Aufgaben, 7 Prüfstationen, den Karteikasten und die
+# Hörszenen. Schlägt einer an, bricht der Bau ab: Kaputte Inhalte
+# gehen nie live.
+RUN npm run build
+
+# ---- Stufe 2: ausliefern ----
+FROM caddy:2-alpine
+COPY --from=bauen /app/dist /srv
+COPY Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80
