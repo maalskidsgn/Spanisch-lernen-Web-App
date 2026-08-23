@@ -45,6 +45,12 @@ SMTP über All-Inkl (587), vier Vorlagen im Habloo-Design auf Deutsch,
 Site URL + Redirect URLs auf habloo.de, **Mail-Bestätigung bei
 Registrierung jetzt AN** (vorher: jeder sofort bestätigt, ohne Mail).
 
+Bewiesen 23.08. (aus einem Bounce-Original gelesen): Supabase
+rendert die neue Vorlage, Betreff „Habloo – dein Link zum neuen
+Passwort". Frühere englische Mails waren vor dem Schreiben erzeugt.
+Web.de kennt KEINE Plus-Adressen (`name+tag@web.de` → 550) – für
+Tests Gmail nehmen oder eine echte zweite Adresse.
+
 Noch prüfen (Manuel):
 - [ ] In der neuen Mail auf den Knopf: muss auf habloo.de landen und
       das Formular „Neues Passwort" öffnen.
