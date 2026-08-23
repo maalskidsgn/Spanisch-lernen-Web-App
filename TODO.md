@@ -39,47 +39,20 @@ Zertifikate sind gezogen, http leitet auf https.
       legt keine an. Zugang zur Kommandozeile weiterhin über
       `ssh -i ~/.ssh/hetzner_vamigo root@2.28.31.213`.
 
-### ⚠️ E-Mail: Supabase auf lernen@habloo.de umstellen
-**Stand 23.08.:** Postfach `lernen@habloo.de` bei All-Inkl angelegt.
-Habloo selbst verschickt keine Mail – alles kommt von Supabase Auth
-(Bestätigung bei Registrierung, Passwort-Reset). Heute noch über
-Supabases Standardabsender: 2 Mails/Stunde, landet gern im Spam.
+### ✅ E-Mail: Supabase sendet über lernen@habloo.de (23.08.)
+Per Management-API gesetzt (`scripts/supabase-mail-einrichten.mjs`):
+SMTP über All-Inkl (587), vier Vorlagen im Habloo-Design auf Deutsch,
+Site URL + Redirect URLs auf habloo.de, **Mail-Bestätigung bei
+Registrierung jetzt AN** (vorher: jeder sofort bestätigt, ohne Mail).
 
-Im Code ist seit 23.08. alles vorbereitet (Rückkehr-Adresse fest auf
-habloo.de, Formular für neues Passwort). **SPF, MX und DMARC im DNS
-passen bereits** – `include:spf.kasserver.com` deckt den Versand über
-All-Inkl ab, da ist nichts zu ändern.
-
-**Manuel, im Supabase-Dashboard (5 Minuten):**
-
-1. **Project Settings → Authentication → SMTP Settings → Enable Custom SMTP**
-   | Feld | Wert |
-   |---|---|
-   | Sender email | `lernen@habloo.de` |
-   | Sender name | `Habloo` |
-   | Host | `w01a848c.kasserver.com` |
-   | Port | `465` |
-   | Username | `m05fc1af` *(wenn das nicht geht: `lernen@habloo.de`)* |
-   | Password | Postfach-Passwort aus dem KAS |
-   Danach „Send test email" drücken – kommt sie an, passt alles.
-
-2. **Authentication → URL Configuration**
-   - Site URL: `https://habloo.de`
-   - Redirect URLs: `https://habloo.de`, `https://habloo.de/**`
-   Ohne das fällt Supabase still auf die alte Site URL zurück, und der
-   Link in der Mail führt ins Leere.
-
-3. **Authentication → Email Templates** – die Standardtexte sind
-   Englisch. Mindestens „Confirm signup" und „Reset password" auf
-   Deutsch, Absender „Habloo". (Wenn du willst, schreibe ich dir die
-   Texte – sag Bescheid.)
-
-4. Danach einmal selbst testen: neues Konto mit einer echten Mail,
-   Bestätigungslink klicken → muss auf habloo.de landen. Dann „Passwort
-   vergessen" → Link klicken → Formular „Neues Passwort" muss erscheinen.
-
-Später, nicht jetzt: DMARC von `p=none` auf `p=quarantine` schärfen,
-sobald der Versand eine Woche sauber läuft.
+Noch prüfen (Manuel):
+- [ ] In der neuen Mail auf den Knopf: muss auf habloo.de landen und
+      das Formular „Neues Passwort" öffnen.
+- [ ] Frisches Konto anlegen: Bestätigungsmail muss kommen, Klick
+      bestätigt das Konto.
+- [ ] Später DMARC von `p=none` auf `p=quarantine`, sobald der Versand
+      eine Woche sauber läuft.
+- [ ] Mail-Passwort im KAS einmal neu setzen (stand mehrfach im Chat).
 
 ### Rechtstexte fehlen vollständig
 Kein Impressum, keine Datenschutzerklärung, keine AGB, keine
