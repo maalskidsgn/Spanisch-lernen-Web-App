@@ -3,6 +3,7 @@ import { API_URL, istApp } from './api.js'
 import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
+import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
@@ -36,6 +37,7 @@ export default function Settings({
   const [laedt, setLaedt] = useState(false)
   const [kaufFehler, setKaufFehler] = useState('')
   const [loeschLaeuft, setLoeschLaeuft] = useState(false)
+  const [resetLaeuft, setResetLaeuft] = useState(false)
 
   // Steht die Bezahlung bereit, und was kostet es?
   useEffect(() => {
@@ -157,14 +159,43 @@ export default function Settings({
     reader.readAsText(file)
   }
 
-  // Alles auf null zurücksetzen (mit doppelter Nachfrage!)
-  //
-  // Die Liste steht bewusst vollstaendig hier: Frueher blieben
-  // Lektionsfortschritt, Videostaende und die Tagesserie stehen –
-  // "Alles zurücksetzen" loeschte also gerade nicht alles.
-  function resetData() {
+  /**
+   * Alles auf null zurücksetzen.
+   *
+   * Zwei Fehler steckten hier drin, beide unsichtbar:
+   *
+   * 1. Es wurde NUR der Speicher des Geräts geleert. Beim Neuladen
+   *    holte zusammenfuehren() alles aus Supabase zurück und schrieb
+   *    es sogar noch einmal hin. Für jeden angemeldeten Nutzer war
+   *    der Knopf damit wirkungslos – genau das ist Manuel am 23.08.
+   *    aufgefallen. Deshalb jetzt zuerst die Datenbank.
+   *
+   * 2. Die Schlüsselliste war unvollständig. "bausteine" – der ganze
+   *    Grammatik-Fortschritt – stand nicht drin und überlebte jedes
+   *    Zurücksetzen. Dieselbe Sorte Fehler, die der Kommentar hier
+   *    schon einmal für Lektionen und Videos beschrieben hat.
+   */
+  async function resetData() {
     if (!confirm('Wirklich ALLE Vokabeln, Videos und deinen Fortschritt löschen?')) return
     if (!confirm('Ganz sicher? Das kann nicht rückgängig gemacht werden!')) return
+
+    setResetLaeuft(true)
+
+    // ERST die Datenbank. Andersherum stünde beim Neuladen alles
+    // wieder da – der alte Fehler.
+    if (nutzer && supabaseBereit) {
+      try {
+        await leereLerndaten(nutzer.id)
+      } catch (f) {
+        setResetLaeuft(false)
+        alert(
+          'Das Zurücksetzen hat nicht geklappt: ' + f.message +
+            '\n\nAuf diesem Gerät wurde nichts gelöscht. Bitte später noch einmal versuchen.'
+        )
+        return
+      }
+    }
+
     for (const schluessel of [
       'vokabeln',
       'videos',
@@ -172,14 +203,29 @@ export default function Settings({
       'fortschritt',
       'einstellungen',
       'lektionen',
+      'bausteine', // der Grammatik-Fortschritt – fehlte bis 23.08.
+      'bausteinVarianten',
       'aktivitaet',
       'tagesplan',
       'nutzung',
       'buecher',
       'vorschlaege2',
+      'tonVonSelbst',
+      'startpaket:offen',
+      'spotify_zugang',
+      'spotify_interpreten',
     ]) {
       localStorage.removeItem(schluessel)
     }
+    // Das Onboarding hängt an der Nutzerkennung – wer zurücksetzt,
+    // fängt auch dort wieder von vorn an.
+    if (nutzer) localStorage.removeItem('onboarding:' + nutzer.id)
+
+    // NICHT geleert wird die Einwilligung zur Messung. Sie ist keine
+    // Lerndatei, sondern eine Entscheidung: Wer "Ablehnen" geklickt
+    // hat, hätte sie sonst mit dem Zurücksetzen widerrufen – und
+    // bekäme den Banner wieder vorgelegt, als hätte er nie geantwortet.
+
     window.location.reload()
   }
 
@@ -495,11 +541,12 @@ export default function Settings({
           <div>
             <div className="row-title">Alles zurücksetzen</div>
             <div className="row-hint">
-              Leert diese App – dein Konto bleibt bestehen
+              Löscht Vokabeln, Fortschritt und Statistik – auch auf dem Server.
+              Dein Konto bleibt bestehen.
             </div>
           </div>
-          <button className="btn-small btn-danger" onClick={resetData}>
-            Zurücksetzen
+          <button className="btn-small btn-danger" onClick={resetData} disabled={resetLaeuft}>
+            {resetLaeuft ? 'Läuft …' : 'Zurücksetzen'}
           </button>
         </div>
 

@@ -143,6 +143,30 @@ function fehltSpalte(error) {
   return /intervall|leichtigkeit/i.test(text) && /column|schema/i.test(text)
 }
 
+/**
+ * Leert ALLE Lerndaten eines Kontos in der Datenbank.
+ *
+ * Für "Alles zurücksetzen". Das Konto selbst bleibt bestehen – dafür
+ * gibt es den getrennten Weg über /api/konto/loeschen.
+ *
+ * Warum das überhaupt nötig ist: "Alles zurücksetzen" hat früher nur
+ * den Speicher des Geräts geleert. Beim Neuladen holte
+ * zusammenfuehren() aber alles aus der Datenbank zurück – und schrieb
+ * es sogar noch einmal hin. Für jeden angemeldeten Nutzer war der
+ * Knopf damit wirkungslos.
+ *
+ * Reihenfolge ist wichtig: erst hier, dann lokal. Andersherum stünde
+ * beim Neuladen alles wieder da.
+ */
+export async function leereLerndaten(nutzerId) {
+  // statistik zuletzt: Bricht es vorher ab, sieht man am stehen
+  // gebliebenen XP-Stand sofort, dass etwas schiefging.
+  for (const tabelle of ['vokabeln', 'lektion_fortschritt', 'statistik']) {
+    const { error } = await db.from(tabelle).delete().eq('nutzer_id', nutzerId)
+    if (error) throw new Error(`Tabelle ${tabelle}: ${error.message}`)
+  }
+}
+
 /** Löscht eine Vokabel. */
 export async function loescheVokabel(nutzerId, wortEs) {
   const { error } = await db
