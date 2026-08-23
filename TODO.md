@@ -1,6 +1,14 @@
 # Habloo – was noch offen ist
 
-Stand: 23. August 2026
+Stand: 23. August 2026, nachmittags
+
+**Was jetzt läuft:** 150 Lektionen komplett vertont (4.728 Aufnahmen,
+0 fehlen), Frontend + Backend auf Coolify mit Auto-Deploy, Karteikasten
+repariert, Mailversand über lernen@habloo.de im Habloo-Design,
+Google Analytics mit Einwilligung, Onboarding-Trichter vor der
+Anmeldung, Hörverstehen „Mitgehört".
+
+**Der einzige echte Blocker vor dem Start:** Rechtstexte.
 
 ---
 
@@ -26,11 +34,10 @@ Zertifikate sind gezogen, http leitet auf https.
   als Rückfall offen).
 
 **Noch zu tun (Manuel):**
-- [ ] **Vercel-Projekt löschen** – erst wenn habloo.de überall auf
-      Coolify zeigt (TTL 2 h, also frühestens ~11:00 Uhr am 23.08.).
-      Prüfen: `dig +short habloo.de` muss `2.28.31.213` liefern.
-      Dann unter vercel.com das Projekt entfernen, sonst baut es bei
-      jedem Push weiter und kostet Build-Minuten.
+- [ ] **Vercel-Projekt löschen** – DNS ist durch (`habloo.de` →
+      2.28.31.213, geprüft 23.08. nachmittags). Unter vercel.com das
+      Projekt entfernen, sonst baut es bei jedem Push weiter und
+      kostet Build-Minuten.
 - [ ] **Chrome-Erweiterung freigeben** für `coolify.habloo.de` und
       `habloo.de` (Claude-Symbol in der Werkzeugleiste), damit Claude
       die Oberfläche bedienen kann. Nur diese Domains, keine
@@ -84,47 +91,6 @@ daran kein Weg vorbei. Claude kann die vollständige Liste der
 Datenempfänger aus dem Code zusammenstellen — welcher Dienst, welche
 Daten, wofür, welcher Endpunkt. Die juristische Bewertung nicht.
 
-### ⚠️ Karteikasten: Der SQL-Befehl fehlt noch
-**Code ist fertig (20.08.), die Datenbank noch nicht.**
-
-Das hier ist das Einzige, was Manuel selbst tun muss. Im Supabase-
-Dashboard unter „SQL Editor" ausführen:
-
-```sql
-alter table vokabeln
-  add column if not exists intervall real,
-  add column if not exists leichtigkeit real;
-```
-
-**Solange das nicht läuft, bleibt der Fehler bestehen.** Die App
-merkt es und arbeitet weiter wie bisher – sie stürzt nicht ab –, aber
-die Abstände bleiben grob. In der Browser-Konsole steht dann ein
-Hinweis. Nach dem SQL: nichts weiter zu tun, es greift beim nächsten
-Abgleich von selbst.
-
-<details><summary>Was der Fehler war</summary>
-
-`src/srs.js` rechnete richtig. `src/sync.js` speicherte aber nur
-`stufe` und `faellig_am` – `intervall` und `leichtigkeit`, von denen
-die Rechnung lebt, fielen weg. Beim nächsten App-Start fiel der
-Abstand auf die grobe Leiter `[0,1,3,7,14,30,90]` zurück:
-
-```
-ohne Sync:  1 → 2,5 → 6,3 → 15,8 → 39,5 → 98,8 → 247 → 365
-mit Sync:   1 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5 → 2,5
-```
-
-2,5 Tage runden auf Stufe 1 ab, Stufe 1 heißt wieder 1 Tag, mal 2,5
-sind wieder 2,5 – ein Kreis. Bei „Schwer" dasselbe bei 0,5 Tagen.
-
-Behoben in `sync.js` (beide Felder werden mitgespeichert, die
-Zusammenführung vergleicht jetzt den Abstand statt der groben Stufe)
-und in `srs.js` (unter einer Woche mit Nachkommastelle, sonst stand
-auf zwei Knöpfen dasselbe). `pruefe-srs.mjs` prüft die Rundreise vor
-jedem Build und wurde gegen den alten Stand gegengeprüft – er schlägt
-an.
-</details>
-
 ### Stripe steht im Testmodus
 `STRIPE_SECRET_KEY` beginnt mit `sk_test`. Die Premium-Karte trägt
 „Bald verfügbar". Es kann niemand bezahlen — die Mechanik ist fertig,
@@ -133,14 +99,6 @@ sie ist nur nicht scharf.
 ---
 
 ## 🟡 Inhalt
-
-### Beispielsätze vertonen
-1.724 Sätze, **47.624 Credits**. Der größte verbleibende Posten —
-mehr als Dialoge und Vokabeln zusammen. Dialoge (42.673) und
-Vokabeln (17.642) sind seit dem 20.08. erledigt.
-
-Aufruf: `node scripts/vertone.mjs --los` (ohne `--ohne-saetze`).
-Das Skript überspringt, was schon im Speicher liegt.
 
 ### „Deine Sammlung" im Trainer
 Aus dem Entwurf vom 20.08.: zwei Kennzahlen (Wörter / sicher gelernt)
@@ -196,9 +154,10 @@ Ausrutschers, verhindert ihn aber nicht.
 
 ## 🔧 Kleinigkeiten
 
-- **`src/Songs.jsx`** ruft `db.from()` ohne Prüfung auf und stürzt ab,
-  wenn die Supabase-Zugangsdaten fehlen. Die Videos prüfen vorher —
-  Songs nicht. Eine Zeile.
+- **`src/Songs.jsx`**: Der ursprünglich notierte fehlende Guard ist
+  am 23.08. nicht mehr auffindbar (kein `db.from()` in der Datei).
+  Vermutlich beim Umbau miterledigt. Beim nächsten Anfassen kurz
+  gegenprüfen, dann diesen Punkt streichen.
 - **`src/Ebooks.jsx`** ist ein vollständiger Ebook-Bereich mit
   Niveau-Wahl und Monatskontingent, der nirgends eingebunden ist. Die
   Tabelle `ebooks` hat 5 Einträge, der Endpunkt `/api/ebook` läuft.
