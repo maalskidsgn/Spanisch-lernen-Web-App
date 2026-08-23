@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Dein Anmelde-Link für Habloo</title>
+</head>
+<body style="margin:0;padding:0;background:#fdf7f1;">
+  <!-- Vorschautext im Posteingang, unsichtbar in der Mail -->
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:#fdf7f1;">Ohne Passwort anmelden – ein Klick genügt.&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;</div>
+
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#fdf7f1;">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;">
+          <tr>
+            <td style="background:#ffffff;border-radius:22px;padding:40px 36px 34px;box-shadow:0 10px 34px rgba(255,108,0,0.10);">
+              
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 22px;">
+        <tr>
+          <td style="background:#ff6c00;border-radius:16px;width:56px;height:56px;text-align:center;vertical-align:middle;font-size:26px;line-height:56px;color:#ffffff;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-weight:800;">
+            &#10022;
+          </td>
+        </tr>
+      </table>
+      <p style="margin:0 0 26px;text-align:center;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:22px;font-weight:900;color:#ff6c00;letter-spacing:-0.3px;">Habloo</p>
+              <h1 style="margin:0 0 14px;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:26px;line-height:1.25;font-weight:900;color:#1a1a2e;">Dein Anmelde-Link</h1><p style="margin:0 0 16px;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:16px;line-height:1.65;color:#1a1a2e;">Mit diesem Knopf bist du direkt in Habloo angemeldet – ohne Passwort.</p><p style="margin:18px 0 0;padding:12px 14px;background:#fdf7f1;border-left:3px solid #ff6c00;border-radius:0 10px 10px 0;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:1.6;color:#6b6b6b;">Du hast keinen Link angefordert? Dann ignoriere diese Mail.</p>
+              <!-- Der Knopf: als Tabelle, damit er in Outlook nicht zerfaellt -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:28px auto 0;">
+                <tr>
+                  <td style="background:#ff6c00;border-radius:14px;border-bottom:4px solid #e05f00;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:15px 34px;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:16px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:14px;">Jetzt anmelden</a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:26px 0 0;text-align:center;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:13px;line-height:1.6;color:#6b6b6b;">
+                Falls der Knopf nicht geht, kopiere diesen Link in deinen Browser:<br>
+                <a href="{{ .ConfirmationURL }}" style="color:#e05f00;word-break:break-all;">{{ .ConfirmationURL }}</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:22px 12px 0;text-align:center;font-family:'Nunito','Segoe UI','Helvetica Neue',Arial,sans-serif;font-size:12px;line-height:1.7;color:#6b6b6b;">
+              Der Link ist eine Stunde gültig und funktioniert nur einmal.<br>
+              Habloo · Spanisch lernen mit echten Stimmen · <a href="https://habloo.de" style="color:#6b6b6b;">habloo.de</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
