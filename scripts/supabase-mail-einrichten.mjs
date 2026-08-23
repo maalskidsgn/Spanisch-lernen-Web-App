@@ -51,9 +51,7 @@ const GEWUENSCHT = {
   smtp_admin_email: process.env.SMTP_FROM,
   smtp_sender_name: 'Habloo',
   smtp_host: process.env.SMTP_HOST,
-  smtp_port: String(process.env.SMTP_PORT),
   smtp_user: process.env.SMTP_USER,
-  smtp_pass: process.env.SMTP_PASS,
   smtp_max_frequency: 60,
 
   // Die vier Vorlagen im Habloo-Design
@@ -89,6 +87,13 @@ zeige('smtp_admin_email', aktuell.smtp_admin_email || '(leer)')
 zeige('Betreff Bestaetigung', aktuell.mailer_subjects_confirmation)
 zeige('Betreff Passwort', aktuell.mailer_subjects_recovery)
 zeige('Vorlage Bestaetigung (Zeichen)', (aktuell.mailer_templates_confirmation_content ?? '').length)
+
+// Passwort nur nachtragen, wenn in Supabase keins liegt. Es kommt
+// verschluesselt zurueck und ist deshalb nie "gleich" – ein blinder
+// Vergleich wuerde es bei jedem Lauf neu schreiben.
+if (!aktuell.smtp_pass) GEWUENSCHT.smtp_pass = process.env.SMTP_PASS
+// Port ebenso: Was gespeichert ist und nachweislich sendet, bleibt.
+if (!aktuell.smtp_port) GEWUENSCHT.smtp_port = String(process.env.SMTP_PORT)
 
 // ---- 2. Unterschiede ----
 const aenderungen = Object.entries(GEWUENSCHT).filter(([k, v]) => String(aktuell[k] ?? '') !== String(v ?? ''))
