@@ -9,6 +9,7 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import Willkommen from './Willkommen.jsx'
+import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -227,6 +228,16 @@ export default function App() {
   const [onboardingFertig, setOnboardingFertig] = useState(false)
   // Laeuft gerade der Trichter VOR der Anmeldung?
   const [trichterOffen, setTrichterOffen] = useState(false)
+
+  // Jeden Ansichtswechsel an die Messung melden.
+  //
+  // Ohne das zaehlte Google genau EINEN Seitenaufruf pro Sitzung:
+  // Habloo hat keinen Router, die Adresse in der Leiste aendert sich
+  // nie. Wer zwei Stunden durch die App geht, saehe in der Statistik
+  // aus wie jemand, der sofort wieder weg ist.
+  useEffect(() => {
+    seitenaufruf(view)
+  }, [view])
 
   // Das Paket aus dem Trichter überlebt die Anmeldung im Speicher des
   // Geräts. Es MUSS dort liegen und nicht im Zustand: Zwischen "Konto

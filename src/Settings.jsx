@@ -6,6 +6,7 @@ import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
+import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
@@ -27,6 +28,9 @@ export default function Settings({
   // Konto und ohne Abgleich gelten – wer im Buero sitzt, will ihn
   // sofort aus, nicht nach der naechsten Synchronisierung.
   const [autoTon, setAutoTon] = useState(tonVonSelbst)
+  // Die Einwilligung zur Messung – zuruecknehmen muss genauso leicht
+  // sein wie zustimmen, sonst ist die Zustimmung nicht wirksam.
+  const [messung, setMessung] = useState(() => einwilligungsStand() === 'ja')
   const [bezahlbar, setBezahlbar] = useState(false)
   const [preis, setPreis] = useState(null)
   const [laedt, setLaedt] = useState(false)
@@ -404,6 +408,37 @@ export default function Settings({
           </span>
         </label>
       </div>
+
+      {/* ---------- Messung ----------
+           Steht nur da, wo ueberhaupt gemessen wird: in der Store-App
+           und auf localhost gaebe es nichts zu schalten. */}
+      {messungMoeglich() && (
+        <>
+          <h2 className="settings-heading">Messung</h2>
+          <div className="settings-card">
+            <label className="settings-row">
+              <div>
+                <div className="row-title">Anonyme Reichweitenmessung</div>
+                <div className="row-hint">
+                  Zählt mit Google Analytics, wie viele Menschen Habloo benutzen. Aus
+                  heißt: kein Skript, keine Cookies. Habloo funktioniert genauso.
+                </div>
+              </div>
+              <span className="switch">
+                <input
+                  type="checkbox"
+                  checked={messung}
+                  onChange={(e) => {
+                    setMessung(e.target.checked)
+                    setzeEinwilligung(e.target.checked)
+                  }}
+                />
+                <span className="slider" />
+              </span>
+            </label>
+          </div>
+        </>
+      )}
 
       {/* ---------- Benachrichtigungen ---------- */}
       <h2 className="settings-heading">Benachrichtigungen</h2>

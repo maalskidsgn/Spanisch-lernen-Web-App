@@ -8762,3 +8762,72 @@ body.lektion-laeuft .lessons > .player-top,
   .ob-karte { padding: 24px 18px 22px; }
   .ob-karte h1 { font-size: 1.42rem; }
 }
+
+/* ============ Einwilligung zur Messung ============
+   Unten am Bildschirmrand statt als Vollbild-Sperre: Man soll die
+   Seite ansehen koennen, bevor man entscheidet. Wer nichts anklickt,
+   wird nicht gemessen – die Frage bleibt einfach offen. */
+.ew {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  padding: 14px;
+  display: flex;
+  justify-content: center;
+  animation: ew-herein 0.35s ease-out;
+}
+@keyframes ew-herein {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .ew { animation: none; } }
+
+.ew-karte {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  max-width: 520px;
+  box-shadow: 0 -4px 40px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--line);
+}
+.ew-titel {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text, #1a1a2e);
+}
+.ew-text {
+  margin: 0 0 16px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text, #1a1a2e);
+}
+.ew-knoepfe { display: flex; gap: 10px; }
+
+/* BEIDE Knoepfe gleich auffaellig. Ein kleines graues "Ablehnen"
+   neben einem grossen bunten "Akzeptieren" ist keine freiwillige
+   Entscheidung – und damit keine wirksame Einwilligung. */
+.ew-knopf {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 13px 18px;
+  border-radius: 13px;
+  cursor: pointer;
+  border: 2px solid var(--primary);
+  background: #fff;
+  color: var(--primary-dark);
+  box-shadow: none;
+  transition: transform 0.14s ease, background 0.14s ease;
+}
+@media (hover: hover) {
+  .ew-knopf:hover { background: #fff0e3; filter: none; transform: scale(1.02); }
+}
+.ew-knopf:active { transform: scale(0.97); }
+
+@media (max-width: 520px) {
+  .ew-knoepfe { flex-direction: column; }
+}

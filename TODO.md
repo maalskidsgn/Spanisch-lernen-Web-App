@@ -15,7 +15,15 @@ Die App verarbeitet Daten über: Supabase (Konto, Fortschritt),
 OpenAI (Wortlisten, Baustein-Varianten), Anthropic (Ebooks),
 ElevenLabs (Audio), YouTube (eingebettete Videos), Spotify (OAuth,
 liest gespeicherte Titel, Playlists und meistgehörte Künstler),
-Stripe (Zahlung).
+Stripe (Zahlung), **Google Analytics** (Reichweitenmessung, seit
+23.08., nur nach Einwilligung).
+
+Zu Google Analytics gehören zwei Dinge in die Datenschutzerklärung:
+Google Ireland Ltd. als Empfänger samt Übermittlung in die USA, und
+ein Hinweis, wie man die Einwilligung widerruft (Mehr → Messung).
+Außerdem gehört der Banner dann auf die Datenschutzerklärung
+verlinkt – die Stelle ist in `src/Einwilligung.jsx` als TODO
+markiert. Solange die Seite fehlt, steht dort bewusst kein Link.
 
 Für ein kostenpflichtiges Abo an Verbraucher in Deutschland führt
 daran kein Weg vorbei. Claude kann die vollständige Liste der
