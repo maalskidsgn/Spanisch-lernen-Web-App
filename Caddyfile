@@ -15,10 +15,17 @@
 	@statisch path /assets/*
 	header @statisch Cache-Control "public, max-age=31536000, immutable"
 
-	# index.html NIEMALS zwischenspeichern. Sonst sieht jemand nach
+	# Alles andere NIEMALS zwischenspeichern. Sonst sieht jemand nach
 	# einer Aktualisierung noch tagelang die alte App und verweist auf
 	# Dateien, die es nicht mehr gibt.
-	header /index.html Cache-Control "no-cache"
+	#
+	# Bewusst "nicht /assets/*" statt "/index.html": Caddy prueft den
+	# angefragten PFAD, und der ist beim Aufruf der Startseite "/",
+	# nicht "/index.html". Die naheliegende Regel greift also
+	# ausgerechnet dort nicht, wo sie am wichtigsten ist – am 23.08.
+	# im Probe-Container nachgemessen.
+	@html not path /assets/*
+	header @html Cache-Control "no-cache"
 
 	try_files {path} /index.html
 	file_server
