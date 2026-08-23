@@ -1,10 +1,61 @@
 # Habloo – was noch offen ist
 
-Stand: 20. August 2026
+Stand: 23. August 2026
 
 ---
 
 ## 🔴 Blockiert die Veröffentlichung
+
+### ✅ Erledigt am 23.08.: Umzug von Vercel zu Coolify
+Frontend und Backend liegen jetzt beide auf dem Hetzner-Server
+(2.28.31.213) in Coolify. habloo.de, www.habloo.de und
+coolify.habloo.de zeigen per DNS (All-Inkl) dorthin, Let's-Encrypt-
+Zertifikate sind gezogen, http leitet auf https.
+
+- Frontend: App `habloo-web`, baut aus `Dockerfile.web` + `Caddyfile`,
+  Build-Variablen (VITE_*) in Coolify hinterlegt. Identischer Build
+  wie vorher auf Vercel (gleiche `index-*.js`, nachgemessen).
+- Backend: App `habloo-backend`, unverändert.
+- Auto-Deploy: `/usr/local/bin/coolify-autodeploy.sh` läuft als
+  systemd-Timer alle 2 Minuten, vergleicht GitHub mit dem
+  ausgelieferten Commit und stößt bei Bedarf Coolifys eigenen
+  Deploy-Vorgang an. Protokoll: `/var/log/coolify-autodeploy.log`.
+  Gilt für ALLE Apps auf dem Server (auch Davaigo). Abschalten:
+  `systemctl disable --now coolify-autodeploy.timer`.
+- Coolify-Oberfläche: https://coolify.habloo.de (Port 8000 bleibt
+  als Rückfall offen).
+
+**Noch zu tun (Manuel):**
+- [ ] **Vercel-Projekt löschen** – erst wenn habloo.de überall auf
+      Coolify zeigt (TTL 2 h, also frühestens ~11:00 Uhr am 23.08.).
+      Prüfen: `dig +short habloo.de` muss `2.28.31.213` liefern.
+      Dann unter vercel.com das Projekt entfernen, sonst baut es bei
+      jedem Push weiter und kostet Build-Minuten.
+- [ ] **Chrome-Erweiterung freigeben** für `coolify.habloo.de` und
+      `habloo.de` (Claude-Symbol in der Werkzeugleiste), damit Claude
+      die Oberfläche bedienen kann. Nur diese Domains, keine
+      Pauschalfreigabe – im selben Chrome hängen Bank, GitHub, Stripe.
+- [ ] **Coolify-Anmeldedaten** liegen bei Manuel; Claude hat keine und
+      legt keine an. Zugang zur Kommandozeile weiterhin über
+      `ssh -i ~/.ssh/hetzner_vamigo root@2.28.31.213`.
+
+### ⚠️ E-Mail: Einträge im KAS prüfen
+Beim DNS-Umzug wurden die Mail-Zeilen (MX, SPF, DMARC, DKIM) bewusst
+NICHT angefasst – sie zeigen weiter auf All-Inkl. Offen ist, was
+Manuel mit E-Mail für habloo.de vorhat:
+
+- [ ] Wird `@habloo.de` als Absender gebraucht (Supabase-Auth-Mails,
+      Stripe-Quittungen, Kontakt)? Dann Postfach bei All-Inkl anlegen
+      und in Supabase als SMTP-Absender eintragen – sonst gehen
+      Bestätigungs-Mails über Supabases Standard-Absender raus und
+      landen im Spam.
+- [ ] DMARC steht auf `p=none` – das ist nur Beobachten. Sobald ein
+      echter Absender steht, auf `p=quarantine` schärfen.
+- [ ] SPF erlaubt nur All-Inkl (`include:spf.kasserver.com`). Wenn
+      Supabase oder Stripe von @habloo.de senden sollen, müssen deren
+      Include-Einträge dazu, sonst Spam.
+
+
 
 ### Rechtstexte fehlen vollständig
 Kein Impressum, keine Datenschutzerklärung, keine AGB, keine
