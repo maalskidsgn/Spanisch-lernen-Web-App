@@ -49,11 +49,29 @@ function uebersetzeFehler(fehler) {
 // ---------------------------------------------------------------
 
 /** Legt ein neues Konto an. */
+// Wohin der Link in der Bestätigungs- oder Passwort-Mail führt.
+//
+// Fest auf habloo.de, nicht window.location.origin: In der Store-App
+// wäre das "capacitor://localhost" – ein Link, den kein Mailprogramm
+// öffnen kann. Und beim Entwickeln wäre es localhost, was vom Handy
+// aus ins Leere zeigt. Die Mail kommt immer bei einem Menschen an,
+// der sie irgendwo öffnet – der einzige Ort, der von überall
+// erreichbar ist, ist die echte Domain.
+//
+// Supabase lässt nur Adressen zu, die dort unter "Redirect URLs"
+// eingetragen sind (Authentication → URL Configuration). habloo.de
+// muss dort stehen, sonst fällt Supabase still auf die Site URL
+// zurück.
+const MAIL_RUECKKEHR = 'https://habloo.de'
+
 export async function registrieren(email, passwort, name) {
   const { data, error } = await db.auth.signUp({
     email: email.trim(),
     password: passwort,
-    options: { data: { name: name?.trim() || undefined } },
+    options: {
+      data: { name: name?.trim() || undefined },
+      emailRedirectTo: MAIL_RUECKKEHR,
+    },
   })
   if (error) throw new Error(uebersetzeFehler(error))
 
@@ -80,7 +98,7 @@ export async function abmelden() {
 /** Schickt eine E-Mail zum Zurücksetzen des Passworts. */
 export async function passwortVergessen(email) {
   const { error } = await db.auth.resetPasswordForEmail(email.trim(), {
-    redirectTo: window.location.origin,
+    redirectTo: MAIL_RUECKKEHR,
   })
   if (error) throw new Error(uebersetzeFehler(error))
 }
@@ -98,6 +116,7 @@ export async function passwortVergessen(email) {
 export function useNutzer() {
   const [nutzer, setNutzer] = useState(null)
   const [laedt, setLaedt] = useState(supabaseBereit)
+  const [passwortNeuSetzen, setPasswortNeuSetzen] = useState(false)
 
   useEffect(() => {
     if (!supabaseBereit) return
@@ -109,15 +128,28 @@ export function useNutzer() {
     })
 
     // Danach: auf An- und Abmelden reagieren
-    const { data: beobachter } = db.auth.onAuthStateChange((_ereignis, sitzung) => {
+    const { data: beobachter } = db.auth.onAuthStateChange((ereignis, sitzung) => {
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
+      // Der Klick in der "Passwort vergessen"-Mail fuehrt hierher.
+      // Supabase meldet den Nutzer dabei schon an – aber mit dem ALTEN
+      // Passwort im Kopf. Ohne dieses Signal stuende er einfach in der
+      // App, wuesste nicht, dass er jetzt ein neues setzen muss, und
+      // haette es beim naechsten Mal wieder vergessen. Bis zum 23.08.
+      // war genau das der Zustand: Mail kam, Link ging, Formular fehlte.
+      if (ereignis === 'PASSWORD_RECOVERY') setPasswortNeuSetzen(true)
     })
 
     return () => beobachter.subscription.unsubscribe()
   }, [])
 
-  return { nutzer, laedt }
+  return { nutzer, laedt, passwortNeuSetzen, passwortGesetzt: () => setPasswortNeuSetzen(false) }
+}
+
+/** Setzt nach dem Klick in der Wiederherstellungs-Mail das neue Passwort. */
+export async function neuesPasswortSetzen(passwort) {
+  const { error } = await db.auth.updateUser({ password: passwort })
+  if (error) throw new Error(uebersetzeFehler(error))
 }
 
 /** Anzeigename fürs Profil – fällt auf den Teil vor dem @ zurück. */

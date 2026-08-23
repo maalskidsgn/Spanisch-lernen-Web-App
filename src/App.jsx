@@ -8,6 +8,7 @@ import {
   speichereFortschritt,
 } from './sync.js'
 import Login from './Login.jsx'
+import NeuesPasswort from './NeuesPasswort.jsx'
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
@@ -225,7 +226,7 @@ export default function App() {
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
 
   // ---------- Konto & Abgleich ----------
-  const { nutzer, laedt: nutzerLaedt } = useNutzer()
+  const { nutzer, laedt: nutzerLaedt, passwortNeuSetzen, passwortGesetzt } = useNutzer()
 
   // Das Onboarding laeuft genau EINMAL, und zwar je Konto. Der
   // Schluessel traegt die Nutzerkennung: Wer sich auf demselben
@@ -891,6 +892,9 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* Nach dem Klick in der Passwort-Mail: erst neues Passwort, dann App */}
+      {passwortNeuSetzen && <NeuesPasswort onFertig={passwortGesetzt} />}
+
       {/* Feier-Einblendung beim Level-Aufstieg */}
       {levelUp && (
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
