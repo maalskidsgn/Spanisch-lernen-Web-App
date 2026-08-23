@@ -763,14 +763,25 @@ export default function App() {
     try {
       const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(word))
       const data = await res.json()
-      const translation = data.translation || '(keine Übersetzung gefunden)'
-      setSelected({ word, translation, loading: false })
+      // Fehler NICHT in eine Uebersetzung verwandeln. Bis zum 23.08.
+      // stand hier `data.translation || '(keine Übersetzung gefunden)'`
+      // – und dieser Satz wurde als Bedeutung GESPEICHERT. Vier Woerter
+      // in Manuels Wortschatz standen deshalb mit einer Fehlermeldung
+      // als Uebersetzung im Trainer.
+      if (!res.ok || !data.translation) {
+        throw new Error(data.error || 'Der Übersetzungsdienst antwortet nicht.')
+      }
+      const translation = data.translation
+      setSelected({ word, translation, fehler: '', loading: false })
       setVocab((v) => ({
         ...v,
         [word]: { ...(v[word] || newEntry('', video?.title)), translation },
       }))
-    } catch {
-      setSelected({ word, translation: 'Übersetzung fehlgeschlagen', loading: false })
+    } catch (f) {
+      // Das Wort bleibt gemerkt – aber ohne erfundene Bedeutung. Man
+      // kann sie im Trainer selbst nachtragen, und beim naechsten
+      // Antippen wird es erneut versucht.
+      setSelected({ word, translation: '', fehler: f.message, loading: false })
     }
   }
 
@@ -1196,7 +1207,14 @@ export default function App() {
                   ) : (
                     <>
                       <div className="word-es">{selected.word}</div>
-                      <div className="word-de">{selected.translation}</div>
+                      {selected.fehler ? (
+                        <div className="word-fehler">
+                          {selected.fehler}
+                          <small>Das Wort ist gemerkt – die Bedeutung kannst du im Trainer nachtragen.</small>
+                        </div>
+                      ) : (
+                        <div className="word-de">{selected.translation}</div>
+                      )}
                       <div className="word-actions">
                         <button onClick={() => setStatus(selected.word, 'lernen')}>
                           Lernen

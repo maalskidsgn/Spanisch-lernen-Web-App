@@ -8847,3 +8847,22 @@ body.lektion-laeuft .lessons > .player-top,
   border-radius: 10px;
   padding: 8px 12px;
 }
+
+/* Wenn die Übersetzung eines angetippten Wortes nicht klappt.
+   Vorher landete hier der Satz "(keine Übersetzung gefunden)" – und
+   der wurde als Bedeutung in den Wortschatz gespeichert. */
+.word-fehler {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #b3261e;
+  background: #fdeceb;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin: 6px 0 4px;
+}
+.word-fehler small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-schwach, #6b6b6b);
+  font-size: 0.8rem;
+}
