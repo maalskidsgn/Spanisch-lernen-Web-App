@@ -45,6 +45,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
   const [treffer, setTreffer] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
+  const [warnung, setWarnung] = useState('')
   const feldRef = useRef(null)
 
   // Kam der Nutzer ueber das Feld in der Mediathek, ist die Frage
@@ -75,6 +76,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
     setBegriff(frage)
     setLaedt(true)
     setFehler('')
+    setWarnung('')
     setTreffer(null)
     try {
       const adresse =
@@ -86,6 +88,11 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
       const daten = await res.json()
       if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
       setTreffer((daten.results ?? []).slice(0, 6))
+      // Der Server sagt Bescheid, wenn er den Suchbegriff nicht ins
+      // Spanische uebersetzen konnte. Dann stehen dort womoeglich
+      // deutsche Videos – das gehoert dazugesagt, statt sie
+      // kommentarlos unter "spanische Videos" zu stellen.
+      setWarnung(daten.hinweis ?? '')
     } catch (f) {
       setFehler(f.message)
     } finally {
@@ -194,6 +201,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
 
         {treffer?.length > 0 && (
           <>
+            {warnung && <p className="suche-warnung">{warnung}</p>}
             <p className="suche-hinweis">
               {treffer.length} Videos gefunden – tippe eins an, um es zu öffnen.
             </p>

@@ -354,11 +354,18 @@ app.get('/api/search', async (req, res) => {
     // Videos gefunden werden ("gesunde Ernährung" -> "alimentación saludable").
     // Steht dort schon Spanisches, ändert die Übersetzung praktisch nichts.
     let suchbegriff = q
+    let uebersetzungGelang = true
     try {
       const spanisch = await uebersetzeWort(q, 'de-es')
       if (spanisch) suchbegriff = spanisch
     } catch {
-      // Klappt die Übersetzung nicht, wird eben im Original gesucht
+      // Weitergesucht wird trotzdem – aber die App erfährt davon und
+      // sagt es. Bis zum 23.08. wurde hier still auf den deutschen
+      // Begriff zurückgefallen: Über der Liste stand weiter
+      // "spanische Videos dazu", darunter kamen deutsche. Die App
+      // behauptete etwas, statt zuzugeben, dass etwas fehlt – und
+      // deshalb blieb der Google-Ausfall wochenlang unbemerkt.
+      uebersetzungGelang = false
     }
 
     // Beim Niveau helfen zusätzliche Suchwörter: "para principiantes"
@@ -418,7 +425,16 @@ app.get('/api/search', async (req, res) => {
       }
     }
 
-    res.json({ results: brauchbar.slice(0, 10) })
+    res.json({
+      results: brauchbar.slice(0, 10),
+      suchbegriff,
+      // Nur gesetzt, wenn wirklich etwas schiefging – die App zeigt
+      // den Satz dann über der Trefferliste.
+      hinweis: uebersetzungGelang
+        ? null
+        : 'Der Suchbegriff konnte nicht ins Spanische übersetzt werden – ' +
+          'die Treffer sind deshalb vielleicht nicht spanisch.',
+    })
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Suche fehlgeschlagen.' })
