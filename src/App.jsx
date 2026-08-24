@@ -81,6 +81,20 @@ const ICONS = {
   ),
 }
 
+/**
+ * Steht in der Adresse eine der drei Pflichtseiten?
+ *
+ * Caddy schickt jede unbekannte Adresse an index.html (try_files),
+ * deshalb kommt /datenschutz hier ueberhaupt an. Alles andere
+ * ergibt null – dann startet die App ganz normal.
+ */
+const RECHT_ADRESSEN = ['impressum', 'datenschutz', 'agb']
+
+function rechtAusAdresse() {
+  const pfad = window.location.pathname.replace(/^\/+|\/+$/g, '')
+  return RECHT_ADRESSEN.includes(pfad) ? pfad : null
+}
+
 // Lektions-Fortschritt aus dem Browser-Speicher laden
 function loadLessonProgress() {
   try {
@@ -240,7 +254,14 @@ export default function App() {
   // Welche Pflichtseite ist offen? Bewusst getrennt von `view`:
   // Sie muss auch VOR der Anmeldung erreichbar sein, und dort
   // gibt es `view` noch gar nicht.
-  const [rechtSeite, setRechtSeite] = useState(null)
+  //
+  // Die drei Pflichtseiten sind die EINZIGEN mit einer eigenen
+  // Adresse. Das ist kein nachtraeglich eingebauter Router, sondern
+  // eine Notwendigkeit: Der Play Store verlangt eine oeffentlich
+  // aufrufbare Adresse zur Datenschutzerklaerung, und "irgendwo in
+  // der App unter Mehr" ist keine Adresse. Dasselbe gilt fuer das
+  // Impressum, auf das man von aussen verlinken koennen muss.
+  const [rechtSeite, setRechtSeite] = useState(rechtAusAdresse)
 
   // Der Cookie-Banner haengt neben <App/> im Baum (App steigt fuer
   // Abgemeldete frueh aus), kann also keine Prop bekommen. Deshalb
@@ -249,6 +270,25 @@ export default function App() {
     const auf = (e) => setRechtSeite(e.detail)
     window.addEventListener('recht', auf)
     return () => window.removeEventListener('recht', auf)
+  }, [])
+
+  // Adresse und Seite gleich halten – in beide Richtungen.
+  //
+  // Hin: Wer eine Pflichtseite oeffnet, soll die Adresse in der
+  // Leiste sehen und weitergeben koennen.
+  // Zurueck: Der Zurueck-Knopf des Browsers muss die Seite schliessen
+  // und nicht die ganze App verlassen.
+  useEffect(() => {
+    const soll = rechtSeite ? '/' + rechtSeite : '/'
+    if (window.location.pathname !== soll) {
+      window.history.pushState({ recht: rechtSeite }, '', soll)
+    }
+  }, [rechtSeite])
+
+  useEffect(() => {
+    const zurueck = () => setRechtSeite(rechtAusAdresse())
+    window.addEventListener('popstate', zurueck)
+    return () => window.removeEventListener('popstate', zurueck)
   }, [])
 
   // Jeden Ansichtswechsel an die Messung melden.
