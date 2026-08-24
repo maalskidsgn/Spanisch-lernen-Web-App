@@ -40,3 +40,6 @@ route-test.html
 # Lesetexte liegen im Supabase-Speicher, nicht im öffentlichen Repo
 public/lesetexte/
 public/hoertexte/
+
+# Store-Grafiken: gehören zum Projekt, die Bildschirmfotos aber nicht
+# ins Repo – sie werden mit scripts/store-grafiken.mjs neu erzeugt.

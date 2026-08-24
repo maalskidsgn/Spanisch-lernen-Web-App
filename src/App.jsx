@@ -9,7 +9,7 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
-import { Impressum, Datenschutz, AGB } from './Recht.jsx'
+import { Impressum, Datenschutz, AGB, KontoLoeschen } from './Recht.jsx'
 import LandUndLeute from './LandUndLeute.jsx'
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
@@ -88,7 +88,7 @@ const ICONS = {
  * deshalb kommt /datenschutz hier ueberhaupt an. Alles andere
  * ergibt null – dann startet die App ganz normal.
  */
-const RECHT_ADRESSEN = ['impressum', 'datenschutz', 'agb']
+const RECHT_ADRESSEN = ['impressum', 'datenschutz', 'agb', 'konto-loeschen']
 
 function rechtAusAdresse() {
   const pfad = window.location.pathname.replace(/^\/+|\/+$/g, '')
@@ -890,6 +890,7 @@ export default function App() {
     if (rechtSeite === 'impressum') return <Impressum onZurueck={zu} />
     if (rechtSeite === 'datenschutz') return <Datenschutz onZurueck={zu} />
     if (rechtSeite === 'agb') return <AGB onZurueck={zu} />
+    if (rechtSeite === 'konto-loeschen') return <KontoLoeschen onZurueck={zu} />
   }
 
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------

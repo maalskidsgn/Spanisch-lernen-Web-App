@@ -463,3 +463,67 @@ export function AGB({ onZurueck }) {
     </>} />
   )
 }
+
+/* ================================================================
+   KONTO LÖSCHEN
+
+   Google Play verlangt für jede App, in der man ein Konto anlegen
+   kann, eine ÖFFENTLICH aufrufbare Adresse, unter der man die
+   Löschung anstoßen kann – erreichbar auch für jemanden, der die App
+   schon deinstalliert hat und deshalb nicht mehr an den Knopf in den
+   Einstellungen kommt. Genau dafür gibt es diese Seite.
+   ================================================================ */
+
+export function KontoLoeschen({ onZurueck }) {
+  return (
+    <Seite titel="Konto und Daten löschen" onZurueck={onZurueck} kinder={<>
+      <P>
+        Du kannst dein Habloo-Konto jederzeit löschen. Es gibt zwei Wege –
+        beide löschen dasselbe.
+      </P>
+
+      <H2>In der App</H2>
+      <P>
+        Öffne <b>Mehr</b> und scrolle nach unten zu <b>Konto löschen</b>.
+        Nach zwei Rückfragen ist das Konto weg. Das ist der schnellste Weg.
+      </P>
+
+      <H2>Per E-Mail</H2>
+      <P>
+        Wenn du die App schon gelöscht hast oder nicht mehr hineinkommst,
+        schreib an{' '}
+        <a href="mailto:lernen@habloo.de?subject=Konto%20l%C3%B6schen">
+          lernen@habloo.de
+        </a>{' '}
+        – von der Adresse, mit der du dich angemeldet hast. Wir löschen das
+        Konto innerhalb von 30 Tagen und bestätigen es dir.
+      </P>
+
+      <H2>Was gelöscht wird</H2>
+      <div className="recht-kasten">
+        <P>
+          <b>Sofort und vollständig:</b> dein Konto und die Anmeldedaten,
+          dein Anzeigename, alle gesammelten Vokabeln samt Lernstand, dein
+          Lektionsfortschritt, gespeicherte Videos und Songs, Punktestand
+          und Tagesserie.
+        </P>
+        <P>
+          <b>Was bleibt:</b> Rechnungsdaten zu einem bezahlten Abo. Die
+          müssen wir nach § 147 AO und § 257 HGB zehn Jahre aufbewahren –
+          das dürfen wir nicht löschen, auch wenn du es verlangst. Sie
+          werden für nichts anderes verwendet.
+        </P>
+        <P>
+          Ein laufendes Abo endet nicht automatisch mit der Löschung.
+          Kündige es vorher unter <b>Mehr → Abo verwalten</b>.
+        </P>
+      </div>
+
+      <P className="recht-hinweis">
+        Die Löschung lässt sich nicht rückgängig machen. Es gibt keine
+        Sicherungskopie, aus der wir dein Konto zurückholen könnten –
+        das ist Absicht.
+      </P>
+    </>} />
+  )
+}
