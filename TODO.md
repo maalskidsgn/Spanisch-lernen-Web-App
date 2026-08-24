@@ -156,6 +156,34 @@ Ausrutschers, verhindert ihn aber nicht.
 
 ---
 
+## 🔒 Server & Zertifikate
+
+### ✅ Zertifikats-Wächter (24.08.)
+`/usr/local/bin/zert-waechter.sh` auf dem Hetzner-Server, täglich
+07:20 als systemd-Timer. Prüft alle Domains aus Coolify plus
+`coolify.habloo.de` und schickt eine Mail an killert.manuel@web.de,
+wenn eines unter 20 Tage Restlaufzeit fällt oder gar nicht von
+Let's Encrypt kommt. Protokoll: `/var/log/zert-waechter.log`.
+Abschalten: `systemctl disable --now zert-waechter.timer`.
+
+**Warum es ihn braucht:** Bei Let's Encrypt ist für dieses Konto
+KEINE E-Mail hinterlegt – von dort kommt also keine Warnung, wenn die
+automatische Erneuerung scheitert. Der Wächter misst über das Netz
+statt in acme.json zu schauen: Am 24.08. stand in acme.json alles
+richtig, während Traefik noch ein selbstsigniertes Zertifikat
+auslieferte. Die Datei hätte „alles gut" gesagt.
+
+Gegengeprüft: Mit künstlich hochgesetzter Schwelle schlägt er an und
+die Mail geht raus (keine Unzustellbarkeit im Postfach).
+
+Offen, falls doch gewünscht:
+- [ ] E-Mail-Adresse bei Let's Encrypt hinterlegen. Das ginge nur über
+      die Proxy-Konfiguration, und der Proxy bedient Habloo UND
+      Davaigo – kurzer Neustart beider Seiten. Der Wächter deckt den
+      Fall ab, deshalb nicht gemacht.
+
+---
+
 ## 🔧 Kleinigkeiten
 
 - **`src/Songs.jsx`**: Der ursprünglich notierte fehlende Guard ist
