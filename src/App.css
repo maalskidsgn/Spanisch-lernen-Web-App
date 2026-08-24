@@ -9219,3 +9219,4 @@ body.lektion-laeuft .lessons > .player-top,
   display: grid; place-items: center; cursor: pointer;
 }
 .gespr-senden:disabled { opacity: .4; cursor: default; }
+.gespr-rest { text-align: center; font-size: .8rem; color: var(--muted); margin: 4px 0; }

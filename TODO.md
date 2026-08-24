@@ -99,6 +99,31 @@ sie ist nur nicht scharf.
 
 ---
 
+## 🟢 Sprechen mit Habla (KI-Tutor)
+
+### ✅ Text-Chat live (24.08.)
+Ein Gespräch auf Spanisch: einfaches Spanisch am Niveau, max. drei
+Sätze, immer deutsche Zeile daneben (ausblendbar), sanfte Korrektur
+statt Rotstift, Rückfrage hält das Gespräch. Habla ist auch Tutorin –
+erklärt Wissen/Kultur, erfindet aber keine Zahlen (sagt „No sé").
+
+Gratis 15 Nachrichten/Tag, unbegrenzt mit Premium. **Serverseitig**
+gezählt (Tabelle `tutor_nutzung`, pro Konto/Tag) – nicht über den
+Client umgehbar. `server/gespraech.js` (OpenAI gpt-4o-mini),
+`src/Gespraech.jsx`, Einstieg auf der Startseite.
+
+Gemessen: Korrektur greift, Wissen korrekt, erfundene Zahl verweigert,
+Limit blockt bei 15/15, Premium unbegrenzt.
+
+### Als Nächstes: die Stimme
+`sende()` ist schon so gebaut, dass Spracheingabe andockt. Nötig:
+- Mikrofon → Text. Web Speech API (gratis, Browser) reicht für die
+  Website; in der App braucht es einen Capacitor-Plugin oder Whisper.
+- Antwort vorlesen. ElevenLabs (schön, kostet) oder OpenAI-TTS
+  (günstig). NICHT die Gerätestimme (siehe HoerKnopf.jsx).
+
+---
+
 ## 🟡 Inhalt
 
 ### „Deine Sammlung" im Trainer

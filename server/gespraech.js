@@ -29,6 +29,77 @@
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
+// Gratis pro Tag. Bewusst nicht zu knapp: Ein echtes Gespräch braucht
+// mehrere Züge, sonst spürt niemand den Wert. gpt-4o-mini ist billig
+// genug, dass das kein Kostenproblem ist – der serverseitige Zähler
+// verhindert nur den Missbrauch. Premium hat kein Limit.
+export const GESPRAECHE_PRO_TAG = 15
+
+function supabaseKopf() {
+  return {
+    apikey: process.env.SUPABASE_SERVICE_KEY,
+    Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+    'Content-Type': 'application/json',
+  }
+}
+
+const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
+
+/**
+ * Hat der Nutzer ein gültiges Premium-Abo?
+ *
+ * Dieselbe Regel wie im Frontend (premium.js): nicht abgelaufen und
+ * entweder unbegrenzt (laeuft_ab leer) oder das Datum liegt in der
+ * Zukunft. Serverseitig geprüft, damit das Limit nicht über den
+ * Client umgangen werden kann.
+ */
+export async function istPremium(nutzerId) {
+  const antwort = await fetch(
+    `${BASIS()}/abos?select=status,laeuft_ab&nutzer_id=eq.${nutzerId}`,
+    { headers: supabaseKopf() }
+  )
+  if (!antwort.ok) return false
+  const abo = (await antwort.json())[0]
+  if (!abo || abo.status === 'abgelaufen') return false
+  return abo.laeuft_ab === null || new Date(abo.laeuft_ab) > new Date()
+}
+
+/** Das heutige Datum als YYYY-MM-TT (Server-Ortszeit). */
+function heuteTag() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Wie viele Nachrichten hat dieser Nutzer heute schon geschickt? */
+export async function tutorNutzungHeute(nutzerId) {
+  const antwort = await fetch(
+    `${BASIS()}/tutor_nutzung?select=anzahl&nutzer_id=eq.${nutzerId}&tag=eq.${heuteTag()}`,
+    { headers: supabaseKopf() }
+  )
+  if (!antwort.ok) return 0
+  return (await antwort.json())[0]?.anzahl ?? 0
+}
+
+/**
+ * Eine Nachricht verbuchen. Erst nach erfolgreicher Antwort aufrufen –
+ * ein Fehlversuch soll nicht aufs Kontingent gehen.
+ *
+ * Upsert mit merge-duplicates: Gibt es die Zeile (Nutzer+Tag) noch
+ * nicht, wird sie mit anzahl=1 angelegt; sonst um eins erhöht. Der
+ * neue Wert wird aus dem alten gelesen und +1 geschrieben – bei einem
+ * einzelnen Server ohne parallele Anfragen desselben Nutzers reicht
+ * das.
+ */
+export async function zaehleTutorNutzung(nutzerId) {
+  const jetzt = await tutorNutzungHeute(nutzerId)
+  await fetch(`${BASIS()}/tutor_nutzung`, {
+    method: 'POST',
+    headers: { ...supabaseKopf(), Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify({ nutzer_id: nutzerId, tag: heuteTag(), anzahl: jetzt + 1 }),
+  })
+  return jetzt + 1
+}
+
 // Die Antwort MUSS diese Form haben – sonst kann die Oberfläche die
 // spanische von der deutschen Zeile nicht trennen.
 const SCHEMA = {

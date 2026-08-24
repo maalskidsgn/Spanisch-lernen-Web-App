@@ -9,7 +9,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import { erzeugeBausteinAufgaben } from './bausteine.js'
-import { antworte } from './gespraech.js'
+import { antworte, istPremium, tutorNutzungHeute, zaehleTutorNutzung, GESPRAECHE_PRO_TAG } from './gespraech.js'
 import { findeSpanischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { loescheKonto } from './konto.js'
 import {
@@ -613,12 +613,40 @@ app.post('/api/gespraech', async (req, res) => {
   if (verlauf[verlauf.length - 1].rolle !== 'ich') {
     return res.status(400).json({ error: 'Zuletzt ist der Nutzer dran.' })
   }
-  if (!process.env.OPENAI_API_KEY) return res.status(402).json({ error: 'premium' })
 
   try {
+    // Anmeldung ist Pflicht – nur so lässt sich das Tageslimit pro
+    // Konto führen. In der App ist ohnehin jeder angemeldet, der bis
+    // hierher kommt.
+    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    // Das Limit gilt nur für Gratis-Nutzer. Erst prüfen, dann
+    // antworten: Ein Aufruf, der ohnehin abgelehnt wird, soll kein
+    // OpenAI-Geld kosten.
+    const premium = await istPremium(nutzer.id)
+    if (!premium) {
+      const heute = await tutorNutzungHeute(nutzer.id)
+      if (heute >= GESPRAECHE_PRO_TAG) {
+        return res.status(402).json({
+          error: 'limit',
+          nachricht:
+            `Du hast heute ${GESPRAECHE_PRO_TAG} Nachrichten geschrieben. ` +
+            'Morgen geht es weiter – oder unbegrenzt mit Premium.',
+        })
+      }
+    }
+
     const niveau = (req.body.niveau || 'Anfaenger').toString().slice(0, 40)
     const antwortObj = await antworte(verlauf, niveau)
-    res.json(antwortObj)
+
+    // Erst nach erfolgreicher Antwort verbuchen.
+    let frei = null
+    if (!premium) {
+      const genutzt = await zaehleTutorNutzung(nutzer.id)
+      frei = Math.max(0, GESPRAECHE_PRO_TAG - genutzt)
+    }
+    res.json({ ...antwortObj, frei })
   } catch (err) {
     console.error('Gespraech:', err.message)
     res.status(500).json({ error: 'Der Tutor antwortet gerade nicht. Bitte spaeter erneut.' })

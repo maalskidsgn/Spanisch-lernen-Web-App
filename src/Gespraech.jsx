@@ -12,6 +12,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { API_URL } from './api.js'
+import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
 
 const NIVEAU_SPEICHER = 'gespraechNiveau'
@@ -32,6 +33,9 @@ export default function Gespraech({ onZurueck }) {
   const [eingabe, setEingabe] = useState('')
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
+  // Wie viele Gratis-Nachrichten heute noch übrig sind. null = Premium
+  // (unbegrenzt) oder noch nichts geschickt.
+  const [frei, setFrei] = useState(null)
   const [deutschAn, setDeutschAn] = useState(
     () => localStorage.getItem(DEUTSCH_SPEICHER) !== 'aus'
   )
@@ -67,9 +71,17 @@ export default function Gespraech({ onZurueck }) {
     setFehler('')
 
     try {
+      // Anmelde-Token mitschicken – der Server führt das Tageslimit
+      // pro Konto und muss wissen, wer fragt.
+      const sitzung = supabaseBereit ? (await db.auth.getSession()).data.session : null
+      const token = sitzung?.access_token
+
       const res = await fetch(API_URL + '/api/gespraech', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: 'Bearer ' + token } : {}),
+        },
         body: JSON.stringify({
           niveau,
           // Nur Rolle + Text zum Server – der Tutor braucht nicht die
@@ -79,16 +91,14 @@ export default function Gespraech({ onZurueck }) {
       })
       const data = await res.json()
       if (!res.ok) {
-        throw new Error(
-          data.error === 'premium'
-            ? 'Der Sprach-Tutor ist Teil von Premium.'
-            : data.error || 'Der Tutor antwortet gerade nicht.'
-        )
+        if (data.error === 'limit') throw new Error(data.nachricht)
+        throw new Error(data.error || 'Der Tutor antwortet gerade nicht.')
       }
       setVerlauf((v) => [
         ...v,
         { rolle: 'tutor', es: data.es, de: data.de, korrektur: data.korrektur || '' },
       ])
+      setFrei(data.frei) // null bei Premium, sonst Rest für heute
     } catch (err) {
       setFehler(err.message)
       // Die eigene Nachricht stehen lassen, damit man sie nicht neu
@@ -155,6 +165,13 @@ export default function Gespraech({ onZurueck }) {
         )}
 
         {fehler && <p className="gespr-fehler">{fehler}</p>}
+        {/* Rest nur zeigen, wenn es knapp wird – sonst lenkt die Zahl
+            nur vom Gespräch ab. */}
+        {frei !== null && frei <= 5 && !fehler && (
+          <p className="gespr-rest">
+            Noch {frei} {frei === 1 ? 'Nachricht' : 'Nachrichten'} heute · unbegrenzt mit Premium
+          </p>
+        )}
         <div ref={endeRef} />
       </div>
 
