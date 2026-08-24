@@ -120,6 +120,20 @@ export default function Home({
         </span>
       </button>
 
+      {/* ============ 3. SPRECHEN ============ */}
+      {/* Das Eigentliche: mit dem Gelernten wirklich reden. Steht
+          bewusst weit oben – wer spricht, lernt am meisten. */}
+      <button className="start-karte gespr-tuer" onClick={() => onNavigate('gespraech')}>
+        <span className="leitfaden-text">
+          <span className="start-marke">Neu · Sprechen</span>
+          <h2>Rede mit Habla</h2>
+          <p>Ein Gespräch auf Spanisch, in deinem Tempo – die KI antwortet einfach und hilft, wenn du hängst.</p>
+        </span>
+        <span className="leitfaden-pfeil" aria-hidden="true">
+          <IconPfeil groesse={18} />
+        </span>
+      </button>
+
       {/* ============ 3. LAND & LEUTE ============ */}
       {/* Der Grund, die App auch an einem Tag zu oeffnen, an dem man
           keine Lektion machen will. Steht deshalb VOR der Wochen-

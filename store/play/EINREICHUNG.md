@@ -152,7 +152,7 @@ mit mitlaufenden Untertiteln, spanische Songs mit Text – und einen
 Vokabeltrainer, der sich merkt, wann du ein Wort zu vergessen drohst.
 
 DER KURS
-150 Lektionen in zehn Modulen, vom ersten „Hola" bis zum freien
+150 Lektionen in sieben Modulen, vom ersten „Hola" bis zum freien
 Erzählen. Jede Lektion ist in wenigen Minuten geschafft und komplett
 vertont – von echten Stimmen, nicht von der Vorlesestimme deines
 Handys. Zwischendurch warten Prüfstationen, an denen du siehst, was

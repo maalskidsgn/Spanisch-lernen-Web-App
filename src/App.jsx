@@ -11,6 +11,7 @@ import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB, KontoLoeschen } from './Recht.jsx'
 import LandUndLeute from './LandUndLeute.jsx'
+import Gespraech from './Gespraech.jsx'
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
@@ -1092,6 +1093,13 @@ export default function App() {
             onAddVocab={addVocabWords}
             vocab={vocab}
           />
+        </main>
+      )}
+
+      {/* Sprechen: der KI-Tutor als Chat */}
+      {view === 'gespraech' && (
+        <main>
+          <Gespraech onZurueck={() => setView('start')} />
         </main>
       )}
 

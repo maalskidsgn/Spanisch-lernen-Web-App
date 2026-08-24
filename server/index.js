@@ -9,6 +9,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import { erzeugeBausteinAufgaben } from './bausteine.js'
+import { antworte } from './gespraech.js'
 import { findeSpanischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { loescheKonto } from './konto.js'
 import {
@@ -593,6 +594,34 @@ app.post('/api/buch', async (req, res) => {
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Zusammenfassung konnte nicht erstellt werden.' })
+  }
+})
+
+// ============================================================
+//  Sprach-Tutor (Chat, spaeter mit Stimme)
+// ============================================================
+
+// Eine Antwort im Gespraech. Braucht OpenAI; ohne Schluessel kommt
+// der "Premium"-Hinweis, genau wie bei den anderen KI-Endpunkten.
+app.post('/api/gespraech', async (req, res) => {
+  const verlauf = Array.isArray(req.body.verlauf) ? req.body.verlauf : null
+  if (!verlauf || verlauf.length === 0) {
+    return res.status(400).json({ error: 'Kein Gespraechsverlauf uebergeben.' })
+  }
+  // Der letzte Zug MUSS vom Nutzer sein – sonst antwortet der Tutor
+  // auf sich selbst.
+  if (verlauf[verlauf.length - 1].rolle !== 'ich') {
+    return res.status(400).json({ error: 'Zuletzt ist der Nutzer dran.' })
+  }
+  if (!process.env.OPENAI_API_KEY) return res.status(402).json({ error: 'premium' })
+
+  try {
+    const niveau = (req.body.niveau || 'Anfaenger').toString().slice(0, 40)
+    const antwortObj = await antworte(verlauf, niveau)
+    res.json(antwortObj)
+  } catch (err) {
+    console.error('Gespraech:', err.message)
+    res.status(500).json({ error: 'Der Tutor antwortet gerade nicht. Bitte spaeter erneut.' })
   }
 })
 
