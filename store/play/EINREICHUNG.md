@@ -12,26 +12,25 @@ Zertifikat gültig bis 13.08.2051 (Play verlangt mindestens 2033).
 
 ---
 
-## ⚠️ Vor dem Hochladen entscheiden
+## ✅ Erledigt am 24.08.: eigene Server-Domain
 
-### Die Server-Adresse steht fest im Paket
+Die App ruft ihren Server jetzt unter **`https://api.habloo.de`**.
 
-Die App ruft ihren Server unter
-`https://xexf1rjcef6l3k5ec6oddpad.2.28.31.213.sslip.io` – das ist die
-Coolify-Behelfsadresse, **die deine Server-IP enthält**. Bei einer
-Website ist das egal, die wird bei jedem Aufruf neu geladen. Bei einer
-installierten App nicht: Die Adresse steckt fest im Paket. Ziehst du je
-auf einen anderen Server um, sind **alle installierten Apps tot**, bis
-jeder einzelne Nutzer eine neue Version aus dem Store lädt.
+Vorher stand dort die Coolify-Behelfsadresse mit der Server-IP darin.
+Bei einer Website ist das gleichgültig, die lädt bei jedem Aufruf neu.
+Bei einer installierten App nicht: Die Adresse steckt fest im Paket.
+Ein Serverumzug hätte jede installierte App lahmgelegt, bis der letzte
+Nutzer eine neue Version aus dem Store geholt hat.
 
-**Empfehlung: vorher `api.habloo.de` einrichten.** Für dich sind das
-zwei Minuten (A-Record im KAS auf 2.28.31.213, dann in Coolify als
-Domain beim Backend eintragen), für mich danach zwei Minuten Neubau.
-Danach kannst du den Server jederzeit umziehen, ohne dass eine
-installierte App etwas merkt.
+Im KAS war dafür **nichts zu tun** – der vorhandene Wildcard-Eintrag
+(`* A 2.28.31.213`) deckt `api.habloo.de` bereits ab. Eingerichtet
+wurde nur die Domain am Backend in Coolify; Let's-Encrypt-Zertifikat
+läuft bis 22.11.2026. Die alte Adresse antwortet weiter, damit nichts
+abreißt.
 
-Das ist der einzige Punkt, bei dem ich wirklich raten würde, nicht
-einfach hochzuladen.
+Nachgemessen im fertigen Paket: **kein einziges Vorkommen** von
+`sslip.io` oder `2.28.31.213` mehr, weder im Programm noch in den
+Ressourcen.
 
 ---
 
@@ -241,12 +240,11 @@ Anwalt, bevor die App öffentlich ist.
 
 ## 6. Reihenfolge
 
-1. `api.habloo.de` einrichten (siehe oben), mir Bescheid geben → ich baue neu
-2. In der Play Console: **Testen und veröffentlichen → Interner Test**
+1. In der Play Console: **Testen und veröffentlichen → Interner Test**
    – erst dorthin, nicht direkt in die Produktion
-3. Bundle hochladen, Abschnitte 1–4 dieser Datei abarbeiten
-4. Selbst auf deinem Handy installieren und durchklicken
-5. Erst dann Produktion beantragen
+2. Bundle hochladen, Abschnitte 1–4 dieser Datei abarbeiten
+3. Selbst auf deinem Handy installieren und durchklicken
+4. Erst dann Produktion beantragen
 
 Google prüft bei einem neuen Entwicklerkonto oft mehrere Tage bis zwei
 Wochen. Rechne nicht damit, dass es heute noch live geht.

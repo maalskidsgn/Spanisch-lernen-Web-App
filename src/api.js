@@ -20,7 +20,13 @@ export const istApp =
 
 // Notfall-Adresse: Ohne sie stünde die App ohne Server da. Sie greift
 // nur, wenn beim Bauen vergessen wurde, VITE_API_URL zu setzen.
-const NOTFALL = 'https://xexf1rjcef6l3k5ec6oddpad.2.28.31.213.sslip.io'
+//
+// Seit 24.08. eine echte Domain und nicht mehr die Coolify-Behelfs-
+// adresse, in der die Server-IP steckte. Der Unterschied zählt vor
+// allem für die App im Store: Dort ist die Adresse fest im Paket.
+// Bei einem Serverumzug wäre jede installierte App tot gewesen, bis
+// der letzte Nutzer eine neue Version geladen hat.
+const NOTFALL = 'https://api.habloo.de'
 
 export const API_URL = AUS_UMGEBUNG || (istApp ? NOTFALL : '')
 
