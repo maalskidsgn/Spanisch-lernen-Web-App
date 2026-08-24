@@ -115,34 +115,37 @@ Entscheiden: zurückholen oder wegwerfen.
 
 ## 💡 Ideen
 
-### Tägliche zweisprachige Nachrichten
-**Idee (Manuel, 20.08.):** Jeden Tag etwas Frisches zum Lesen —
-positive Meldungen aus Spanien, Lateinamerika und Deutschland, auf
-Spanisch und Deutsch nebeneinander. Nichts Negatives.
+### ✅ Tägliche zweisprachige Inhalte: „Land & Leute" (24.08.)
+Manuels Idee vom 20.08., umgesetzt als **Weg B**: 28 geschriebene
+Stücke über Spanien und Lateinamerika, jeden Tag ein anderes, auf
+Spanisch mit deutscher Zeile daneben. Vier Wochen ohne Wiederholung,
+danach von vorn.
 
-**Das Problem:** Eine KI, die „Nachrichten" schreiben soll, erfindet
-Nachrichten. Nicht vielleicht, sondern zuverlässig. Bei einem
-Grammatikbeispiel ist ein Fehler ärgerlich; bei einer Nachricht ist
-es Desinformation unter deinem Namen.
+Warum nicht Weg A (echte Nachrichten): Für Nachrichten hätte eine KI
+täglich schreiben müssen, und eine KI, die Nachrichten schreiben soll,
+erfindet Nachrichten. Das wäre Desinformation unter deinem Namen auf
+deiner eigenen Startseite. Die 28 Stücke kosten nichts im Betrieb,
+funktionieren offline und können nicht danebengreifen.
 
-**Weg A — echte Quelle, KI übersetzt nur.**
-RSS von RTVE, Deutsche Welle (spanische Redaktion), EFE. Die KI darf
-nichts erfinden, sie kürzt und vereinfacht nur, was in der Quelle
-steht: A2/B1-Spanisch plus deutsche Fassung. Fakten vom
-Journalisten, Sprache von der KI.
-Einmal täglich global erzeugen und in Supabase ablegen, nicht pro
-Nutzer → rund 30 Cent im Monat. Aufwand: etwa ein Arbeitstag.
+- `src/landUndLeute.js` – die Stücke plus Tagesrotation (dieselbe
+  Rechnung wie bei den Zitaten: ab festem Tag, nicht Tag im Jahr).
+- `src/LandUndLeute.jsx` – die Seite. Der Deutsch-Schalter ist der
+  Kern: Wer die Übersetzung immer sieht, liest sie zuerst und die
+  spanische Zeile nur zur Kontrolle.
+- Karte auf der Startseite, über der Wochenübersicht.
+- Die sechs Wörter je Stück gehen auf Knopfdruck in den Karteikasten.
+  Der Knopf zählt nur die, die noch nicht drin sind.
+- 10 XP beim ersten Öffnen, zählt für die Tagesserie.
+- `pruefe-landundleute.mjs` (sechster Validator) prüft unter anderem,
+  dass jedes der sechs Wörter im Text wirklich vorkommt.
 
-**Weg B — „Land & Leute" statt Nachrichten.**
-Kurze zweisprachige Stücke über Spanien und Lateinamerika: Feste,
-Essen, Regionen, Eigenheiten. Nicht tagesaktuell, also kein
-Frischezwang. Kuratierte Liste wie die Sprichwörter: null Kosten,
-null Risiko, funktioniert offline. Fügt sich in die Machart von
-Ebooks und Hörtexten. Aufwand: ein paar Stunden plus Schreibarbeit.
-
-**Empfehlung:** B zuerst. Liefert das Eigentliche — täglich etwas
-Neues, Positives, Zweisprachiges — ohne dass je die Frage aufkommt,
-ob da Unsinn steht. A erst, wenn echte Tagesaktualität gebraucht wird.
+Offen, falls gewünscht:
+- [ ] **Vertonung.** Die Stücke sind bewusst nicht vertont – auf die
+      Gerätestimme zurückzufallen wäre falsch (siehe `HoerKnopf.jsx`).
+      Richtig wäre `scripts/vertone.mjs`: 84 Absätze, grob 15–20k
+      ElevenLabs-Credits.
+- [ ] Weitere Stücke schreiben. Die Regeln stehen im Kopf von
+      `src/landUndLeute.js`, der Prüfer erzwingt sie.
 
 ### KI-Varianten für die Bausteine ausbauen
 Läuft seit dem 20.08. Falls einzelne Aufgaben inhaltlich danebengehen:
@@ -166,9 +169,10 @@ Ausrutschers, verhindert ihn aber nicht.
 - **`VITE_UNTERRICHT_URL`** ist nicht gesetzt — der Gruppenunterricht
   hat keinen Raum. Die Karte ist ohnehin vom Start verschwunden
   (`PRAXIS_ZEIGEN` in `src/Home.jsx`).
-- **Keine automatisierten Tests der Oberfläche.** Die drei Validatoren
-  decken die Inhalte ab (150 Lektionen, 275 Aufgaben, 7 Stationen) und
-  laufen vor jedem Build. Die Oberfläche deckt nichts ab.
+- **Keine automatisierten Tests der Oberfläche.** Die sechs Validatoren
+  decken die Inhalte ab (150 Lektionen, 275 Aufgaben, 7 Stationen,
+  7 Hörszenen, 28 Stücke, plus der Karteikasten) und laufen vor jedem
+  Build. Die Oberfläche deckt nichts ab.
 - **Alte Aufnahmen aufräumen:** Mit `BESETZUNG_STAND = 2` sind die
   32 Dateien der ersten Vertonung Waisen im Supabase-Speicher.
   Schaden richten sie keinen.

@@ -10,6 +10,7 @@ import {
 import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB } from './Recht.jsx'
+import LandUndLeute from './LandUndLeute.jsx'
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
@@ -1023,7 +1024,6 @@ export default function App() {
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
-            onRecht={setRechtSeite}
           />
         </main>
       )}
@@ -1049,6 +1049,18 @@ export default function App() {
             onOpenVideo={openVideo}
             onLoadUrl={openUrl}
             onAddVocab={addVocabWords}
+            vocab={vocab}
+          />
+        </main>
+      )}
+
+      {/* Land & Leute: eine eigene Seite, erreichbar vom Start */}
+      {view === 'landundleute' && (
+        <main>
+          <LandUndLeute
+            onZurueck={() => setView('start')}
+            onAddVocab={addVocabWords}
+            addXp={addXp}
             vocab={vocab}
           />
         </main>
@@ -1086,6 +1098,7 @@ export default function App() {
             syncStatus={syncStatus}
             onLoginOeffnen={() => setLoginOffen(true)}
             onNavigate={setView}
+            onRecht={setRechtSeite}
           />
         </main>
       )}

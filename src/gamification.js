@@ -13,6 +13,7 @@ export const XP = {
   QUIZ_RICHTIG: 2, // richtige Antwort in einer Lektion oder einem Spiel
   LEKTION: 15, // Bonus für eine abgeschlossene Lektion
   SPIEL: 10, // Bonus für ein durchgespieltes Mini-Spiel
+  LAND: 10, // ein Stück "Land & Leute" gelesen (nur beim ersten Mal)
 }
 
 // Titel für die Level (ab dem letzten bleibt man "Legende")

@@ -3,6 +3,8 @@ import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
 import { letzteWoche } from './aktivitaet.js'
 import { zitatDesTages } from './zitate.js'
+import { stueckDesTages } from './landUndLeute.js'
+import { ladeGelesen } from './LandUndLeute.jsx'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 
@@ -31,6 +33,10 @@ export default function Home({
   const modulFertig = modulListe.filter((l) => lessonProgress[l.id]?.fertig).length
 
   const zitat = zitatDesTages()
+  const stueck = stueckDesTages()
+  // Nur einmal beim Aufbauen gelesen – die Karte muss sich nicht
+  // aktualisieren, waehrend man auf ihr steht.
+  const [schonGelesen] = useState(() => ladeGelesen().has(stueck.id))
 
   const woche = letzteWoche()
   const wochenSumme = woche.reduce((s, t) => s + t.anzahl, 0)
@@ -108,6 +114,23 @@ export default function Home({
           <span className="start-marke">Neu hier?</span>
           <h2>So nutzt du Habloo</h2>
           <p>Deine Reise durch die App – und was wir uns dabei gedacht haben.</p>
+        </span>
+        <span className="leitfaden-pfeil" aria-hidden="true">
+          <IconPfeil groesse={18} />
+        </span>
+      </button>
+
+      {/* ============ 3. LAND & LEUTE ============ */}
+      {/* Der Grund, die App auch an einem Tag zu oeffnen, an dem man
+          keine Lektion machen will. Steht deshalb VOR der Wochen-
+          uebersicht: Die schaut man an, wenn man schon da ist. */}
+      <button className="start-karte lul-tuer" onClick={() => onNavigate('landundleute')}>
+        <span className="leitfaden-text">
+          <span className="start-marke">
+            {schonGelesen ? 'Land & Leute' : 'Heute neu · Land & Leute'}
+          </span>
+          <h2>{stueck.titel}</h2>
+          <p>{stueck.vorspann}</p>
         </span>
         <span className="leitfaden-pfeil" aria-hidden="true">
           <IconPfeil groesse={18} />

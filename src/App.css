@@ -8987,3 +8987,129 @@ body.lektion-laeuft .lessons > .player-top,
   text-decoration: underline;
   cursor: pointer;
 }
+
+
+/* ---------- Land & Leute ----------
+   Eine Leseseite in einer Lern-App: Der spanische Text ist die
+   Hauptsache und steht deshalb groesser und dunkler als alles
+   andere. Die deutsche Zeile darunter ist Hilfe, nicht Inhalt –
+   kleiner, gedaempft, leicht eingerueckt, damit das Auge sie beim
+   Lesen ueberspringen kann. */
+.lul { padding-bottom: 40px; }
+
+.lul-kopf {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+  color: var(--primary);
+}
+.lul-kopf h1 { margin: 0; }
+.lul-unter {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: .92rem;
+  max-width: 34rem;
+}
+
+.lul-stueck { line-height: 1.65; }
+.lul-titel {
+  margin: 6px 0 0;
+  font-size: 1.5rem;
+  text-wrap: balance;
+}
+.lul-titel-de {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: .95rem;
+}
+.lul-vorspann {
+  margin: 12px 0 0;
+  font-weight: 700;
+  text-wrap: pretty;
+}
+
+/* Der Schalter fuer die deutsche Zeile. Bewusst unscheinbar: Er ist
+   eine Einstellung, kein Aufruf zum Klicken. */
+.lul-schalter {
+  margin: 16px 0 4px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+.lul-schalter:hover { color: var(--navy); border-color: var(--muted); }
+
+.lul-absatz { margin-top: 18px; }
+.lul-es {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.lul-de {
+  margin: 6px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: .92rem;
+}
+
+.lul-wusstest {
+  margin-top: 26px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--flaeche);
+}
+.lul-wusstest p { margin: 6px 0 0; font-size: .92rem; }
+
+/* Die sechs Woerter */
+.lul-woerter {
+  list-style: none;
+  margin: 14px 0 18px;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.lul-wort {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--line);
+}
+.lul-wort:last-child { border-bottom: none; }
+.lul-wort b { font-weight: 800; }
+.lul-wort span { color: var(--muted); font-size: .92rem; }
+.lul-wort em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--success);
+}
+.lul-wort-drin b { opacity: .55; }
+
+.lul-liste { display: grid; gap: 2px; margin-top: 12px; }
+.lul-haken { color: var(--success); font-weight: 700; font-style: normal; }
+.lul-aktiv { background: var(--flaeche); border-radius: 12px; }
+
+/* Die Karte auf der Startseite.
+   Sie MUSS dasselbe Layout bekommen wie .leitfaden-tuer: Ohne
+   display:flex und width:100% schrumpft der Knopf auf seine
+   Inhaltsbreite und der Pfeil rutscht unter den Text. Genau das
+   ist beim ersten Versuch passiert. */
+.lul-tuer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}

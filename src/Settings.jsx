@@ -465,10 +465,12 @@ export default function Settings({
           ['agb', 'AGB & Widerrufsrecht'],
         ].map(([kennung, text]) => (
           <button key={kennung} className="leitfaden-zeile" onClick={() => onRecht(kennung)}>
-            <div>
-              <div className="row-title">{text}</div>
-            </div>
-            <IconPfeil groesse={18} />
+            {/* Die Klasse gibt dem Text flex:1 – ohne sie klebt der
+                Pfeil am Wort statt am rechten Rand. */}
+            <span className="leitfaden-zeile-text">
+              <b>{text}</b>
+            </span>
+            <IconPfeil groesse={17} />
           </button>
         ))}
       </div>
