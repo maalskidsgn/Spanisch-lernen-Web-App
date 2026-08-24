@@ -18,17 +18,41 @@ import { IconSprache, IconPfeil } from './icons.jsx'
 const NIVEAU_SPEICHER = 'gespraechNiveau'
 const DEUTSCH_SPEICHER = 'gespraechDeutsch'
 
-// Ein paar Startthemen, damit niemand vor einem leeren Feld sitzt.
-// Es sind Situationen, keine Grammatikthemen – gesprochen wird über
-// etwas, nicht über die Sprache.
-const EINSTIEGE = [
-  { text: 'Erzähl mir von deinem Tag', schick: 'Hola, ¿qué tal tu día?' },
+// Startpunkte, damit niemand vor einem leeren Feld sitzt. Zwei Sorten:
+//
+//   THEMEN – hier erzählt und erklärt Habla etwas (Gesundheit,
+//   Technik …). Genau das, was sich Manuel gewünscht hat: nicht nur
+//   plaudern, sondern zu einem Thema etwas erfahren und dabei die
+//   Wörter dazu aufschnappen.
+//
+//   SITUATIONEN – hier spielt Habla eine Rolle (Café, Arzt), damit
+//   man das Sprechen für den Ernstfall übt.
+//
+// Der Spanisch-Text ist der erste Zug im Gespräch; die deutsche
+// Beschriftung nur die Aufschrift des Knopfs.
+const THEMEN = [
+  { text: '🥗 Gesundheit & Ernährung', schick: 'Hola Habla. Quiero aprender sobre la salud y comer bien. ¿Me cuentas algo, con palabras fáciles?' },
+  { text: '💻 Technik', schick: 'Me interesa la tecnología. ¿Hablamos de eso con palabras sencillas?' },
+  { text: '🌍 Natur & Umwelt', schick: 'Me gusta la naturaleza y los animales. ¿Me enseñas algo sobre eso?' },
+  { text: '⚽ Sport', schick: 'Me gusta el deporte. ¿Hablamos de deportes?' },
+  { text: '🎵 Musik', schick: 'Hablemos de música en español. ¿Qué me recomiendas escuchar?' },
+  { text: '🍲 Essen', schick: 'Hablemos de la comida española y latina. ¿Qué platos me recomiendas?' },
+  { text: '🎨 Kultur & Feste', schick: 'Cuéntame algo interesante sobre la cultura y las fiestas de España o Latinoamérica.' },
+  { text: '📰 Alltag & Neuigkeiten', schick: 'Hablemos de la vida cotidiana. ¿Qué haces normalmente en un día?' },
+]
+
+const SITUATIONEN = [
   { text: 'Im Café bestellen', schick: 'Vamos a practicar: estoy en un café y quiero pedir algo.' },
-  { text: 'Über Reisen reden', schick: 'Me gusta viajar. ¿Hablamos de viajes?' },
+  { text: 'Beim Arzt', schick: 'Practiquemos: estoy en el médico y no me siento bien.' },
+  { text: 'Nach dem Weg fragen', schick: 'Practiquemos: estoy perdido en la ciudad y pregunto por el camino.' },
   { text: 'Einfach plaudern', schick: 'Hola Habla, ¿cómo estás?' },
 ]
 
-export default function Gespraech({ onZurueck }) {
+// kopf: Wird der Chat als Reiter IM Trainer gezeigt, kommt hier die
+// Reiter-Leiste rein (wie bei Bausteine.jsx) – dann steht oben kein
+// „Zurück", sondern die Umschalter. Als eigene Seite (vom Start aus)
+// bleibt onZurueck und der Zurück-Knopf.
+export default function Gespraech({ onZurueck, kopf }) {
   const [verlauf, setVerlauf] = useState([]) // { rolle:'ich'|'tutor', es, de, korrektur }
   const [eingabe, setEingabe] = useState('')
   const [laedt, setLaedt] = useState(false)
@@ -112,18 +136,27 @@ export default function Gespraech({ onZurueck }) {
 
   return (
     <div className="trainer gespraech">
-      <button className="recht-zurueck" onClick={onZurueck}>← Zurück</button>
+      {kopf ? (
+        kopf
+      ) : (
+        <button className="recht-zurueck" onClick={onZurueck}>← Zurück</button>
+      )}
 
-      <div className="gespr-kopf">
-        <IconSprache groesse={22} />
-        <div>
-          <h1 className="trainer-titel">Sprechen mit Habla</h1>
-          <p className="gespr-unter">
-            Rede auf Spanisch über das, was du willst. Habla antwortet einfach –
-            und übersetzt, falls du hängst.
-          </p>
+      {/* Als Reiter im Trainer gibt schon die Reiter-Leiste den Titel
+          („Dein KI-Trainer") – dann wäre dieser Kopf doppelt. Nur als
+          eigene Seite zeigen. */}
+      {!kopf && (
+        <div className="gespr-kopf">
+          <IconSprache groesse={22} />
+          <div>
+            <h1 className="trainer-titel">Sprechen mit Habla</h1>
+            <p className="gespr-unter">
+              Rede auf Spanisch über das, was du willst. Habla antwortet einfach –
+              und übersetzt, falls du hängst.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {!leer && (
         <button className="lul-schalter gespr-schalter" onClick={schalteDeutsch}>
@@ -135,10 +168,23 @@ export default function Gespraech({ onZurueck }) {
       <div className="gespr-verlauf">
         {leer && (
           <div className="gespr-start">
-            <p className="gespr-start-titel">Womit fangen wir an?</p>
+            <p className="gespr-start-titel">Worüber möchtest du reden?</p>
             <div className="gespr-einstiege">
-              {EINSTIEGE.map((e) => (
+              {THEMEN.map((e) => (
                 <button key={e.text} className="gespr-chip" onClick={() => sende(e.schick)}>
+                  {e.text}
+                </button>
+              ))}
+            </div>
+
+            <p className="gespr-start-titel gespr-start-zwei">Oder eine Situation üben</p>
+            <div className="gespr-einstiege">
+              {SITUATIONEN.map((e) => (
+                <button
+                  key={e.text}
+                  className="gespr-chip gespr-chip-situation"
+                  onClick={() => sende(e.schick)}
+                >
                   {e.text}
                 </button>
               ))}

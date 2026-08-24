@@ -13,6 +13,7 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
+import Gespraech from './Gespraech.jsx'
 import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
@@ -50,6 +51,7 @@ export default function Trainer({
   bausteinStand,
   setBausteinStand,
   lessonProgress,
+  onNavigate,
 }) {
   const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
@@ -222,13 +224,19 @@ export default function Trainer({
       <h1 className="trainer-titel">
         Dein{' '}
         <span className="accent">
-          {deck === 'woerter' ? 'Vokabeltrainer' : 'Grammatik-Trainer'}
+          {deck === 'woerter'
+            ? 'Vokabeltrainer'
+            : deck === 'grammatik'
+              ? 'Grammatik-Trainer'
+              : 'KI-Trainer'}
         </span>
       </h1>
       <p className="intro">
         {deck === 'woerter'
           ? 'Neue Wörter sammeln und sicher behalten.'
-          : 'Grammatik wiederholen, bis sie sitzt.'}
+          : deck === 'grammatik'
+            ? 'Grammatik wiederholen, bis sie sitzt.'
+            : 'Sprechen üben – rede mit Habla auf Spanisch.'}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -251,9 +259,28 @@ export default function Trainer({
             <span className="deck-zahl">{faelligeGrammatik.length}</span>
           )}
         </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'ki'}
+          className={deck === 'ki' ? 'deck-aktiv' : ''}
+          onClick={() => setDeck('ki')}
+        >
+          KI-Trainer
+        </button>
       </div>
     </>
   )
+
+  // ---------- Der dritte Reiter: der KI-Sprach-Tutor ----------
+  // Zeigt denselben Chat wie die eigene Sprechen-Seite, nur mit der
+  // Reiter-Leiste oben statt einem Zurueck-Knopf.
+  if (deck === 'ki') {
+    return (
+      <div className="wechsel" key="ki">
+        <Gespraech kopf={schalter} />
+      </div>
+    )
+  }
 
   // ---------- Der zweite Karteikasten: Grammatik ----------
   if (deck === 'grammatik') {

@@ -1079,6 +1079,7 @@ export default function App() {
             bausteinStand={bausteinStand}
             setBausteinStand={setBausteinStand}
             lessonProgress={lessonProgress}
+            onNavigate={setView}
           />
         </main>
       )}

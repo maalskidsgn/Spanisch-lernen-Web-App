@@ -9220,3 +9220,6 @@ body.lektion-laeuft .lessons > .player-top,
 }
 .gespr-senden:disabled { opacity: .4; cursor: default; }
 .gespr-rest { text-align: center; font-size: .8rem; color: var(--muted); margin: 4px 0; }
+.gespr-start-zwei { margin-top: 22px; }
+/* Situationen dezenter als die Themen – sie sind die zweite Wahl. */
+.gespr-chip-situation { background: var(--flaeche); border-color: transparent; }
