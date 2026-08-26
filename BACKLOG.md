@@ -37,8 +37,10 @@ Stand: 24. August 2026.
       im KI-Listengenerator (Gemischt/Verben/Adjektive/Nomen), Server
       steuert die Wortart. Getestet: Sport→Verben, Wetter→Adjektive.
 - [ ] **Weitere Spiele** (Wordle-artig etc.) für die Vokabelwiederholung.
-- [ ] **Unter Memory die Vokabeln auflisten**, evtl. mit Beispielsätzen.
-      Sound wäre auch nice.
+- [x] **Unter Memory die Vokabeln auflisten, mit Beispielsätzen.**
+      „Die Wörter dieser Runde" unter dem Spielfeld aller vier Spiele –
+      Sätze aus den vorhandenen Daten, kein KI-Aufruf. (Sound beim
+      Treffer gibt es seit den Erfolgstönen.)
 - [ ] **Lektionen: die deutschen Grundlagen als Text hörbar** machen.
 - [ ] **Animation + 2 XP, wenn man bei Ebooks Vokabeln hinzufügt.**
 

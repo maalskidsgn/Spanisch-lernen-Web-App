@@ -115,6 +115,7 @@ export default function Trainer({
 
   const trainable = filtered.filter(isDue)
 
+
   // Wie viele Grammatik-Bausteine warten? Nur fuer die Zahl am
   // Umschalter – geuebt wird drueben in Bausteine.jsx.
   const faelligeGrammatik = useMemo(

@@ -54,6 +54,7 @@ export function spielbareVokabeln(vocab) {
   return [...mischen(faellig), ...mischen(rest)].map(({ wort, eintrag }) => ({
     es: wort,
     de: eintrag.translation,
+    beispiel: eintrag.beispiel || '',
     faellig: isDue(eintrag),
   }))
 }
@@ -102,6 +103,31 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       {spiel === 'fang' && (
         <Wortfang paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
+    </div>
+  )
+}
+
+/**
+ * Die Vokabeln der laufenden Runde, unter dem Spielfeld – mit
+ * Beispielsatz, wo einer gespeichert ist. Kein KI-Aufruf: die Sätze
+ * kommen aus dem Listengenerator und den Lektionen mit.
+ */
+function RundenWoerter({ woerter }) {
+  if (!woerter?.length) return null
+  return (
+    <div className="runden-woerter">
+      <p className="runden-woerter-titel">Die Wörter dieser Runde</p>
+      <ul>
+        {woerter.map((w) => (
+          <li key={w.es} className="spielwort">
+            <div className="spielwort-kopf">
+              <b>{w.es}</b>
+              <span>{w.de}</span>
+            </div>
+            {w.beispiel && <p className="spielwort-satz">{w.beispiel}</p>}
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -226,6 +252,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
           )
         })}
       </div>
+      <RundenWoerter woerter={paare} />
     </>
   )
 }
@@ -326,6 +353,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
           ))}
         </div>
       </div>
+      <RundenWoerter woerter={paare} />
     </>
   )
 }
@@ -553,6 +581,8 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
         )}
       </div>
 
+      <RundenWoerter woerter={platziert} />
+
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
         Abbrechen
       </button>
@@ -690,6 +720,8 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
           </button>
         ))}
       </div>
+
+      <RundenWoerter woerter={ziele} />
 
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
         Abbrechen
