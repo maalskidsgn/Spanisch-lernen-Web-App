@@ -11,6 +11,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { erfolgston } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
 import Gespraech from './Gespraech.jsx'
@@ -52,6 +53,7 @@ export default function Trainer({
   setBausteinStand,
   lessonProgress,
   onNavigate,
+  onAddVocab,
 }) {
   const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
@@ -160,6 +162,7 @@ export default function Trainer({
     setTimeout(() => {
       const word = queue[0]
       const gewusst = bewertung !== 'nochmal'
+      if (gewusst) erfolgston() // kurzer Erfolgsklang bei richtig
 
       setVocab((v) => ({ ...v, [word]: review(withSrsDefaults(v[word]), bewertung) }))
       setResult((r) => ({
@@ -277,7 +280,7 @@ export default function Trainer({
   if (deck === 'ki') {
     return (
       <div className="wechsel" key="ki">
-        <Gespraech kopf={schalter} />
+        <Gespraech kopf={schalter} onAddVocab={onAddVocab} vocab={vocab} />
       </div>
     )
   }

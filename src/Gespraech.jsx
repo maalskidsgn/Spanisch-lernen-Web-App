@@ -14,9 +14,16 @@ import { useState, useRef, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
+import { erfolgston } from './erfolgston.js'
 
 const NIVEAU_SPEICHER = 'gespraechNiveau'
 const DEUTSCH_SPEICHER = 'gespraechDeutsch'
+
+// Wort auf seine Grundform für den Trainer-Abgleich – gleiche Regel
+// wie in Ebooks.jsx, damit ein Wort in Buch und Chat als dasselbe gilt.
+function schluessel(wort) {
+  return wort.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
+}
 
 // Startpunkte, damit niemand vor einem leeren Feld sitzt. Zwei Sorten:
 //
@@ -52,11 +59,13 @@ const SITUATIONEN = [
 // Reiter-Leiste rein (wie bei Bausteine.jsx) – dann steht oben kein
 // „Zurück", sondern die Umschalter. Als eigene Seite (vom Start aus)
 // bleibt onZurueck und der Zurück-Knopf.
-export default function Gespraech({ onZurueck, kopf }) {
+export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
   const [verlauf, setVerlauf] = useState([]) // { rolle:'ich'|'tutor', es, de, korrektur }
   const [eingabe, setEingabe] = useState('')
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
+  // Angetipptes Wort aus einer Habla-Antwort: { text, de, laedt }
+  const [wort, setWort] = useState(null)
   // Wie viele Gratis-Nachrichten heute noch übrig sind. null = Premium
   // (unbegrenzt) oder noch nichts geschickt.
   const [frei, setFrei] = useState(null)
@@ -74,6 +83,53 @@ export default function Gespraech({ onZurueck, kopf }) {
     setDeutschAn((an) => {
       localStorage.setItem(DEUTSCH_SPEICHER, an ? 'aus' : 'an')
       return !an
+    })
+  }
+
+  // ---------- Wörter aus Hablas Antworten sammeln ----------
+
+  /** Ein angetipptes Wort übersetzen und die Wortkarte öffnen. */
+  async function wortAntippen(rohesWort) {
+    const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
+    if (!sauber) return
+    setWort({ text: sauber, de: '', laedt: true })
+    try {
+      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const daten = await res.json()
+      setWort({ text: sauber, de: daten.translation || '', laedt: false })
+    } catch {
+      setWort({ text: sauber, de: '', laedt: false })
+    }
+  }
+
+  /**
+   * Ins Trainer übernehmen – als „lernen" oder gleich als „gewusst".
+   * Beides gibt den Erfolgston, damit sich das Sammeln gut anfühlt.
+   */
+  function wortSammeln(status) {
+    if (!wort?.text || !onAddVocab) return setWort(null)
+    onAddVocab(
+      [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Gespräch mit Habla' }],
+      status
+    )
+    erfolgston()
+    setWort(null)
+  }
+
+  /** Macht aus Hablas spanischer Antwort einzeln antippbare Wörter. */
+  function alsWoerter(text) {
+    return text.split(/(\s+)/).map((teil, i) => {
+      if (!teil.trim()) return teil
+      const status = vocab[schluessel(teil)]?.status
+      return (
+        <span
+          key={i}
+          className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
+          onClick={() => wortAntippen(teil)}
+        >
+          {teil}
+        </span>
+      )
     })
   }
 
@@ -194,7 +250,11 @@ export default function Gespraech({ onZurueck, kopf }) {
 
         {verlauf.map((z, i) => (
           <div key={i} className={'gespr-blase gespr-' + z.rolle}>
-            <p className="gespr-es">{z.es}</p>
+            {/* Nur Hablas Antworten sind antippbar – die eigene
+                Nachricht braucht man nicht zu übersetzen. */}
+            <p className="gespr-es">
+              {z.rolle === 'tutor' && onAddVocab ? alsWoerter(z.es) : z.es}
+            </p>
             {z.rolle === 'tutor' && deutschAn && z.de && (
               <p className="gespr-de">{z.de}</p>
             )}
@@ -241,6 +301,43 @@ export default function Gespraech({ onZurueck, kopf }) {
           <IconPfeil groesse={20} />
         </button>
       </form>
+
+      {/* ---------- Angetipptes Wort ---------- */}
+      {wort && (
+        <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
+          <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
+            {/* X zum einfachen Wegklicken, ohne etwas zu sammeln. */}
+            <button
+              className="wortkarte-schliessen"
+              aria-label="Schließen"
+              onClick={() => setWort(null)}
+            >
+              ✕
+            </button>
+            <div className="wortkarte-wort">
+              {wort.text}
+              {vocab[schluessel(wort.text)] && (
+                <span className="wortkarte-marke">✓ im Trainer</span>
+              )}
+            </div>
+            <div className="wortkarte-de">
+              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+            </div>
+            <div className="wortkarte-knoepfe">
+              <button
+                className="btn-outline"
+                onClick={() => wortSammeln('gewusst')}
+                disabled={wort.laedt}
+              >
+                Kenne ich
+              </button>
+              <button className="btn" onClick={() => wortSammeln('lernen')} disabled={wort.laedt}>
+                ＋ Lernen
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

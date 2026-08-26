@@ -45,6 +45,7 @@ import {
   levelName,
 } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
+import { erfolgston } from './erfolgston.js'
 import './App.css'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
@@ -774,14 +775,16 @@ export default function App() {
     }
   }
 
-  // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen
-  function addVocabWords(woerter) {
+  // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen.
+  // status: standardmäßig "lernen"; aus dem Chat kann ein Wort auch gleich
+  // als "gewusst" abgelegt werden ("Kenne ich").
+  function addVocabWords(woerter, status = 'lernen') {
     setVocab((v) => {
       const copy = { ...v }
       for (const w of woerter) {
         const key = w.wort.toLowerCase()
         if (!copy[key]) {
-          copy[key] = { ...newEntry(w.uebersetzung, w.quelle), status: 'lernen' }
+          copy[key] = { ...newEntry(w.uebersetzung, w.quelle), status }
         }
       }
       return copy
@@ -854,6 +857,7 @@ export default function App() {
       earned = status === 'gewusst' ? XP.SCHON_GEWUSST : XP.SAMMELN
       addXp(earned)
     }
+    erfolgston() // kurzer Erfolgsklang wie bei Babbel
     setCardExit({ status, earned })
     setTimeout(() => {
       setSelected(null)
@@ -1066,6 +1070,7 @@ export default function App() {
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
+            onAddVocab={addVocabWords}
           />
         </main>
       )}
@@ -1100,7 +1105,11 @@ export default function App() {
       {/* Sprechen: der KI-Tutor als Chat */}
       {view === 'gespraech' && (
         <main>
-          <Gespraech onZurueck={() => setView('start')} />
+          <Gespraech
+            onZurueck={() => setView('start')}
+            onAddVocab={addVocabWords}
+            vocab={vocab}
+          />
         </main>
       )}
 
@@ -1280,6 +1289,15 @@ export default function App() {
 
               {selected && (
                 <div className={'word-card' + (cardExit ? ' word-card-exit' : '')}>
+                  {!cardExit && (
+                    <button
+                      className="wortkarte-schliessen"
+                      aria-label="Schließen"
+                      onClick={() => setSelected(null)}
+                    >
+                      ✕
+                    </button>
+                  )}
                   {cardExit ? (
                     /* Erfolgs-Ansicht: Häkchen/Stern + XP, dann verschwindet die Karte */
                     <div className="card-success">
