@@ -9223,3 +9223,16 @@ body.lektion-laeuft .lessons > .player-top,
 .gespr-start-zwei { margin-top: 22px; }
 /* Situationen dezenter als die Themen – sie sind die zweite Wahl. */
 .gespr-chip-situation { background: var(--flaeche); border-color: transparent; }
+
+/* Spiele-Bereich: kein weißer Kasten drumherum.
+   Weiße Karten in einem weißen Kasten hatten keinen Kontrast. Jetzt
+   ist die Sektion durchsichtig – die Karten stehen direkt auf dem
+   warmen Seitengrund und heben sich mit einem sanften Schatten ab. */
+.bereich.bereich-spiele {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.bereich-spiele .spiel-karte {
+  box-shadow: 0 6px 20px rgba(255, 108, 0, .12);
+}

@@ -562,7 +562,7 @@ export default function Trainer({
       </section>
 
       {/* ============ 2. SPIELEN ============ */}
-      <section className="bereich">
+      <section className="bereich bereich-spiele">
         <div className="bereich-kopf">
           <h2>Spielerisch üben</h2>
           <p>
