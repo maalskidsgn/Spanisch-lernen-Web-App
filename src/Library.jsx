@@ -44,11 +44,16 @@ const SICHTBAR_GEMERKT = 4
 // eine Zeile holt ihn zurueck.
 const HOERTEXTE_ZEIGEN = false
 
+// Ebooks vorerst ausgeblendet (24.08., Manuels Wunsch). Der ganze
+// Bereich samt neuem Leser bleibt fertig im Code – diese eine Zeile
+// holt ihn zurueck.
+const EBOOKS_ZEIGEN = false
+
 const BEREICHE = [
   { wert: 'videos', label: 'Videos' },
   { wert: 'songs', label: 'Songs' },
   ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'Hörtexte' }] : []),
-  { wert: 'ebooks', label: 'Ebooks' },
+  ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'Ebooks' }] : []),
 ]
 
 const KATEGORIEN = [
@@ -151,6 +156,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // hat, koennte seine eigene Zahl gar nicht kennen.
   const [songAnzahl, setSongAnzahl] = useState(null)
   const [ebookAnzahl, setEbookAnzahl] = useState(null)
+  // eslint-disable-next-line no-unused-vars
 
   useEffect(() => {
     let abgebrochen = false

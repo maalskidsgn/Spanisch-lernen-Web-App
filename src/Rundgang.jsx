@@ -74,7 +74,7 @@ export const BEREICHE = {
     icon: IconMediathek,
     titel: 'Die Mediathek',
     text:
-      'Echte Videos, Songs und Ebooks auf Spanisch. Tippe unbekannte ' +
+      'Echte Videos und Songs auf Spanisch. Tippe unbekannte ' +
       'Wörter einfach an – sie wandern mit Übersetzung in deinen ' +
       'Trainer.',
   },

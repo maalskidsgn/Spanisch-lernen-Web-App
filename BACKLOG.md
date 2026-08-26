@@ -55,6 +55,9 @@ Stand: 24. August 2026.
       Ladesymbol, und die Generierung muss zuverlässig funktionieren.
 
 ### Ebooks
+- [x] **Ebooks vorerst ausgeblendet** (24.08., Manuels Wunsch). Der
+      fertige Bereich samt neuem Leser bleibt im Code –
+      `EBOOKS_ZEIGEN` in `src/Library.jsx` holt ihn zurück.
 - [x] **Ebook-Leser neu.** BuchView in Library.jsx komplett neu:
       ← links, Español/Deutsch-Umschalter Mitte, → rechts; seitenweise
       lesen (1 Absatz je Seite), Fortschrittsbalken, letzte Seite =
