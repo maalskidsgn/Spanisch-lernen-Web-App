@@ -1098,6 +1098,7 @@ export default function App() {
             onLoadUrl={openUrl}
             onAddVocab={addVocabWords}
             vocab={vocab}
+            addXp={addXp}
           />
         </main>
       )}

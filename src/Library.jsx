@@ -24,6 +24,8 @@ import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import { XP } from './gamification.js'
+import { erfolgston } from './erfolgston.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Spanisch nebenbei,
@@ -112,7 +114,7 @@ function ladeBuecher() {
 
 // Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
-export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
+export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {}, addXp }) {
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
   const savedVideos = alleGemerkten.filter((v) => v.art !== 'musik')
@@ -301,6 +303,8 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         buch={offenesBuch}
         onClose={() => setOffenesBuch(null)}
         onAddVocab={onAddVocab}
+        addXp={addXp}
+        vocab={vocab}
       />
     )
   }
@@ -648,9 +652,77 @@ function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
   )
 }
 
-function BuchView({ buch, onClose, onAddVocab }) {
-  const [zeigeDe, setZeigeDe] = useState(false)
+/**
+ * Der Ebook-Leser: ein eigener, ruhiger Lesebereich.
+ *
+ * Aufbau nach Manuels Vorgabe: Zurück ganz links, in der Mitte der
+ * Sprach-Umschalter (Español/Deutsch), rechts blättern. Gelesen wird
+ * seitenweise – ein Absatz pro Seite, wie in einem Buch. Die letzte
+ * Seite sind die Vokabeln.
+ *
+ * Im spanischen Text ist jedes Wort antippbar (gleiche Wortkarte wie
+ * im Chat und in den Videos). Ein gesammeltes Wort gibt 2 XP mit
+ * kleiner Aufsteige-Animation und dem Erfolgston.
+ */
+function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
+  const [seite, setSeite] = useState(0)
+  const [sprache, setSprache] = useState('es') // 'es' | 'de'
+  const [wort, setWort] = useState(null) // { text, de, laedt }
+  const [xpMeldung, setXpMeldung] = useState(null) // { menge, key }
   const [uebernommen, setUebernommen] = useState(false)
+
+  const absaetze = buch.absaetze ?? []
+  const seiten = absaetze.length + 1 // letzte Seite: Vokabeln
+  const vokabelSeite = seite >= absaetze.length
+
+  function wortSchluessel(w) {
+    return w.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
+  }
+
+  function feiere(menge) {
+    addXp?.(menge)
+    erfolgston()
+    setXpMeldung({ menge, key: Date.now() })
+  }
+
+  async function wortAntippen(rohesWort) {
+    const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
+    if (!sauber) return
+    setWort({ text: sauber, de: '', laedt: true })
+    try {
+      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const daten = await res.json()
+      setWort({ text: sauber, de: daten.translation || '', laedt: false })
+    } catch {
+      setWort({ text: sauber, de: '', laedt: false })
+    }
+  }
+
+  function wortSammeln(status) {
+    if (!wort?.text) return setWort(null)
+    onAddVocab(
+      [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Buch: ' + buch.titel }],
+      status
+    )
+    feiere(XP.WORT_NEU) // 2 XP, mit Animation und Ton
+    setWort(null)
+  }
+
+  function alsWoerter(text) {
+    return text.split(/(\s+)/).map((teil, i) => {
+      if (!teil.trim()) return teil
+      const status = vocab[wortSchluessel(teil)]?.status
+      return (
+        <span
+          key={i}
+          className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
+          onClick={() => wortAntippen(teil)}
+        >
+          {teil}
+        </span>
+      )
+    })
+  }
 
   function vokabelnUebernehmen() {
     onAddVocab(
@@ -660,52 +732,147 @@ function BuchView({ buch, onClose, onAddVocab }) {
         quelle: 'Buch: ' + buch.titel,
       }))
     )
+    feiere(XP.WORT_NEU * buch.vokabeln.length)
     setUebernommen(true)
   }
 
+  const blaettern = (richtung) => {
+    setSeite((n) => Math.min(seiten - 1, Math.max(0, n + richtung)))
+    window.scrollTo({ top: 0 })
+  }
+
   return (
-    <div className="library buch-view">
-      <button className="btn-plain back-link" onClick={onClose}>
-        ← Zur Mediathek
-      </button>
-      <h1>{buch.titel}</h1>
-      <p className="intro">
-        {buch.autor} · Niveau {buch.niveau}
-      </p>
+    <div className="library buch-leser">
+      {/* Kopfleiste: zurück | Sprache | weiter */}
+      <div className="leser-leiste">
+        <button className="leser-knopf" onClick={onClose} aria-label="Zurück zur Mediathek">
+          ←
+        </button>
 
-      <label className="autoscroll-toggle">
-        <input
-          type="checkbox"
-          checked={zeigeDe}
-          onChange={(e) => setZeigeDe(e.target.checked)}
-        />
-        Deutsche Übersetzung einblenden
-      </label>
-
-      {buch.absaetze.map((a, i) => (
-        <div key={i} className="buch-absatz">
-          <p className="buch-es">{a.es}</p>
-          {zeigeDe && <p className="buch-de">{a.de}</p>}
+        <div className="leser-sprache" role="tablist" aria-label="Sprache">
+          {[['es', 'Español'], ['de', 'Deutsch']].map(([wert, text]) => (
+            <button
+              key={wert}
+              role="tab"
+              aria-selected={sprache === wert}
+              className={sprache === wert ? 'sprache-aktiv' : ''}
+              onClick={() => setSprache(wert)}
+            >
+              {text}
+            </button>
+          ))}
         </div>
-      ))}
 
-      <h2 className="settings-heading">Vokabeln aus diesem Buch</h2>
-      <div className="settings-card">
-        {buch.vokabeln.map((v) => (
-          <div key={v.wort} className="settings-row">
-            <div>
-              <div className="row-title">{v.wort}</div>
-              <div className="row-hint">{v.uebersetzung}</div>
+        <button
+          className="leser-knopf"
+          onClick={() => blaettern(1)}
+          disabled={seite >= seiten - 1}
+          aria-label="Weiterblättern"
+        >
+          →
+        </button>
+      </div>
+
+      {/* Fortschritt */}
+      <div className="leser-stand">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: ((seite + 1) / seiten) * 100 + '%' }} />
+        </div>
+        <span>
+          {vokabelSeite ? 'Vokabeln' : `Seite ${seite + 1} von ${absaetze.length}`}
+        </span>
+      </div>
+
+      {seite === 0 && (
+        <header className="leser-buchkopf">
+          <h1>{buch.titel}</h1>
+          <p>{buch.autor} · Niveau {buch.niveau}</p>
+        </header>
+      )}
+
+      {/* Die Seite */}
+      {!vokabelSeite && (
+        <article className="leser-seite" key={seite + sprache}>
+          <p className="leser-absatz">
+            {sprache === 'es' ? alsWoerter(absaetze[seite].es) : absaetze[seite].de}
+          </p>
+          {sprache === 'es' && seite === 0 && (
+            <p className="lese-tipp">Tipp: Tippe ein Wort an, um es zu sammeln.</p>
+          )}
+        </article>
+      )}
+
+      {/* Letzte Seite: die Vokabeln */}
+      {vokabelSeite && (
+        <article className="leser-seite">
+          <h2 className="leser-vokabel-titel">Die wichtigsten Wörter</h2>
+          <ul className="spielwort-liste">
+            {buch.vokabeln.map((v) => (
+              <li key={v.wort} className="spielwort">
+                <div className="spielwort-kopf">
+                  <b>{v.wort}</b>
+                  <span>{v.uebersetzung}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {uebernommen ? (
+            <p className="gen-success">Vokabeln sind im Trainer! ✓</p>
+          ) : (
+            <button className="hero-cta" onClick={vokabelnUebernehmen}>
+              Alle {buch.vokabeln.length} Vokabeln in den Trainer
+            </button>
+          )}
+        </article>
+      )}
+
+      {/* Blätter-Knöpfe unten – auf dem Handy bequemer als oben */}
+      <div className="leser-fuss">
+        <button className="leser-knopf" onClick={() => blaettern(-1)} disabled={seite === 0}>
+          ←
+        </button>
+        <button
+          className="leser-knopf leser-weiter"
+          onClick={() => blaettern(1)}
+          disabled={seite >= seiten - 1}
+        >
+          Weiter →
+        </button>
+      </div>
+
+      {/* +XP-Animation */}
+      {xpMeldung && (
+        <span key={xpMeldung.key} className="buch-xp" onAnimationEnd={() => setXpMeldung(null)}>
+          +{xpMeldung.menge} XP
+        </span>
+      )}
+
+      {/* Wortkarte */}
+      {wort && (
+        <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
+          <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
+            <button className="wortkarte-schliessen" aria-label="Schließen" onClick={() => setWort(null)}>
+              ✕
+            </button>
+            <div className="wortkarte-wort">
+              {wort.text}
+              {vocab[wortSchluessel(wort.text)] && (
+                <span className="wortkarte-marke">✓ im Trainer</span>
+              )}
+            </div>
+            <div className="wortkarte-de">
+              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+            </div>
+            <div className="wortkarte-knoepfe">
+              <button className="btn-outline" onClick={() => wortSammeln('gewusst')} disabled={wort.laedt}>
+                Kenne ich
+              </button>
+              <button className="btn" onClick={() => wortSammeln('lernen')} disabled={wort.laedt}>
+                ＋ Lernen
+              </button>
             </div>
           </div>
-        ))}
-      </div>
-      {uebernommen ? (
-        <p className="gen-success">Vokabeln sind im Trainer! ✓</p>
-      ) : (
-        <button className="hero-cta" onClick={vokabelnUebernehmen}>
-          Alle {buch.vokabeln.length} Vokabeln in den Trainer übernehmen
-        </button>
+        </div>
       )}
     </div>
   )

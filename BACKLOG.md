@@ -42,7 +42,9 @@ Stand: 24. August 2026.
       Sätze aus den vorhandenen Daten, kein KI-Aufruf. (Sound beim
       Treffer gibt es seit den Erfolgstönen.)
 - [ ] **Lektionen: die deutschen Grundlagen als Text hörbar** machen.
-- [ ] **Animation + 2 XP, wenn man bei Ebooks Vokabeln hinzufügt.**
+- [x] **Animation + 2 XP, wenn man bei Ebooks Vokabeln hinzufügt.**
+      „+2 XP"-Aufsteiger + Erfolgston beim Wort-Antippen im neuen
+      Leser; „Alle übernehmen" gibt 2 XP pro Wort.
 
 ### Spotify / Songs
 - [ ] **Spotify funktioniert wieder nicht, Songs wandeln sich nicht um,
@@ -53,9 +55,10 @@ Stand: 24. August 2026.
       Ladesymbol, und die Generierung muss zuverlässig funktionieren.
 
 ### Ebooks
-- [ ] **Ebook-Leser neu: Zurück-Knopf ganz links, in der Mitte DE/ES-
-      Umschalter, rechts weiterklicken. Eigener Bereich, modern & clean.
-      Vokabeln anklickbar.** (Anklickbar ist da – Layout modernisieren.)
+- [x] **Ebook-Leser neu.** BuchView in Library.jsx komplett neu:
+      ← links, Español/Deutsch-Umschalter Mitte, → rechts; seitenweise
+      lesen (1 Absatz je Seite), Fortschrittsbalken, letzte Seite =
+      Vokabeln, jedes spanische Wort antippbar (Wortkarte mit X).
 
 ### Onboarding & Erklärung
 - [ ] **Rundgang für Neulinge**: durch alle Funktionen klicken, mit
