@@ -61,10 +61,12 @@ Stand: 24. August 2026.
       Vokabeln, jedes spanische Wort antippbar (Wortkarte mit X).
 
 ### Onboarding & Erklärung
-- [ ] **Rundgang für Neulinge**: durch alle Funktionen klicken, mit
-      Animationen.
-- [ ] **Jeder Bereich beim ersten Betreten**: Infobox-Erklärung + coole
-      Animation.
+- [x] **Rundgang für Neulinge + Infobox pro Bereich** – EIN System
+      (`src/Rundgang.jsx`): Beim ersten Betreten eines Bereichs erklärt
+      eine animierte Infobox (hüpfendes Icon, Funken), was man hier
+      kann – einmalig, gemerkt in localStorage. Der Rundgang (Start im
+      Leitfaden) klickt dieselben Boxen durch alle 5 Bereiche, die App
+      wechselt selbst die Ansicht.
 - [ ] **Übersetzungen am Anfang** sollen motivieren, jeden Tag in die App
       zu schauen. (Täglicher zweisprachiger Anreiz – teils „Land & Leute".)
 

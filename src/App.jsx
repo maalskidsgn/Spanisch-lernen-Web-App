@@ -12,6 +12,7 @@ import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB, KontoLoeschen } from './Recht.jsx'
 import LandUndLeute from './LandUndLeute.jsx'
 import Gespraech from './Gespraech.jsx'
+import BereichsIntro, { BEREICHE, RUNDGANG_REIHE, gesehene } from './Rundgang.jsx'
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
@@ -264,6 +265,39 @@ export default function App() {
   // der App unter Mehr" ist keine Adresse. Dasselbe gilt fuer das
   // Impressum, auf das man von aussen verlinken koennen muss.
   const [rechtSeite, setRechtSeite] = useState(rechtAusAdresse)
+
+  // Bereichs-Einführungen: Welche Infobox ist gerade offen, und läuft
+  // der Rundgang (Index in RUNDGANG_REIHE)? null = nichts davon.
+  const [intro, setIntro] = useState(null)
+  const [rundgangNr, setRundgangNr] = useState(null)
+
+  // Erstes Betreten eines Bereichs: die Infobox einmalig zeigen.
+  // Während des Rundgangs übernimmt der die Anzeige selbst.
+  useEffect(() => {
+    if (rundgangNr !== null) return
+    if (view === 'start') return // erklärt der Rundgang, nicht die erste Sitzung
+    if (BEREICHE[view] && !gesehene()[view]) setIntro(view)
+  }, [view, rundgangNr])
+
+  function starteRundgang() {
+    setRundgangNr(0)
+    setView(RUNDGANG_REIHE[0])
+    setIntro(RUNDGANG_REIHE[0])
+  }
+
+  function rundgangWeiter() {
+    const naechste = rundgangNr + 1
+    if (naechste >= RUNDGANG_REIHE.length) return rundgangEnde()
+    setRundgangNr(naechste)
+    setView(RUNDGANG_REIHE[naechste])
+    setIntro(RUNDGANG_REIHE[naechste])
+  }
+
+  function rundgangEnde() {
+    setRundgangNr(null)
+    setIntro(null)
+    setView('start')
+  }
 
   // Der Cookie-Banner haengt neben <App/> im Baum (App steigt fuer
   // Abgemeldete frueh aus), kann also keine Prop bekommen. Deshalb
@@ -1129,7 +1163,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={starteRundgang} />
         </main>
       )}
 
@@ -1510,6 +1544,20 @@ export default function App() {
       )}
 
       {loginOffen && <Login onSchliessen={() => setLoginOffen(false)} />}
+
+      {/* Bereichs-Einführung bzw. Rundgang – liegt über allem */}
+      {intro && (
+        <BereichsIntro
+          bereich={intro}
+          rundgang={
+            rundgangNr !== null
+              ? { nr: rundgangNr + 1, von: RUNDGANG_REIHE.length }
+              : null
+          }
+          onWeiter={rundgangWeiter}
+          onFertig={rundgangNr !== null ? rundgangEnde : () => setIntro(null)}
+        />
+      )}
     </div>
   )
 }

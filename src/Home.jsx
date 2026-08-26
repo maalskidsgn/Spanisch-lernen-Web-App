@@ -464,7 +464,7 @@ const STATIONEN = [
  * liest niemand. Die Frage "Was mache ich hier eigentlich?" stellt
  * sich aber genau hier, in den ersten Wochen, immer wieder.
  */
-export function Leitfaden({ onNavigate, onZurueck }) {
+export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
   const [geteilt, setGeteilt] = useState(false)
 
   async function einladen() {
@@ -496,6 +496,15 @@ export function Leitfaden({ onNavigate, onZurueck }) {
       <p className="intro">
         Deine Reise durch die App – und was wir uns dabei gedacht haben.
       </p>
+
+      {/* Der geführte Rundgang: die App klickt selbst durch alle
+          Bereiche und erklärt jeden kurz. Für alle, die lieber
+          schauen als lesen. */}
+      {onRundgang && (
+        <button className="btn rundgang-start" onClick={onRundgang}>
+          ✦ Rundgang starten – einmal durch die ganze App
+        </button>
+      )}
 
       <ol className="reise-liste">
         {STATIONEN.map((s, i) => (

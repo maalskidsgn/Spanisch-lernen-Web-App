@@ -9494,3 +9494,98 @@ body.lektion-laeuft .lessons > .player-top,
   70% { opacity: 1; }
   100% { opacity: 0; transform: translateX(-50%) translateY(-36px) scale(1); }
 }
+
+/* ---------- Bereichs-Einführung & Rundgang ---------- */
+.intro-hintergrund {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 65, .45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 18px;
+  z-index: 80;
+  animation: intro-dunkel .25s ease;
+}
+@keyframes intro-dunkel { from { opacity: 0; } to { opacity: 1; } }
+
+.intro-karte {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 26px 24px 22px;
+  margin-bottom: 66px; /* ueber der Tab-Leiste */
+  box-shadow: 0 24px 60px rgba(0, 0, 65, .35);
+  text-align: center;
+  animation: sheet-hoch .34s cubic-bezier(.34, 1.35, .64, 1);
+}
+.intro-karte h2 { margin: 12px 0 6px; font-size: 1.3rem; }
+.intro-karte p { margin: 0; color: var(--muted); line-height: 1.55; font-size: .95rem; }
+
+/* Das Zeichen springt der Karte hinterher – EIN Moment, kein Loop. */
+.intro-icon {
+  width: 62px; height: 62px;
+  margin: -56px auto 0;
+  border-radius: 20px;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 30px rgba(255, 108, 0, .45);
+  animation: intro-hops .5s cubic-bezier(.34, 1.6, .64, 1) .12s backwards;
+}
+@keyframes intro-hops {
+  from { opacity: 0; transform: translateY(22px) scale(.6); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Zwei Funken, die beim Aufspringen kurz wegfliegen */
+.intro-funke {
+  position: absolute;
+  top: -8px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: intro-funkeln .7s ease .2s backwards;
+  opacity: 0;
+}
+.intro-funke-a { left: 38%; animation-name: intro-funkeln-a; }
+.intro-funke-b { left: 58%; width: 6px; height: 6px; animation-name: intro-funkeln-b; }
+@keyframes intro-funkeln-a {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.5); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-22px, -26px) scale(1); }
+}
+@keyframes intro-funkeln-b {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.5); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translate(24px, -20px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-karte, .intro-icon, .intro-funke, .intro-hintergrund { animation: none; }
+}
+
+.intro-schritt {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.intro-knoepfe {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+}
+.intro-alles-klar { min-width: 55%; }
+
+.rundgang-start {
+  width: 100%;
+  margin-bottom: 18px;
+}
