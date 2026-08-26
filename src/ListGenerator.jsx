@@ -9,6 +9,7 @@ import { IconFunken } from './icons.jsx'
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
 export default function ListGenerator({ vocab, setVocab }) {
   const [thema, setThema] = useState('')
+  const [wortart, setWortart] = useState('alle') // 'alle'|'verben'|'adjektive'|'nomen'
   const [fertigThema, setFertigThema] = useState('') // Thema der fertigen Liste
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -50,6 +51,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         // Dopplungen zurück und die Liste passt zum eigenen Stand.
         body: JSON.stringify({
           thema: automatisch ? '' : gefragt,
+          wortart,
           bekannt: Object.keys(vocab),
         }),
       })
@@ -164,6 +166,26 @@ export default function ListGenerator({ vocab, setVocab }) {
               onClick={() => setThema(v)}
             >
               {v}
+            </button>
+          ))}
+        </div>
+
+        {/* Wortart wählen: gemischt oder gezielt Verben/Adjektive/Nomen.
+            So kann man z. B. eine reine Verbenliste zum Thema holen. */}
+        <div className="wortart-wahl">
+          {[
+            ['alle', 'Gemischt'],
+            ['verben', 'Verben'],
+            ['adjektive', 'Adjektive'],
+            ['nomen', 'Nomen'],
+          ].map(([wert, text]) => (
+            <button
+              key={wert}
+              type="button"
+              className={'vorschlag-chip' + (wortart === wert ? ' vorschlag-chip-aktiv' : '')}
+              onClick={() => setWortart(wert)}
+            >
+              {text}
             </button>
           ))}
         </div>

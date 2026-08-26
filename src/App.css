@@ -9316,3 +9316,11 @@ body.lektion-laeuft .lessons > .player-top,
   font-size: .85rem;
   color: var(--navy);
 }
+
+/* Wortart-Wahl im Listengenerator: aktiver Chip in Markenfarbe. */
+.wortart-wahl { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.vorschlag-chip-aktiv {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+}

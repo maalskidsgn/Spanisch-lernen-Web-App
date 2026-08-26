@@ -26,15 +26,16 @@ Stand: 24. August 2026.
 
 ## 🔨 Gerade in Arbeit
 
-- (frei – nächster Punkt: Vokabelgenerator mit Verben/Adjektiven)
+- (frei – nächsten Punkt aus der Liste wählen)
 
 ---
 
 ## 📋 Offen – wird abgearbeitet
 
 ### Inhalte & Lernen
-- [ ] **Vokabelgenerator: Adjektive, Verben etc. als Auswahl** für
-      vorausgewählte Generierungen. (KI-Listengenerator erweitern.)
+- [x] **Vokabelgenerator: Verben/Adjektive/Nomen als Auswahl.** Chips
+      im KI-Listengenerator (Gemischt/Verben/Adjektive/Nomen), Server
+      steuert die Wortart. Getestet: Sport→Verben, Wetter→Adjektive.
 - [ ] **Weitere Spiele** (Wordle-artig etc.) für die Vokabelwiederholung.
 - [ ] **Unter Memory die Vokabeln auflisten**, evtl. mit Beispielsätzen.
       Sound wäre auch nice.

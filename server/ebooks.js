@@ -235,7 +235,19 @@ function ohneBekannte(vorschlaege, bekannt) {
  * @param {string}   thema   – z. B. "Restaurant"
  * @param {string[]} bekannt – Wörter, die die Person schon gesammelt hat
  */
-export async function erzeugeVokabelliste(thema, bekannt = []) {
+// Wortart-Vorgaben für den Generator. 'alle' = gemischt wie bisher.
+const WORTART_REGEL = {
+  verben:
+    'Wähle AUSSCHLIESSLICH Verben, immer im Infinitiv (z. B. "hablar"). ' +
+    'Keine Artikel. Nimm die im Alltag nützlichsten.',
+  adjektive:
+    'Wähle AUSSCHLIESSLICH Adjektive (z. B. "rápido"). Keine Artikel. ' +
+    'Nimm häufige, alltagstaugliche.',
+  nomen: 'Wähle AUSSCHLIESSLICH Nomen (Substantive), jedes mit seinem Artikel (el/la).',
+  alle: 'Mische sinnvoll Nomen (mit Artikel el/la), Verben und Adjektive.',
+}
+
+export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle') {
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -243,14 +255,18 @@ export async function erzeugeVokabelliste(thema, bekannt = []) {
   // bisherigen Wortschatz an und schlägt den nächsten sinnvollen
   // Schritt vor – etwa passende Verben zu vorhandenen Nomen.
   const automatisch = !thema?.trim()
+  const wortartRegel = WORTART_REGEL[wortart] ?? WORTART_REGEL.alle
 
-  const auftrag = automatisch
-    ? 'Schau dir den bisherigen Wortschatz an und wähle selbst aus, was als ' +
-      'Nächstes am meisten bringt. Achte darauf: Welche Themen tauchen auf? ' +
-      'Fehlen zu vorhandenen Nomen die passenden Verben? Fehlen Wörter, die ' +
-      'man im Alltag ständig braucht? Wähle ein zusammenhängendes Thema statt ' +
-      'wahlloser Einzelwörter.' + bekanntesAlsHinweis(bekannt)
-    : `Thema: ${thema}` + bekanntesAlsHinweis(bekannt)
+  const auftrag =
+    (automatisch
+      ? 'Schau dir den bisherigen Wortschatz an und wähle selbst aus, was als ' +
+        'Nächstes am meisten bringt. Achte darauf: Welche Themen tauchen auf? ' +
+        'Fehlen zu vorhandenen Nomen die passenden Verben? Fehlen Wörter, die ' +
+        'man im Alltag ständig braucht? Wähle ein zusammenhängendes Thema statt ' +
+        'wahlloser Einzelwörter.'
+      : `Thema: ${thema}`) +
+    '\n' + wortartRegel +
+    bekanntesAlsHinweis(bekannt)
 
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
@@ -265,9 +281,9 @@ export async function erzeugeVokabelliste(thema, bekannt = []) {
           role: 'system',
           content:
             'Du stellst Vokabellisten für deutschsprachige Spanischlernende zusammen: ' +
-            'die 12 nützlichsten Wörter, Alltagsniveau, Nomen mit Artikel, jedes Wort ' +
-            'mit einem einfachen Beispielsatz. Erkläre in der Begründung kurz und ' +
-            'persönlich, warum du gerade diese Auswahl getroffen hast.',
+            'die 12 nützlichsten Wörter auf Alltagsniveau, jedes mit einem einfachen ' +
+            'Beispielsatz. Halte dich an die vorgegebene Wortart. Erkläre in der ' +
+            'Begründung kurz und persönlich, warum du gerade diese Auswahl getroffen hast.',
         },
         { role: 'user', content: auftrag },
       ],

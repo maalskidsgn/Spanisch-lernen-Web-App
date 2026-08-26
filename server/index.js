@@ -487,6 +487,10 @@ app.post('/api/vokabelliste', async (req, res) => {
   // Die schon gesammelten Wörter: verhindern Dopplungen und verraten
   // dem Modell, auf welchem Stand die Person ist.
   const bekannt = Array.isArray(req.body.bekannt) ? req.body.bekannt : []
+  // Wortart: 'alle' | 'verben' | 'adjektive' | 'nomen'
+  const wortart = ['verben', 'adjektive', 'nomen'].includes(req.body.wortart)
+    ? req.body.wortart
+    : 'alle'
 
   // Ohne Thema wählt die KI selbst – dafür braucht sie aber Wörter,
   // an denen sie sich orientieren kann.
@@ -497,7 +501,7 @@ app.post('/api/vokabelliste', async (req, res) => {
   }
 
   try {
-    const ergebnis = await erzeugeVokabelliste(thema, bekannt)
+    const ergebnis = await erzeugeVokabelliste(thema, bekannt, wortart)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
