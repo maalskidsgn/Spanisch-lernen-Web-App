@@ -77,7 +77,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
     speichereGelesen(bisher)
     setGelesen(bisher)
     addXp?.(XP.LAND)
-    merkeEinheit()
+    merkeEinheit('lektion')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stueck.id])
 

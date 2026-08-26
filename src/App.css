@@ -9253,3 +9253,66 @@ body.lektion-laeuft .lessons > .player-top,
   display: grid; place-items: center;
 }
 .wortkarte-schliessen:hover { background: var(--line); color: var(--navy); }
+
+/* ---------- Lernkalender auf der Startseite ---------- */
+.kalender { margin-top: 22px; }
+.kal-titel { margin: 0 0 8px; }
+
+.kal-wochentage {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 5px;
+}
+.kal-wochentage span {
+  text-align: center;
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+
+.kal-gitter {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+.kal-tag {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--card);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.kal-zahl {
+  font-size: .68rem;
+  color: var(--muted);
+  position: absolute;
+  top: 3px; left: 5px;
+}
+/* Ein gelernter Tag: warm gefüllt, mit Kreuz. */
+.kal-aktiv {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.kal-aktiv .kal-zahl { color: rgba(255, 255, 255, .8); }
+.kal-kreuz {
+  color: #fff;
+  font-size: .95rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.kal-heute { box-shadow: 0 0 0 2px var(--primary); }
+.kal-zukunft { opacity: .35; cursor: default; background: transparent; }
+.kal-gewaehlt { outline: 2px solid var(--navy); outline-offset: 1px; }
+
+.kal-detail {
+  margin: 10px 0 0;
+  font-size: .85rem;
+  color: var(--navy);
+}

@@ -270,7 +270,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
       hakeAb('lektion') // Schritt im Tagesplan erledigt
-      merkeEinheit() // zaehlt im Wochendiagramm
+      merkeEinheit('lektion') // zaehlt als Lektion
       onLessonComplete(lektion)
       setFertig(true)
       return

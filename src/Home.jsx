@@ -1,7 +1,7 @@
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
-import { letzteWoche } from './aktivitaet.js'
+import { letzteWoche, kalenderRaster } from './aktivitaet.js'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
@@ -192,11 +192,86 @@ export default function Home({
             <span>Lektionen</span>
           </div>
         </div>
+
+        {/* Der Kalender: ein Kreuz an jedem Tag, an dem etwas gelernt
+            wurde. Antippen zeigt, wie viele Lektionen und
+            Wiederholungen es waren. */}
+        <Kalender />
       </section>
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
     </div>
   )
+}
+
+/**
+ * Kalender der letzten Wochen. Kreuz = an diesem Tag gelernt; antippen
+ * zeigt die Aufschlüsselung in Lektionen und Wiederholungen.
+ */
+function Kalender() {
+  const zellen = kalenderRaster(6)
+  const [gewaehlt, setGewaehlt] = useState(null)
+  const wochentage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+
+  const aktiveTage = zellen.filter((z) => z.gesamt > 0).length
+
+  return (
+    <div className="kalender">
+      <p className="start-abschnitt-sub kal-titel">
+        Kalender · {aktiveTage} {aktiveTage === 1 ? 'aktiver Tag' : 'aktive Tage'}
+      </p>
+
+      <div className="kal-wochentage">
+        {wochentage.map((t) => (
+          <span key={t}>{t}</span>
+        ))}
+      </div>
+
+      <div className="kal-gitter">
+        {zellen.map((z) => (
+          <button
+            key={z.schluessel}
+            type="button"
+            disabled={z.zukunft}
+            className={
+              'kal-tag' +
+              (z.gesamt > 0 ? ' kal-aktiv' : '') +
+              (z.istHeute ? ' kal-heute' : '') +
+              (z.zukunft ? ' kal-zukunft' : '') +
+              (gewaehlt?.schluessel === z.schluessel ? ' kal-gewaehlt' : '')
+            }
+            onClick={() => setGewaehlt(z)}
+          >
+            <span className="kal-zahl">{z.tag}</span>
+            {z.gesamt > 0 && <span className="kal-kreuz" aria-hidden="true">✕</span>}
+          </button>
+        ))}
+      </div>
+
+      {gewaehlt && (
+        <p className="kal-detail">
+          <b>{kalDatum(gewaehlt.schluessel)}</b>{' '}
+          {gewaehlt.gesamt === 0 ? '– nichts gelernt' : '– ' + kalTeile(gewaehlt)}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/** "2026-08-24" → "Mo, 24. Aug." */
+function kalDatum(schluessel) {
+  const [j, m, t] = schluessel.split('-').map(Number)
+  const d = new Date(j, m - 1, t)
+  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+/** Aufschlüsselung eines Tages als Text, z. B. "1 Lektion, 2 Wiederholungen". */
+function kalTeile(z) {
+  const teile = []
+  if (z.lektionen > 0) teile.push(z.lektionen + (z.lektionen === 1 ? ' Lektion' : ' Lektionen'))
+  if (z.wiederholungen > 0)
+    teile.push(z.wiederholungen + (z.wiederholungen === 1 ? ' Wiederholung' : ' Wiederholungen'))
+  return teile.join(', ')
 }
 
 /** Wie voll ist der Tageskreis? Nichts, angefangen, erledigt. */

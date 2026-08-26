@@ -176,7 +176,7 @@ export default function Trainer({
       if (nextQueue.length === 0) {
         earned += XP.RUNDE
         hakeAb('wiederholen') // Schritt im Tagesplan erledigt
-        merkeEinheit() // zaehlt im Wochendiagramm
+        merkeEinheit('wiederholung') // fertige Runde
       }
       addXp(earned)
       setXpPopup({ amount: earned, key: Date.now() }) // key sorgt dafür, dass die Animation neu startet
@@ -197,7 +197,7 @@ export default function Trainer({
    * zählt das wie ein "Gut" im Training.
    */
   function nachSpiel(woerter) {
-    merkeEinheit() // ein fertiges Spiel zaehlt im Wochendiagramm
+    merkeEinheit('wiederholung') // fertiges Spiel
     setVocab((v) => {
       const kopie = { ...v }
       for (const wort of woerter) {
