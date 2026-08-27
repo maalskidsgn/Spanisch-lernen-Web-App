@@ -11,6 +11,18 @@
 // erst nach der ersten Nutzer-Geste; bis dahin bleibt der Context
 // „suspended" und der erste Aufruf weckt ihn.
 
+// Abstellbar: Der Schalter liegt in den Einstellungen unter "Ton".
+// Standard ist AN – wer ihn nicht mag, macht ihn einmal aus.
+const SCHALTER = 'erfolgstoene'
+
+export function erfolgstoeneAn() {
+  return localStorage.getItem(SCHALTER) !== 'aus'
+}
+
+export function setzeErfolgstoene(an) {
+  localStorage.setItem(SCHALTER, an ? 'an' : 'aus')
+}
+
 let ctx = null
 
 function context() {
@@ -28,27 +40,29 @@ function context() {
  */
 export function erfolgston() {
   try {
+    if (!erfolgstoeneAn()) return
     const c = context()
     if (!c) return
     if (c.state === 'suspended') c.resume()
 
     const jetzt = c.currentTime
-    // Zwei Töne: G5 und darüber D6 – eine Quinte, klingt „gelöst".
+    // Zwei weiche Töne, A5 hoch zur Terz C#6 – kürzer und leiser als
+    // die erste Fassung (die war Manuel zu aufdringlich).
     const toene = [
-      { hz: 784, start: 0, dauer: 0.12 },
-      { hz: 1175, start: 0.09, dauer: 0.16 },
+      { hz: 880, start: 0, dauer: 0.09 },
+      { hz: 1109, start: 0.07, dauer: 0.14 },
     ]
 
     for (const t of toene) {
       const osc = c.createOscillator()
       const lautstaerke = c.createGain()
-      osc.type = 'triangle' // weicher als eine reine Sinuswelle wirkt hier voller
+      osc.type = 'sine' // die weichste Wellenform – ein Tupfer, kein Piepser
       osc.frequency.value = t.hz
 
       // Schnell an, sanft aus – ein „Pling", kein Piepser.
       const a = jetzt + t.start
       lautstaerke.gain.setValueAtTime(0, a)
-      lautstaerke.gain.linearRampToValueAtTime(0.18, a + 0.015)
+      lautstaerke.gain.linearRampToValueAtTime(0.11, a + 0.02)
       lautstaerke.gain.exponentialRampToValueAtTime(0.0001, a + t.dauer)
 
       osc.connect(lautstaerke).connect(c.destination)

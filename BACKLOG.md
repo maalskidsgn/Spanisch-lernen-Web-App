@@ -106,9 +106,11 @@ Stand: 24. August 2026.
       Wörter" – weg damit).
 - [ ] **„Stücke" umbenennen + Startseiten-Karte besser gestalten**
       (Land & Leute). ❓ RÜCKFRAGE: Wie soll es heißen?
-- [ ] **Erfolgssound anders + abstellbar** (Schalter in Mehr).
-- [ ] **Kein Vokabel-Sound im Trainer** – Lektionswörter sind vertont,
-      andere nicht; im Trainer deshalb einheitlich ohne Ton.
+- [x] **Erfolgssound anders + abstellbar.** Weicherer Klang (Sinus,
+      leiser, kürzer) und Schalter „Erfolgstöne" unter Mehr → Ton –
+      beim Einschalten spielt er einmal zur Probe.
+- [x] **Kein Vokabel-Sound im Trainer.** Lautsprecher aus den
+      Trainingskarten entfernt – einheitlich ohne Ton.
 - [ ] **Karten-Swipe im Training** – rechts/links wischen, wenn man es
       weiß; das Wort bleibt kurz sichtbar.
 - [ ] **Neues Spiel: Karte in 4 Richtungen schieben** – in der Mitte

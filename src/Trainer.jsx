@@ -19,8 +19,6 @@ import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
-import HoerKnopf from './HoerKnopf.jsx'
-import { originalWort } from './lektionen.js'
 
 // Zuordnung der Uebungsarten zu ihren Icons
 const ART_ICONS = {
@@ -369,11 +367,11 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
+            {/* Bewusst OHNE Lautsprecher: Nur Lektionswoerter sind
+                vertont, gesammelte nicht – mal Ton, mal keiner wirkte
+                im Trainer uneinheitlich (Manuels Punkt vom 24.08.). */}
             <div className="word-row">
               <div className="flash-word">{wort}</div>
-              {/* Hier verraet der Ton nichts: Gefragt ist die deutsche
-                  Bedeutung, zu hoeren ist das spanische Wort. */}
-              <HoerKnopf text={originalWort(wort)} vonSelbst />
             </div>
             {revealed ? (
               <div className="flash-back">
@@ -411,7 +409,6 @@ export default function Trainer({
             <p className="lesson-hint">Was heißt …</p>
             <div className="word-row">
               <div className="flash-word">{wort}</div>
-              <HoerKnopf text={originalWort(wort)} vonSelbst />
             </div>
             <AuswahlKnoepfe
               key={wort}

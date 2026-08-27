@@ -7,6 +7,7 @@ import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
+import { erfolgston, erfolgstoeneAn, setzeErfolgstoene } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -30,6 +31,7 @@ export default function Settings({
   // Konto und ohne Abgleich gelten – wer im Buero sitzt, will ihn
   // sofort aus, nicht nach der naechsten Synchronisierung.
   const [autoTon, setAutoTon] = useState(tonVonSelbst)
+  const [erfolgAn, setErfolgAn] = useState(erfolgstoeneAn)
   // Die Einwilligung zur Messung – zuruecknehmen muss genauso leicht
   // sein wie zustimmen, sonst ist die Zustimmung nicht wirksam.
   const [messung, setMessung] = useState(() => einwilligungsStand() === 'ja')
@@ -449,6 +451,30 @@ export default function Settings({
               onChange={(e) => {
                 setAutoTon(e.target.checked)
                 setzeTonVonSelbst(e.target.checked)
+              }}
+            />
+            <span className="slider" />
+          </span>
+        </label>
+
+        <label className="settings-row">
+          <div>
+            <div className="row-title">Erfolgstöne</div>
+            <div className="row-hint">
+              Ein kurzer Klang, wenn du etwas richtig hast oder ein Wort
+              sammelst.
+            </div>
+          </div>
+          <span className="switch">
+            <input
+              type="checkbox"
+              checked={erfolgAn}
+              onChange={(e) => {
+                setErfolgAn(e.target.checked)
+                setzeErfolgstoene(e.target.checked)
+                // Beim Einschalten einmal vorspielen – so hoert man
+                // sofort, worum es geht.
+                if (e.target.checked) erfolgston()
               }}
             />
             <span className="slider" />
