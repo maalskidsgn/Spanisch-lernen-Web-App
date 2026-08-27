@@ -47,6 +47,16 @@ Stand: 24. August 2026.
       Leser; „Alle übernehmen" gibt 2 XP pro Wort.
 
 ### Spotify / Songs
+- [x] **Song-Ablage schöner + Ladesymbol + robuste Generierung**
+      (24.08.): „Deine Songs" als Karten-Grid mit großen Thumbnails,
+      Play-Overlay und Dauer. Treffer-Klick prüft erst den Songtext
+      (Spinner „Songtext wird geprüft …") und springt bei schlechtem
+      Treffer automatisch zum nächsten – vorher landete man auf einer
+      Fehlerseite (gemessen: rumänisches Kinderlied vor dem Song).
+- [ ] **Spotify: Entscheidung offen.** Bereich ist für normale Nutzer
+      funktionslos (Entwicklungsmodus, nur freigeschaltete Konten).
+      Schalter `SPOTIFY_ZEIGEN` in Songs.jsx liegt bereit – Manuel
+      entscheidet: ausblenden oder Extended-Quota beantragen.
 - [ ] **Spotify funktioniert wieder nicht, Songs wandeln sich nicht um,
       nichts wird gespeichert.** (Diagnose steht: Backend ok,
       Spotify-Entwicklungsmodus ist das Problem. Empfehlung: Songs ohne
@@ -84,6 +94,29 @@ Stand: 24. August 2026.
       abgehakt – gegenprüfen.)
 
 ---
+
+### Neue Punkte (Notiz vom 24.08., zweiter Schwung)
+- [ ] **KI-Listengenerator ohne Tippen** – „es soll nichts eingetippt
+      werden". ❓ RÜCKFRAGE: Themen-Chips sollen direkt generieren
+      statt nur das Feld zu füllen – richtig verstanden?
+- [ ] **Onboarding-KI-Funnel erst nach E-Mail-Eingabe** – die
+      KI-Generierung im Trichter soll erst laufen, wenn die Mail
+      eingetippt ist (sonst zahlt man für Besucher ohne Konto).
+- [ ] **Ausklappbare Vokabel-Liste im Trainer entfernen** („Alle deine
+      Wörter" – weg damit).
+- [ ] **„Stücke" umbenennen + Startseiten-Karte besser gestalten**
+      (Land & Leute). ❓ RÜCKFRAGE: Wie soll es heißen?
+- [ ] **Erfolgssound anders + abstellbar** (Schalter in Mehr).
+- [ ] **Kein Vokabel-Sound im Trainer** – Lektionswörter sind vertont,
+      andere nicht; im Trainer deshalb einheitlich ohne Ton.
+- [ ] **Karten-Swipe im Training** – rechts/links wischen, wenn man es
+      weiß; das Wort bleibt kurz sichtbar.
+- [ ] **Neues Spiel: Karte in 4 Richtungen schieben** – in der Mitte
+      eine Karte, vier Antwortmöglichkeiten an den Rändern, eine ist
+      richtig.
+- [ ] **Grammatik-Nachschlagbereich** – Tabellen der Zeitformen usw.,
+      für den Überblick.
+- [ ] **„Lektion geschafft"-Seite modernisieren** – sieht crappy aus.
 
 ## Reihenfolge
 

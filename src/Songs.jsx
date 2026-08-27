@@ -26,6 +26,14 @@ import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
 // vollstaendiger, aber an der Zielgruppe vorbei.
 const STILE = ['Reggaetón', 'Latin Pop', 'Bachata', 'Trap latino']
 
+// Spotify vorerst ausgeblendet (24.08., Weg A): Spotify hat die
+// Katalog-Abfragen fuer Apps im Entwicklungsmodus abgeschaltet und
+// laesst nur freigeschaltete Konten anmelden – fuer echte Nutzer war
+// der Bereich damit kaputt. Songs laufen jetzt komplett ueber die
+// Suche oben, die zuverlaessig funktioniert. Diese eine Zeile holt
+// den Spotify-Teil zurueck.
+const SPOTIFY_ZEIGEN = true
+
 /**
  * Songs: Musik mit mitlaufendem Text.
  *
@@ -40,6 +48,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   const [treffer, setTreffer] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
+  const [prueft, setPrueft] = useState(null) // videoId, deren Text gerade geprueft wird
   const [pdfLaeuft, setPdfLaeuft] = useState(null)
 
   // --- Spotify ---
@@ -233,6 +242,42 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     }
   }
 
+  /**
+   * Einen Suchtreffer öffnen – aber erst prüfen, ob es wirklich einen
+   * spanischen Text gibt.
+   *
+   * Ohne die Prüfung landete man auf einer Fehlerseite, sobald der
+   * oberste Treffer danebenlag (am 24.08. gemessen: ein rumänisches
+   * Kinderlied vor dem echten Song). YouTubes "hat Untertitel"-Flag
+   * sagt nämlich nicht, in WELCHER Sprache. Deshalb: den geklickten
+   * Treffer prüfen, bei Fehlschlag still die nächsten zwei versuchen –
+   * mit sichtbarem Spinner auf der Karte, damit klar ist, dass etwas
+   * passiert.
+   */
+  async function trefferOeffnen(startIndex) {
+    if (prueft) return
+    const kandidaten = (treffer ?? []).slice(startIndex, startIndex + 3)
+    setFehler('')
+    for (const k of kandidaten) {
+      setPrueft(k.videoId)
+      try {
+        const res = await fetch(API_URL + '/api/transcript?url=' + k.videoId + '&art=musik')
+        if (res.ok) {
+          setPrueft(null)
+          onOpenVideo(k.videoId, 'musik')
+          return
+        }
+      } catch {
+        // naechsten Kandidaten versuchen
+      }
+    }
+    setPrueft(null)
+    setFehler(
+      'Zu diesem Treffer habe ich keine Fassung mit spanischem Text gefunden – ' +
+        'probier einen anderen oder such mit „Letra" im Namen.'
+    )
+  }
+
   function dauerText(sekunden) {
     if (!sekunden) return ''
     return `${Math.floor(sekunden / 60)}:${String(Math.round(sekunden % 60)).padStart(2, '0')}`
@@ -281,20 +326,23 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
 
         {treffer?.length > 0 && (
           <div className="song-treffer">
-            {treffer.map((s) => (
+            {treffer.map((s, i) => (
               <button
                 key={s.videoId}
-                className="treffer"
-                onClick={() => onOpenVideo(s.videoId, 'musik')}
+                className={'treffer' + (prueft === s.videoId ? ' treffer-prueft' : '')}
+                onClick={() => trefferOeffnen(i)}
+                disabled={Boolean(prueft)}
               >
                 <img src={s.thumbnail} alt="" />
                 <span className="treffer-text">
                   <span className="treffer-titel">{s.title}</span>
                   <span className="treffer-meta">
-                    {s.channel}
-                    {s.duration ? ' · ' + dauerText(s.duration) : ''}
+                    {prueft === s.videoId
+                      ? 'Songtext wird geprüft …'
+                      : s.channel + (s.duration ? ' · ' + dauerText(s.duration) : '')}
                   </span>
                 </span>
+                {prueft === s.videoId && <span className="treffer-spinner" aria-hidden="true" />}
               </button>
             ))}
           </div>
@@ -316,33 +364,44 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         />
 
         {songs?.length > 0 && (
-          <div className="song-liste">
+          <div className="song-grid">
             {songs.map((s) => (
-              <div key={s.id} className="song-zeile">
-                <button className="song-oeffnen" onClick={() => onOpenVideo(s.youtube_id, 'musik')}>
-                  <img src={s.thumbnail} alt="" />
-                  <span className="song-text">
-                    <span className="song-titel">{s.titel}</span>
-                    <span className="song-meta">
-                      {s.kanal}
-                      {s.dauer_sek ? ' · ' + dauerText(s.dauer_sek) : ''}
-                    </span>
-                  </span>
-                </button>
+              <div key={s.id} className="song-karte">
                 <button
-                  className="song-pdf"
-                  onClick={() => pdfErzeugen(s)}
-                  disabled={pdfLaeuft === s.youtube_id}
-                  title="Songtext als PDF sichern"
+                  className="song-bild"
+                  onClick={() => onOpenVideo(s.youtube_id, 'musik')}
+                  aria-label={'Song öffnen: ' + s.titel}
                 >
-                  {pdfLaeuft === s.youtube_id ? 'Erstellt …' : 'PDF'}
+                  <img src={s.thumbnail} alt="" loading="lazy" />
+                  <span className="song-play-overlay" aria-hidden="true">▶</span>
+                  {s.dauer_sek > 0 && (
+                    <span className="song-dauer">{dauerText(s.dauer_sek)}</span>
+                  )}
                 </button>
+                <div className="song-karte-fuss">
+                  <button
+                    className="song-karte-text"
+                    onClick={() => onOpenVideo(s.youtube_id, 'musik')}
+                  >
+                    <span className="song-titel">{s.titel}</span>
+                    <span className="song-meta">{s.kanal}</span>
+                  </button>
+                  <button
+                    className="song-pdf"
+                    onClick={() => pdfErzeugen(s)}
+                    disabled={pdfLaeuft === s.youtube_id}
+                    title="Songtext als PDF sichern"
+                  >
+                    {pdfLaeuft === s.youtube_id ? '…' : 'PDF'}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         )}
       </section>
 
+      {SPOTIFY_ZEIGEN && (<>
       {/* ============ 3. SPOTIFY ============ */}
       <section className="bereich">
         <Kopf
@@ -470,6 +529,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
 
         {spotifyFehler && <p className="error">{spotifyFehler}</p>}
       </section>
+      </>)}
 
     </>
   )
