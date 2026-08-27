@@ -50,8 +50,8 @@ export const BEREICHE = {
     icon: IconLandkarte,
     titel: 'Dein Start',
     text:
-      'Hier beginnt jeder Tag: die nächste Lektion, das tägliche Stück ' +
-      '„Land & Leute", dein Sprech-Tutor und der Kalender mit deinen ' +
+      'Hier beginnt jeder Tag: die nächste Lektion, dein tägliches ' +
+      '„Entdecken“-Stück, der Sprech-Tutor und der Kalender mit deinen ' +
       'Lerntagen. Einmal am Tag reinschauen reicht, um dranzubleiben.',
   },
   lektionen: {

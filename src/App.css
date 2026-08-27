@@ -9681,3 +9681,32 @@ body.lektion-laeuft .lessons > .player-top,
   animation: dreht .7s linear infinite;
 }
 @keyframes dreht { to { transform: rotate(360deg); } }
+
+/* ---------- Die drei Tueren auf dem Start ----------
+   Gleicher Bau, eigene Farbe je Kachel – so liest sich die Reihe als
+   drei verschiedene Angebote, nicht als dreimal dieselbe Karte. */
+.start-tuer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.tuer-icon {
+  flex: 0 0 auto;
+  width: 52px; height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 108, 0, .22);
+}
+.tuer-icon-sprechen { background: linear-gradient(135deg, #ff8124, #ff6c00); }
+.tuer-icon-entdecken { background: linear-gradient(135deg, #2fb59b, #1e9d85); box-shadow: 0 8px 20px rgba(31, 157, 133, .25); }
+.tuer-icon-leitfaden { background: var(--navy); box-shadow: 0 8px 20px rgba(0, 0, 65, .2); }
+
+@media (hover: hover) {
+  .start-tuer { transition: transform .15s ease; }
+  .start-tuer:hover { transform: translateY(-2px); }
+}

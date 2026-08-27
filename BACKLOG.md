@@ -104,8 +104,9 @@ Stand: 24. August 2026.
       eingetippt ist (sonst zahlt man für Besucher ohne Konto).
 - [ ] **Ausklappbare Vokabel-Liste im Trainer entfernen** („Alle deine
       Wörter" – weg damit).
-- [ ] **„Stücke" umbenennen + Startseiten-Karte besser gestalten**
-      (Land & Leute). ❓ RÜCKFRAGE: Wie soll es heißen?
+- [x] **„Land & Leute" heißt jetzt „Entdecken"** – und die drei
+      Start-Türen (Sprechen, Entdecken, Leitfaden) haben je eine eigene
+      farbige Icon-Kachel statt dreimal derselben weißen Karte.
 - [x] **Erfolgssound anders + abstellbar.** Weicherer Klang (Sinus,
       leiser, kürzer) und Schalter „Erfolgstöne" unter Mehr → Ton –
       beim Einschalten spielt er einmal zur Probe.

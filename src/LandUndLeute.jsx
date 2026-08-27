@@ -99,7 +99,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
       neueWoerter.map((w) => ({
         wort: w.es,
         uebersetzung: w.de,
-        quelle: `Land & Leute – ${stueck.titel}`,
+        quelle: `Entdecken – ${stueck.titel}`,
       }))
     )
   }
@@ -111,7 +111,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
       <div className="lul-kopf">
         <IconLandkarte groesse={22} />
         <div>
-          <h1 className="trainer-titel">Land & Leute</h1>
+          <h1 className="trainer-titel">Entdecken</h1>
           <p className="lul-unter">
             Jeden Tag ein kurzes Stück über Spanien und Lateinamerika – auf
             Spanisch und Deutsch.

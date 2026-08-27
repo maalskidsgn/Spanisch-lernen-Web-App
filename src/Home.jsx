@@ -6,7 +6,7 @@ import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
 import { useEffect, useState } from 'react'
-import { IconPfeil } from './icons.jsx'
+import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 
 // Die Startseite.
 //
@@ -105,46 +105,50 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2. DER WEG ZUM LEITFADEN ============ */}
-      {/* Nur die Tuer, nicht der ganze Raum: Der Leitfaden ist lang
-          und liest sich einmal – auf dem Start stuende er jeden Tag
-          im Weg. */}
-      <button className="start-karte leitfaden-tuer" onClick={() => onNavigate('leitfaden')}>
+      {/* ============ 2.-4. DIE DREI TUEREN ============ */}
+      {/* Sprechen, Entdecken, Leitfaden - gleicher Bau, jede mit
+          eigener Icon-Kachel, damit die Reihe nicht wie dreimal
+          dieselbe weisse Karte aussieht (Manuels Punkt vom 24.08.).
+          Sprechen und Entdecken zuerst: Das sind die Gruende, die App
+          taeglich zu oeffnen; der Leitfaden liest sich einmal. */}
+      <button className="start-karte start-tuer" onClick={() => onNavigate('gespraech')}>
+        <span className="tuer-icon tuer-icon-sprechen" aria-hidden="true">
+          <IconSprache groesse={24} />
+        </span>
+        <span className="leitfaden-text">
+          <span className="start-marke">Sprechen</span>
+          <h2>Rede mit Habla</h2>
+          <p>Ein Gespräch auf Spanisch, in deinem Tempo – die KI hilft, wenn du hängst.</p>
+        </span>
+        <span className="leitfaden-pfeil" aria-hidden="true">
+          <IconPfeil groesse={18} />
+        </span>
+      </button>
+
+      <button className="start-karte start-tuer" onClick={() => onNavigate('landundleute')}>
+        <span className="tuer-icon tuer-icon-entdecken" aria-hidden="true">
+          <IconLandkarte groesse={24} />
+        </span>
+        <span className="leitfaden-text">
+          <span className="start-marke">
+            {schonGelesen ? 'Entdecken' : 'Heute neu · Entdecken'}
+          </span>
+          <h2>{stueck.titel}</h2>
+          <p>{stueck.vorspann}</p>
+        </span>
+        <span className="leitfaden-pfeil" aria-hidden="true">
+          <IconPfeil groesse={18} />
+        </span>
+      </button>
+
+      <button className="start-karte start-tuer" onClick={() => onNavigate('leitfaden')}>
+        <span className="tuer-icon tuer-icon-leitfaden" aria-hidden="true">
+          <IconBuch groesse={24} />
+        </span>
         <span className="leitfaden-text">
           <span className="start-marke">Neu hier?</span>
           <h2>So nutzt du Habloo</h2>
           <p>Deine Reise durch die App – und was wir uns dabei gedacht haben.</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
-      {/* ============ 3. SPRECHEN ============ */}
-      {/* Das Eigentliche: mit dem Gelernten wirklich reden. Steht
-          bewusst weit oben – wer spricht, lernt am meisten. */}
-      <button className="start-karte gespr-tuer" onClick={() => onNavigate('gespraech')}>
-        <span className="leitfaden-text">
-          <span className="start-marke">Neu · Sprechen</span>
-          <h2>Rede mit Habla</h2>
-          <p>Ein Gespräch auf Spanisch, in deinem Tempo – die KI antwortet einfach und hilft, wenn du hängst.</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
-      {/* ============ 3. LAND & LEUTE ============ */}
-      {/* Der Grund, die App auch an einem Tag zu oeffnen, an dem man
-          keine Lektion machen will. Steht deshalb VOR der Wochen-
-          uebersicht: Die schaut man an, wenn man schon da ist. */}
-      <button className="start-karte lul-tuer" onClick={() => onNavigate('landundleute')}>
-        <span className="leitfaden-text">
-          <span className="start-marke">
-            {schonGelesen ? 'Land & Leute' : 'Heute neu · Land & Leute'}
-          </span>
-          <h2>{stueck.titel}</h2>
-          <p>{stueck.vorspann}</p>
         </span>
         <span className="leitfaden-pfeil" aria-hidden="true">
           <IconPfeil groesse={18} />
