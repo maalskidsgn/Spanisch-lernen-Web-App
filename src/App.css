@@ -7958,9 +7958,9 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   padding: 8px 11px;
 }
 .list-gen .wort-vorschlaege {
-  justify-content: space-between;
-  gap: 6px;
-  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 
@@ -9318,7 +9318,7 @@ body.lektion-laeuft .lessons > .player-top,
 }
 
 /* Wortart-Wahl im Listengenerator: aktiver Chip in Markenfarbe. */
-.wortart-wahl { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.wortart-wahl { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 12px; }
 .vorschlag-chip-aktiv {
   background: var(--primary) !important;
   border-color: var(--primary) !important;

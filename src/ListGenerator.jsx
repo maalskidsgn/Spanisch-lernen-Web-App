@@ -129,34 +129,6 @@ export default function ListGenerator({ vocab, setVocab }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        <div className="gen-feld">
-          <input
-            type="text"
-            value={thema}
-            onChange={(e) => setThema(e.target.value)}
-            placeholder="z. B. Restaurant, Reisen, Arztbesuch …"
-            disabled={laden}
-            required
-          />
-          <button
-            type="submit"
-            className="gen-pfeil"
-            disabled={laden || !thema.trim()}
-            aria-label="Liste erstellen"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path
-                d="M4 12h15M13 6l6 6-6 6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-
         <div className="wort-vorschlaege">
           {/* Ein Tipp auf den Chip GENERIERT direkt – nicht erst das
               Feld fuellen und dann noch einen Knopf suchen (Manuels
@@ -195,6 +167,34 @@ export default function ListGenerator({ vocab, setVocab }) {
               {text}
             </button>
           ))}
+        </div>
+
+        <div className="gen-feld">
+          <input
+            type="text"
+            value={thema}
+            onChange={(e) => setThema(e.target.value)}
+            placeholder="Eigenes Thema …"
+            disabled={laden}
+            required
+          />
+          <button
+            type="submit"
+            className="gen-pfeil"
+            disabled={laden || !thema.trim()}
+            aria-label="Liste erstellen"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18">
+              <path
+                d="M4 12h15M13 6l6 6-6 6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         </div>
 
         <div className="gen-knoepfe">
