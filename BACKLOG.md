@@ -36,7 +36,6 @@ Stand: 24. August 2026.
 - [x] **Vokabelgenerator: Verben/Adjektive/Nomen als Auswahl.** Chips
       im KI-Listengenerator (Gemischt/Verben/Adjektive/Nomen), Server
       steuert die Wortart. Getestet: Sport→Verben, Wetter→Adjektive.
-- [ ] **Weitere Spiele** (Wordle-artig etc.) für die Vokabelwiederholung.
 - [x] **Unter Memory die Vokabeln auflisten, mit Beispielsätzen.**
       „Die Wörter dieser Runde" unter dem Spielfeld aller vier Spiele –
       Sätze aus den vorhandenen Daten, kein KI-Aufruf. (Sound beim
@@ -114,9 +113,9 @@ Stand: 24. August 2026.
       Trainingskarten entfernt – einheitlich ohne Ton.
 - [ ] **Karten-Swipe im Training** – rechts/links wischen, wenn man es
       weiß; das Wort bleibt kurz sichtbar.
-- [ ] **Neues Spiel: Karte in 4 Richtungen schieben** – in der Mitte
-      eine Karte, vier Antwortmöglichkeiten an den Rändern, eine ist
-      richtig.
+- [x] **Neue Spiele verworfen** (24.08.): Wortschub (4 Richtungen) und
+      Geheimwort (Wordle) wurden gebaut, Manuel wollte beide wieder
+      raus – komplett entfernt, die vier bestehenden Spiele bleiben.
 - [x] **Grammatik-Nachschlagbereich.** „Zeitformen nachschlagen" im
       Grammatik-Reiter: sechs Zeitformen als Konjugationstabellen
       (Presente bis Condicional) plus die wichtigsten Unregelmäßigen,
