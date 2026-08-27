@@ -9888,3 +9888,49 @@ body.lektion-laeuft .lessons > .player-top,
   font-variant-numeric: tabular-nums;
   color: var(--navy);
 }
+
+/* ---------- Zeitformen-Nachschlag ---------- */
+.ns-tuer { margin-top: 14px; }
+.ns-karte {
+  background: var(--card);
+  border-radius: 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 6px 22px rgba(255, 108, 0, .06);
+  overflow: hidden;
+}
+.ns-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 15px 18px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+.ns-kopf-text b { display: block; font-weight: 900; color: var(--navy); }
+.ns-kopf-text span { font-size: .82rem; color: var(--muted); }
+.ns-inhalt { padding: 0 18px 16px; }
+.ns-merken { margin: 0 0 12px; font-size: .92rem; line-height: 1.5; }
+.ns-signal { margin: 12px 0 0; font-size: .85rem; color: var(--muted); }
+
+.ns-tabelle-rahmen { overflow-x: auto; margin-bottom: 10px; }
+.ns-tabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  font-variant-numeric: tabular-nums;
+}
+.ns-tabelle th {
+  text-align: left;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--primary);
+  padding: 6px 10px 6px 0;
+}
+.ns-tabelle td { padding: 6px 10px 6px 0; border-top: 1px solid var(--line); }
+.ns-person { color: var(--muted); font-size: .8rem; white-space: nowrap; }

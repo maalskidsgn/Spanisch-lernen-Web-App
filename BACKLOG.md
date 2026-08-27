@@ -117,8 +117,10 @@ Stand: 24. August 2026.
 - [ ] **Neues Spiel: Karte in 4 Richtungen schieben** – in der Mitte
       eine Karte, vier Antwortmöglichkeiten an den Rändern, eine ist
       richtig.
-- [ ] **Grammatik-Nachschlagbereich** – Tabellen der Zeitformen usw.,
-      für den Überblick.
+- [x] **Grammatik-Nachschlagbereich.** „Zeitformen nachschlagen" im
+      Grammatik-Reiter: sechs Zeitformen als Konjugationstabellen
+      (Presente bis Condicional) plus die wichtigsten Unregelmäßigen,
+      je mit Merksatz und Signalwörtern. Von Hand geschrieben, keine KI.
 - [x] **„Lektion geschafft"-Seite modernisiert.** Feier-Bildschirm mit
       Orange-zu-dunkel-Verlauf, animiertem Ring samt hochzählender
       Prozentzahl, Konfetti-Regen (bei bestanden), Statistik-Chips,

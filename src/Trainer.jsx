@@ -15,10 +15,11 @@ import { erfolgston } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
 import Gespraech from './Gespraech.jsx'
+import Nachschlag from './Nachschlag.jsx'
 import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
-import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
+import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt, IconListe, IconPfeil } from './icons.jsx'
 
 // Zuordnung der Uebungsarten zu ihren Icons
 // Die ausklappbare Wortliste ist vorerst ausgeblendet (24.08.,
@@ -71,6 +72,7 @@ export default function Trainer({
   const [xpPopup, setXpPopup] = useState(null) // schwebende "+10 XP"-Anzeige
   const [exiting, setExiting] = useState(null) // 'richtig' | 'falsch' – für die Karten-Animation
   const [spiel, setSpiel] = useState(null) // laufendes Mini-Spiel
+  const [nachschlag, setNachschlag] = useState(false) // Zeitformen-Tabellen offen?
   // Unter vier passenden Woertern kann kein Spiel starten. Dann sind
   // die Kacheln gesperrt, statt in eine leere Seite zu fuehren.
   const spielbar = useMemo(() => spielbareVokabeln(vocab).length >= 4, [vocab])
@@ -289,6 +291,11 @@ export default function Trainer({
     )
   }
 
+  // ---------- Nachschlagen: die Zeitformen-Tabellen ----------
+  if (nachschlag) {
+    return <Nachschlag onZurueck={() => setNachschlag(false)} />
+  }
+
   // ---------- Der zweite Karteikasten: Grammatik ----------
   if (deck === 'grammatik') {
     return (
@@ -303,6 +310,16 @@ export default function Trainer({
           lessonProgress={lessonProgress}
           addXp={addXp}
         />
+        {/* Nachschlagen statt raten: die Zeitformen als Tabellen.
+            Ueben tun die Bausteine – das hier ist der Spickzettel. */}
+        <button className="bereich trainer-sprechen ns-tuer" onClick={() => setNachschlag(true)}>
+          <span className="trainer-sprechen-icon"><IconListe groesse={26} /></span>
+          <span className="trainer-sprechen-text">
+            <h2>Zeitformen nachschlagen</h2>
+            <p>Alle Konjugationstabellen auf einen Blick – Presente bis Condicional, samt der Unregelmäßigen.</p>
+          </span>
+          <IconPfeil groesse={20} />
+        </button>
       </div>
     )
   }
