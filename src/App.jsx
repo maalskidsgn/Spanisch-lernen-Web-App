@@ -1099,7 +1099,8 @@ export default function App() {
             counts={{
               faellig,
               woerter: Object.keys(vocab).length,
-              videos: savedVideos.length,
+              videos: savedVideos.filter((v) => v.art !== 'musik').length,
+              songs: savedVideos.filter((v) => v.art === 'musik').length,
             }}
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}

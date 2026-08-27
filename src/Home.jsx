@@ -197,6 +197,18 @@ export default function Home({
           </div>
         </div>
 
+        {/* Vier Balken, vier Farben: was sich wo angesammelt hat.
+            Normiert auf den groessten Wert, damit die Laengen etwas
+            aussagen; die Zahl steht trotzdem dran. */}
+        <Sammelbalken
+          werte={[
+            { name: 'Wörter', wert: counts.woerter, farbe: '#ff6c00' },
+            { name: 'Lektionen', wert: lektionenFertig, farbe: '#1e9d85' },
+            { name: 'Songs', wert: counts.songs ?? 0, farbe: '#7c5cff' },
+            { name: 'Videos', wert: counts.videos ?? 0, farbe: '#2e8fe8' },
+          ]}
+        />
+
         {/* Der Kalender: ein Kreuz an jedem Tag, an dem etwas gelernt
             wurde. Antippen zeigt, wie viele Lektionen und
             Wiederholungen es waren. */}
@@ -204,6 +216,28 @@ export default function Home({
       </section>
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
+    </div>
+  )
+}
+
+/** Vier farbige Balken: Woerter, Lektionen, Songs, Videos. */
+function Sammelbalken({ werte }) {
+  const max = Math.max(1, ...werte.map((w) => w.wert))
+  return (
+    <div className="sammelbalken">
+      <p className="start-abschnitt-sub balken-titel">Gesammelt</p>
+      {werte.map((w) => (
+        <div key={w.name} className="balken-zeile">
+          <span className="balken-name">{w.name}</span>
+          <span className="balken-bahn">
+            <span
+              className="balken-voll"
+              style={{ width: Math.max(3, (w.wert / max) * 100) + '%', background: w.farbe }}
+            />
+          </span>
+          <b className="balken-wert">{w.wert}</b>
+        </div>
+      ))}
     </div>
   )
 }

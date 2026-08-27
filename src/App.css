@@ -9857,3 +9857,34 @@ body.lektion-laeuft .lessons > .player-top,
   animation: abschluss-rein .5s ease .85s backwards;
 }
 .abschluss-weiter { width: 100%; }
+
+/* Sammelbalken auf der Startseite */
+.sammelbalken { margin-top: 20px; }
+.balken-titel { margin: 0 0 8px; }
+.balken-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+.balken-name { flex: 0 0 68px; font-size: .8rem; font-weight: 700; color: var(--muted); }
+.balken-bahn {
+  flex: 1;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--flaeche);
+  overflow: hidden;
+}
+.balken-voll {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width .6s ease;
+}
+.balken-wert {
+  flex: 0 0 38px;
+  text-align: right;
+  font-size: .85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
+}

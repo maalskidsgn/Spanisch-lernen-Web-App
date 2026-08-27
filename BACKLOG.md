@@ -84,8 +84,9 @@ Stand: 24. August 2026.
       zu schauen. (Täglicher zweisprachiger Anreiz – teils „Land & Leute".)
 
 ### Fortschritt & Zahlen
-- [ ] **Analytics-Graphen** für Wörter / Lektionen / Songs / Videos –
-      verschiedene Farben als Balken.
+- [x] **Analytics-Balken.** Vier farbige Balken auf der Startseite
+      (Wörter orange, Lektionen grün, Songs violett, Videos blau),
+      normiert auf den größten Wert, Zahl daneben.
 
 ### Look & Feel
 - [ ] **Button-Branding**: weg von den Icons in den Buttons, mehr
@@ -96,14 +97,13 @@ Stand: 24. August 2026.
 ---
 
 ### Neue Punkte (Notiz vom 24.08., zweiter Schwung)
-- [ ] **KI-Listengenerator ohne Tippen** – „es soll nichts eingetippt
-      werden". ❓ RÜCKFRAGE: Themen-Chips sollen direkt generieren
-      statt nur das Feld zu füllen – richtig verstanden?
+- [x] **KI-Listengenerator ohne Tippen.** Die Themen-Chips generieren
+      jetzt direkt beim Antippen; das Feld bleibt für eigene Themen.
 - [ ] **Onboarding-KI-Funnel erst nach E-Mail-Eingabe** – die
       KI-Generierung im Trichter soll erst laufen, wenn die Mail
       eingetippt ist (sonst zahlt man für Besucher ohne Konto).
-- [ ] **Ausklappbare Vokabel-Liste im Trainer entfernen** („Alle deine
-      Wörter" – weg damit).
+- [x] **Ausklappbare Vokabel-Liste entfernt** („Alle deine Wörter") –
+      hinter Schalter WORTLISTE_ZEIGEN, eine Zeile holt sie zurück.
 - [x] **„Land & Leute" heißt jetzt „Entdecken"** – und die drei
       Start-Türen (Sprechen, Entdecken, Leitfaden) haben je eine eigene
       farbige Icon-Kachel statt dreimal derselben weißen Karte.

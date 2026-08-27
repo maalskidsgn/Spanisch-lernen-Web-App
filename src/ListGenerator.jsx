@@ -33,11 +33,11 @@ export default function ListGenerator({ vocab, setVocab }) {
    * Holt eine Liste. Ohne Thema übernimmt die KI die Auswahl und
    * richtet sich nach dem, was schon im Trainer liegt.
    */
-  async function generieren(e, automatisch = false) {
+  async function generieren(e, automatisch = false, direktThema = null) {
     // Das Ereignis ist freiwillig: Der runde Pfeil im Feld hat
     // preventDefault() schon selbst erledigt.
     e?.preventDefault()
-    const gefragt = thema.trim()
+    const gefragt = (direktThema ?? thema).trim()
     if ((!automatisch && !gefragt) || uebrig <= 0) return
     setLaden(true)
     setFehler('')
@@ -158,12 +158,19 @@ export default function ListGenerator({ vocab, setVocab }) {
         </div>
 
         <div className="wort-vorschlaege">
+          {/* Ein Tipp auf den Chip GENERIERT direkt – nicht erst das
+              Feld fuellen und dann noch einen Knopf suchen (Manuels
+              Wunsch: nichts eintippen muessen). */}
           {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen'].map((v) => (
             <button
               key={v}
               type="button"
               className="vorschlag-chip"
-              onClick={() => setThema(v)}
+              disabled={laden || uebrig <= 0}
+              onClick={(e) => {
+                setThema(v)
+                generieren(e, false, v)
+              }}
             >
               {v}
             </button>

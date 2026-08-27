@@ -21,6 +21,11 @@ import ListGenerator from './ListGenerator.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt } from './icons.jsx'
 
 // Zuordnung der Uebungsarten zu ihren Icons
+// Die ausklappbare Wortliste ist vorerst ausgeblendet (24.08.,
+// Manuels Wunsch: "das soll raus erstmal"). Der ganze Block bleibt
+// fertig im Code – diese eine Zeile holt ihn zurueck.
+const WORTLISTE_ZEIGEN = false
+
 const ART_ICONS = {
   karten: IconKarten,
   auswahl: IconAuswahl,
@@ -609,6 +614,7 @@ export default function Trainer({
         <ListGenerator vocab={vocab} setVocab={setVocab} />
       </section>
 
+      {WORTLISTE_ZEIGEN && (<>
       {/* ============ 4. ALLE WÖRTER ============ */}
       <section className="bereich">
         <button
@@ -728,6 +734,7 @@ export default function Trainer({
           </>
         )}
       </section>
+      </>)}
       </div>
     </div>
   )
