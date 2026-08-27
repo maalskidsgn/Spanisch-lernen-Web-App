@@ -13,6 +13,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { erfolgston } from './erfolgston.js'
 import { spiele, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
@@ -269,6 +270,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     if (next >= schritte.length) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
+      erfolgston() // die Lektion ist geschafft – das darf man hoeren
       hakeAb('lektion') // Schritt im Tagesplan erledigt
       merkeEinheit('lektion') // zaehlt als Lektion
       onLessonComplete(lektion)
@@ -303,70 +305,86 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     // offenen Aufbau der Sprach-Reise.
     const sitzt = quote >= 80
 
+    const titel = sitzt
+      ? lektion.istStation
+        ? 'Prüfstation bestanden!'
+        : lektion.istSzene
+          ? '¡Muy bien!'
+          : '¡Excelente!'
+      : 'Fast geschafft'
+
+    const untertitel = lektion.istSzene
+      ? sitzt
+        ? 'Ein ganzes Gespräch verstanden – ohne ein Wort mitzulesen. Genau das ist der Punkt.'
+        : 'Hörverstehen kommt langsamer als Vokabeln, bei jedem. Hör die Szene ruhig noch einmal – jetzt kennst du die Abschrift.'
+      : lektion.istStation
+        ? sitzt
+          ? 'Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.'
+          : 'Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.'
+        : sitzt
+          ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
+          : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'
+
     return (
-      <div className="lessons">
-        <div className="flashcard done">
+      <div className="lessons abschluss-seite">
+        {/* Der obere, farbige Teil: Ring, Titel, Konfetti */}
+        <div className={'abschluss-held' + (sitzt ? '' : ' held-uebung')}>
           {sitzt && (
-            <div className="confetti-burst" aria-hidden="true">
-              {Array.from({ length: 14 }, (_, i) => (
-                <span key={i} className="confetti" style={{ '--i': i }} />
+            <div className="konfetti-regen" aria-hidden="true">
+              {Array.from({ length: 22 }, (_, i) => (
+                <span key={i} className="konfetti" style={{ '--i': i }} />
               ))}
             </div>
           )}
 
-          {/* Die Quote als Ring – eine Zahl sagt mehr als ein Balken */}
-          <div className={'quote-ring' + (sitzt ? ' ring-gut' : ' ring-uebung')}>
+          <div
+            className={'abschluss-ring' + (sitzt ? ' ring-gut' : ' ring-uebung')}
+            style={{ '--ziel': (quote / 100) * 264 }}
+          >
             <svg viewBox="0 0 100 100" aria-hidden="true">
               <circle className="ring-grund" cx="50" cy="50" r="42" />
-              <circle
-                className="ring-voll"
-                cx="50" cy="50" r="42"
-                strokeDasharray={`${(quote / 100) * 264} 264`}
-              />
+              <circle className="ring-voll" cx="50" cy="50" r="42" />
             </svg>
-            <span className="quote-zahl">{quote}<i>%</i></span>
+            <ZaehlZahl bis={quote} />
           </div>
 
-          <h2>
-            {sitzt
-              ? lektion.istStation
-                ? 'Prüfstation bestanden!'
-                : lektion.istSzene
-                  ? 'Alles verstanden!'
-                  : 'Lektion geschafft!'
-              : 'Fast geschafft'}
-          </h2>
-          <p>
-            {richtige} von {uebungen} Aufgaben richtig · +{XP.LEKTION} Bonus-XP
-          </p>
+          <h1 className="abschluss-titel">{titel}</h1>
+          <p className="abschluss-lektion">{lektion.emoji} {lektion.titel}</p>
+        </div>
+
+        {/* Der untere, ruhige Teil: Zahlen, Notiz, Knoepfe */}
+        <div className="abschluss-blatt">
+          <div className="abschluss-chips">
+            <div className="abschluss-chip">
+              <b>{richtige}/{uebungen}</b>
+              <span>Aufgaben richtig</span>
+            </div>
+            <div className="abschluss-chip chip-xp">
+              <b>+{XP.LEKTION}</b>
+              <span>Bonus-XP</span>
+            </div>
+          </div>
+
           {lektion.kulturnotiz && (
-            <p className="kulturnotiz">
-              <b>Gut zu wissen:</b> {lektion.kulturnotiz}
-            </p>
+            <div className="abschluss-notiz">
+              <span className="start-marke">Gut zu wissen</span>
+              <p>{lektion.kulturnotiz}</p>
+            </div>
           )}
-          <p className="bonus-note">
-            {lektion.istSzene
-              ? sitzt
-                ? 'Ein ganzes Gespräch verstanden – ohne ein Wort mitzulesen. Genau das ist der Punkt.'
-                : 'Hörverstehen kommt langsamer als Vokabeln, bei jedem. Hör die Szene ruhig noch einmal – jetzt kennst du die Abschrift.'
-              : lektion.istStation
-              ? sitzt
-                ? 'Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.'
-                : 'Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.'
-              : sitzt
-                ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
-                : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'}
-          </p>
+
+          <p className="abschluss-text">{untertitel}</p>
 
           <div className="abschluss-knoepfe">
             {!sitzt && (
-              <button onClick={() => starten(lektion, laufendeStation)}>Noch einmal</button>
+              <button className="btn" onClick={() => starten(lektion, laufendeStation)}>
+                Noch einmal
+              </button>
             )}
             <button
-              className={sitzt ? '' : 'btn-outline'}
+              className={sitzt ? 'btn abschluss-weiter' : 'btn-outline'}
               onClick={() => setLektion(null)}
             >
-              Zurück zur Übersicht
+              {sitzt ? 'Weiter geht’s' : 'Zurück zur Übersicht'}
             </button>
           </div>
         </div>
@@ -1470,4 +1488,30 @@ function Abschrift({ szene, onWeiter }) {
       <button onClick={onWeiter}>Fertig</button>
     </div>
   )
+}
+
+
+/**
+ * Die Prozentzahl im Abschluss-Ring zaehlt von 0 hoch – im selben
+ * Tempo, in dem sich der Ring fuellt. Eine Zahl, die sich bewegt,
+ * fuehlt sich verdient an; eine, die einfach dasteht, nicht.
+ */
+function ZaehlZahl({ bis }) {
+  const [wert, setWert] = useState(0)
+  useEffect(() => {
+    if (bis <= 0) return
+    const dauer = 900
+    const start = performance.now()
+    let laeuft = true
+    const tick = (t) => {
+      if (!laeuft) return
+      const anteil = Math.min(1, (t - start) / dauer)
+      // Gleiche Kurve wie der Ring (ease-out), damit beide zusammen ankommen
+      setWert(Math.round(bis * (1 - Math.pow(1 - anteil, 2))))
+      if (anteil < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+    return () => { laeuft = false }
+  }, [bis])
+  return <span className="quote-zahl">{wert}<i>%</i></span>
 }

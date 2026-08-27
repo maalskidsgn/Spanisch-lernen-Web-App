@@ -9710,3 +9710,150 @@ body.lektion-laeuft .lessons > .player-top,
   .start-tuer { transition: transform .15s ease; }
   .start-tuer:hover { transform: translateY(-2px); }
 }
+
+/* ---------- "Lektion geschafft" – der Feier-Bildschirm ----------
+   Zwei Zonen: oben ein warmer Farbverlauf mit Ring, Titel und
+   Konfetti; unten ein ruhiges Blatt mit Zahlen und Knoepfen. */
+.abschluss-seite { padding: 0 0 30px; }
+
+.abschluss-held {
+  position: relative;
+  overflow: hidden;
+  margin: -12px -16px 0;
+  padding: 46px 20px 78px;
+  text-align: center;
+  /* Orange, das nach unten ins Dunkle verlaeuft – Manuels Wunsch.
+     Gilt fuer beide Faelle; bestanden und "fast" unterscheiden sich
+     durch Konfetti und Titel, nicht durch die Farbe. */
+  background: linear-gradient(170deg, #ff8b2e 0%, #ff6c00 38%, #c24400 72%, #571c4a 100%);
+  color: #fff;
+  border-radius: 0 0 34px 34px;
+}
+
+.abschluss-titel {
+  margin: 18px 0 4px;
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  animation: abschluss-rein .5s cubic-bezier(.34, 1.4, .64, 1) .25s backwards;
+}
+.abschluss-lektion {
+  margin: 0;
+  opacity: .85;
+  font-weight: 700;
+  animation: abschluss-rein .5s ease .4s backwards;
+}
+@keyframes abschluss-rein {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Der Ring – fuellt sich beim Erscheinen bis zur Quote (--ziel) */
+.abschluss-ring {
+  position: relative;
+  width: 132px; height: 132px;
+  margin: 0 auto;
+  animation: abschluss-pop .45s cubic-bezier(.34, 1.5, .64, 1);
+}
+@keyframes abschluss-pop { from { transform: scale(.6); opacity: 0; } }
+.abschluss-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.abschluss-ring circle { fill: none; stroke-width: 9; stroke-linecap: round; }
+.abschluss-ring .ring-grund { stroke: rgba(255, 255, 255, .25); }
+.abschluss-ring .ring-voll {
+  stroke: #fff;
+  stroke-dasharray: 0 264;
+  animation: ring-fuellen .9s ease-out .15s forwards;
+}
+@keyframes ring-fuellen { to { stroke-dasharray: var(--ziel) 264; } }
+.abschluss-ring .quote-zahl {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.abschluss-ring .quote-zahl i { font-style: normal; font-size: 1rem; opacity: .8; }
+
+/* Konfetti: faellt von oben durch den Held-Bereich */
+.konfetti-regen { position: absolute; inset: 0; pointer-events: none; }
+.konfetti {
+  position: absolute;
+  top: -12px;
+  left: calc(4% + (var(--i) * 4.2%));
+  width: 8px; height: 13px;
+  border-radius: 2px;
+  background: #fff;
+  opacity: 0;
+  animation: konfetti-fall 1.7s ease-in calc(var(--i) * .07s) forwards;
+}
+.konfetti:nth-child(3n) { background: #ffd76b; width: 7px; height: 7px; border-radius: 50%; }
+.konfetti:nth-child(4n) { background: #7be3c1; }
+.konfetti:nth-child(5n) { background: #ffb3d1; height: 10px; }
+@keyframes konfetti-fall {
+  0% { opacity: 0; transform: translateY(0) rotate(0); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(300px) rotate(300deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .abschluss-titel, .abschluss-lektion, .abschluss-ring, .konfetti { animation: none; }
+  .abschluss-ring .ring-voll { stroke-dasharray: var(--ziel) 264; animation: none; }
+}
+
+/* Das ruhige Blatt darunter */
+.abschluss-blatt {
+  max-width: 470px;
+  margin: -40px auto 0;
+  padding: 0 16px;
+  position: relative;
+}
+.abschluss-chips {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.abschluss-chip {
+  flex: 1;
+  max-width: 170px;
+  background: var(--card);
+  border-radius: 18px;
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: 0 10px 28px rgba(0, 0, 65, .10);
+  animation: abschluss-rein .5s ease .55s backwards;
+}
+.abschluss-chip b { display: block; font-size: 1.3rem; font-weight: 900; color: var(--navy); }
+.abschluss-chip span { font-size: .78rem; color: var(--muted); font-weight: 700; }
+.chip-xp b { color: var(--primary); }
+
+.abschluss-notiz {
+  margin-top: 16px;
+  background: var(--card);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 20px rgba(255, 108, 0, .07);
+  animation: abschluss-rein .5s ease .65s backwards;
+}
+.abschluss-notiz p { margin: 6px 0 0; font-size: .92rem; line-height: 1.55; }
+
+.abschluss-text {
+  margin: 16px 4px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: .92rem;
+  line-height: 1.55;
+  animation: abschluss-rein .5s ease .75s backwards;
+}
+
+.abschluss-seite .abschluss-knoepfe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  animation: abschluss-rein .5s ease .85s backwards;
+}
+.abschluss-weiter { width: 100%; }

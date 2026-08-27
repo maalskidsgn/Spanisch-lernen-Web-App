@@ -119,8 +119,10 @@ Stand: 24. August 2026.
       richtig.
 - [ ] **Grammatik-Nachschlagbereich** – Tabellen der Zeitformen usw.,
       für den Überblick.
-- [ ] **„Lektion geschafft"-Seite modernisieren** – sieht crappy aus.
-
+- [x] **„Lektion geschafft"-Seite modernisiert.** Feier-Bildschirm mit
+      Orange-zu-dunkel-Verlauf, animiertem Ring samt hochzählender
+      Prozentzahl, Konfetti-Regen (bei bestanden), Statistik-Chips,
+      Kulturnotiz-Karte, Erfolgston und gestaffelten Einblendungen.
 ## Reihenfolge
 
 Manuel gibt das Tempo vor. Aktuell: Kalender → Vokabelgenerator
