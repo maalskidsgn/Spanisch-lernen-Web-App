@@ -76,6 +76,9 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   const [spotifyFehler, setSpotifyFehler] = useState('')
   const [eingabe, setEingabe] = useState('') // Künstler-Eingabefeld
   const [hinweis, setHinweis] = useState('') // "singt nicht auf Spanisch"-Meldung
+  // Status/Fehler beim Song-Oeffnen – angezeigt DIREKT am Interpreten,
+  // nicht irgendwo unten auf der Seite, wo es keiner sieht.
+  const [songMeldung, setSongMeldung] = useState(null) // {name, text, fehler}
 
   // Die gespeicherten Songs holen
   async function ladeSongs() {
@@ -267,8 +270,9 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     const schluessel = kuenstler + '|' + titel
     if (laeuft) return
     setLaeuft(schluessel)
-    setSpotifyFehler('')
+    const status = (text) => setSongMeldung({ name: kuenstler, text })
     try {
+      status('Suche das Video …')
       const res = await fetch(
         API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(`${kuenstler} ${titel}`)
       )
@@ -286,16 +290,30 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       // in einer Sackgasse zu enden.
       for (const [i, kandidat] of treffer.slice(0, 3).entries()) {
         try {
+          status('Songtext wird geholt – das kann eine halbe Minute dauern …')
           const pruefung = await fetch(
             API_URL + '/api/transcript?url=' + kandidat.videoId + '&art=musik'
           )
           if (pruefung.ok) {
+            setSongMeldung(null)
             onOpenVideo(kandidat.videoId, 'musik')
             return
           }
-          if (i < 2) setSpotifyFehler('Suche eine Fassung mit Text …')
-        } catch {
-          // naechsten Treffer versuchen
+          // Hat der Songtext-Dienst selbst eine Stoerung, ist jeder
+          // weitere Versuch sinnlos – sofort ehrlich Bescheid geben,
+          // statt minutenlang scheinbar zu haengen.
+          const antwort = await pruefung.json().catch(() => ({}))
+          if (antwort.stoerung) {
+            throw new Error(
+              'Der Songtext-Dienst hat gerade eine Störung. Deine ' +
+                'gespeicherten Songs oben funktionieren weiter – neue ' +
+                'bitte später noch einmal versuchen.'
+            )
+          }
+          if (i < 2) status('Der Treffer hatte keinen Text – prüfe den nächsten …')
+        } catch (f) {
+          if (f.message.includes('Störung')) throw f
+          // sonst: naechsten Treffer versuchen
         }
       }
       throw new Error(
@@ -303,7 +321,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           'Versuch es über die Suche oben mit „Letra" im Suchbegriff.'
       )
     } catch (f) {
-      setSpotifyFehler(f.message)
+      setSongMeldung({ name: kuenstler, text: f.message, fehler: true })
     } finally {
       setLaeuft(null)
     }
@@ -607,6 +625,17 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                           </button>
                         ))}
                       </div>
+                    )}
+
+                    {songMeldung?.name === k.name && (
+                      <p
+                        className={
+                          'song-meldung' +
+                          (songMeldung.fehler ? ' song-meldung-fehler' : '')
+                        }
+                      >
+                        {songMeldung.text}
+                      </p>
                     )}
                   </div>
                 )

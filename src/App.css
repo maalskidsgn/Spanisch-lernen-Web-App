@@ -5042,45 +5042,58 @@ body.liest-video .word-card {
 
 .interpret-songs {
   border-top: 1px solid var(--line);
-  background: var(--flaeche);
+  background: var(--card);
   display: flex;
   flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+}
+/* Die Zeilen sind Buttons – der App-weite 3D-Schatten und der dicke
+   Radius liessen sie wie gestapelte Karten aussehen. Hier explizit
+   flach, in jedem Zustand (auch :disabled setzt den Schatten neu). */
+.song-vorschlag,
+.song-vorschlag:disabled,
+.song-vorschlag:active {
+  box-shadow: none;
+  transform: none;
 }
 .song-vorschlag {
   display: grid;
-  grid-template-columns: 30px 1fr auto;
+  grid-template-columns: 36px 1fr auto;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 10px 12px;
   background: none;
   border: none;
-  border-bottom: 1px solid var(--line);
+  border-radius: 12px;
   text-align: left;
   cursor: pointer;
   transition: background .12s;
   touch-action: manipulation;
 }
-.song-vorschlag:last-child { border-bottom: none; }
 @media (hover: hover) {
-  .song-vorschlag:hover { background: #fff3e8; }
+  .song-vorschlag:hover:not(:disabled) { background: #fff3e8; transform: none; }
   .song-vorschlag:hover .song-play { background: var(--primary); color: #fff; }
 }
-.song-vorschlag:disabled { opacity: .5; cursor: default; }
+.song-vorschlag:disabled { opacity: .55; cursor: default; }
+.song-vorschlag.song-laedt { opacity: 1; background: #fff3e8; }
 
 /* Das Abspiel-Zeichen macht sichtbar: hier wird etwas geoeffnet,
    nicht nur eine Zeile markiert. */
 .song-play {
-  width: 30px; height: 30px;
+  width: 36px; height: 36px;
   display: grid; place-items: center;
   border-radius: 50%;
-  background: #fff3e8;
+  background: #ffe8d4;
   color: var(--primary);
-  font-size: 12px;
+  font-size: 13px;
+  padding-left: 2px; /* Dreieck optisch mittig */
   transition: background .15s, color .15s;
 }
 .song-laedt .song-play {
   background: var(--primary);
   color: #fff;
+  padding-left: 0;
   animation: dreht 1s linear infinite;
 }
 @keyframes dreht { to { transform: rotate(360deg); } }
@@ -5088,10 +5101,26 @@ body.liest-video .word-card {
 .song-vorschlag-titel { font-weight: 700; font-size: 14.5px; }
 .song-vorschlag-dauer {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--primary);
+  border: 1.5px solid #ffd9b8;
+  border-radius: 999px;
+  padding: 5px 12px;
   flex: none;
 }
+.song-laedt .song-vorschlag-dauer { border-color: var(--primary); }
+
+/* Status- oder Fehlermeldung direkt am Interpreten – dort, wo
+   geklickt wurde, nicht irgendwo unten auf der Seite. */
+.song-meldung {
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--flaeche);
+  font-size: 13px;
+  color: var(--muted);
+}
+.song-meldung-fehler { color: #c0392b; background: #fdf0ee; }
 
 /* ===== Fortschrittsbalken in Übungen und Spielen ===== */
 .lern-fortschritt { margin-bottom: 14px; }

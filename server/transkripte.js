@@ -51,7 +51,11 @@ export async function holeTranskript(videoId) {
     if (antwort.status === 404) {
       throw new Error('Für dieses Video gibt es keine spanischen Untertitel.')
     }
-    throw new Error(`Transkript-Dienst antwortet mit ${antwort.status}.`)
+    // 5xx heisst: der Dienst selbst hat eine Stoerung. Das Kennzeichen
+    // erlaubt der App, weitere sinnlose Versuche gleich zu sparen.
+    const fehler = new Error(`Transkript-Dienst antwortet mit ${antwort.status}.`)
+    if (antwort.status >= 500) fehler.stoerung = true
+    throw fehler
   }
 
   const { data } = await antwort.json()

@@ -275,7 +275,10 @@ app.get('/api/transcript', async (req, res) => {
         return res.json({ ...ergebnis, qualitaet: pruefeQualitaet(ergebnis.lines) })
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
-        return res.status(502).json({ error: dienstFehler.message })
+        return res.status(502).json({
+          error: dienstFehler.message,
+          stoerung: Boolean(dienstFehler.stoerung),
+        })
       }
     }
     console.error(err.message)

@@ -171,6 +171,10 @@ export async function ergaenzeSongs(namen) {
           content:
             'Du nennst zu jedem Künstler seine fünf bekanntesten SPANISCHSPRACHIGEN ' +
             'Lieder – nur den Titel, ohne Künstlernamen, ohne Anführungszeichen. ' +
+            'STRENG: Der Liedtext muss überwiegend auf Spanisch gesungen sein. ' +
+            'Englischsprachige Hits desselben Künstlers sind TABU, auch die ' +
+            'berühmtesten (bei Shakira also La Tortura oder Chantaje, ' +
+            'NIEMALS Hips Don\'t Lie oder Waka Waka). ' +
             'Nimm nur Lieder, die es wirklich gibt und die du sicher zuordnen ' +
             'kannst. Kennst du einen Künstler nicht gut genug, gib eine leere ' +
             'Liste zurück statt zu raten.',
