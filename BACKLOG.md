@@ -98,9 +98,9 @@ Stand: 24. August 2026.
 ### Neue Punkte (Notiz vom 24.08., zweiter Schwung)
 - [x] **KI-Listengenerator ohne Tippen.** Die Themen-Chips generieren
       jetzt direkt beim Antippen; das Feld bleibt für eigene Themen.
-- [ ] **Onboarding-KI-Funnel erst nach E-Mail-Eingabe** – die
-      KI-Generierung im Trichter soll erst laufen, wenn die Mail
-      eingetippt ist (sonst zahlt man für Besucher ohne Konto).
+- [x] **Onboarding-Funnel: gegenstandslos.** Befund 24.08.: Im
+      Trichter läuft gar keine KI – die Startpakete sind vorprogrammiert,
+      ein Besucher ohne Konto kostet null. Manuel: „Passt", bleibt so.
 - [x] **Ausklappbare Vokabel-Liste entfernt** („Alle deine Wörter") –
       hinter Schalter WORTLISTE_ZEIGEN, eine Zeile holt sie zurück.
 - [x] **„Land & Leute" heißt jetzt „Entdecken"** – und die drei
@@ -111,8 +111,9 @@ Stand: 24. August 2026.
       beim Einschalten spielt er einmal zur Probe.
 - [x] **Kein Vokabel-Sound im Trainer.** Lautsprecher aus den
       Trainingskarten entfernt – einheitlich ohne Ton.
-- [ ] **Karten-Swipe im Training** – rechts/links wischen, wenn man es
-      weiß; das Wort bleibt kurz sichtbar.
+- [x] **Karten-Swipe im Training.** Karte nach rechts wischen =
+      gewusst, links = nochmal; die Lösung leuchtet 0,9 s auf (grüner/
+      roter Rahmen), dann kommt die nächste. Knöpfe bleiben parallel.
 - [x] **Neue Spiele verworfen** (24.08.): Wortschub (4 Richtungen) und
       Geheimwort (Wordle) wurden gebaut, Manuel wollte beide wieder
       raus – komplett entfernt, die vier bestehenden Spiele bleiben.
