@@ -7,7 +7,7 @@ import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
-import { erfolgston, erfolgstoeneAn, setzeErfolgstoene } from './erfolgston.js'
+import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -457,6 +457,7 @@ export default function Settings({
           </span>
         </label>
 
+        {erfolgstoeneVerfuegbar() && (
         <label className="settings-row">
           <div>
             <div className="row-title">Erfolgstöne</div>
@@ -480,6 +481,7 @@ export default function Settings({
             <span className="slider" />
           </span>
         </label>
+        )}
       </div>
 
       {/* ---------- Rechtliches ---------- */}

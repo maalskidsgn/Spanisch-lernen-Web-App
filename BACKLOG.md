@@ -16,8 +16,9 @@ Stand: 24. August 2026.
       (Gesundheit, Technik …), Wörter antippbar → Lernen/Kenne ich.
 - [x] **Beim Wort-Antippen im Video wegklicken mit (x)** → X in der
       Wortkarte, im Chat UND im Video/Song-Popup.
-- [x] **Erfolgstöne (ganz wichtig)** → `src/erfolgston.js`, Babbel-Stil,
-      beim Sammeln eines Worts und bei richtiger Antwort im Trainer.
+- [x] ~~Erfolgstöne~~ **wieder komplett aus** (24.08., zweite Runde:
+      „mach den erfolgssound raus komplett erstmal"). Klang bleibt im
+      Code – `ERFOLGSTOENE_AKTIV` in erfolgston.js holt ihn zurück.
 
 - [x] **Kalenderansicht: wie viele Tage / Lektionen / Wiederholungen.**
       Kalender-Raster auf der Startseite mit Kreuzen; Antippen zeigt die
@@ -40,7 +41,10 @@ Stand: 24. August 2026.
       „Die Wörter dieser Runde" unter dem Spielfeld aller vier Spiele –
       Sätze aus den vorhandenen Daten, kein KI-Aufruf. (Sound beim
       Treffer gibt es seit den Erfolgstönen.)
-- [ ] **Lektionen: die deutschen Grundlagen als Text hörbar** machen.
+- [x] **Deutsche Grundlagen hörbar: verworfen.** Probe mit deutscher
+      ElevenLabs-Stimme (Lektion 1) gebaut und vorgeführt – Manuel:
+      „abbruch, keine deutsche stimme". Alles zurückgerollt, MP3s und
+      Stimme wieder gelöscht.
 - [x] **Animation + 2 XP, wenn man bei Ebooks Vokabeln hinzufügt.**
       „+2 XP"-Aufsteiger + Erfolgston beim Wort-Antippen im neuen
       Leser; „Alle übernehmen" gibt 2 XP pro Wort.

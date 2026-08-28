@@ -1,9 +1,24 @@
 {
   "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: BESETZUNG_STAND in src/stimmen.js erhoehen, sonst behalten alle Aufnahmen ihren alten Dateinamen und werden nie neu erzeugt.",
   "_tarif": "Creator (22 $/Monat). Alle fuenf Stimmen sind echtes Spanien-Spanisch (peninsular) - passend zum Kurs mit vosotros, vale und Tapas.",
-  "es-w1": { "id": "tXgbXPnsMpKXkuTgvE3h", "wer": "Ana – Elena, Resolute Engaging Lively (peninsular)" },
-  "es-m1": { "id": "Nh2zY9kknu6z4pZy6FhD", "wer": "Tom – David Martin, Confident Balanced (peninsular)" },
-  "es-m2": { "id": "CnjIcrJsHPgeEdwT3X8q", "wer": "Luis – Christian Avilés, umgangssprachlich (peninsular)" },
-  "es-w2": { "id": "dNjJKg63Fr5AXwIdkATa", "wer": "Carmen – Cristina, Empathetic (peninsular)" },
-  "es-w3": { "id": "LudcwvHIZaqQOcQfVZSY", "wer": "Lena – Clara, Elegant Soft (peninsular)" }
+  "es-w1": {
+    "id": "tXgbXPnsMpKXkuTgvE3h",
+    "wer": "Ana – Elena, Resolute Engaging Lively (peninsular)"
+  },
+  "es-m1": {
+    "id": "Nh2zY9kknu6z4pZy6FhD",
+    "wer": "Tom – David Martin, Confident Balanced (peninsular)"
+  },
+  "es-m2": {
+    "id": "CnjIcrJsHPgeEdwT3X8q",
+    "wer": "Luis – Christian Avilés, umgangssprachlich (peninsular)"
+  },
+  "es-w2": {
+    "id": "dNjJKg63Fr5AXwIdkATa",
+    "wer": "Carmen – Cristina, Empathetic (peninsular)"
+  },
+  "es-w3": {
+    "id": "LudcwvHIZaqQOcQfVZSY",
+    "wer": "Lena – Clara, Elegant Soft (peninsular)"
+  }
 }

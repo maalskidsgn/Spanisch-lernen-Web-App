@@ -11,12 +11,22 @@
 // erst nach der ersten Nutzer-Geste; bis dahin bleibt der Context
 // „suspended" und der erste Aufruf weckt ihn.
 
+// KOMPLETT AUS (24.08., Manuels Wunsch: "mach den erfolgssound raus
+// komplett erstmal"). Der ganze Klang bleibt fertig im Code – diese
+// eine Zeile holt ihn zurueck.
+const ERFOLGSTOENE_AKTIV = false
+
 // Abstellbar: Der Schalter liegt in den Einstellungen unter "Ton".
 // Standard ist AN – wer ihn nicht mag, macht ihn einmal aus.
 const SCHALTER = 'erfolgstoene'
 
 export function erfolgstoeneAn() {
-  return localStorage.getItem(SCHALTER) !== 'aus'
+  return ERFOLGSTOENE_AKTIV && localStorage.getItem(SCHALTER) !== 'aus'
+}
+
+/** Fuer die Einstellungen: den Schalter nur zeigen, wenn das Feature an ist. */
+export function erfolgstoeneVerfuegbar() {
+  return ERFOLGSTOENE_AKTIV
 }
 
 export function setzeErfolgstoene(an) {
