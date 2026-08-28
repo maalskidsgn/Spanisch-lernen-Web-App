@@ -56,16 +56,20 @@ Stand: 24. August 2026.
       (Spinner „Songtext wird geprüft …") und springt bei schlechtem
       Treffer automatisch zum nächsten – vorher landete man auf einer
       Fehlerseite (gemessen: rumänisches Kinderlied vor dem Song).
-- [ ] **Spotify: Entscheidung offen.** Bereich ist für normale Nutzer
-      funktionslos (Entwicklungsmodus, nur freigeschaltete Konten).
-      Schalter `SPOTIFY_ZEIGEN` in Songs.jsx liegt bereit – Manuel
-      entscheidet: ausblenden oder Extended-Quota beantragen.
-- [ ] **Spotify funktioniert wieder nicht, Songs wandeln sich nicht um,
-      nichts wird gespeichert.** (Diagnose steht: Backend ok,
-      Spotify-Entwicklungsmodus ist das Problem. Empfehlung: Songs ohne
-      Spotify zuverlässig machen – Weg A.)
-- [ ] **Generierte Songs schöner in der Ablage**, ordentliches
-      Ladesymbol, und die Generierung muss zuverlässig funktionieren.
+- [x] **Spotify: entschieden und umgesetzt (28.08., Weg B).** Der
+      Spotify-Login ist raus (`SPOTIFY_ZEIGEN=false` – Spotify lässt
+      nur noch 5 freigeschaltete Testkonten zu, für echte Nutzer
+      wertlos). Stattdessen: Nutzer tippt seine Lieblingskünstler ein
+      oder nimmt einen Vorschlags-Chip (Shakira, Bad Bunny …), die KI
+      prüft, wer auf Spanisch singt (Rammstein wird z. B. abgelehnt),
+      ergänzt je 5 Songs, und ein Klick öffnet den Song als Lernvideo
+      über die YouTube-Suche. Interpreten lassen sich per ✕ entfernen.
+      Getestet Ende-zu-Ende (Álvaro Soler → „Sofia" mit Songtext).
+- [x] **Spotify funktioniert wieder nicht …** → damit erledigt, der
+      Bereich hängt nicht mehr an Spotify.
+- [x] **Generierte Songs schöner in der Ablage**, Ladesymbol, robuste
+      Generierung → schon am 24.08. umgesetzt (Karten-Grid, Spinner,
+      Transkript-Vorprüfung mit Fallback).
 
 ### Ebooks
 - [x] **Ebooks vorerst ausgeblendet** (24.08., Manuels Wunsch). Der

@@ -26,13 +26,26 @@ import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
 // vollstaendiger, aber an der Zielgruppe vorbei.
 const STILE = ['Reggaetón', 'Latin Pop', 'Bachata', 'Trap latino']
 
-// Spotify vorerst ausgeblendet (24.08., Weg A): Spotify hat die
-// Katalog-Abfragen fuer Apps im Entwicklungsmodus abgeschaltet und
-// laesst nur freigeschaltete Konten anmelden – fuer echte Nutzer war
-// der Bereich damit kaputt. Songs laufen jetzt komplett ueber die
-// Suche oben, die zuverlaessig funktioniert. Diese eine Zeile holt
-// den Spotify-Teil zurueck.
-const SPOTIFY_ZEIGEN = true
+// Startvorschlaege fuer den Interpreten-Bereich (Weg B, 28.08.):
+// bekannte Namen quer durch die Stile, damit niemand vor einem
+// leeren Feld sitzt. Ein Tipp prueft den Kuenstler sofort.
+const KUENSTLER_VORSCHLAEGE = [
+  'Shakira',
+  'Bad Bunny',
+  'Álvaro Soler',
+  'Rosalía',
+  'Karol G',
+  'Manu Chao',
+  'Juanes',
+  'Enrique Iglesias',
+]
+
+// Spotify ausgeblendet (28.08., Manuels Entscheidung): Spotify laesst
+// nur noch 5 freigeschaltete Testkonten in Apps im Entwicklungsmodus –
+// fuer echte Nutzer ist der Login wertlos. Die Interpreten laufen
+// jetzt komplett ueber Weg B (selbst eintragen + KI-Pruefung), der
+// ohne Spotify funktioniert. Diese eine Zeile holt den Login zurueck.
+const SPOTIFY_ZEIGEN = false
 
 /**
  * Songs: Musik mit mitlaufendem Text.
@@ -61,6 +74,8 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   const [interpreten, setInterpreten] = useState(gemerkteInterpreten)
   const [analyse, setAnalyse] = useState('') // Text während der Prüfung
   const [spotifyFehler, setSpotifyFehler] = useState('')
+  const [eingabe, setEingabe] = useState('') // Künstler-Eingabefeld
+  const [hinweis, setHinweis] = useState('') // "singt nicht auf Spanisch"-Meldung
 
   // Die gespeicherten Songs holen
   async function ladeSongs() {
@@ -141,9 +156,82 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
   }
 
   function spotifyTrennen() {
+    // Die Interpreten bleiben stehen – sie koennen inzwischen auch
+    // von Hand eingetragen sein, nicht nur aus Spotify.
     trenneSpotify()
     setVerbunden(false)
-    setInterpreten([])
+  }
+
+  /**
+   * Weg B (28.08.): Kuenstler von Hand eintragen statt ueber Spotify.
+   *
+   * Spotify laesst seit 2026 nur noch 5 freigeschaltete Testkonten in
+   * Apps im Entwicklungsmodus – fuer echte Nutzer war der Bereich
+   * damit tot. Hier tippt der Nutzer seine Lieblingskuenstler selbst
+   * ein (oder nimmt einen Vorschlag), die KI prueft, wer auf Spanisch
+   * singt, und ergaenzt die Songs. Ab da laeuft alles ueber die
+   * YouTube-Suche, die zuverlaessig funktioniert.
+   */
+  async function kuenstlerPruefen(text) {
+    const schonDa = (name) =>
+      interpreten.some((k) => k.name.toLowerCase() === name.toLowerCase())
+    const namen = String(text)
+      .split(',')
+      .map((t) => t.trim())
+      .filter((n) => n && !schonDa(n))
+
+    setEingabe('')
+    if (namen.length === 0) return
+
+    setSpotifyFehler('')
+    setHinweis('')
+    setAnalyse(
+      namen.length === 1
+        ? `${namen[0]} wird geprüft …`
+        : `${namen.length} Künstler werden geprüft …`
+    )
+    try {
+      const res = await fetch(API_URL + '/api/spotify/interpreten', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          kuenstler: namen.map((name) => ({ name, songs: [] })),
+        }),
+      })
+      const daten = await res.json()
+      if (!res.ok) throw new Error(daten.error || 'Prüfung fehlgeschlagen')
+
+      const gefunden = daten.interpreten ?? []
+      const abgelehnt = namen.filter(
+        (n) => !gefunden.some((g) => g.name.toLowerCase() === n.toLowerCase())
+      )
+
+      if (gefunden.length) {
+        const zusammen = [...interpreten, ...gefunden.filter((g) => !schonDa(g.name))]
+        setInterpreten(zusammen)
+        merkeInterpreten(zusammen)
+        setOffenerInterpret(gefunden[0].name)
+      }
+      if (abgelehnt.length) {
+        setHinweis(
+          abgelehnt.join(', ') +
+            (abgelehnt.length === 1 ? ' singt' : ' singen') +
+            ' überwiegend nicht auf Spanisch – zum Mitlesen bringt das leider nichts.'
+        )
+      }
+    } catch (f) {
+      setSpotifyFehler(f.message)
+    } finally {
+      setAnalyse('')
+    }
+  }
+
+  /** Einen Interpreten wieder aus der Liste nehmen. */
+  function interpretEntfernen(name) {
+    const rest = interpreten.filter((k) => k.name !== name)
+    setInterpreten(rest)
+    merkeInterpreten(rest)
+    if (offenerInterpret === name) setOffenerInterpret(null)
   }
 
   /** Sucht auf YouTube – aber ausdrücklich nach Musik. */
@@ -401,8 +489,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         )}
       </section>
 
-      {SPOTIFY_ZEIGEN && (<>
-      {/* ============ 3. SPOTIFY ============ */}
+      {/* ============ 3. DEINE INTERPRETEN (Weg B, ohne Spotify-Zwang) ============ */}
       <section className="bereich">
         <Kopf
           symbol={<IconStern groesse={19} />}
@@ -410,27 +497,132 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         />
         <div className="bereich-kopf bereich-kopf-rest">
           <h2 hidden>Deine spanischen Interpreten</h2>
-          <p>Deine spanischsprachigen Künstler aus Spotify, mit ihren Songs.</p>
+          <p>
+            Sag uns, wen du gern hörst – die KI prüft, wer auf Spanisch
+            singt, und schlägt Songs zum Mitlesen vor.
+          </p>
         </div>
 
-        {!spotifyBereit && (
-          <div className="spotify-teaser">
-            <span className="spotify-marke">Noch einzurichten</span>
-            <p>
-              Für die Verbindung fehlt noch die Spotify-Client-ID. Sobald sie
-              hinterlegt ist, erscheint hier der Verbinden-Knopf.
+        <form
+          className="interpret-eingabe"
+          onSubmit={(e) => {
+            e.preventDefault()
+            kuenstlerPruefen(eingabe)
+          }}
+        >
+          <input
+            className="interpret-feld"
+            type="text"
+            value={eingabe}
+            onChange={(e) => setEingabe(e.target.value)}
+            placeholder="Künstler eintippen, z. B. Shakira"
+            disabled={Boolean(analyse)}
+          />
+          <button className="btn" disabled={Boolean(analyse) || !eingabe.trim()}>
+            Prüfen
+          </button>
+        </form>
+
+        <div className="interpret-vorschlaege">
+          {KUENSTLER_VORSCHLAEGE.filter(
+            (n) =>
+              !interpreten.some((k) => k.name.toLowerCase() === n.toLowerCase())
+          ).map((n) => (
+            <button
+              key={n}
+              className="filter-knopf"
+              onClick={() => kuenstlerPruefen(n)}
+              disabled={Boolean(analyse)}
+            >
+              + {n}
+            </button>
+          ))}
+        </div>
+
+        {analyse && <p className="suche-hinweis">{analyse}</p>}
+        {hinweis && <p className="suche-hinweis">{hinweis}</p>}
+
+        {interpreten.length > 0 && (
+          <>
+            <p className="suche-hinweis">
+              {interpreten.length} in deiner Liste – tippe einen an, um seine
+              Songs zu sehen. Ein Klick auf einen Song öffnet ihn zum Mitlesen.
             </p>
-          </div>
+            <div className="interpreten-liste">
+              {interpreten.map((k) => {
+                const offen = offenerInterpret === k.name
+                return (
+                  <div
+                    key={k.name}
+                    className={'interpret-block' + (offen ? ' block-offen' : '')}
+                  >
+                    <button
+                      className="interpret-weg"
+                      title={k.name + ' entfernen'}
+                      onClick={() => interpretEntfernen(k.name)}
+                    >
+                      ✕
+                    </button>
+                    <button
+                      className="interpret-karte"
+                      onClick={() => setOffenerInterpret(offen ? null : k.name)}
+                    >
+                      <span className="interpret-name">{k.name}</span>
+                      <span className="interpret-meta">
+                        {k.herkunft} · {k.stil}
+                      </span>
+                      {!k.sicher && (
+                        <span className="interpret-hinweis">singt gemischt</span>
+                      )}
+                      <span className="interpret-anzahl">
+                        {k.songs?.length
+                          ? `${k.songs.length} Songs ${offen ? '▴' : '▾'}`
+                          : 'keine Songs gefunden'}
+                      </span>
+                    </button>
+
+                    {offen && k.songs?.length > 0 && (
+                      <div className="interpret-songs">
+                        {k.songs.map((s) => (
+                          <button
+                            key={s.titel}
+                            className={
+                              'song-vorschlag' +
+                              (laeuft === k.name + '|' + s.titel
+                                ? ' song-laedt'
+                                : '')
+                            }
+                            onClick={() => songOeffnen(k.name, s.titel)}
+                            disabled={Boolean(laeuft)}
+                          >
+                            <span className="song-play" aria-hidden="true">
+                              {laeuft === k.name + '|' + s.titel ? '◌' : '▶'}
+                            </span>
+                            <span className="song-vorschlag-titel">{s.titel}</span>
+                            <span className="song-vorschlag-dauer">
+                              {laeuft === k.name + '|' + s.titel
+                                ? 'Öffnet …'
+                                : 'Mitlesen'}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </>
         )}
 
-        {spotifyBereit && !verbunden && (
+        {SPOTIFY_ZEIGEN && spotifyBereit && !verbunden && (
           <div className="spotify-box">
             <p className="spotify-erklaerung">
-              {/* Die alte Fassung nannte nur Titel und Playlists – die App
-                  fragt aber auch user-top-read an, also die meistgehoerten
-                  Kuenstler. In einem Datenschutz-Satz gehoert das dazu. */}
-              Gelesen werden deine gespeicherten Titel, deine Playlists und deine
-              meistgehörten Künstler. Nichts wird abgespielt, geändert oder geteilt.
+              {/* Ehrlich bleiben: Spotify laesst nur von uns freigeschaltete
+                  Konten herein – fuer alle anderen bringt der Knopf nichts. */}
+              Bonus für freigeschaltete Test-Konten: Spotify verbinden, dann
+              lesen wir deine gespeicherten Titel, Playlists und meist­gehörten
+              Künstler automatisch aus.
             </p>
             <InfoKnopf thema="spotify" />
             <button className="btn spotify-los" onClick={starteAnmeldung}>
@@ -439,98 +631,26 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           </div>
         )}
 
-        {spotifyBereit && verbunden && (
-          <>
-            <div className="spotify-leiste">
-              <span className="spotify-status">Spotify verbunden</span>
-              <div className="spotify-aktionen">
-                <button
-                  className="filter-knopf"
-                  onClick={interpretenPruefen}
-                  disabled={Boolean(analyse)}
-                >
-                  {analyse ? 'Läuft …' : 'Neu auswerten'}
-                </button>
-                <button className="filter-knopf" onClick={spotifyTrennen}>
-                  Trennen
-                </button>
-              </div>
+        {SPOTIFY_ZEIGEN && spotifyBereit && verbunden && (
+          <div className="spotify-leiste">
+            <span className="spotify-status">Spotify verbunden</span>
+            <div className="spotify-aktionen">
+              <button
+                className="filter-knopf"
+                onClick={interpretenPruefen}
+                disabled={Boolean(analyse)}
+              >
+                {analyse ? 'Läuft …' : 'Neu auswerten'}
+              </button>
+              <button className="filter-knopf" onClick={spotifyTrennen}>
+                Trennen
+              </button>
             </div>
-
-            {analyse && <p className="suche-hinweis">{analyse}</p>}
-
-            {!analyse && interpreten.length === 0 && (
-              <p className="empty-hint">
-                In deiner Musik war noch nichts Spanischsprachiges dabei. Sobald
-                du welche hörst, taucht es hier nach einer neuen Auswertung auf.
-              </p>
-            )}
-
-            {interpreten.length > 0 && (
-              <>
-                <p className="suche-hinweis">
-                  {interpreten.length} gefunden – tippe einen an, um seine Songs
-                  zu sehen. Ein Klick auf einen Song sucht ihn direkt.
-                </p>
-                <div className="interpreten-liste">
-                  {interpreten.map((k) => {
-                    const offen = offenerInterpret === k.name
-                    return (
-                      <div key={k.name} className={'interpret-block' + (offen ? ' block-offen' : '')}>
-                        <button
-                          className="interpret-karte"
-                          onClick={() => setOffenerInterpret(offen ? null : k.name)}
-                        >
-                          <span className="interpret-name">{k.name}</span>
-                          <span className="interpret-meta">
-                            {k.herkunft} · {k.stil}
-                          </span>
-                          {!k.sicher && (
-                            <span className="interpret-hinweis">singt gemischt</span>
-                          )}
-                          <span className="interpret-anzahl">
-                            {k.songs?.length
-                              ? `${k.songs.length} Songs ${offen ? '▴' : '▾'}`
-                              : 'keine Songs gefunden'}
-                          </span>
-                        </button>
-
-                        {offen && k.songs?.length > 0 && (
-                          <div className="interpret-songs">
-                            {k.songs.map((s) => (
-                              <button
-                                key={s.titel}
-                                className={
-                                  'song-vorschlag' +
-                                  (laeuft === k.name + '|' + s.titel ? ' song-laedt' : '')
-                                }
-                                onClick={() => songOeffnen(k.name, s.titel)}
-                                disabled={Boolean(laeuft)}
-                              >
-                                <span className="song-play" aria-hidden="true">
-                                  {laeuft === k.name + '|' + s.titel ? '◌' : '▶'}
-                                </span>
-                                <span className="song-vorschlag-titel">{s.titel}</span>
-                                <span className="song-vorschlag-dauer">
-                                  {laeuft === k.name + '|' + s.titel ? 'Öffnet …' : 'Mitlesen'}
-                                </span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </>
-            )}
-          </>
+          </div>
         )}
 
         {spotifyFehler && <p className="error">{spotifyFehler}</p>}
       </section>
-      </>)}
-
     </>
   )
 }

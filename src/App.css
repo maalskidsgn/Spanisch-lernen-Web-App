@@ -4966,14 +4966,63 @@ body.liest-video .word-card {
 }
 .such-auftrag .such-liste { margin-bottom: 0; }
 
+/* ===== Interpreten: eigene Kuenstler eintragen (Weg B) ===== */
+.interpret-eingabe {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.interpret-feld {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+}
+.interpret-feld:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.interpret-eingabe .btn {
+  padding: 11px 18px;
+  flex-shrink: 0;
+}
+.interpret-vorschlaege {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 /* ===== Interpreten mit ausklappbaren Songs ===== */
 .interpret-block {
+  position: relative;
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
   background: var(--card);
   transition: border-color .15s;
 }
+.interpret-weg {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+.interpret-weg:hover { background: var(--line); color: var(--text); }
 .interpret-block.block-offen { border-color: var(--primary); }
 
 .interpret-block .interpret-karte {
