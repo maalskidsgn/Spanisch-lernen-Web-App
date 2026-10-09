@@ -35,6 +35,7 @@ import {
   erzeugeVokabelliste,
   erzeugeVideoVokabeln,
 } from './ebooks.js'
+import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
 // In der Produktion (Coolify/Docker) kommen sie als echte Umgebungsvariablen.
@@ -508,6 +509,32 @@ app.post('/api/vokabelliste', async (req, res) => {
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Satzliste mit KI erstellen – das Gegenstück zu /api/vokabelliste.
+//
+// Zwei Vorgaben sind möglich und lassen sich kombinieren: ein Thema
+// ("Reisen") und eine Zeitform ("condicional"). Ohne beides schaut
+// die KI auf die bisherigen Sätze und ergänzt passend.
+app.post('/api/saetze', async (req, res) => {
+  const thema = (req.body.thema || '').trim().slice(0, 80)
+  const zeitform = ZEITFORMEN[req.body.zeitform] ? req.body.zeitform : ''
+  const bekannt = Array.isArray(req.body.bekannt) ? req.body.bekannt : []
+
+  // Ohne jede Vorgabe braucht das Modell etwas, woran es sich
+  // orientieren kann – sonst käme beliebiges Zeug zurück.
+  if (!thema && !zeitform && bekannt.length < 5) {
+    return res.status(400).json({
+      error: 'Wähle ein Thema oder eine Zeitform – dann lege ich los.',
+    })
+  }
+
+  try {
+    res.json(await erzeugeSatzliste(thema, zeitform, bekannt))
+  } catch (err) {
+    console.error('Satzliste:', err.message)
     res.status(500).json({ error: err.message })
   }
 })

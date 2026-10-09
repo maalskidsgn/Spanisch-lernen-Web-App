@@ -38,6 +38,12 @@ import { naechsteLektion } from './lektionen.js'
 export const APP_NAME = 'Habloo'
 import { newEntry, withSrsDefaults, isDue } from './srs.js'
 import {
+  ladeSaetzeLokal,
+  speichereSaetzeLokal,
+  ladeSaetze,
+  speichereSaetze,
+} from './saetze.js'
+import {
   XP,
   loadProgress,
   applyXp,
@@ -209,6 +215,9 @@ export default function App() {
   const [error, setError] = useState('')
   const [video, setVideo] = useState(null) // { videoId, title, lines }
   const [vocab, setVocab] = useState(loadVocab)
+  // Der Satz-Karteikasten liegt getrennt von den Vokabeln: dort steht
+  // ein Wort auf der Karte, hier ein ganzer Satz.
+  const [saetze, setSaetze] = useState(ladeSaetzeLokal)
   const [bausteinStand, setBausteinStand] = useState(loadBausteine)
   const [selected, setSelected] = useState(null) // { word, translation, loading }
   const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
@@ -498,6 +507,43 @@ export default function App() {
     }, 1500)
     return () => clearTimeout(timer)
   }, [vocab, nutzer, syncStatus])
+
+  // Dasselbe für die Sätze. Die Datenbank-Tabelle gibt es eventuell
+  // noch nicht – dann bleibt speichereSaetze() still wirkungslos und
+  // der Browser-Speicher ist die einzige Ablage (siehe saetze.js).
+  useEffect(() => {
+    speichereSaetzeLokal(saetze)
+
+    if (!nutzer || syncStatus === 'laeuft') return
+    const timer = setTimeout(() => {
+      speichereSaetze(nutzer.id, saetze).catch(() => {})
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [saetze, nutzer, syncStatus])
+
+  // Beim Anmelden die Sätze vom Konto holen und mit den lokalen
+  // zusammenführen – der weiter fortgeschrittene Stand gewinnt.
+  useEffect(() => {
+    if (!nutzer) return
+    let abgebrochen = false
+    ladeSaetze(nutzer.id)
+      .then((ausDb) => {
+        if (!ausDb || abgebrochen) return
+        setSaetze((lokal) => {
+          const zusammen = { ...ausDb }
+          for (const [key, e] of Object.entries(lokal)) {
+            const da = zusammen[key]
+            // Ohne Gegenstück übernehmen; sonst den neueren Termin behalten
+            if (!da || (e.due ?? 0) > (da.due ?? 0)) zusammen[key] = e
+          }
+          return zusammen
+        })
+      })
+      .catch(() => {})
+    return () => {
+      abgebrochen = true
+    }
+  }, [nutzer])
 
   // Gespeicherte Videos ebenfalls im Browser sichern
   useEffect(() => {
@@ -1120,6 +1166,8 @@ export default function App() {
             setBausteinStand={setBausteinStand}
             lessonProgress={lessonProgress}
             onNavigate={setView}
+            saetze={saetze}
+            setSaetze={setSaetze}
           />
         </main>
       )}

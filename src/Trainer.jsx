@@ -19,6 +19,7 @@ import Nachschlag from './Nachschlag.jsx'
 import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
+import Satztrainer from './Satztrainer.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt, IconListe, IconPfeil } from './icons.jsx'
 
 // Zuordnung der Uebungsarten zu ihren Icons
@@ -58,8 +59,11 @@ export default function Trainer({
   lessonProgress,
   onNavigate,
   onAddVocab,
+  saetze = {},
+  setSaetze,
 }) {
-  const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
+  // 'woerter' | 'saetze' | 'grammatik' | 'ki'
+  const [deck, setDeck] = useState('woerter')
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
   // deshalb eingeklappt und laedt nur haeppchenweise nach.
   const [listeOffen, setListeOffen] = useState(false)
@@ -131,6 +135,13 @@ export default function Trainer({
   const faelligeGrammatik = useMemo(
     () => faelligeBausteine(bausteinStand, lessonProgress),
     [bausteinStand, lessonProgress]
+  )
+
+  // Wie viele Sätze warten? Nur für die Zahl am Reiter – geübt wird
+  // drüben in Satztrainer.jsx.
+  const faelligeSaetze = useMemo(
+    () => Object.values(saetze).filter((s) => isDue(withSrsDefaults(s))).length,
+    [saetze]
   )
 
   function startTraining(gewaehlteArt) {
@@ -280,17 +291,21 @@ export default function Trainer({
         <span className="accent">
           {deck === 'woerter'
             ? 'Vokabeltrainer'
-            : deck === 'grammatik'
-              ? 'Grammatik-Trainer'
-              : 'KI-Trainer'}
+            : deck === 'saetze'
+              ? 'Satz-Trainer'
+              : deck === 'grammatik'
+                ? 'Grammatik-Trainer'
+                : 'KI-Trainer'}
         </span>
       </h1>
       <p className="intro">
         {deck === 'woerter'
           ? 'Neue Wörter sammeln und sicher behalten.'
-          : deck === 'grammatik'
-            ? 'Grammatik wiederholen, bis sie sitzt.'
-            : 'Sprechen üben – rede mit Habla auf Spanisch.'}
+          : deck === 'saetze'
+            ? 'Ganze Sätze üben – nach Thema und Zeitform.'
+            : deck === 'grammatik'
+              ? 'Grammatik wiederholen, bis sie sitzt.'
+              : 'Sprechen üben – rede mit Habla auf Spanisch.'}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -301,6 +316,15 @@ export default function Trainer({
         >
           Vokabeln
           {trainable.length > 0 && <span className="deck-zahl">{trainable.length}</span>}
+        </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'saetze'}
+          className={deck === 'saetze' ? 'deck-aktiv' : ''}
+          onClick={() => setDeck('saetze')}
+        >
+          Sätze
+          {faelligeSaetze > 0 && <span className="deck-zahl">{faelligeSaetze}</span>}
         </button>
         <button
           role="tab"
@@ -324,6 +348,17 @@ export default function Trainer({
       </div>
     </>
   )
+
+  // ---------- Der zweite Karteikasten: ganze Sätze ----------
+  // Eigener Kasten, gleiche Wiederhol-Logik: Ein Satz braucht andere
+  // Übungsarten als ein Einzelwort, aber dieselben Abstände.
+  if (deck === 'saetze') {
+    return (
+      <div className="wechsel" key="saetze">
+        <Satztrainer kopf={schalter} saetze={saetze} setSaetze={setSaetze} addXp={addXp} />
+      </div>
+    )
+  }
 
   // ---------- Der dritte Reiter: der KI-Sprach-Tutor ----------
   // Zeigt denselben Chat wie die eigene Sprechen-Seite, nur mit der
