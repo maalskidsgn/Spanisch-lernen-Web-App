@@ -29,6 +29,23 @@ Stand: 24. August 2026.
 
 - (frei – nächsten Punkt aus der Liste wählen)
 
+### Satz-Trainer (09.10.2026)
+- [x] **Vierter Reiter „Sätze" im Trainer.** Eigener Karteikasten für
+      ganze Sätze mit demselben Spaced-Repetition-Kern wie die
+      Vokabeln. Nur zwei Übungsarten: Karten und Multiple Choice –
+      Schreiben und Gemischt bewusst raus, Spiele gibt es keine.
+- [x] **Satz-Generator.** Thema-Chips (Reisen, Arbeit, Restaurant,
+      Einkaufen, Gesundheit, Familie) + eigenes Themenfeld + sieben
+      Zeitformen (Presente, Perfecto, Indefinido, Imperfecto, Futuro,
+      Condicional, Subjuntivo). Thema und Zeitform frei kombinierbar.
+- [x] **Übersicht zum Übernehmen.** Die erzeugten Sätze erscheinen
+      mit Häkchen, Übersetzung und Schlüsselwort; angehakte wandern
+      in den Trainer. Dazu „Deine Sätze" zum Ansehen und Aufräumen.
+- [ ] **Sätze aufs Konto synchronisieren.** Das SQL liegt fertig in
+      `supabase-saetze.sql` – einmal im Supabase-SQL-Editor
+      ausführen, dann synchronisiert die App von selbst. Bis dahin
+      liegen die Sätze nur im Browser.
+
 ---
 
 ## 📋 Offen – wird abgearbeitet
