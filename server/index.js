@@ -779,11 +779,21 @@ app.post('/api/spotify/interpreten', async (req, res) => {
 // Sagt der App, ob Bezahlen ueberhaupt eingerichtet ist.
 app.get('/api/bezahlung/status', async (req, res) => {
   if (!stripeBereit()) return res.json({ bereit: false })
+
+  // Der oeffentliche Schluessel ist nicht geheim – er steht in jeder
+  // Stripe-Integration im Quelltext. Er kommt trotzdem vom Server
+  // und nicht aus dem Build: So passt derselbe Build zu Test- und
+  // Echtbetrieb, und ein Wechsel braucht keinen neuen Build.
+  const antwort = {
+    bereit: true,
+    schluessel: process.env.STRIPE_PUBLIC_KEY || null,
+  }
+
   try {
-    res.json({ bereit: true, preis: await holePreis() })
+    res.json({ ...antwort, preis: await holePreis() })
   } catch (fehler) {
     // Bezahlen geht, nur der Preis liess sich nicht laden
-    res.json({ bereit: true, preis: null, hinweis: fehler.message })
+    res.json({ ...antwort, preis: null, hinweis: fehler.message })
   }
 })
 
@@ -797,8 +807,9 @@ app.post('/api/bezahlung/start', async (req, res) => {
     if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
 
     const herkunft = req.body?.herkunft || 'https://habloo.de'
-    const url = await starteBezahlung(nutzer.id, nutzer.email, herkunft)
-    res.json({ url })
+    // 'elements' = Formular in der App (Standard), 'hosted' = Stripe-Seite
+    const art = req.body?.art === 'hosted' ? 'hosted' : 'elements'
+    res.json(await starteBezahlung(nutzer.id, nutzer.email, herkunft, art))
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })
   }

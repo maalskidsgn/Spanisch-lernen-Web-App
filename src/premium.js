@@ -67,7 +67,14 @@ export function usePremium() {
   return { ...stand, neuLaden }
 }
 
-/** Schickt den Nutzer zur Bezahlseite von Stripe. */
+/**
+ * Der alte Weg: Weiterleitung auf checkout.stripe.com.
+ *
+ * Wird nicht mehr benutzt – das Bezahlformular läuft seit 10.10.
+ * in der App (Bezahlen.jsx), auf habloo.de und im Habloo-Design.
+ * Die Funktion bleibt als Rückfall stehen, falls das Formular
+ * einmal klemmt: Ein Aufruf von hier führt wieder zu Stripe.
+ */
 export async function zurKasse() {
   if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
   const { data: sitzung } = await db.auth.getSession()
@@ -77,7 +84,7 @@ export async function zurKasse() {
   const res = await fetch(API_URL + '/api/bezahlung/start', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-    body: JSON.stringify({ herkunft: window.location.origin }),
+    body: JSON.stringify({ herkunft: window.location.origin, art: 'hosted' }),
   })
   const daten = await res.json()
   if (!res.ok) throw new Error(daten.error || 'Bezahlung konnte nicht gestartet werden.')

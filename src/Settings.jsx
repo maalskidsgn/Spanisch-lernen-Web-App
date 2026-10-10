@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { API_URL, istApp } from './api.js'
-import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
+import { usePremium, zurKasse, aboVerwalten } from './premium.js'
+import Bezahlen from './Bezahlen.jsx'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
@@ -39,6 +40,8 @@ export default function Settings({
   const [preis, setPreis] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [kaufFehler, setKaufFehler] = useState('')
+  const [kasseOffen, setKasseOffen] = useState(false) // Bezahlformular sichtbar?
+  const [kasseInApp, setKasseInApp] = useState(false) // Formular in der App möglich?
   const [loeschLaeuft, setLoeschLaeuft] = useState(false)
   const [resetLaeuft, setResetLaeuft] = useState(false)
 
@@ -49,6 +52,10 @@ export default function Settings({
       .then((d) => {
         setBezahlbar(Boolean(d.bereit))
         setPreis(d.preis ?? null)
+        // Ohne öffentlichen Schlüssel kann das Formular in der App
+        // nicht laufen – dann bleibt es beim alten Weg über Stripe,
+        // statt den Nutzer in eine Fehlermeldung laufen zu lassen.
+        setKasseInApp(Boolean(d.schluessel))
       })
       .catch(() => setBezahlbar(false))
   }, [])
@@ -65,9 +72,20 @@ export default function Settings({
 
   const gueltigBis = bis ? bis.toLocaleDateString('de-DE') : ''
 
+  // Das Bezahlformular läuft jetzt IN der App (Bezahlen.jsx) statt
+  // auf einer Stripe-Seite. Fehlt dem Server der öffentliche
+  // Schlüssel, geht es wie früher zu Stripe – besser als nichts.
   async function kaufen() {
-    setLaedt(true); setKaufFehler('')
-    try { await zurKasse() } catch (f) { setKaufFehler(f.message); setLaedt(false) }
+    setKaufFehler('')
+    if (kasseInApp) return setKasseOffen(true)
+
+    setLaedt(true)
+    try {
+      await zurKasse()
+    } catch (f) {
+      setKaufFehler(f.message)
+      setLaedt(false)
+    }
   }
 
   async function verwalten() {
@@ -97,6 +115,7 @@ export default function Settings({
   // Tagesserie waren nach dem Einspielen weg.
   const BACKUP_SCHLUESSEL = [
     'vokabeln',
+    'saetze',
     'videos',
     'videoFortschritt',
     'fortschritt',
@@ -396,13 +415,36 @@ export default function Settings({
               automatisch erkannt.
             </p>
           ) : bezahlbar ? (
-            <button onClick={kaufen} disabled={laedt}>
-              {laedt ? 'Weiterleitung …' : 'Premium holen'}
-            </button>
+            !kasseOffen && (
+              <button onClick={kaufen} disabled={laedt}>
+                {laedt ? 'Weiterleitung …' : 'Premium holen'}
+              </button>
+            )
           ) : (
             <button disabled title="Bezahlung wird gerade eingerichtet">
               Demnächst
             </button>
+          )}
+
+          {/* Das Bezahlformular klappt hier auf – kein Sprung auf eine
+              fremde Seite mehr. */}
+          {kasseOffen && !premium && (
+            <Bezahlen
+              preis={
+                preis
+                  ? `${preis.betrag.toLocaleString('de-DE', {
+                      style: 'currency',
+                      currency: preis.waehrung,
+                    })} / ${preis.zeitraum === 'year' ? 'Jahr' : 'Monat'}`
+                  : null
+              }
+              onAbbrechen={() => setKasseOffen(false)}
+              onFertig={() => {
+                setKasseOffen(false)
+                // Die Meldung von Stripe kann noch unterwegs sein
+                setTimeout(neuLaden, 2500)
+              }}
+            />
           )}
 
           {kaufFehler && <p className="error">{kaufFehler}</p>}
