@@ -16,6 +16,7 @@ import BereichsIntro, { BEREICHE, RUNDGANG_REIHE, gesehene } from './Rundgang.js
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
+import Bezahlen from './Bezahlen.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
 
@@ -274,6 +275,10 @@ export default function App() {
   // der App unter Mehr" ist keine Adresse. Dasselbe gilt fuer das
   // Impressum, auf das man von aussen verlinken koennen muss.
   const [rechtSeite, setRechtSeite] = useState(rechtAusAdresse)
+  // Die Kassenseite – eigene Vollbildseite unter /kasse
+  const [kasseOffen, setKasseOffen] = useState(
+    () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse'
+  )
 
   // Bereichs-Einführungen: Welche Infobox ist gerade offen, und läuft
   // der Rundgang (Index in RUNDGANG_REIHE)? null = nichts davon.
@@ -324,14 +329,17 @@ export default function App() {
   // Zurueck: Der Zurueck-Knopf des Browsers muss die Seite schliessen
   // und nicht die ganze App verlassen.
   useEffect(() => {
-    const soll = rechtSeite ? '/' + rechtSeite : '/'
+    const soll = rechtSeite ? '/' + rechtSeite : kasseOffen ? '/kasse' : '/'
     if (window.location.pathname !== soll) {
-      window.history.pushState({ recht: rechtSeite }, '', soll)
+      window.history.pushState({ recht: rechtSeite, kasse: kasseOffen }, '', soll)
     }
-  }, [rechtSeite])
+  }, [rechtSeite, kasseOffen])
 
   useEffect(() => {
-    const zurueck = () => setRechtSeite(rechtAusAdresse())
+    const zurueck = () => {
+      setRechtSeite(rechtAusAdresse())
+      setKasseOffen(window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse')
+    }
     window.addEventListener('popstate', zurueck)
     return () => window.removeEventListener('popstate', zurueck)
   }, [])
@@ -1042,6 +1050,18 @@ export default function App() {
     )
   }
 
+  // ---------- Die Kasse: eine eigene Seite, keine Karte in den
+  // Einstellungen. Wer bezahlt, soll sehen, was er kauft – und keine
+  // Tab-Leiste danebenhaben, die zum Wegklicken einlädt.
+  if (kasseOffen) {
+    return (
+      <Bezahlen
+        onAbbrechen={() => setKasseOffen(false)}
+        onFertig={() => setKasseOffen(false)}
+      />
+    )
+  }
+
   return (
     <div className="app">
       {/* Nach dem Klick in der Passwort-Mail: erst neues Passwort, dann App */}
@@ -1241,6 +1261,7 @@ export default function App() {
             syncStatus={syncStatus}
             onLoginOeffnen={() => setLoginOffen(true)}
             onNavigate={setView}
+            onKasse={() => setKasseOffen(true)}
             onRecht={setRechtSeite}
           />
         </main>

@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { API_URL, istApp } from './api.js'
 import { usePremium, zurKasse, aboVerwalten } from './premium.js'
-import Bezahlen from './Bezahlen.jsx'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
@@ -26,6 +25,7 @@ export default function Settings({
   onLoginOeffnen,
   onNavigate,
   onRecht,
+  onKasse,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   // Der Ton-Schalter liegt nicht in settings: Er soll auch ohne
@@ -40,7 +40,6 @@ export default function Settings({
   const [preis, setPreis] = useState(null)
   const [laedt, setLaedt] = useState(false)
   const [kaufFehler, setKaufFehler] = useState('')
-  const [kasseOffen, setKasseOffen] = useState(false) // Bezahlformular sichtbar?
   const [kasseInApp, setKasseInApp] = useState(false) // Formular in der App möglich?
   const [loeschLaeuft, setLoeschLaeuft] = useState(false)
   const [resetLaeuft, setResetLaeuft] = useState(false)
@@ -77,7 +76,9 @@ export default function Settings({
   // Schlüssel, geht es wie früher zu Stripe – besser als nichts.
   async function kaufen() {
     setKaufFehler('')
-    if (kasseInApp) return setKasseOffen(true)
+    // Eigene Kassenseite (App.jsx). Fehlt dem Server der oeffentliche
+    // Schluessel, geht es wie frueher zu Stripe – besser als nichts.
+    if (kasseInApp) return onKasse?.()
 
     setLaedt(true)
     try {
@@ -415,37 +416,15 @@ export default function Settings({
               automatisch erkannt.
             </p>
           ) : bezahlbar ? (
-            !kasseOffen && (
-              <button onClick={kaufen} disabled={laedt}>
-                {laedt ? 'Weiterleitung …' : 'Premium holen'}
-              </button>
-            )
+            <button onClick={kaufen} disabled={laedt}>
+              {laedt ? 'Weiterleitung …' : 'Premium holen'}
+            </button>
           ) : (
             <button disabled title="Bezahlung wird gerade eingerichtet">
               Demnächst
             </button>
           )}
 
-          {/* Das Bezahlformular klappt hier auf – kein Sprung auf eine
-              fremde Seite mehr. */}
-          {kasseOffen && !premium && (
-            <Bezahlen
-              preis={
-                preis
-                  ? `${preis.betrag.toLocaleString('de-DE', {
-                      style: 'currency',
-                      currency: preis.waehrung,
-                    })} / ${preis.zeitraum === 'year' ? 'Jahr' : 'Monat'}`
-                  : null
-              }
-              onAbbrechen={() => setKasseOffen(false)}
-              onFertig={() => {
-                setKasseOffen(false)
-                // Die Meldung von Stripe kann noch unterwegs sein
-                setTimeout(neuLaden, 2500)
-              }}
-            />
-          )}
 
           {kaufFehler && <p className="error">{kaufFehler}</p>}
         </div>

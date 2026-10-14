@@ -1,17 +1,19 @@
 /**
- * Das Bezahlformular – in der App, nicht auf einer Stripe-Seite.
+ * Die Kassenseite – eine eigene Seite auf habloo.de.
  *
  * Vorher wurde der Nutzer auf checkout.stripe.com weitergeleitet:
  * fremde Adresse in der Leiste, fremdes Design, Habloo nur als
- * kleines Logo. Jetzt bleibt er auf habloo.de, und das Formular
+ * kleines Logo. Jetzt liegt die Kasse unter habloo.de/kasse und
  * sieht aus wie der Rest der App.
+ *
+ * Aufbau wie bei jeder Kasse: links steht, was man kauft und was es
+ * kostet, rechts bezahlt man. Auf dem Handy untereinander.
  *
  * Wie das geht, ohne dass wir Kartendaten anfassen: Stripe liefert
  * die Eingabefelder in einem abgeschirmten Rahmen (iframe) zu. Die
  * Kartennummer wandert von dort direkt zu Stripe – unser Server
- * bekommt sie nie zu sehen, genau wie vorher. Nur das Aussehen
- * dieser Felder geben wir vor: über das `appearance`-Objekt unten,
- * das die Habloo-Farben und -Schrift hineinreicht.
+ * bekommt sie nie zu sehen. Nur das Aussehen dieser Felder geben
+ * wir vor, über das `appearance`-Objekt unten.
  */
 
 import { useEffect, useState } from 'react'
@@ -23,6 +25,7 @@ import {
 } from '@stripe/react-stripe-js/checkout'
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
+import Logo from './Logo.jsx'
 
 // ---------------------------------------------------------------
 //  Habloo-Aussehen für die Stripe-Felder
@@ -80,8 +83,16 @@ const AUSSEHEN = {
   },
 }
 
+// Was Premium kann – dieselbe Liste wie in den Einstellungen.
+const LEISTUNGEN = [
+  'Unbegrenzte KI-Vokabellisten',
+  'Unbegrenzte Sätze und zweisprachige E-Books',
+  'Eigene Videos ohne Begrenzung',
+  'KI-Trainer ohne Tageslimit',
+]
+
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der
-// Schlüssel kommt vom Server (siehe /api/bezahlung/status), damit
+// Schlüssel kommt vom Server (/api/bezahlung/status), damit
 // derselbe Build für Test- und Echtbetrieb passt.
 let stripeLader = null
 function stripeHolen(schluessel) {
@@ -90,15 +101,15 @@ function stripeHolen(schluessel) {
 }
 
 /**
- * Öffnet das Bezahlformular.
+ * Die Kassenseite.
  *
  * @param {Function} onFertig    – nach erfolgreicher Zahlung
- * @param {Function} onAbbrechen – Nutzer will doch nicht
- * @param {string}   preis       – fertig formatiert, z. B. "4,99 € / Monat"
+ * @param {Function} onAbbrechen – zurück in die App
  */
-export default function Bezahlen({ onFertig, onAbbrechen, preis }) {
+export default function Bezahlen({ onFertig, onAbbrechen }) {
   const [clientSecret, setClientSecret] = useState(null)
   const [stripe, setStripe] = useState(null)
+  const [preis, setPreis] = useState(null)
   const [fehler, setFehler] = useState('')
 
   useEffect(() => {
@@ -111,8 +122,8 @@ export default function Bezahlen({ onFertig, onAbbrechen, preis }) {
         const token = data?.session?.access_token
         if (!token) throw new Error('Bitte zuerst anmelden.')
 
-        // Den öffentlichen Schlüssel und den Bezahlvorgang parallel
-        // holen – zusammen dauert es sonst doppelt so lang.
+        // Preis, Schlüssel und Bezahlvorgang parallel holen –
+        // nacheinander dauerte es dreimal so lang.
         const [status, start] = await Promise.all([
           fetch(API_URL + '/api/bezahlung/status').then((r) => r.json()),
           fetch(API_URL + '/api/bezahlung/start', {
@@ -133,6 +144,7 @@ export default function Bezahlen({ onFertig, onAbbrechen, preis }) {
 
         const s = await stripeHolen(status.schluessel)
         if (abgebrochen) return
+        setPreis(status.preis ?? null)
         setStripe(s)
         setClientSecret(start.clientSecret)
       } catch (f) {
@@ -146,39 +158,91 @@ export default function Bezahlen({ onFertig, onAbbrechen, preis }) {
     }
   }, [])
 
-  if (fehler) {
-    return (
-      <div className="kasse">
-        <p className="error">{fehler}</p>
-        <button className="btn-plain" onClick={onAbbrechen}>
-          Zurück
-        </button>
-      </div>
-    )
-  }
-
-  if (!clientSecret || !stripe) {
-    return (
-      <div className="kasse kasse-laedt">
-        <span className="kasse-spinner" aria-hidden="true" />
-        <p>Bezahlung wird vorbereitet …</p>
-      </div>
-    )
-  }
+  const preisText = preis
+    ? preis.betrag.toLocaleString('de-DE', { style: 'currency', currency: preis.waehrung })
+    : null
+  const zeitraum = preis?.zeitraum === 'year' ? 'Jahr' : 'Monat'
 
   return (
-    <div className="kasse">
-      <div className="kasse-kopf">
-        <h2>Habloo Premium</h2>
-        {preis && <p className="kasse-preis">{preis}</p>}
+    <div className="kassen-seite">
+      {/* Eigener Kopf statt der Tab-Leiste: Auf einer Kassenseite
+          soll man bezahlen, nicht weiterklicken. */}
+      <header className="kassen-kopf">
+        <button className="kassen-zurueck" onClick={onAbbrechen}>
+          ← Zurück
+        </button>
+        <Logo />
+        <span className="kassen-sicher" title="Verschlüsselte Verbindung">
+          <SchlossIcon /> Sichere Zahlung
+        </span>
+      </header>
+
+      <div className="kassen-raster">
+        {/* ---------- Links: was man kauft ---------- */}
+        <aside className="kassen-bestellung">
+          <p className="kassen-label">Dein Abo</p>
+          <h1 className="kassen-titel">Habloo Premium</h1>
+          {preisText && (
+            <p className="kassen-grosspreis">
+              {preisText} <span>pro {zeitraum}</span>
+            </p>
+          )}
+
+          <ul className="kassen-leistungen">
+            {LEISTUNGEN.map((l) => (
+              <li key={l}>{l}</li>
+            ))}
+          </ul>
+
+          {preisText && (
+            <div className="kassen-summe">
+              <div className="kassen-zeile">
+                <span>Habloo Premium</span>
+                <span>{preisText}</span>
+              </div>
+              <div className="kassen-zeile kassen-zeile-klein">
+                <span>Abrechnung</span>
+                <span>monatlich, jederzeit kündbar</span>
+              </div>
+              <div className="kassen-zeile kassen-gesamt">
+                <span>Heute fällig</span>
+                <span>{preisText}</span>
+              </div>
+            </div>
+          )}
+        </aside>
+
+        {/* ---------- Rechts: bezahlen ---------- */}
+        <section className="kassen-zahlung">
+          {fehler ? (
+            <>
+              <p className="error">{fehler}</p>
+              <button className="btn-plain" onClick={onAbbrechen}>
+                Zurück zur App
+              </button>
+            </>
+          ) : !clientSecret || !stripe ? (
+            <div className="kasse-laedt">
+              <span className="kasse-spinner" aria-hidden="true" />
+              <p>Bezahlung wird vorbereitet …</p>
+            </div>
+          ) : (
+            <CheckoutElementsProvider
+              stripe={stripe}
+              options={{ clientSecret, elementsOptions: { appearance: AUSSEHEN } }}
+            >
+              <KassenFormular onFertig={onFertig} onAbbrechen={onAbbrechen} />
+            </CheckoutElementsProvider>
+          )}
+        </section>
       </div>
 
-      <CheckoutElementsProvider
-        stripe={stripe}
-        options={{ clientSecret, elementsOptions: { appearance: AUSSEHEN } }}
-      >
-        <KassenFormular onFertig={onFertig} onAbbrechen={onAbbrechen} />
-      </CheckoutElementsProvider>
+      <footer className="kassen-fuss">
+        <p>
+          Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu
+          sehen. Monatlich kündbar, jederzeit in den Einstellungen.
+        </p>
+      </footer>
     </div>
   )
 }
@@ -225,6 +289,7 @@ function KassenFormular({ onFertig, onAbbrechen }) {
 
   return (
     <form className="kasse-form" onSubmit={bezahlen}>
+      <h2 className="kassen-abschnitt">Zahlungsart</h2>
       <PaymentElement options={{ layout: 'accordion' }} />
 
       {fehler && <p className="error kasse-fehler">{fehler}</p>}
@@ -233,20 +298,30 @@ function KassenFormular({ onFertig, onAbbrechen }) {
         {laeuft ? (
           <>Zahlung läuft<span className="studio-punkte" /></>
         ) : summe ? (
-          `${summe} bezahlen`
+          `${summe} zahlungspflichtig abonnieren`
         ) : (
-          'Jetzt bezahlen'
+          'Zahlungspflichtig abonnieren'
         )}
       </button>
 
       <button type="button" className="btn-plain" onClick={onAbbrechen} disabled={laeuft}>
         Abbrechen
       </button>
-
-      <p className="kasse-hinweis">
-        Die Zahlung wickelt Stripe ab. Deine Kartendaten bekommen wir nie zu
-        sehen. Monatlich kündbar.
-      </p>
     </form>
+  )
+}
+
+function SchlossIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+      <path
+        d="M6 10V7a6 6 0 0 1 12 0v3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <rect x="4" y="10" width="16" height="11" rx="2.5" fill="currentColor" />
+    </svg>
   )
 }
