@@ -96,7 +96,16 @@ const LEISTUNGEN = [
 // derselbe Build für Test- und Echtbetrieb passt.
 let stripeLader = null
 function stripeHolen(schluessel) {
-  if (!stripeLader) stripeLader = loadStripe(schluessel)
+  if (!stripeLader) {
+    stripeLader = loadStripe(schluessel, {
+      // Stripes "Testing Assistant" abschalten: ein schwarzes
+      // Entwickler-Fenster unten rechts, das Stripe von sich aus
+      // einblendet, solange der Testmodus läuft. Es erscheint nicht
+      // nur bei uns, sondern bei JEDEM Besucher der Kasse – und
+      // verdeckt dort die halbe Zahlungsspalte.
+      developerTools: { assistant: { enabled: false } },
+    })
+  }
   return stripeLader
 }
 
