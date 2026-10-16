@@ -3,7 +3,7 @@ import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } fro
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import SatzGenerator from './SatzGenerator.jsx'
-import { IconKarten, IconAuswahl, IconFunken, IconListe } from './icons.jsx'
+import { IconKarten, IconAuswahl, IconListe } from './icons.jsx'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
@@ -41,7 +41,7 @@ function baueAuswahl(richtig, alle, anzahl = 4) {
  * Memory oder Wortpaare brauchen kurze Begriffe, Sätze nicht.
  */
 export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
-  const [ansicht, setAnsicht] = useState('start') // 'start' | 'generator' | 'liste'
+  const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [artWahl, setArtWahl] = useState(false)
   const [art, setArt] = useState('karten')
   const [queue, setQueue] = useState(null)
@@ -148,19 +148,6 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
       delete neu[key]
       return neu
     })
-  }
-
-  // ---------- Generator ----------
-  if (ansicht === 'generator') {
-    return (
-      <div className="trainer wechsel" key="satz-gen">
-        {kopf}
-        <button className="recht-zurueck" onClick={() => setAnsicht('start')}>
-          ← Zurück
-        </button>
-        <SatzGenerator saetze={saetze} setSaetze={setSaetze} />
-      </div>
-    )
   }
 
   // ---------- Die Satzliste zum Verwalten ----------
@@ -390,9 +377,6 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             Lass dir welche erzeugen – zu einem Thema, zu einer Zeitform oder zu
             beidem. Danach wiederholst du sie hier, bis sie sitzen.
           </p>
-          <button className="btn" onClick={() => setAnsicht('generator')}>
-            Sätze erzeugen
-          </button>
         </div>
       ) : (
         <>
@@ -423,15 +407,12 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         </>
       )}
 
-      <button className="bereich trainer-sprechen" onClick={() => setAnsicht('generator')}>
-        <span className="trainer-sprechen-icon">
-          <IconFunken groesse={26} />
-        </span>
-        <span className="trainer-sprechen-text">
-          <h2>Sätze erzeugen</h2>
-          <p>Zu einem Thema, einer Zeitform – oder beidem zusammen.</p>
-        </span>
-      </button>
+      {/* Der Generator steht direkt hier – wie beim Vokabeltrainer.
+          Erst eine Tür antippen, um dann ein Thema zu wählen, war
+          ein Schritt zu viel. */}
+      <section className="bereich">
+        <SatzGenerator saetze={saetze} setSaetze={setSaetze} />
+      </section>
 
       {entries.length > 0 && (
         <button className="bereich trainer-sprechen" onClick={() => setAnsicht('liste')}>

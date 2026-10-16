@@ -1898,6 +1898,7 @@ button:disabled {
   .tab svg { width: 26px; height: 26px; }
   .tab:hover { background: none; }
   .tab-active { background: none; color: var(--primary); }
+
   .tab-active:hover { background: none; }
   .tab-active .due-badge { background: var(--red); color: #fff; }
 
@@ -10504,6 +10505,12 @@ body.lektion-laeuft .lessons > .player-top,
   gap: 10px;
   margin-bottom: 18px;
 }
+.leser-kopf-titel {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
 .leser-pfeil {
   width: 40px; height: 40px;
   display: grid; place-items: center;
@@ -10628,6 +10635,34 @@ body.lektion-laeuft .lessons > .player-top,
 .leser-merksatz p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--navy); }
 
 /* ----- Abschluss ----- */
+/* ----- Der Sprachumschalter läuft unten mit -----
+   Beim Lesen braucht man ihn mitten im Text. Oben wäre er nach dem
+   ersten Absatz aus dem Bild – hier unten klebt er am Rand, in
+   Daumennähe, und bleibt beim Scrollen stehen. */
+.leser-schiene {
+  position: sticky;
+  /* Über der Tab-Leiste der App sitzen, nicht dahinter */
+  /* Am Rechner steht die Menüleiste oben, da genügt etwas Abstand
+     zum Fensterrand. Auf dem Handy klebt sie unten – dort weiter
+     hoch (siehe Media Query). */
+  bottom: 14px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 4px;
+  pointer-events: none;
+}
+.leser-schiene .leser-sprachen {
+  pointer-events: auto;
+  width: min(280px, 100%);
+  padding: 4px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 65, .12);
+}
+.leser-schiene .leser-sprache { padding: 10px 10px; font-size: 14px; }
+
 .leser-fertig { width: 100%; margin-top: 16px; }
 .leser-bewertung { margin-top: 16px; }
 .leser-frage {
@@ -10636,4 +10671,15 @@ body.lektion-laeuft .lessons > .player-top,
   font-size: 14.5px;
   font-weight: 700;
   color: var(--navy);
+}
+
+/* Der Sprachumschalter im Leser muss ÜBER der Menüleiste bleiben.
+   Diese Regel steht bewusst GANZ hinten: Die Grundregel für
+   .leser-schiene kommt weiter oben in der Datei, und bei gleicher
+   Spezifität gewinnt die spätere – stünde das hier vorne, läge der
+   Umschalter wieder hinter der Leiste und wäre nicht antippbar. */
+@media (max-width: 720px) {
+  .leser-schiene {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
 }

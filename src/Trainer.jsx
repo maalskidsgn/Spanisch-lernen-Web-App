@@ -29,6 +29,12 @@ import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt, IconListe, IconPf
 // fertig im Code – diese eine Zeile holt ihn zurueck.
 const WORTLISTE_ZEIGEN = false
 
+// Grammatik-Trainer und KI-Trainer vorerst ausgeblendet (16.10.,
+// Manuels Wunsch). Beide Bereiche bleiben vollstaendig im Code –
+// diese zwei Zeilen holen sie zurueck.
+const GRAMMATIK_ZEIGEN = false
+const KI_TRAINER_ZEIGEN = false
+
 const ART_ICONS = {
   karten: IconKarten,
   auswahl: IconAuswahl,
@@ -348,25 +354,29 @@ export default function Trainer({
           Lesen
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
-        <button
-          role="tab"
-          aria-selected={deck === 'grammatik'}
-          className={deck === 'grammatik' ? 'deck-aktiv' : ''}
-          onClick={() => setDeck('grammatik')}
-        >
-          Grammatik
-          {faelligeGrammatik.length > 0 && (
-            <span className="deck-zahl">{faelligeGrammatik.length}</span>
-          )}
-        </button>
-        <button
-          role="tab"
-          aria-selected={deck === 'ki'}
-          className={deck === 'ki' ? 'deck-aktiv' : ''}
-          onClick={() => setDeck('ki')}
-        >
-          KI-Trainer
-        </button>
+        {GRAMMATIK_ZEIGEN && (
+          <button
+            role="tab"
+            aria-selected={deck === 'grammatik'}
+            className={deck === 'grammatik' ? 'deck-aktiv' : ''}
+            onClick={() => setDeck('grammatik')}
+          >
+            Grammatik
+            {faelligeGrammatik.length > 0 && (
+              <span className="deck-zahl">{faelligeGrammatik.length}</span>
+            )}
+          </button>
+        )}
+        {KI_TRAINER_ZEIGEN && (
+          <button
+            role="tab"
+            aria-selected={deck === 'ki'}
+            className={deck === 'ki' ? 'deck-aktiv' : ''}
+            onClick={() => setDeck('ki')}
+          >
+            KI-Trainer
+          </button>
+        )}
       </div>
     </>
   )
@@ -401,7 +411,7 @@ export default function Trainer({
   // ---------- Der dritte Reiter: der KI-Sprach-Tutor ----------
   // Zeigt denselben Chat wie die eigene Sprechen-Seite, nur mit der
   // Reiter-Leiste oben statt einem Zurueck-Knopf.
-  if (deck === 'ki') {
+  if (deck === 'ki' && KI_TRAINER_ZEIGEN) {
     return (
       <div className="wechsel" key="ki">
         <Gespraech kopf={schalter} onAddVocab={onAddVocab} vocab={vocab} />
@@ -415,7 +425,7 @@ export default function Trainer({
   }
 
   // ---------- Der zweite Karteikasten: Grammatik ----------
-  if (deck === 'grammatik') {
+  if (deck === 'grammatik' && GRAMMATIK_ZEIGEN) {
     return (
       // Derselbe Trick wie drueben: eigener Schluessel, eigene
       // Einblendung. Ohne die Huelle traegt nur das Vokabel-Deck die

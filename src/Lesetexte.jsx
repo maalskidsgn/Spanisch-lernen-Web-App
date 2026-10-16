@@ -35,7 +35,7 @@ const STUFEN = [
  * Karten (srs.js), wann der Text wieder dran ist.
  */
 export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) {
-  const [ansicht, setAnsicht] = useState('start') // 'start' | 'generator' | 'liste'
+  const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [offenerText, setOffenerText] = useState(null) // Kennung des Textes im Leser
 
   const entries = useMemo(
@@ -98,26 +98,6 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) 
     )
   }
 
-  // ---------- Generator ----------
-  if (ansicht === 'generator') {
-    return (
-      <div className="trainer wechsel" key="text-gen">
-        {kopf}
-        <button className="recht-zurueck" onClick={() => setAnsicht('start')}>
-          ← Zurück
-        </button>
-        <TextGenerator
-          texte={texte}
-          setTexte={setTexte}
-          onFertig={(id) => {
-            setAnsicht('start')
-            setOffenerText(id)
-          }}
-        />
-      </div>
-    )
-  }
-
   // ---------- Alle Texte ----------
   if (ansicht === 'liste') {
     return (
@@ -165,9 +145,6 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) 
             Spanisch, schaltest bei Bedarf auf Deutsch um, und bekommst ihn
             später automatisch wieder vorgelegt.
           </p>
-          <button className="btn" onClick={() => setAnsicht('generator')}>
-            Ersten Text erzeugen
-          </button>
         </div>
       ) : (
         <>
@@ -215,15 +192,16 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) 
         </>
       )}
 
-      <button className="bereich trainer-sprechen" onClick={() => setAnsicht('generator')}>
-        <span className="trainer-sprechen-icon">
-          <IconFunken groesse={26} />
-        </span>
-        <span className="trainer-sprechen-text">
-          <h2>Neuen Text erzeugen</h2>
-          <p>Wissensgebiet wählen oder eigenes Thema eingeben.</p>
-        </span>
-      </button>
+      {/* Der Generator steht direkt hier – genau wie beim
+          Vokabeltrainer. Erst auf eine Tür zu tippen, um dann ein
+          Thema zu wählen, war ein Schritt zu viel. */}
+      <section className="bereich">
+        <TextGenerator
+          texte={texte}
+          setTexte={setTexte}
+          onFertig={(id) => setOffenerText(id)}
+        />
+      </section>
 
       {entries.length > 0 && (
         <button className="bereich trainer-sprechen" onClick={() => setAnsicht('liste')}>
@@ -268,22 +246,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab }) {
         <button className="leser-pfeil" onClick={onZurueck} aria-label="Zurück">
           ←
         </button>
-        <div className="leser-sprachen" role="tablist">
-          {[
-            ['es', 'Español'],
-            ['de', 'Deutsch'],
-          ].map(([wert, name]) => (
-            <button
-              key={wert}
-              role="tab"
-              aria-selected={sprache === wert}
-              className={'leser-sprache' + (sprache === wert ? ' leser-sprache-an' : '')}
-              onClick={() => setSprache(wert)}
-            >
-              {name}
-            </button>
-          ))}
-        </div>
+        <span className="leser-kopf-titel">{sprache === 'es' ? 'Español' : 'Deutsch'}</span>
         <span className="leser-stufe">{(text.stufe ?? 'b1').toUpperCase()}</span>
       </div>
 
@@ -328,6 +291,28 @@ function Leser({ text, onFertig, onZurueck, onAddVocab }) {
           </div>
         )}
       </article>
+
+      {/* Der Sprachumschalter läuft unten mit: Beim Lesen braucht man
+          ihn mitten im Text, nicht am Seitenanfang – und dort unten
+          ist er mit dem Daumen erreichbar, ohne hochzuscrollen. */}
+      <div className="leser-schiene">
+        <div className="leser-sprachen" role="tablist">
+          {[
+            ['es', 'Español'],
+            ['de', 'Deutsch'],
+          ].map(([wert, name]) => (
+            <button
+              key={wert}
+              role="tab"
+              aria-selected={sprache === wert}
+              className={'leser-sprache' + (sprache === wert ? ' leser-sprache-an' : '')}
+              onClick={() => setSprache(wert)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Am Ende: Wie gut kamst du zurecht? Daraus folgt der nächste Termin. */}
       {fertig ? (
