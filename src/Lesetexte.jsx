@@ -20,6 +20,11 @@ const GEBIETE = [
   ['alltag', 'Erstaunliches'],
 ]
 
+/** Ein Wort auf seinen Nachschlag-Schlüssel bringen (ohne Satzzeichen). */
+function wortSchluessel(wort) {
+  return wort.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
+}
+
 const STUFEN = [
   ['a2', 'A2', 'kurze Sätze'],
   ['b1', 'B1', 'Alltagssprache'],
@@ -34,7 +39,7 @@ const STUFEN = [
  * wie gut man zurechtkam. Daraus errechnet dieselbe Logik wie bei den
  * Karten (srs.js), wann der Text wieder dran ist.
  */
-export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) {
+export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vocab = {} }) {
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [offenerText, setOffenerText] = useState(null) // Kennung des Textes im Leser
 
@@ -94,6 +99,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) 
         onFertig={(bewertung) => bewerten(offenerText, bewertung)}
         onZurueck={() => setOffenerText(null)}
         onAddVocab={onAddVocab}
+        vocab={vocab}
       />
     )
   }
@@ -229,10 +235,62 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab }) 
  * Absätze – und man bleibt an derselben Stelle stehen. Darum liegen
  * die beiden Sprachen auch absatzweise nebeneinander in den Daten.
  */
-function Leser({ text, onFertig, onZurueck, onAddVocab }) {
+function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
   const [sprache, setSprache] = useState('es')
   const [fertig, setFertig] = useState(false)
   const [gesammelt, setGesammelt] = useState([])
+  const [wort, setWort] = useState(null) // angetipptes Wort: { text, de, laedt }
+
+  /**
+   * Ein Wort im Text antippen: übersetzen lassen und als Karte
+   * zeigen. Dasselbe Verhalten wie im Chat und im Ebook-Leser –
+   * wer es dort einmal gelernt hat, kennt es hier wieder.
+   */
+  async function wortAntippen(rohesWort) {
+    const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
+    if (!sauber) return
+    setWort({ text: sauber, de: '', laedt: true })
+    try {
+      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const daten = await res.json()
+      setWort({ text: sauber, de: daten.translation || '', laedt: false })
+    } catch {
+      setWort({ text: sauber, de: '', laedt: false })
+    }
+  }
+
+  /** Das angetippte Wort in den Trainer legen. */
+  function wortInTrainer(status) {
+    if (!wort?.text || !onAddVocab) return setWort(null)
+    onAddVocab(
+      [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Lesetext: ' + (text.titelDe || '') }],
+      status
+    )
+    setWort(null)
+  }
+
+  /**
+   * Macht aus einem Absatz einzeln antippbare Wörter.
+   *
+   * Nur auf Spanisch: Im deutschen Text gibt es nichts
+   * nachzuschlagen, und antippbare Wörter würden dort nur
+   * verwirren.
+   */
+  function alsWoerter(absatz) {
+    return absatz.split(/(\s+)/).map((teil, i) => {
+      if (!teil.trim()) return teil
+      const status = vocab[wortSchluessel(teil)]?.status
+      return (
+        <span
+          key={i}
+          className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
+          onClick={() => wortAntippen(teil)}
+        >
+          {teil}
+        </span>
+      )
+    })
+  }
 
   function wortSammeln(w) {
     if (gesammelt.includes(w.wort)) return
@@ -255,7 +313,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab }) {
 
         {(text.absaetze ?? []).map((a, i) => (
           <p key={i} className="leser-absatz">
-            {sprache === 'es' ? a.es : a.de}
+            {sprache === 'es' ? alsWoerter(a.es) : a.de}
           </p>
         ))}
 
@@ -340,6 +398,46 @@ function Leser({ text, onFertig, onZurueck, onAddVocab }) {
         <button className="btn leser-fertig" onClick={() => setFertig(true)}>
           Durchgelesen
         </button>
+      )}
+
+      {/* ---------- Angetipptes Wort ---------- */}
+      {wort && (
+        <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
+          <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="wortkarte-schliessen"
+              aria-label="Schließen"
+              onClick={() => setWort(null)}
+            >
+              ✕
+            </button>
+            <div className="wortkarte-wort">
+              {wort.text}
+              {vocab[wortSchluessel(wort.text)] && (
+                <span className="wortkarte-marke">✓ im Trainer</span>
+              )}
+            </div>
+            <div className="wortkarte-de">
+              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+            </div>
+            <div className="wortkarte-knoepfe">
+              <button
+                className="btn-outline"
+                onClick={() => wortInTrainer('gewusst')}
+                disabled={wort.laedt}
+              >
+                Kenne ich
+              </button>
+              <button
+                className="btn"
+                onClick={() => wortInTrainer('lernen')}
+                disabled={wort.laedt}
+              >
+                ＋ Lernen
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

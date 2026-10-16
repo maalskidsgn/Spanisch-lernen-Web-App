@@ -403,6 +403,7 @@ export default function Trainer({
           setTexte={setTexte}
           addXp={addXp}
           onAddVocab={onAddVocab}
+          vocab={vocab}
         />
       </div>
     )
