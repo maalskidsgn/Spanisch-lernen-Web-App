@@ -49,9 +49,14 @@ const HOERTEXTE_ZEIGEN = false
 // holt ihn zurueck.
 const EBOOKS_ZEIGEN = false
 
+// Songs vorerst raus (16.10., Manuels Wunsch): In der Mediathek
+// soll es nur um Videos gehen. Der ganze Songs-Bereich bleibt
+// fertig im Code – diese eine Zeile holt ihn zurueck.
+const SONGS_ZEIGEN = false
+
 const BEREICHE = [
   { wert: 'videos', label: 'Videos' },
-  { wert: 'songs', label: 'Songs' },
+  ...(SONGS_ZEIGEN ? [{ wert: 'songs', label: 'Songs' }] : []),
   ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'Hörtexte' }] : []),
   ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'Ebooks' }] : []),
 ]
@@ -126,7 +131,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // Kommt der Nutzer von Spotify zurueck, gehoert er direkt zu den Songs –
   // dort wird der Code eingeloest und die Auswertung gestartet.
   const [bereich, setBereich] = useState(() =>
-    new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
+    SONGS_ZEIGEN && new URLSearchParams(window.location.search).get('code')
+      ? 'songs'
+      : 'videos'
   ) // 'videos', 'songs' oder 'ebooks'
   const [buecher, setBuecher] = useState(ladeBuecher)
   const [buchTitel, setBuchTitel] = useState('')
@@ -362,7 +369,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       <div className="wechsel" key={bereich}>
 
       {/* ---------- Songs: Musik mit mitlaufendem Text ---------- */}
-      {bereich === 'songs' && <Songs onOpenVideo={onOpenVideo} vocab={vocab} />}
+      {SONGS_ZEIGEN && bereich === 'songs' && (
+        <Songs onOpenVideo={onOpenVideo} vocab={vocab} />
+      )}
 
       {/* ---------- Hörtexte und Lesetexte ----------
           Die beiden Bereiche, in denen nichts erzeugt wird: fertige

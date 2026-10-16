@@ -37,6 +37,13 @@ import {
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
+import {
+  VIDEOS_PRO_TAG,
+  nutzungHeute,
+  zaehleNutzung,
+  gibNutzungZurueck,
+  naechsteAuffuellung,
+} from './kontingent.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
 // In der Produktion (Coolify/Docker) kommen sie als echte Umgebungsvariablen.
@@ -203,6 +210,43 @@ app.get('/api/transcript', async (req, res) => {
     return res.status(400).json({ error: 'Das sieht nicht wie ein YouTube-Link aus.' })
   }
 
+  // ---------- Tageskontingent ----------
+  //
+  // Nur fuer Videos, die es noch NICHT gibt: Ein Video aus der
+  // Mediathek kostet nichts und bleibt frei. Erst wenn wir es
+  // auswaerts holen muessen (Transkript-Dienst, kostet Guthaben),
+  // greift die Grenze. Premium hat kein Limit.
+  //
+  // Die Pruefung laeuft hier auf dem Server, nicht im Browser:
+  // Ein Zaehler in localStorage waere mit zwei Klicks umgangen.
+  const token = (req.headers.authorization || '').replace('Bearer ', '')
+  const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+  let schonGezaehlt = false
+
+  if (nutzer) {
+    const liegtSchonDa = await ausBibliothek(videoId)
+    if (!liegtSchonDa) {
+      const premium = await istPremium(nutzer.id)
+      if (!premium) {
+        const heute = await nutzungHeute(nutzer.id, 'video')
+        if (heute >= VIDEOS_PRO_TAG) {
+          return res.status(429).json({
+            error:
+              `Du hast heute schon ${VIDEOS_PRO_TAG === 1 ? 'ein Video' : VIDEOS_PRO_TAG + ' Videos'} ` +
+              `erzeugt. Neues Kontingent gibt es ${naechsteAuffuellung()} – ` +
+              'oder jederzeit mit Premium.',
+            grund: 'kontingent',
+            uebrig: 0,
+          })
+        }
+        // Gleich verbuchen: Haette jemand zwei Fenster offen,
+        // kaemen sonst beide durch, bevor der erste fertig ist.
+        await zaehleNutzung(nutzer.id, 'video')
+        schonGezaehlt = true
+      }
+    }
+  }
+
   // Temporärer Ordner für die Untertitel-Datei
   const dir = await mkdtemp(join(tmpdir(), 'subs-'))
   try {
@@ -238,6 +282,7 @@ app.get('/api/transcript', async (req, res) => {
     }
 
     if (files.length === 0) {
+      if (schonGezaehlt) await gibNutzungZurueck(nutzer.id, 'video')
       return res.status(404).json({ error: 'Für dieses Video gibt es leider keine spanischen Untertitel.' })
     }
 
@@ -253,6 +298,12 @@ app.get('/api/transcript', async (req, res) => {
       }))
       .filter((l) => l.text)
 
+    // Auch lokal geholte Videos in die Bibliothek legen. Sonst
+    // zaehlt dasselbe Video beim naechsten Oeffnen erneut aufs
+    // Tageskontingent – und andere Nutzer muessten es neu holen,
+    // obwohl wir es laengst haben.
+    merkeInBibliothek(videoId, title, lines, kategorie)
+
     res.json({ videoId, title, lines, automatisch, qualitaet: pruefeQualitaet(lines) })
   } catch (err) {
     // yt-dlp scheitert auf Servern regelmäßig an YouTubes Bot-Sperre.
@@ -262,6 +313,8 @@ app.get('/api/transcript', async (req, res) => {
     const gespeichert = await ausBibliothek(videoId)
     if (gespeichert) {
       console.log('aus der Bibliothek, kein Guthaben:', videoId)
+      // Hat nichts gekostet – also auch nichts vom Kontingent
+      if (schonGezaehlt) await gibNutzungZurueck(nutzer.id, 'video')
       return res.json({ ...gespeichert, qualitaet: pruefeQualitaet(gespeichert.lines) })
     }
 
@@ -277,6 +330,7 @@ app.get('/api/transcript', async (req, res) => {
         return res.json({ ...ergebnis, qualitaet: pruefeQualitaet(ergebnis.lines) })
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
+        if (schonGezaehlt) await gibNutzungZurueck(nutzer.id, 'video')
         return res.status(502).json({
           error: dienstFehler.message,
           stoerung: Boolean(dienstFehler.stoerung),
@@ -284,6 +338,7 @@ app.get('/api/transcript', async (req, res) => {
       }
     }
     console.error(err.message)
+    if (schonGezaehlt) await gibNutzungZurueck(nutzer.id, 'video')
     res.status(500).json({ error: 'Transkript konnte nicht geladen werden: ' + err.message })
   } finally {
     // Temporären Ordner wieder aufräumen

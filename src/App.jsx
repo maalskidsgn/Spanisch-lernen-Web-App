@@ -1,5 +1,5 @@
 import { API_URL } from './api.js'
-import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
+import { db, holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useNutzer } from './auth.js'
 import {
   zusammenfuehren,
@@ -802,11 +802,19 @@ export default function App() {
         }
       }
 
-      // 2) Sonst direkt bei YouTube nachfragen (klappt nur lokal)
+      // 2) Sonst auswärts holen. Das kostet Guthaben, deshalb prüft
+      //    der Server hier das Tageskontingent – dafür muss er
+      //    wissen, wer fragt.
+      const { data: sitzung } = supabaseBereit
+        ? await db.auth.getSession()
+        : { data: null }
+      const zugang = sitzung?.session?.access_token
+
       const res = await fetch(
         API_URL +
           '/api/transcript?url=' + encodeURIComponent(input) +
-          (art === 'musik' ? '&art=musik' : '')
+          (art === 'musik' ? '&art=musik' : ''),
+        zugang ? { headers: { Authorization: 'Bearer ' + zugang } } : undefined
       )
       const text = await res.text()
       let data
