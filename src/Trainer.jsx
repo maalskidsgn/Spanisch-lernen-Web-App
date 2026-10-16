@@ -20,6 +20,7 @@ import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
 import Satztrainer from './Satztrainer.jsx'
+import Lesetexte from './Lesetexte.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt, IconListe, IconPfeil } from './icons.jsx'
 
 // Zuordnung der Uebungsarten zu ihren Icons
@@ -61,6 +62,8 @@ export default function Trainer({
   onAddVocab,
   saetze = {},
   setSaetze,
+  texte = {},
+  setTexte,
 }) {
   // 'woerter' | 'saetze' | 'grammatik' | 'ki'
   const [deck, setDeck] = useState('woerter')
@@ -139,6 +142,12 @@ export default function Trainer({
 
   // Wie viele Sätze warten? Nur für die Zahl am Reiter – geübt wird
   // drüben in Satztrainer.jsx.
+  // Wie viele Texte warten auf das Wiederlesen?
+  const faelligeTexte = useMemo(
+    () => Object.values(texte).filter((t) => isDue(withSrsDefaults(t))).length,
+    [texte]
+  )
+
   const faelligeSaetze = useMemo(
     () => Object.values(saetze).filter((s) => isDue(withSrsDefaults(s))).length,
     [saetze]
@@ -293,9 +302,11 @@ export default function Trainer({
             ? 'Vokabeltrainer'
             : deck === 'saetze'
               ? 'Satz-Trainer'
-              : deck === 'grammatik'
-                ? 'Grammatik-Trainer'
-                : 'KI-Trainer'}
+              : deck === 'lesen'
+                ? 'Lesestoff'
+                : deck === 'grammatik'
+                  ? 'Grammatik-Trainer'
+                  : 'KI-Trainer'}
         </span>
       </h1>
       <p className="intro">
@@ -303,9 +314,11 @@ export default function Trainer({
           ? 'Neue Wörter sammeln und sicher behalten.'
           : deck === 'saetze'
             ? 'Ganze Sätze üben – nach Thema und Zeitform.'
-            : deck === 'grammatik'
-              ? 'Grammatik wiederholen, bis sie sitzt.'
-              : 'Sprechen üben – rede mit Habla auf Spanisch.'}
+            : deck === 'lesen'
+              ? 'Kurze Wissenstexte lesen – und wiederlesen.'
+              : deck === 'grammatik'
+                ? 'Grammatik wiederholen, bis sie sitzt.'
+                : 'Sprechen üben – rede mit Habla auf Spanisch.'}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -325,6 +338,15 @@ export default function Trainer({
         >
           Sätze
           {faelligeSaetze > 0 && <span className="deck-zahl">{faelligeSaetze}</span>}
+        </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'lesen'}
+          className={deck === 'lesen' ? 'deck-aktiv' : ''}
+          onClick={() => setDeck('lesen')}
+        >
+          Lesen
+          {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
         <button
           role="tab"
@@ -356,6 +378,22 @@ export default function Trainer({
     return (
       <div className="wechsel" key="saetze">
         <Satztrainer kopf={schalter} saetze={saetze} setSaetze={setSaetze} addXp={addXp} />
+      </div>
+    )
+  }
+
+  // ---------- Lesestoff: kurze Wissenstexte ----------
+  // Kein Abfragen, sondern Lesen – aber mit denselben Abständen.
+  if (deck === 'lesen') {
+    return (
+      <div className="wechsel" key="lesen">
+        <Lesetexte
+          kopf={schalter}
+          texte={texte}
+          setTexte={setTexte}
+          addXp={addXp}
+          onAddVocab={onAddVocab}
+        />
       </div>
     )
   }

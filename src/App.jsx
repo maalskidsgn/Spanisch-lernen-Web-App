@@ -45,6 +45,12 @@ import {
   speichereSaetze,
 } from './saetze.js'
 import {
+  ladeTexteLokal,
+  speichereTexteLokal,
+  ladeTexte,
+  speichereTexte,
+} from './lesetexte.js'
+import {
   XP,
   loadProgress,
   applyXp,
@@ -219,6 +225,8 @@ export default function App() {
   // Der Satz-Karteikasten liegt getrennt von den Vokabeln: dort steht
   // ein Wort auf der Karte, hier ein ganzer Satz.
   const [saetze, setSaetze] = useState(ladeSaetzeLokal)
+  // Die Wissenstexte zum Lesen und Wiederlesen
+  const [texte, setTexte] = useState(ladeTexteLokal)
   const [bausteinStand, setBausteinStand] = useState(loadBausteine)
   const [selected, setSelected] = useState(null) // { word, translation, loading }
   const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
@@ -529,6 +537,17 @@ export default function App() {
     return () => clearTimeout(timer)
   }, [saetze, nutzer, syncStatus])
 
+  // Und dasselbe für die Lesetexte.
+  useEffect(() => {
+    speichereTexteLokal(texte)
+
+    if (!nutzer || syncStatus === 'laeuft') return
+    const timer = setTimeout(() => {
+      speichereTexte(nutzer.id, texte).catch(() => {})
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [texte, nutzer, syncStatus])
+
   // Beim Anmelden die Sätze vom Konto holen und mit den lokalen
   // zusammenführen – der weiter fortgeschrittene Stand gewinnt.
   useEffect(() => {
@@ -546,6 +565,21 @@ export default function App() {
           }
           return zusammen
         })
+      })
+      .catch(() => {})
+    return () => {
+      abgebrochen = true
+    }
+  }, [nutzer])
+
+  // Lesetexte vom Konto holen und zusammenführen.
+  useEffect(() => {
+    if (!nutzer) return
+    let abgebrochen = false
+    ladeTexte(nutzer.id)
+      .then((ausDb) => {
+        if (!ausDb || abgebrochen) return
+        setTexte((lokal) => ({ ...ausDb, ...lokal }))
       })
       .catch(() => {})
     return () => {
@@ -1188,6 +1222,9 @@ export default function App() {
             onNavigate={setView}
             saetze={saetze}
             setSaetze={setSaetze}
+            texte={texte}
+            setTexte={setTexte}
+            onAddVocab={addVocabWords}
           />
         </main>
       )}

@@ -117,6 +117,7 @@ export default function Settings({
   const BACKUP_SCHLUESSEL = [
     'vokabeln',
     'saetze',
+    'lesetexte',
     'videos',
     'videoFortschritt',
     'fortschritt',

@@ -10432,3 +10432,208 @@ body.lektion-laeuft .lessons > .player-top,
   .kassen-sicher { font-size: 0; gap: 0; }
   .kassen-sicher svg { width: 15px; height: 15px; }
 }
+
+/* ============================================================
+   LESESTOFF – Wissenstexte lesen und wiederlesen
+   ============================================================ */
+
+/* ----- Was heute ansteht ----- */
+.text-faellig { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+
+.text-karte {
+  display: grid;
+  grid-template-columns: 1fr 18px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color .15s, transform .15s;
+}
+.text-karte:active { transform: none; box-shadow: none; }
+@media (hover: hover) {
+  .text-karte:hover { border-color: var(--primary); transform: scale(1.01); }
+}
+.text-karte-inhalt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.text-titel { font-weight: 800; font-size: 15.5px; color: var(--navy); }
+.text-untertitel { font-size: 13.5px; color: var(--muted); }
+.text-meta { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+/* ----- Die Liste aller Texte ----- */
+.text-liste { display: flex; flex-direction: column; gap: 8px; }
+.text-zeile {
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.text-zeile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.text-zeile-text:active { transform: none; box-shadow: none; }
+
+/* ============================================================
+   DER LESER
+   ============================================================ */
+
+.leser { padding-bottom: 20px; }
+
+.leser-leiste {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.leser-pfeil {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--navy);
+  font-size: 17px;
+  box-shadow: none;
+  cursor: pointer;
+}
+.leser-pfeil:active { transform: none; box-shadow: none; }
+.leser-stufe {
+  justify-self: end;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+/* Der Umschalter: zwei Hälften in einer Schiene */
+.leser-sprachen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  background: var(--flaeche);
+  border-radius: 12px;
+}
+.leser-sprache {
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.leser-sprache:active { transform: none; box-shadow: none; }
+.leser-sprache-an {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 65, .07);
+}
+
+/* ----- Der Text selbst: zum Lesen gemacht, nicht zum Überfliegen ----- */
+.leser-text {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px 22px;
+}
+.leser-titel {
+  margin: 0 0 18px;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--navy);
+  text-wrap: balance;
+}
+.leser-absatz {
+  margin: 0 0 15px;
+  font-size: 16.5px;
+  line-height: 1.72;
+  color: var(--navy);
+  /* Etwas schmaler als der Rahmen: lange Zeilen verliert das Auge */
+  max-width: 62ch;
+}
+.leser-absatz:last-of-type { margin-bottom: 0; }
+
+/* ----- Wörter zum Mitnehmen ----- */
+.leser-woerter {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.leser-woerter h2 { margin: 0 0 2px; font-size: 15px; font-weight: 800; color: var(--navy); }
+.leser-woerter-hinweis { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); }
+
+.leser-wortliste { display: flex; flex-wrap: wrap; gap: 8px; }
+.leser-wort {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 8px 13px;
+  background: var(--flaeche);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.leser-wort:active { transform: none; box-shadow: none; }
+.leser-wort b { font-size: 14px; font-weight: 800; color: var(--navy); }
+.leser-wort span { font-size: 12.5px; color: var(--muted); }
+.leser-wort i { font-style: normal; color: var(--success); font-weight: 800; }
+@media (hover: hover) {
+  .leser-wort:hover:not(:disabled) { border-color: var(--primary); background: #fff3e8; }
+}
+.leser-wort-da { opacity: .6; cursor: default; }
+
+/* ----- Der Merksatz ----- */
+.leser-merksatz {
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: #fff3e8;
+  border-radius: 14px;
+}
+.leser-merksatz-marke {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.leser-merksatz p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--navy); }
+
+/* ----- Abschluss ----- */
+.leser-fertig { width: 100%; margin-top: 16px; }
+.leser-bewertung { margin-top: 16px; }
+.leser-frage {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--navy);
+}

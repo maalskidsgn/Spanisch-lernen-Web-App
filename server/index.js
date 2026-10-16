@@ -36,6 +36,7 @@ import {
   erzeugeVideoVokabeln,
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
+import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
 // In der Produktion (Coolify/Docker) kommen sie als echte Umgebungsvariablen.
@@ -535,6 +536,21 @@ app.post('/api/saetze', async (req, res) => {
     res.json(await erzeugeSatzliste(thema, zeitform, bekannt))
   } catch (err) {
     console.error('Satzliste:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
+app.post('/api/lesetext', async (req, res) => {
+  const gebiet = GEBIETE[req.body?.gebiet] ? req.body.gebiet : ''
+  const thema = (req.body?.thema || '').trim().slice(0, 80)
+  const stufe = ['a2', 'b1', 'b2'].includes(req.body?.stufe) ? req.body.stufe : 'b1'
+  const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
+
+  try {
+    res.json(await erzeugeLesetext(gebiet, thema, stufe, bekannt))
+  } catch (err) {
+    console.error('Lesetext:', err.message)
     res.status(500).json({ error: err.message })
   }
 })
