@@ -21,6 +21,7 @@ for (const z of readFileSync('.env.local', 'utf8').split('\n')) {
 
 const { LEKTIONEN } = await import('../src/lektionen.js')
 const { SZENEN } = await import('../src/mitgehoert.js')
+const { HAEPPCHEN, TEXTE } = await import('../src/feed.js')
 
 // Prüfsummen-Logik und Besetzung kommen aus dem gemeinsamen Modul –
 // so KANN das Skript gar nicht auf einen anderen Dateinamen kommen
@@ -86,6 +87,24 @@ for (const szene of SZENEN) {
     const stimme = stimmeImDialog(szene.dialog, zeile.sprecher)
     const name = audioName(zeile.es, stimme)
     auftraege.set(name, { text: sprechText(zeile.es), stimme, lektion: szene.id })
+  }
+}
+
+// Der Feed. Hier ist der Ton keine Zugabe, sondern der Zweck:
+// Die Karten sind zum Hören gedacht, nicht nur zum Lesen.
+for (const h of HAEPPCHEN) {
+  if (nurLektion && nurLektion !== 'feed' && nurLektion !== h.id) continue
+  for (const zeile of h.zeilen) {
+    const name = audioName(zeile.es, STIMMEN.standard)
+    auftraege.set(name, { text: sprechText(zeile.es), stimme: STIMMEN.standard, lektion: h.id })
+  }
+}
+
+for (const t of TEXTE) {
+  if (nurLektion && nurLektion !== 'feed' && nurLektion !== t.id) continue
+  for (const a of t.absaetze) {
+    const name = audioName(a.es, STIMMEN.standard)
+    auftraege.set(name, { text: sprechText(a.es), stimme: STIMMEN.standard, lektion: t.id })
   }
 }
 
