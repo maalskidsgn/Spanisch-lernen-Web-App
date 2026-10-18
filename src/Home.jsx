@@ -6,6 +6,7 @@ import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
 import { useEffect, useState } from 'react'
+import { FeedTuer } from './Feed.jsx'
 import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 
 // Die Startseite.
@@ -105,7 +106,13 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2.-4. DIE DREI TUEREN ============ */}
+      {/* ============ 2. DER FEED ============ */}
+      {/* Steht VOR den Tueren: Es ist der Weg mit der niedrigsten
+          Huerde. Wer keine Lust auf eine Lektion hat, wischt sich
+          hier durch – und lernt trotzdem etwas. */}
+      <FeedTuer onOeffnen={() => onNavigate('feed')} />
+
+      {/* ============ 3.-5. DIE DREI TUEREN ============ */}
       {/* Sprechen, Entdecken, Leitfaden - gleicher Bau, jede mit
           eigener Icon-Kachel, damit die Reihe nicht wie dreimal
           dieselbe weisse Karte aussieht (Manuels Punkt vom 24.08.).

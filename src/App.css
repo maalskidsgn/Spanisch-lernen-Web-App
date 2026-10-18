@@ -10683,3 +10683,284 @@ body.lektion-laeuft .lessons > .player-top,
     bottom: calc(76px + env(safe-area-inset-bottom));
   }
 }
+
+/* ============================================================
+   FEED – Spanisch zum Durchwischen
+   Eine Karte füllt den Bildschirm, hochwischen bringt die
+   nächste. Das Einrasten macht CSS (scroll-snap), nicht
+   JavaScript – dadurch fühlt es sich an wie überall sonst.
+   ============================================================ */
+
+.feed-seite {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  background: var(--navy);
+}
+
+/* ----- Kopfzeile ----- */
+.feed-kopf {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  padding: 10px 14px calc(10px + env(safe-area-inset-top));
+  padding-top: calc(10px + env(safe-area-inset-top));
+  color: #fff;
+  flex: none;
+}
+.feed-zurueck {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: rgba(255, 255, 255, .14);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 18px;
+  box-shadow: none;
+  cursor: pointer;
+}
+.feed-zurueck:active { transform: none; box-shadow: none; }
+.feed-titel { text-align: center; font-weight: 800; font-size: 15px; }
+.feed-zaehler {
+  justify-self: end;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: .65;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----- Die Bahn mit den Karten ----- */
+.feed-bahn {
+  flex: 1;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+.feed-bahn::-webkit-scrollbar { display: none; }
+
+.feed-karte {
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  padding: 4px 14px 18px;
+  display: flex;
+}
+
+/* ----- Gemeinsames Aussehen beider Kartensorten ----- */
+.haeppchen,
+.feed-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 26px 22px;
+  border-radius: 22px;
+  color: #fff;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.haeppchen::-webkit-scrollbar,
+.feed-text::-webkit-scrollbar { display: none; }
+
+/* Sechs Verläufe im Wechsel – damit sich beim Wischen etwas tut */
+.farbe-0 { background: linear-gradient(160deg, #ff8b2e 0%, #ff6c00 45%, #c24400 100%); }
+.farbe-1 { background: linear-gradient(160deg, #2aae5f 0%, #1e9d85 55%, #0d6b5c 100%); }
+.farbe-2 { background: linear-gradient(160deg, #4b7bec 0%, #2e5fd8 55%, #1a327a 100%); }
+.farbe-3 { background: linear-gradient(160deg, #a55eea 0%, #7c5cff 55%, #45287a 100%); }
+.farbe-4 { background: linear-gradient(160deg, #fd7272 0%, #e05f00 55%, #8b2d2d 100%); }
+.farbe-5 { background: linear-gradient(160deg, #20bdbe 0%, #1a8fa8 55%, #0f4a6b 100%); }
+
+.haeppchen-marke {
+  align-self: flex-start;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, .2);
+  border-radius: 999px;
+  padding: 5px 11px;
+  margin-bottom: 14px;
+}
+
+/* ----- Häppchen: Titel, Regel, Beispiele ----- */
+.haeppchen-titel,
+.feed-text-titel {
+  margin: 0 0 10px;
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+.haeppchen-kern {
+  margin: 0 0 22px;
+  font-size: 16.5px;
+  line-height: 1.5;
+  opacity: .93;
+}
+
+.haeppchen-zeilen { display: flex; flex-direction: column; gap: 9px; }
+.haeppchen-zeile {
+  display: grid;
+  grid-template-columns: 1fr 22px;
+  grid-template-areas: 'es ton' 'de ton';
+  align-items: center;
+  gap: 1px 10px;
+  text-align: left;
+  padding: 13px 15px;
+  background: rgba(255, 255, 255, .15);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background .15s;
+}
+.haeppchen-zeile:active { transform: none; box-shadow: none; }
+@media (hover: hover) {
+  .haeppchen-zeile:hover { background: rgba(255, 255, 255, .24); }
+}
+.zeile-klingt { background: rgba(255, 255, 255, .3); }
+
+.zeile-es { grid-area: es; font-size: 17px; font-weight: 800; }
+.zeile-de { grid-area: de; font-size: 13.5px; opacity: .8; line-height: 1.35; }
+.zeile-ton { grid-area: ton; font-size: 13px; opacity: .7; }
+
+.haeppchen-merke {
+  margin: 20px 0 0;
+  padding: 13px 15px;
+  background: rgba(0, 0, 0, .2);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Gestaffeltes Erscheinen – das ist der "Video"-Effekt */
+@media (prefers-reduced-motion: no-preference) {
+  .ist-aktiv .haeppchen-titel,
+  .ist-aktiv .haeppchen-kern,
+  .ist-aktiv .haeppchen-zeile,
+  .ist-aktiv .haeppchen-merke,
+  .ist-aktiv .feed-text-titel,
+  .ist-aktiv .feed-hoeren,
+  .ist-aktiv .feed-absatz {
+    animation: feed-auf .5s both cubic-bezier(.2, .7, .3, 1);
+  }
+  .ist-aktiv .haeppchen-kern { animation-delay: .1s; }
+  .ist-aktiv .haeppchen-zeile { animation-delay: calc(.2s + var(--nr) * .09s); }
+  .ist-aktiv .haeppchen-merke { animation-delay: .7s; }
+  .ist-aktiv .feed-hoeren { animation-delay: .12s; }
+  .ist-aktiv .feed-absatz { animation-delay: .22s; }
+}
+@keyframes feed-auf {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ----- Wissenstext-Karte ----- */
+.feed-hoeren {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 10px;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, .95);
+  border: none;
+  border-radius: 999px;
+  color: var(--navy);
+  font-size: 14.5px;
+  font-weight: 800;
+  box-shadow: none;
+  cursor: pointer;
+}
+.feed-hoeren:active { transform: none; box-shadow: none; }
+.hoeren-kreis {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  padding-left: 2px;
+}
+.hoeren-laeuft .hoeren-kreis { padding-left: 0; }
+
+.feed-text-inhalt { flex: 1; }
+.feed-absatz {
+  margin: 0 0 14px;
+  font-size: 17px;
+  line-height: 1.62;
+}
+.feed-merksatz {
+  margin: 4px 0 14px;
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, .2);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Im Feed sind die antippbaren Wörter hell statt dunkel */
+.feed-text .lese-wort { cursor: pointer; border-radius: 4px; }
+@media (hover: hover) {
+  .feed-text .lese-wort:hover { background: rgba(255, 255, 255, .25); }
+}
+.feed-text .lese-wort-lernen { background: rgba(255, 255, 255, .28); }
+.feed-text .lese-wort-gewusst { text-decoration: underline; text-decoration-style: dotted; }
+
+.feed-sprachen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  margin-top: auto;
+  background: rgba(0, 0, 0, .22);
+  border-radius: 12px;
+}
+.feed-sprachen .leser-sprache { color: rgba(255, 255, 255, .7); }
+.feed-sprachen .leser-sprache-an {
+  background: rgba(255, 255, 255, .95);
+  color: var(--navy);
+}
+
+/* ----- Letzte Karte ----- */
+.feed-ende { align-items: center; justify-content: center; }
+.feed-ende-inhalt { text-align: center; color: #fff; padding: 20px; }
+.feed-ende-inhalt h2 { margin: 0 0 8px; font-size: 22px; }
+.feed-ende-inhalt p { margin: 0 0 20px; opacity: .75; font-size: 14.5px; }
+
+/* ----- Die Tür auf der Startseite ----- */
+.feed-tuer {
+  display: grid;
+  grid-template-columns: 1fr 20px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #ff8b2e 0%, #ff6c00 55%, #c24400 100%);
+  border: none;
+  border-radius: 18px;
+  text-align: left;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(255, 108, 0, .22);
+  cursor: pointer;
+}
+.feed-tuer:active { transform: none; }
+.feed-tuer-text { display: flex; flex-direction: column; gap: 3px; }
+.feed-tuer-text b { font-size: 17px; font-weight: 800; }
+.feed-tuer-text span { font-size: 13.5px; opacity: .9; line-height: 1.4; }
+
+/* Auf großen Bildschirmen die Karten nicht über die ganze Breite
+   ziehen – eine Feed-Karte liest sich schmal besser. */
+@media (min-width: 720px) {
+  .feed-karte { padding-left: 0; padding-right: 0; }
+  .haeppchen, .feed-text {
+    width: min(520px, 100%);
+    margin: 0 auto;
+  }
+}

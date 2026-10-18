@@ -118,6 +118,7 @@ export default function Settings({
     'vokabeln',
     'saetze',
     'lesetexte',
+    'feedGesehen',
     'videos',
     'videoFortschritt',
     'fortschritt',

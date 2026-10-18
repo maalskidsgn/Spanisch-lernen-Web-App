@@ -17,6 +17,7 @@ import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
 import Bezahlen from './Bezahlen.jsx'
+import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
 
@@ -1088,6 +1089,20 @@ export default function App() {
       <Onboarding
         onFertig={onboardingFertigMachen}
         onUeberspringen={merkeOnboarding}
+      />
+    )
+  }
+
+  // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
+  // Eine Karte je Bildschirm – da störte eine Menüleiste am unteren
+  // Rand beim Wischen und würde die Karte beschneiden.
+  if (view === 'feed') {
+    return (
+      <Feed
+        onZurueck={() => setView('start')}
+        onAddVocab={addVocabWords}
+        vocab={vocab}
+        addXp={addXp}
       />
     )
   }

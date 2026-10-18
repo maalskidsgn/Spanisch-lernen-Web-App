@@ -261,7 +261,9 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
 
   /** Das angetippte Wort in den Trainer legen. */
   function wortInTrainer(status) {
-    if (!wort?.text || !onAddVocab) return setWort(null)
+    // Ohne Übersetzung nichts sammeln: Ein Wort ohne Bedeutung im
+    // Trainer ist nur eine Karte, die man nie beantworten kann.
+    if (!wort?.text || !wort.de || !onAddVocab) return setWort(null)
     onAddVocab(
       [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Lesetext: ' + (text.titelDe || '') }],
       status
@@ -424,14 +426,14 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               <button
                 className="btn-outline"
                 onClick={() => wortInTrainer('gewusst')}
-                disabled={wort.laedt}
+                disabled={wort.laedt || !wort.de}
               >
                 Kenne ich
               </button>
               <button
                 className="btn"
                 onClick={() => wortInTrainer('lernen')}
-                disabled={wort.laedt}
+                disabled={wort.laedt || !wort.de}
               >
                 ＋ Lernen
               </button>
