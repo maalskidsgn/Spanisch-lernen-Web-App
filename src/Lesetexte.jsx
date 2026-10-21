@@ -154,47 +154,29 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
         </div>
       ) : (
         <>
-          <div className="satz-stand">
-            <div className="satz-zahl">
+          {/* Wie beim Vokabeltrainer: eine Karte, ein Knopf –
+              statt alle fälligen Texte untereinander aufzulisten. */}
+          <section className="bereich bereich-wiederholen">
+            <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
-              <span>zum Lesen</span>
+              <span>{faellig.length === 1 ? 'Text wartet' : 'Texte warten'}</span>
             </div>
-            <div className="satz-zahl">
-              <b>{entries.length}</b>
-              <span>Texte</span>
+            <div className="wiederholen-text">
+              <h2>Heute wiederlesen</h2>
+              <p>
+                {faellig.length > 0
+                  ? 'Diese Texte sind wieder dran – beim zweiten Lesen bleibt am meisten hängen.'
+                  : 'Alles gelesen. Der nächste Text wird von selbst wieder fällig.'}
+              </p>
             </div>
-            <div className="satz-zahl">
-              <b>{entries.reduce((s, t) => s + (t.gelesen ?? 0), 0)}</b>
-              <span>gelesen</span>
-            </div>
-          </div>
-
-          {/* Was heute ansteht – direkt antippbar */}
-          {faellig.length > 0 ? (
-            <div className="text-faellig">
-              <p className="suche-hinweis">Diese Texte sind heute wieder dran:</p>
-              {faellig.slice(0, 5).map((t) => (
-                <button
-                  key={t.id}
-                  className="text-karte"
-                  onClick={() => setOffenerText(t.id)}
-                >
-                  <span className="text-karte-inhalt">
-                    <span className="text-titel">{t.titelEs}</span>
-                    <span className="text-untertitel">{t.titelDe}</span>
-                    {t.gelesen > 0 && (
-                      <span className="text-meta">{t.gelesen}× gelesen</span>
-                    )}
-                  </span>
-                  <IconPfeil groesse={18} />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="empty-hint">
-              Alles gelesen. Der nächste Text wird von selbst wieder fällig.
-            </p>
-          )}
+            <button
+              className="btn wiederholen-los"
+              onClick={() => setOffenerText(faellig[0].id)}
+              disabled={faellig.length === 0}
+            >
+              {faellig.length > 0 ? 'Lesen' : 'Nichts fällig'}
+            </button>
+          </section>
         </>
       )}
 
