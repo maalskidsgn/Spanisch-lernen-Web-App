@@ -10555,9 +10555,9 @@ body.lektion-laeuft .lessons > .player-top,
 }
 .leser-sprache:active { transform: none; box-shadow: none; }
 .leser-sprache-an {
-  background: var(--card);
-  color: var(--primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 65, .07);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 107, 0, .35);
 }
 
 /* ----- Der Text selbst: zum Lesen gemacht, nicht zum Überfliegen ----- */
@@ -10657,7 +10657,7 @@ body.lektion-laeuft .lessons > .player-top,
   width: min(280px, 100%);
   padding: 4px;
   background: var(--card);
-  border: 1px solid var(--line);
+  border: 2px solid var(--primary);
   border-radius: 14px;
   box-shadow: 0 6px 20px rgba(0, 0, 65, .12);
 }
