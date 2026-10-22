@@ -107,6 +107,12 @@ const ICONS = {
  */
 const RECHT_ADRESSEN = ['impressum', 'datenschutz', 'agb', 'konto-loeschen']
 
+// Onboarding ausgeblendet (22.10., Manuels Wunsch): Wer sich anmeldet,
+// soll sofort in der App stehen statt erst drei Fragen zu beantworten.
+// Der ganze Trichter samt Startpaket bleibt fertig im Code – diese
+// eine Zeile holt ihn zurueck.
+const ONBOARDING_ZEIGEN = false
+
 function rechtAusAdresse() {
   const pfad = window.location.pathname.replace(/^\/+|\/+$/g, '')
   return RECHT_ADRESSEN.includes(pfad) ? pfad : null
@@ -1050,7 +1056,7 @@ export default function App() {
     // Anmeldefenster – über dem Paket, nicht statt seiner. Das ist
     // der ganze Trick: Man legt kein Konto "für nichts" an, sondern
     // um etwas zu behalten, das schon da ist.
-    if (trichterOffen) {
+    if (ONBOARDING_ZEIGEN && trichterOffen) {
       return (
         <>
           <Onboarding
@@ -1071,7 +1077,13 @@ export default function App() {
       <>
         <Willkommen
           onRecht={setRechtSeite}
-          onStarten={() => setTrichterOffen(true)}
+          onStarten={() => {
+            // Direkt zur Anmeldung statt erst durch drei Fragen –
+            // wer starten will, soll starten (22.10.).
+            if (ONBOARDING_ZEIGEN) return setTrichterOffen(true)
+            setLoginStart('registrieren')
+            setLoginOffen(true)
+          }}
           onAnmelden={() => { setLoginStart('anmelden'); setLoginOffen(true) }}
         />
         {anmeldung}
@@ -1084,7 +1096,7 @@ export default function App() {
   // man das Startpaket zuordnen koennte. Und vor der App, weil die
   // drei Fragen ihre Antworten sofort brauchen – das Tagesziel gilt ab
   // dem ersten Bildschirm.
-  if (nutzer && !onboardingFertig) {
+  if (ONBOARDING_ZEIGEN && nutzer && !onboardingFertig) {
     return (
       <Onboarding
         onFertig={onboardingFertigMachen}
