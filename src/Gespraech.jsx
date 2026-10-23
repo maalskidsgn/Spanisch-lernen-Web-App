@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 // Der Sprach-Tutor als Chat.
 //
 // Erster Schritt der Sprechen-Funktion: reines Tippen. Die Stimme
@@ -303,7 +304,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       </form>
 
       {/* ---------- Angetipptes Wort ---------- */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             {/* X zum einfachen Wegklicken, ohne etwas zu sammeln. */}
@@ -336,7 +337,8 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

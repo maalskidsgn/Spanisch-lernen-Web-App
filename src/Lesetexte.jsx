@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useMemo, useState } from 'react'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
@@ -385,7 +386,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       )}
 
       {/* ---------- Angetipptes Wort ---------- */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
@@ -421,7 +422,8 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

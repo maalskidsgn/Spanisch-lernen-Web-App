@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { feedKarten, merkeGesehen, gesehene } from './feed.js'
 import { API_URL } from './api.js'
@@ -125,7 +126,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
       </div>
 
       {/* ---------- Angetipptes Wort ---------- */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
@@ -161,7 +162,8 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

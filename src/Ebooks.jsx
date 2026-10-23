@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef } from 'react'
 import { API_URL } from './api.js'
 import { db } from './supabase.js'
@@ -390,7 +391,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
       )}
 
       {/* Angetipptes Wort: Übersetzung und ab in den Trainer */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <div className="wortkarte-wort">
@@ -411,7 +412,8 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Fuß: Sprachwahl, Fortschritt, Navigation */}
