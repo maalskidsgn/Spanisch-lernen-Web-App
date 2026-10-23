@@ -268,6 +268,44 @@ export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle')
     '\n' + wortartRegel +
     bekanntesAlsHinweis(bekannt)
 
+  // Immer genau ZIEL Wörter. Das Modell schlägt bewusst mehr vor, weil
+  // danach alles rausfliegt, was die Person schon kennt – vorher kamen
+  // so manchmal nur 1–6 Wörter an. Reicht es nicht, wird mit den
+  // aussortierten Wörtern als Sperrliste nachgefragt (max. 3 Runden).
+  const ZIEL = 10
+  let gesammelt = []
+  let begruendung = ''
+  let gefundenesThema = ''
+  const abgelehnt = []
+
+  for (let runde = 0; runde < 3 && gesammelt.length < ZIEL; runde++) {
+    const fehlen = ZIEL - gesammelt.length
+    const sperre = [...bekannt, ...gesammelt.map((v) => v.wort), ...abgelehnt]
+    const nachschlag = runde
+      ? `\n\nNICHT erlaubt (schon vorhanden oder schon vorgeschlagen): ${[
+          ...new Set([...gesammelt.map((v) => v.wort), ...abgelehnt]),
+        ].join(', ')}`
+      : ''
+
+    const ergebnis = await frageListe(schluessel, auftrag + nachschlag, fehlen + 8)
+    if (!begruendung) begruendung = ergebnis.begruendung ?? ''
+    if (!gefundenesThema) gefundenesThema = ergebnis.thema ?? ''
+
+    const neu = ohneBekannte(ergebnis.vokabeln, sperre)
+    const gesperrt = new Set(sperre.map(wortKern))
+    for (const v of ergebnis.vokabeln ?? []) if (gesperrt.has(wortKern(v.wort))) abgelehnt.push(v.wort)
+    gesammelt = gesammelt.concat(neu)
+  }
+
+  return {
+    vokabeln: gesammelt.slice(0, ZIEL),
+    begruendung,
+    thema: gefundenesThema || thema || '',
+  }
+}
+
+/** Eine einzelne Anfrage an das Modell für eine Themenliste. */
+async function frageListe(schluessel, auftrag, anzahl) {
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
@@ -280,10 +318,18 @@ export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle')
         {
           role: 'system',
           content:
-            'Du stellst Vokabellisten für deutschsprachige Spanischlernende zusammen: ' +
-            'die 12 nützlichsten Wörter auf Alltagsniveau, jedes mit einem einfachen ' +
-            'Beispielsatz. Halte dich an die vorgegebene Wortart. Erkläre in der ' +
-            'Begründung kurz und persönlich, warum du gerade diese Auswahl getroffen hast.',
+            `Du stellst Vokabellisten für deutschsprachige Spanischlernende zusammen: ` +
+            `genau ${anzahl} Wörter, jedes mit einem kurzen, lebendigen Beispielsatz. ` +
+            'Wähle Wörter, die Muttersprachler im Alltag WIRKLICH ständig benutzen – ' +
+            'echte, nützliche Wörter, bei denen man denkt "oh ja, das brauche ich". ' +
+            'Sortiere nach Nutzen: zuerst die häufigsten, die im echten Gespräch fallen. ' +
+            'Gern auch typische Alltagsausdrücke, die in Lehrbüchern fehlen (z. B. "el suelto", ' +
+            '"hacer cola"). Nomen IMMER mit Artikel el/la, Verben im Infinitiv. ' +
+            'Keine Anglizismen, keine exotischen Fachbegriffe, keine Wortgruppen über 3 Wörter. ' +
+            'Keine seltenen, steifen oder lehrbuchhaften Wörter, keine Allerweltswörter ' +
+            'wie "y", "de", "el". Jedes Wort genau einmal. Halte dich an die vorgegebene ' +
+            'Wortart. Erkläre in der Begründung kurz und persönlich (2 Sätze), warum du ' +
+            'gerade diese Auswahl getroffen hast.',
         },
         { role: 'user', content: auftrag },
       ],
@@ -300,13 +346,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle')
   }
 
   const daten = await antwort.json()
-  const ergebnis = JSON.parse(daten.choices[0].message.content)
-  return {
-    // Sicherheitsnetz: das Modell hält sich nicht immer an die Vorgabe
-    vokabeln: ohneBekannte(ergebnis.vokabeln, bekannt),
-    begruendung: ergebnis.begruendung ?? '',
-    thema: ergebnis.thema ?? thema ?? '',
-  }
+  return JSON.parse(daten.choices[0].message.content)
 }
 
 /**
