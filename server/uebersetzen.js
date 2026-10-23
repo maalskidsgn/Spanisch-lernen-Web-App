@@ -101,11 +101,11 @@ const WORT_SCHEMA = {
  * @param {string} text
  * @param {'es-de'|'de-es'} richtung
  */
-export async function uebersetzeWort(text, richtung = 'es-de') {
+export async function uebersetzeWort(text, richtung = 'es-de', satz = '') {
   const sauber = text.trim()
   if (!sauber) return ''
 
-  const schluessel = richtung + '|' + sauber.toLowerCase()
+  const schluessel = richtung + '|' + sauber.toLowerCase() + (satz ? '|' + satz : '')
   const gemerkt = ausSpeicher(schluessel)
   if (gemerkt !== undefined) return gemerkt
 
@@ -120,9 +120,13 @@ export async function uebersetzeWort(text, richtung = 'es-de') {
           `Du übersetzt aus dem ${von} ins ${nach}. Antworte NUR mit der ` +
           `Übersetzung – keine Erklärung, keine Anführungszeichen, keine ` +
           `Alternativen. Bei einem einzelnen Substantiv nenne den Artikel mit. ` +
-          `Ist die Eingabe bereits ${nach.replace(/e$/, '')}, gib sie unverändert zurück.`,
+          `Ist die Eingabe bereits ${nach.replace(/e$/, '')}, gib sie unverändert zurück.` +
+          (satz
+            ? ` Du bekommst zusätzlich den Satz, in dem das Wort steht: Übersetze NUR das ` +
+              `Wort, aber in genau der Bedeutung, die es in diesem Satz hat.`
+            : ''),
       },
-      { role: 'user', content: sauber },
+      { role: 'user', content: satz ? `Wort: ${sauber}\nSatz: ${satz}` : sauber },
     ],
     WORT_SCHEMA
   )

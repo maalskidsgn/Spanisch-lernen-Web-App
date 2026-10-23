@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef } from 'react'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { API_URL } from './api.js'
 import { db } from './supabase.js'
 
@@ -253,13 +254,13 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
   }, [])
 
   /** Ein angetipptes Wort übersetzen lassen. */
-  async function wortAntippen(rohesWort) {
+  async function wortAntippen(rohesWort, umfeld) {
     const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
     if (!sauber) return
 
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -289,7 +290,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
         <span
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => wortAntippen(teil)}
+          onClick={() => wortAntippen(teil, absatz)}
           title={status ? 'Im Vokabeltrainer' : undefined}
         >
           {teil}

@@ -12,6 +12,7 @@ import { createPortal } from 'react-dom'
 // sieht, liest sie zuerst und übt nicht.
 
 import { useState, useRef, useEffect } from 'react'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
@@ -90,12 +91,12 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
   // ---------- Wörter aus Hablas Antworten sammeln ----------
 
   /** Ein angetipptes Wort übersetzen und die Wortkarte öffnen. */
-  async function wortAntippen(rohesWort) {
+  async function wortAntippen(rohesWort, umfeld) {
     const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -126,7 +127,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
         <span
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => wortAntippen(teil)}
+          onClick={() => wortAntippen(teil, text)}
         >
           {teil}
         </span>

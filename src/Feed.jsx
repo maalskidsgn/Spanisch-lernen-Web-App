@@ -1,5 +1,6 @@
 import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef, useMemo } from 'react'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { feedKarten, merkeGesehen, gesehene } from './feed.js'
 import { API_URL } from './api.js'
 import { spiele, dialogAbspielen } from './audio.js'
@@ -60,12 +61,12 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
   }, [karten])
 
   /** Ein Wort antippen: übersetzen und als Karte zeigen. */
-  async function wortAntippen(rohesWort) {
+  async function wortAntippen(rohesWort, umfeld) {
     const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -301,7 +302,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
         <span
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => onWort(teil)}
+          onClick={() => onWort(teil, absatz)}
         >
           {teil}
         </span>

@@ -353,7 +353,9 @@ app.get('/api/translate', async (req, res) => {
   const word = (req.query.q || '').trim()
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
   try {
-    const translation = await uebersetzeWort(word, 'es-de')
+    // Der Satz drumherum (optional) – damit mehrdeutige Wörter passend übersetzt werden
+    const satz = String(req.query.satz || '').trim().slice(0, 300)
+    const translation = await uebersetzeWort(word, 'es-de', satz)
     if (!translation) throw new Error('Leere Antwort')
     res.json({ translation })
   } catch (err) {

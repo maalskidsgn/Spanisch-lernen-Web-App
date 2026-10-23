@@ -20,6 +20,7 @@ import Bezahlen from './Bezahlen.jsx'
 import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 
 /** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
 function videoIdAusEingabe(eingabe) {
@@ -946,7 +947,7 @@ export default function App() {
   const currentSaved = video && savedVideos.find((v) => v.videoId === video.videoId)
 
   // Wenn man ein Wort anklickt: Übersetzung holen und Wort als "neu" merken
-  async function clickWord(rawWord) {
+  async function clickWord(rawWord, umfeld) {
     const word = cleanWord(rawWord)
     if (!word) return
     setSelected({ word, translation: '…', loading: true })
@@ -958,7 +959,7 @@ export default function App() {
     setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
 
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(word))
+      const res = await fetch(uebersetzungsAdresse(API_URL, word, umfeld))
       const data = await res.json()
       // Fehler NICHT in eine Uebersetzung verwandeln. Bis zum 23.08.
       // stand hier `data.translation || '(keine Übersetzung gefunden)'`
@@ -1538,7 +1539,7 @@ export default function App() {
                       <span
                         key={j}
                         className={'word ' + (status || '') + (isActive ? ' word-active' : '')}
-                        onClick={() => clickWord(w)}
+                        onClick={() => clickWord(w, line.text)}
                       >
                         {w}{' '}
                       </span>
