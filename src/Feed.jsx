@@ -135,7 +135,9 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
               aria-label="Schließen"
               onClick={() => setWort(null)}
             >
-              ✕
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+              </svg>
             </button>
             <div className="wortkarte-wort">
               {wort.text}
