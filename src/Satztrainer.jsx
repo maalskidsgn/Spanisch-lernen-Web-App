@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe } from './icons.jsx'
 
@@ -94,6 +95,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     if (exiting) return
     const key = queue[0]
     const richtig = bewertung !== 'nochmal'
+    merkeGelernt('saetze') // für die Lernkurve
 
     setExiting(richtig ? 'richtig' : 'falsch')
 

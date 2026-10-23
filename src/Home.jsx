@@ -2,6 +2,7 @@ import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
 import { letzteWoche, kalenderRaster } from './aktivitaet.js'
+import Lernkurve from './Lernkurve.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
@@ -220,6 +221,9 @@ export default function Home({
             wurde. Antippen zeigt, wie viele Lektionen und
             Wiederholungen es waren. */}
         <Kalender />
+
+        {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
+        <Lernkurve />
       </section>
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}

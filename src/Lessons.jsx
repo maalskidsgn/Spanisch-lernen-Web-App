@@ -13,6 +13,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import { erfolgston } from './erfolgston.js'
 import { spiele, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
@@ -273,6 +274,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       erfolgston() // die Lektion ist geschafft – das darf man hoeren
       hakeAb('lektion') // Schritt im Tagesplan erledigt
       merkeEinheit('lektion') // zaehlt als Lektion
+      merkeGelernt('lektionen')
       onLessonComplete(lektion)
       setFertig(true)
       return
