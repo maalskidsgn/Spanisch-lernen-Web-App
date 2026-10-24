@@ -80,9 +80,9 @@ const ICONS = {
   ),
   bibliothek: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 4v16" />
-      <path d="M9 4v16" />
-      <path d="M13.5 5.2l4.6 1.2-3.9 14.4-4.6-1.2z" />
+      {/* YouTube-artig: abgerundeter Bildschirm mit Play-Dreieck */}
+      <rect x="2.5" y="5" width="19" height="14" rx="4.5" />
+      <path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor" />
     </svg>
   ),
   lektionen: (
@@ -1184,7 +1184,7 @@ export default function App() {
             onClick={() => setView('videos')}
           >
             <span className="tab-icon">{ICONS.bibliothek}</span>
-            <span className="tab-label">Mediathek</span>
+            <span className="tab-label">YouTube</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}

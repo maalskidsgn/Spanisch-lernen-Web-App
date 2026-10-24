@@ -325,7 +325,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   return (
     <div className="library">
       <h1 className="lib-kopf">
-        Deine <span className="accent">Mediathek</span>
+        Lernen mit <span className="accent">YouTube</span>
       </h1>
       <p className="lib-unter">
         {{
