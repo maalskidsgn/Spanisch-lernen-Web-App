@@ -439,22 +439,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {/* Das Feld steht direkt hier, nicht hinter einem Knopf: Wer
           schon weiss, wonach er sucht, soll nicht erst ein Fenster
           oeffnen muessen. */}
-      <Hero
-        symbol={<IconSuche groesse={26} />}
-        titel="Video finden"
-        text="Suche nach Themen und finde passende spanische Videos."
-      >
-        <SuchFeld
-          rund
-          wert={suchFeld}
-          onWert={setSuchFeld}
-          onAbsenden={() => {
-            setStartBegriff(suchFeld.trim())
-            setSucheOffen(true)
-          }}
-          platzhalter="z. B. gesunde Ernährung, Schlaf …"
-        />
-      </Hero>
+      <VideoEngine
+        wert={suchFeld}
+        onWert={setSuchFeld}
+        onSuche={(begriff) => {
+          setStartBegriff(begriff.trim())
+          setSucheOffen(true)
+        }}
+      />
 
       {/* ============ 2. GEMERKTE VIDEOS ============ */}
       {savedVideos.length > 0 && (
@@ -964,5 +956,79 @@ function VideoKarte({ video, onOpen, fortschritt = 0 }) {
         </div>
       </div>
     </div>
+  )
+}
+
+
+// ===============================================================
+//  Die Video-Engine: Einstieg in die YouTube-Suche
+// ===============================================================
+
+const ENGINE_THEMEN = ['Fußball', 'Kochen', 'Reisen', 'Musik', 'Vlogs', 'Psychologie']
+
+/**
+ * Kein Formular, sondern das Aushängeschild der Mediathek: dunkle
+ * Bühne mit Glühen, großem Suchfeld und Themen zum Antippen.
+ */
+function VideoEngine({ wert, onWert, onSuche }) {
+  function absenden(e) {
+    e.preventDefault()
+    if (wert.trim()) onSuche(wert)
+  }
+
+  return (
+    <section className="engine">
+      <span className="engine-gluehen" aria-hidden="true" />
+      <span className="engine-gluehen engine-gluehen-2" aria-hidden="true" />
+
+      <div className="engine-kopf">
+        <span className="engine-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22">
+            <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+          </svg>
+        </span>
+        <span className="engine-marke">
+          <span className="engine-punkt" /> Video-Engine
+        </span>
+      </div>
+
+      <h2 className="engine-titel">
+        Lerne Spanisch mit <span>echten YouTube-Videos</span>
+      </h2>
+      <p className="engine-text">
+        Such dir ein Thema – Habloo findet spanische Videos auf deinem Niveau
+        und macht sie lernbar.
+      </p>
+
+      <ul className="engine-features">
+        <li><b>ES</b> Untertitel mitlesen</li>
+        <li><b>↻</b> Wort antippen = übersetzt</li>
+        <li><b>✦</b> Vokabeln per KI</li>
+      </ul>
+
+      <form className="engine-suche" onSubmit={absenden}>
+        <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
+          <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+        <input
+          value={wert}
+          onChange={(e) => onWert(e.target.value)}
+          placeholder="Worüber willst du ein Video sehen?"
+          enterKeyHint="search"
+        />
+        <button type="submit" disabled={!wert.trim()} aria-label="Videos suchen">
+          Suchen
+        </button>
+      </form>
+
+      <div className="engine-themen">
+        {ENGINE_THEMEN.map((t) => (
+          <button key={t} type="button" onClick={() => { onWert(t); onSuche(t) }}>
+            {t}
+          </button>
+        ))}
+      </div>
+    </section>
   )
 }
