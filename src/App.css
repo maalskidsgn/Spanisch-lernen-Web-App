@@ -11195,3 +11195,4 @@ body.lektion-laeuft .lessons > .player-top,
 @media (prefers-reduced-motion: reduce) {
   .engine-gluehen, .engine-punkt { animation: none; }
 }
+.art-liste ~ .bereich-spiele { margin-top: 30px; }

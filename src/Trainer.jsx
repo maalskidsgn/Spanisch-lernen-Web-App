@@ -312,8 +312,6 @@ export default function Trainer({
               ? 'Satz-Trainer'
               : deck === 'lesen'
                 ? 'Lesestoff'
-                : deck === 'spiele'
-                  ? 'Spielebereich'
                 : deck === 'grammatik'
                   ? 'Grammatik-Trainer'
                   : 'KI-Trainer'}
@@ -326,8 +324,6 @@ export default function Trainer({
             ? 'Ganze Sätze üben – nach Thema und Zeitform.'
             : deck === 'lesen'
               ? 'Kurze Wissenstexte lesen – und wiederlesen.'
-              : deck === 'spiele'
-                ? 'Vier Spiele mit deinen Wörtern – lernen ohne Abfrage-Gefühl.'
               : deck === 'grammatik'
                 ? 'Grammatik wiederholen, bis sie sitzt.'
                 : 'Sprechen üben – rede mit Habla auf Spanisch.'}
@@ -360,14 +356,6 @@ export default function Trainer({
           Texte
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
-        <button
-          role="tab"
-          aria-selected={deck === 'spiele'}
-          className={deck === 'spiele' ? 'deck-aktiv' : ''}
-          onClick={() => setDeck('spiele')}
-        >
-          Spiele
-        </button>
         {GRAMMATIK_ZEIGEN && (
           <button
             role="tab"
@@ -394,59 +382,6 @@ export default function Trainer({
       </div>
     </>
   )
-
-  // ---------- Eigener Reiter: die vier Spiele ----------
-  if (deck === 'spiele' && !spiel) {
-    return (
-      <div className="trainer">
-        {schalter}
-        <div className="wechsel" key="spiele">
-          {/* ============ 2. SPIELEN ============ */}
-          <section className="bereich bereich-spiele">
-            <div className="bereich-kopf">
-              <h2>Spielerisch üben</h2>
-              <p>
-                {spielbar
-                  ? 'Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
-                  : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
-              </p>
-            </div>
-            <div className="spiel-paar">
-              <button className="spiel-karte" onClick={() => setSpiel('memory')} disabled={!spielbar}>
-                <span className="spiel-bild" aria-hidden="true">
-                  <i /><i /><i /><i />
-                </span>
-                <span className="spiel-name">Memory</span>
-                <span className="spiel-hinweis">6 Paare aufdecken</span>
-              </button>
-              <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
-                <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
-                  <i /><i /><i />
-                </span>
-                <span className="spiel-name">Wortpaare</span>
-                <span className="spiel-hinweis">5 Wörter verbinden</span>
-              </button>
-              <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
-                <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
-                  <i /><i /><i /><i /><i /><i /><i /><i /><i />
-                </span>
-                <span className="spiel-name">Wortsuche</span>
-                <span className="spiel-hinweis">5 Wörter im Gitter</span>
-              </button>
-              <button className="spiel-karte" onClick={() => setSpiel('fang')} disabled={!spielbar}>
-                <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
-                  <i /><i /><i />
-                </span>
-                <span className="spiel-name">Wortfang</span>
-                <span className="spiel-hinweis">Richtige antippen</span>
-              </button>
-            </div>
-          </section>
-
-        </div>
-      </div>
-    )
-  }
 
   // ---------- Der zweite Karteikasten: ganze Sätze ----------
   // Eigener Kasten, gleiche Wiederhol-Logik: Ein Satz braucht andere
@@ -761,6 +696,48 @@ export default function Trainer({
             </button>
           ))}
         </div>
+
+        {/* Die vier Spiele als spielerische Alternative zur Abfrage */}
+      <section className="bereich bereich-spiele">
+        <div className="bereich-kopf">
+          <h2>Oder lieber spielen?</h2>
+          <p>
+            {spielbar
+              ? 'Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
+              : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
+          </p>
+        </div>
+        <div className="spiel-paar">
+          <button className="spiel-karte" onClick={() => setSpiel('memory')} disabled={!spielbar}>
+            <span className="spiel-bild" aria-hidden="true">
+              <i /><i /><i /><i />
+            </span>
+            <span className="spiel-name">Memory</span>
+            <span className="spiel-hinweis">6 Paare aufdecken</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
+            <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
+              <i /><i /><i />
+            </span>
+            <span className="spiel-name">Wortpaare</span>
+            <span className="spiel-hinweis">5 Wörter verbinden</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
+            <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
+              <i /><i /><i /><i /><i /><i /><i /><i /><i />
+            </span>
+            <span className="spiel-name">Wortsuche</span>
+            <span className="spiel-hinweis">5 Wörter im Gitter</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('fang')} disabled={!spielbar}>
+            <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
+              <i /><i /><i />
+            </span>
+            <span className="spiel-name">Wortfang</span>
+            <span className="spiel-hinweis">Richtige antippen</span>
+          </button>
+        </div>
+      </section>
       </div>
     )
   }
