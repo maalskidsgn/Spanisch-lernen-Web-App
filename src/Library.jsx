@@ -338,6 +338,8 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
       {/* Der Umschalter – dieselbe Bauart wie Vokabeln|Grammatik im
           Trainer, damit die App an beiden Stellen gleich umschaltet. */}
+      {/* Nur ein Bereich übrig? Dann braucht es keine Reiter. */}
+      {BEREICHE.length > 1 && (
       <div className="deck" role="tablist">
         {BEREICHE.map((b) => {
           const zahl = {
@@ -361,6 +363,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           )
         })}
       </div>
+      )}
 
       {/* Der Schluessel ist Absicht: Wechselt der Bereich, baut React
           den Block neu auf – und die Einblend-Animation laeuft von
