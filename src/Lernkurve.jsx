@@ -56,13 +56,19 @@ export default function Lernkurve() {
   }, [punkte])
 
   const sichtbar = ARTEN.filter((a) => aktiv.has(a))
-  const roh = Math.max(1, ...punkte.flatMap((p) => sichtbar.map((a) => p.werte[a])))
-  const max = schoeneObergrenze(roh)
+  // Jede Linie hat ihren EIGENEN Maßstab: Der beste Tag einer Kategorie
+  // reicht immer bis oben – ein gelesener Text wirkt so genauso stark wie
+  // 40 Wörter. Ist nur eine Linie sichtbar, gibt es eine echte Zahlenachse.
+  const maxVon = {}
+  for (const a of ARTEN) maxVon[a] = Math.max(1, ...punkte.map((p) => p.werte[a]))
+  const nurEine = sichtbar.length === 1
+  const max = nurEine ? schoeneObergrenze(maxVon[sichtbar[0]]) : 1
+  const massstab = (a) => (nurEine ? max : maxVon[a])
 
   const innenB = B - LINKS - RECHTS
   const innenH = H - OBEN - UNTEN
   const x = (i) => LINKS + (punkte.length === 1 ? innenB / 2 : (i / (punkte.length - 1)) * innenB)
-  const y = (v) => OBEN + innenH - (v / max) * innenH
+  const y = (v, a) => OBEN + innenH - (a ? v / massstab(a) : v / max) * innenH
   const boden = OBEN + innenH
 
   function umschalten(art) {
@@ -84,7 +90,6 @@ export default function Lernkurve() {
 
   const p = punkte[index]
   const gesamtGewaehlt = sichtbar.reduce((n, a) => n + p.werte[a], 0)
-  const nurEine = sichtbar.length === 1
   // Beschriftung der x-Achse: im Monat nur jede fünfte
   const zeigeLabel = (i) => zeitraum !== 'monat' || i % 5 === 4 || i === punkte.length - 1
   const animSchluessel = zeitraum + sichtbar.join()
@@ -168,9 +173,11 @@ export default function Lernkurve() {
           {[0, 0.5, 1].map((t) => (
             <g key={t}>
               <line x1={LINKS} x2={B - RECHTS} y1={y(max * t)} y2={y(max * t)} className="lk-raster" />
-              <text x={LINKS - 8} y={y(max * t) + 3.5} className="lk-achse" textAnchor="end">
-                {Math.round(max * t)}
-              </text>
+              {nurEine && (
+                <text x={LINKS - 8} y={y(max * t) + 3.5} className="lk-achse" textAnchor="end">
+                  {Math.round(max * t)}
+                </text>
+              )}
             </g>
           ))}
 
@@ -180,7 +187,7 @@ export default function Lernkurve() {
           {/* Flächen zuerst, Linien darüber */}
           <g key={'f' + animSchluessel} className="lk-flaechen">
             {sichtbar.map((a) => {
-              const pts = punkte.map((pt, i) => [x(i), y(pt.werte[a])])
+              const pts = punkte.map((pt, i) => [x(i), y(pt.werte[a], a)])
               return (
                 <path
                   key={a}
@@ -192,7 +199,7 @@ export default function Lernkurve() {
           </g>
           <g key={'l' + animSchluessel}>
             {sichtbar.map((a, n) => {
-              const pts = punkte.map((pt, i) => [x(i), y(pt.werte[a])])
+              const pts = punkte.map((pt, i) => [x(i), y(pt.werte[a], a)])
               return (
                 <path
                   key={a}
@@ -211,7 +218,7 @@ export default function Lernkurve() {
             <circle
               key={a + index}
               cx={x(index)}
-              cy={y(p.werte[a])}
+              cy={y(p.werte[a], a)}
               r="4.5"
               className="lk-punkt"
               stroke={SERIEN[a].farbe}
