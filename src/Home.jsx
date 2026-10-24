@@ -107,62 +107,6 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2. DER FEED ============ */}
-      {/* Steht VOR den Tueren: Es ist der Weg mit der niedrigsten
-          Huerde. Wer keine Lust auf eine Lektion hat, wischt sich
-          hier durch – und lernt trotzdem etwas. */}
-      <FeedTuer onOeffnen={() => onNavigate('feed')} />
-
-      {/* ============ 3.-5. DIE DREI TUEREN ============ */}
-      {/* Sprechen, Entdecken, Leitfaden - gleicher Bau, jede mit
-          eigener Icon-Kachel, damit die Reihe nicht wie dreimal
-          dieselbe weisse Karte aussieht (Manuels Punkt vom 24.08.).
-          Sprechen und Entdecken zuerst: Das sind die Gruende, die App
-          taeglich zu oeffnen; der Leitfaden liest sich einmal. */}
-      <button className="start-karte start-tuer" onClick={() => onNavigate('gespraech')}>
-        <span className="tuer-icon tuer-icon-sprechen" aria-hidden="true">
-          <IconSprache groesse={24} />
-        </span>
-        <span className="leitfaden-text">
-          <span className="start-marke">Sprechen</span>
-          <h2>Rede mit Habla</h2>
-          <p>Ein Gespräch auf Spanisch, in deinem Tempo – die KI hilft, wenn du hängst.</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
-      <button className="start-karte start-tuer" onClick={() => onNavigate('landundleute')}>
-        <span className="tuer-icon tuer-icon-entdecken" aria-hidden="true">
-          <IconLandkarte groesse={24} />
-        </span>
-        <span className="leitfaden-text">
-          <span className="start-marke">
-            {schonGelesen ? 'Entdecken' : 'Heute neu · Entdecken'}
-          </span>
-          <h2>{stueck.titel}</h2>
-          <p>{stueck.vorspann}</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
-      <button className="start-karte start-tuer" onClick={() => onNavigate('leitfaden')}>
-        <span className="tuer-icon tuer-icon-leitfaden" aria-hidden="true">
-          <IconBuch groesse={24} />
-        </span>
-        <span className="leitfaden-text">
-          <span className="start-marke">Neu hier?</span>
-          <h2>So nutzt du Habloo</h2>
-          <p>Deine Reise durch die App – und was wir uns dabei gedacht haben.</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
         <h2 className="start-abschnitt">Dein Lernfortschritt</h2>
