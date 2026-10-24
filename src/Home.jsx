@@ -1,3 +1,4 @@
+import { API_URL } from './api.js'
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
@@ -27,6 +28,7 @@ export default function Home({
   nextLesson,
   lessonProgress = {},
   onNavigate,
+  nutzerEmail,
 }) {
   const modul = nextLesson
     ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
@@ -106,6 +108,9 @@ export default function Home({
           </button>
         </div>
       </section>
+
+      {/* ============ TEASER: Unterricht mit Tutoren ============ */}
+      <TutorenTeaser nutzerEmail={nutzerEmail} />
 
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
@@ -525,5 +530,89 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
         </button>
       </div>
     </div>
+  )
+}
+
+
+/**
+ * Teaser: Bald gibt es Unterricht mit echten Tutoren. Wer informiert
+ * werden will, landet auf der Warteliste in Listmonk.
+ * Angemeldete tippen nur einen Knopf (Konto-Adresse), alle anderen
+ * geben ihre Adresse ein.
+ */
+function TutorenTeaser({ nutzerEmail }) {
+  const [eingetragen, setEingetragen] = useState(
+    () => localStorage.getItem('tutoren-interesse') === 'ja'
+  )
+  const [andere, setAndere] = useState(!nutzerEmail)
+  const [email, setEmail] = useState('')
+  const [laedt, setLaedt] = useState(false)
+  const [fehler, setFehler] = useState('')
+
+  async function eintragen(adresse) {
+    setLaedt(true)
+    setFehler('')
+    try {
+      const r = await fetch(API_URL + '/api/tutoren-interesse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: adresse }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      localStorage.setItem('tutoren-interesse', 'ja')
+      setEingetragen(true)
+    } catch (e) {
+      setFehler(e.message || 'Hat nicht geklappt.')
+    } finally {
+      setLaedt(false)
+    }
+  }
+
+  return (
+    <section className="start-karte tutoren">
+      <span className="tutoren-marke">Bald neu</span>
+      <h2 className="tutoren-titel">Unterricht mit echten Tutoren</h2>
+      <p className="tutoren-text">
+        Sprich live mit Muttersprachlern – in kleinen Gruppen oder 1:1, passend zu
+        deinem Niveau. Wir sagen dir Bescheid, sobald es losgeht.
+      </p>
+
+      {eingetragen ? (
+        <p className="tutoren-ok">
+          <span aria-hidden="true">✓</span> Du stehst auf der Liste – wir melden uns.
+        </p>
+      ) : !andere ? (
+        <div className="tutoren-knoepfe">
+          <button className="btn" disabled={laedt} onClick={() => eintragen(nutzerEmail)}>
+            {laedt ? 'Einen Moment …' : 'Ja, sag mir Bescheid'}
+          </button>
+          <button className="btn-plain tutoren-andere" onClick={() => setAndere(true)}>
+            An andere Adresse
+          </button>
+        </div>
+      ) : (
+        <form
+          className="tutoren-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (email.trim()) eintragen(email.trim())
+          }}
+        >
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="deine@email.de"
+            autoComplete="email"
+          />
+          <button className="btn" disabled={laedt || !email.trim()}>
+            {laedt ? '…' : 'Informier mich'}
+          </button>
+        </form>
+      )}
+      {fehler && <p className="error">{fehler}</p>}
+    </section>
   )
 }

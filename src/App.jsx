@@ -1241,6 +1241,7 @@ export default function App() {
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
+            nutzerEmail={nutzer?.email}
             onAddVocab={addVocabWords}
           />
         </main>

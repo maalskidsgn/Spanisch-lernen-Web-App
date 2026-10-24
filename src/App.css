@@ -11226,3 +11226,41 @@ body.lektion-laeuft .lessons > .player-top,
 }
 .streak-label { margin-top: 4px; font-weight: 800; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .streak-an svg { animation: none; } }
+
+/* ---------- Teaser: Unterricht mit Tutoren ---------- */
+.tutoren { position: relative; overflow: hidden; }
+.tutoren::after {
+  content: ''; position: absolute; right: -40px; top: -40px;
+  width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 108, 0, .14), transparent 70%);
+  pointer-events: none;
+}
+.tutoren-marke {
+  display: inline-block;
+  font-size: .7rem; font-weight: 900; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--primary); background: #fff1e5;
+  padding: 5px 10px; border-radius: 999px; margin-bottom: 10px;
+}
+.tutoren-titel { font-size: 1.3rem; font-weight: 900; margin: 0 0 6px; color: var(--navy); }
+.tutoren-text { color: var(--muted); line-height: 1.45; margin: 0 0 16px; }
+.tutoren-knoepfe { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tutoren-andere { font-size: .85rem; }
+.tutoren-form { display: flex; gap: 8px; }
+.tutoren-form input {
+  flex: 1; min-width: 0;
+  font: inherit; font-weight: 700; color: var(--navy);
+  border: 2px solid var(--line); border-radius: 14px;
+  padding: 11px 13px; outline: none;
+  transition: border-color .2s ease;
+}
+.tutoren-form input:focus { border-color: var(--primary); }
+.tutoren-ok {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; color: #1a9a52;
+  background: #e7f8ee; border-radius: 14px; padding: 12px 14px; margin: 0;
+  animation: spielwort-plopp .5s cubic-bezier(.34, 1.6, .64, 1);
+}
+.tutoren-ok span {
+  width: 24px; height: 24px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; background: #22b35e; color: #fff; font-size: .8rem;
+}

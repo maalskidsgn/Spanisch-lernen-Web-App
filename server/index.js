@@ -349,6 +349,33 @@ app.get('/api/transcript', async (req, res) => {
 // Übersetzt ein spanisches Wort ins Deutsche über die Google-Übersetzung.
 // (Die vorher genutzte MyMemory-API lieferte teils falsche/vulgäre Einträge,
 // weil dort jeder Übersetzungen eintragen kann.)
+// Warteliste "Unterricht mit Tutoren": trägt die Adresse in Listmonk ein
+// (Liste "Habloo – Interessenten Tutoren-Unterricht"). Läuft über den
+// öffentlichen Eintrag von Listmonk – dafür braucht es keinen geheimen
+// Schlüssel. Die Liste hat Double-Opt-in: Listmonk schickt selbst die
+// Bestätigungsmail, sobald dort der Versand eingerichtet ist.
+const LISTMONK_URL = process.env.LISTMONK_URL || 'https://post.2.28.31.213.sslip.io'
+const TUTOREN_LISTE = process.env.LISTMONK_TUTOREN_LISTE || '41370e6c-1e8a-4301-8066-64149a7c9606'
+
+app.post('/api/tutoren-interesse', async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase().slice(0, 200)
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+    return res.status(400).json({ error: 'Bitte eine gültige E-Mail-Adresse eingeben.' })
+  }
+  try {
+    const r = await fetch(LISTMONK_URL + '/api/public/subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, name: email.split('@')[0], list_uuids: [TUTOREN_LISTE] }),
+    })
+    if (!r.ok) throw new Error('Listmonk antwortet mit ' + r.status)
+    res.json({ ok: true })
+  } catch (err) {
+    console.error('Tutoren-Warteliste:', err.message)
+    res.status(502).json({ error: 'Eintragen hat gerade nicht geklappt. Bitte später nochmal.' })
+  }
+})
+
 app.get('/api/translate', async (req, res) => {
   const word = (req.query.q || '').trim()
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
