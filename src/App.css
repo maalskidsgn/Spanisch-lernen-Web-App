@@ -11079,3 +11079,6 @@ body.lektion-laeuft .lessons > .player-top,
   .lk-linie { animation: none; stroke-dashoffset: 0; }
   .lk-flaechen, .lk-punkt { animation: none; }
 }
+
+/* Satz-Trainer: kleine Zusatzzeile unter "Heute wiederholen" */
+.wiederholen-text .wiederholen-stand { margin-top: 6px; font-size: .82rem; font-weight: 800; opacity: .75; }
