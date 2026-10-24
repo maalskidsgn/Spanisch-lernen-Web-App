@@ -578,6 +578,16 @@ function TutorenTeaser({ nutzerEmail }) {
         deinem Niveau. Wir sagen dir Bescheid, sobald es losgeht.
       </p>
 
+      {/* Die erste Tutorin – von spanisch-lernen.com übernommen */}
+      <div className="tutorin">
+        <img src="/tutoren/yulibeth.jpg" alt="Yulibeth" width="56" height="56" loading="lazy" />
+        <div className="tutorin-text">
+          <span className="tutorin-rolle">Deine erste Tutorin</span>
+          <b>Yulibeth M.</b>
+          <span className="tutorin-sprachen">🇪🇸 Spanisch · 🇬🇧 Englisch</span>
+        </div>
+      </div>
+
       {eingetragen ? (
         <p className="tutoren-ok">
           <span aria-hidden="true">✓</span> Du stehst auf der Liste – wir melden uns.
