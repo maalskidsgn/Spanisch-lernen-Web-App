@@ -11189,3 +11189,40 @@ body.lektion-laeuft .lessons > .player-top,
 }
 .runden-woerter .spielwort { padding-left: 10px; padding-right: 10px; margin: 0 -10px; }
 .spielwort-haken { align-self: center; }
+
+/* ---------- Lernstreak: Flamme + große Zahl ---------- */
+.streak-kopf {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "titel titel" "flamme text";
+  align-items: center;
+  column-gap: 14px;
+  margin-bottom: 18px;
+}
+.streak-titel { grid-area: titel; margin-bottom: 12px; }
+.streak-flamme {
+  grid-area: flamme;
+  width: 64px; height: 64px; border-radius: 20px;
+  display: grid; place-items: center;
+  background: var(--flaeche);
+  filter: grayscale(1); opacity: .5;
+}
+.streak-flamme.streak-an {
+  filter: none; opacity: 1;
+  background: linear-gradient(180deg, #fff3e6, #ffe2c7);
+  box-shadow: 0 8px 22px rgba(255, 108, 0, .25);
+}
+.streak-an svg { animation: streak-flackern 2.4s ease-in-out infinite; transform-origin: 50% 90%; }
+@keyframes streak-flackern {
+  0%, 100% { transform: scale(1) rotate(0); }
+  30% { transform: scale(1.06, .97) rotate(-2deg); }
+  60% { transform: scale(.97, 1.04) rotate(2deg); }
+}
+.streak-text { grid-area: text; display: flex; flex-direction: column; line-height: 1; }
+.streak-zahl {
+  font-size: 2.6rem; font-weight: 900; letter-spacing: -.03em;
+  background: linear-gradient(180deg, #ff8a1a, #ff5a00);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.streak-label { margin-top: 4px; font-weight: 800; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .streak-an svg { animation: none; } }

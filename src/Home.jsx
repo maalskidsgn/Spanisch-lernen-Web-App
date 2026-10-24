@@ -109,8 +109,34 @@ export default function Home({
 
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
-        <h2 className="start-abschnitt">Dein Lernfortschritt</h2>
-        <p className="start-abschnitt-sub">Diese Woche</p>
+        {/* Die Serie als Hingucker: Flamme + große Zahl */}
+        <div className="streak-kopf">
+          <span className={'streak-flamme' + (progress.streak > 0 ? ' streak-an' : '')} aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="40" height="40">
+              <defs>
+                <linearGradient id="streak-verlauf" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#ffb347" />
+                  <stop offset="100%" stopColor="#ff5a00" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 2.5c.6 3.3 3.1 4.9 4.6 7.2 1.2 1.8 1.9 3.5 1.9 5.3A6.5 6.5 0 0 1 12 21.5 6.5 6.5 0 0 1 5.5 15c0-2.6 1.3-4.6 3-6.3.2 1.6.9 2.7 2 3.3-.3-3.6.3-6.6 1.5-9.5z"
+                fill="url(#streak-verlauf)"
+              />
+              <path
+                d="M12 21.5a3.3 3.3 0 0 1-3.3-3.3c0-1.9 1.6-3 2.6-4.6.5 1.4 1.4 2 2.3 2.6.9.6 1.7 1.2 1.7 2.1a3.3 3.3 0 0 1-3.3 3.2z"
+                fill="#ffe29a"
+              />
+            </svg>
+          </span>
+          <div className="streak-text">
+            <b className="streak-zahl">{progress.streak}</b>
+            <span className="streak-label">
+              {progress.streak === 1 ? 'Tag' : 'Tage'} in Folge
+            </span>
+          </div>
+          <h2 className="start-abschnitt streak-titel">Deine Lernstreak</h2>
+        </div>
 
         <ol className="woche-reihe" aria-label={`${wochenSumme} Einheiten diese Woche`}>
           {woche.map((tag, i) => (
@@ -133,33 +159,6 @@ export default function Home({
             </li>
           ))}
         </ol>
-
-        <div className="start-zahlen">
-          <div className="start-zahl">
-            <b>{progress.streak}</b>
-            <span>Tage Serie</span>
-          </div>
-          <div className="start-zahl">
-            <b>{counts.woerter}</b>
-            <span>Wörter</span>
-          </div>
-          <div className="start-zahl">
-            <b>{lektionenFertig}</b>
-            <span>Lektionen</span>
-          </div>
-        </div>
-
-        {/* Vier Balken, vier Farben: was sich wo angesammelt hat.
-            Normiert auf den groessten Wert, damit die Laengen etwas
-            aussagen; die Zahl steht trotzdem dran. */}
-        <Sammelbalken
-          werte={[
-            { name: 'Wörter', wert: counts.woerter, farbe: '#ff6c00' },
-            { name: 'Lektionen', wert: lektionenFertig, farbe: '#1e9d85' },
-            { name: 'Songs', wert: counts.songs ?? 0, farbe: '#7c5cff' },
-            { name: 'Videos', wert: counts.videos ?? 0, farbe: '#2e8fe8' },
-          ]}
-        />
 
         {/* Der Kalender: ein Kreuz an jedem Tag, an dem etwas gelernt
             wurde. Antippen zeigt, wie viele Lektionen und
