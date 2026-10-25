@@ -11534,3 +11534,31 @@ body.lektion-laeuft .lessons > .player-top,
 .kal-wert span { font-size: .85rem; font-weight: 700; color: var(--navy); }
 .kal-wert-wdh b { color: var(--primary); }
 .kal-wert-lek b { color: var(--navy); }
+
+/* ---------- Tagesdetail v3: Zahl oben, Beschriftung darunter ---------- */
+.kal-detail { padding: 14px; }
+.kal-detail-datum { margin: 0 2px 10px; font-size: .74rem; color: #a08f7c; }
+.kal-detail-werte { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; flex-wrap: nowrap; }
+.kal-wert {
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 12px 14px 11px;
+  border-radius: 16px;
+  box-shadow: 0 1px 0 rgba(0, 0, 65, .04);
+}
+.kal-wert b { font-size: 1.75rem; }
+.kal-wert span {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.kal-wert-wdh { background: #fff; border-left: 4px solid var(--primary); }
+.kal-wert-lek { background: #fff; border-left: 4px solid var(--navy); }
+
+/* Ausgewählter Tag: weicher Ring statt harter Navy-Kante */
+.kal-tag.kal-gewaehlt { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255, 108, 0, .45); }
+.kal-tag.kal-aktiv.kal-gewaehlt { background: linear-gradient(145deg, #ffe0c4, #ffc999); }
