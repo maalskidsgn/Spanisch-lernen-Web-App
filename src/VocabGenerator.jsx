@@ -17,8 +17,8 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
   const [added, setAdded] = useState(false)
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
 
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
@@ -75,6 +75,8 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
 
   // Kostenloses Kontingent aufgebraucht: Premium-Hinweis statt Knopf
   if (uebrig <= 0 && !suggestions) {
+    // Solange der Premium-Stand noch geladen wird: nichts zeigen statt Werbung
+    if (premiumLaedt && !premium) return null
     return (
       <div className="vocab-gen">
         <PremiumWerbung was="Vokabeln" />

@@ -48,11 +48,32 @@ export async function holeBerechtigung() {
 }
 
 /** Für Komponenten: liefert die Berechtigung und lädt sie nach. */
+// Der letzte bekannte Stand liegt im Browser. So weiss die App schon
+// beim Start, ob jemand Premium hat – sonst blitzt kurz die
+// Premium-Werbung auf, bis die Datenbank antwortet.
+function gemerkterStand() {
+  try {
+    return localStorage.getItem('premium-stand') === 'ja'
+  } catch {
+    return false
+  }
+}
+
 export function usePremium() {
-  const [stand, setStand] = useState({ premium: false, bis: null, status: null, laedt: true })
+  const [stand, setStand] = useState(() => ({
+    premium: gemerkterStand(),
+    bis: null,
+    status: null,
+    laedt: true,
+  }))
 
   async function neuLaden() {
     const b = await holeBerechtigung()
+    try {
+      localStorage.setItem('premium-stand', b.premium ? 'ja' : 'nein')
+    } catch {
+      /* privater Modus – dann eben ohne Merken */
+    }
     setStand({ ...b, laedt: false })
   }
 

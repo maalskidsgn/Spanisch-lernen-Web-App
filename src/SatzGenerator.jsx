@@ -39,8 +39,8 @@ export default function SatzGenerator({ saetze, setSaetze }) {
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
   const [erfolg, setErfolg] = useState(0) // wie viele gerade übernommen wurden
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
   // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
   useEffect(() => {
     setUebrig(verbleibend(premium))
@@ -105,6 +105,8 @@ export default function SatzGenerator({ saetze, setSaetze }) {
 
   // Kontingent aufgebraucht
   if (uebrig <= 0 && !liste) {
+    // Solange der Premium-Stand noch geladen wird: nichts zeigen statt Werbung
+    if (premiumLaedt && !premium) return null
     return (
       <div className="list-gen">
         <PremiumWerbung was="Sätze" />
