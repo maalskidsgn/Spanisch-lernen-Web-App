@@ -11495,3 +11495,50 @@ body.lektion-laeuft .lessons > .player-top,
 .kal-punkt { border-radius: 50%; background: #f1ebe3; }
 .kal-punkt.kal-aktiv { background: #ffb37a; }
 .kal-punkt.kal-heute { box-shadow: 0 0 0 1.5px var(--primary); }
+
+/* ---------- Kalender: Haken-Optik + Tagesdetail ---------- */
+.kal-tag.kal-aktiv {
+  background: linear-gradient(150deg, #3cc274, var(--success));
+  box-shadow: 0 3px 0 var(--success-press);
+}
+.kal-tag.kal-aktiv .kal-zahl {
+  position: absolute;
+  top: 9%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: .62rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .85);
+}
+.kal-haken { width: 46%; height: 46%; margin-top: 18%; color: #fff; }
+.kal-tag.kal-heute { box-shadow: inset 0 0 0 2px var(--primary); }
+.kal-tag.kal-aktiv.kal-heute { box-shadow: 0 3px 0 var(--success-press), 0 0 0 3px #fff, 0 0 0 5px var(--primary); }
+.kal-tag.kal-gewaehlt { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--navy); }
+.kal-punkt.kal-aktiv { background: var(--success); }
+
+.kal-detail {
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--flaeche);
+}
+.kal-detail-aktiv { background: linear-gradient(150deg, #effaf3, #e2f5e9); }
+.kal-detail-datum { margin: 0 0 8px; font-size: .8rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.kal-detail-leer { margin: 0; color: var(--muted); font-size: .9rem; }
+.kal-detail-werte { display: flex; gap: 10px; flex-wrap: wrap; }
+.kal-wert {
+  flex: 1 1 0;
+  min-width: 120px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 65, .05);
+}
+.kal-wert b { font-size: 1.9rem; line-height: 1; font-weight: 900; }
+.kal-wert span { font-size: .85rem; font-weight: 700; color: var(--navy); }
+.kal-wert-wdh b { color: var(--success); }
+.kal-wert-lek b { color: var(--primary); }

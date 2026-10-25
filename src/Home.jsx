@@ -274,7 +274,11 @@ function Kalender() {
                 onClick={() => setGewaehlt(z)}
               >
                 <span className="kal-zahl">{z.tag}</span>
-                {z.gesamt > 0 && <span className="kal-punkt-mini" aria-hidden="true" />}
+                {z.gesamt > 0 && (
+                  <svg className="kal-haken" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
               </button>
             ))}
           </div>
@@ -338,10 +342,27 @@ function Kalender() {
       )}
 
       {gewaehlt && (
-        <p className="kal-detail">
-          <b>{kalDatum(gewaehlt.schluessel)}</b>{' '}
-          {gewaehlt.gesamt === 0 ? '– nichts gelernt' : '– ' + kalTeile(gewaehlt)}
-        </p>
+        <div className={'kal-detail' + (gewaehlt.gesamt > 0 ? ' kal-detail-aktiv' : '')}>
+          <p className="kal-detail-datum">{kalDatum(gewaehlt.schluessel)}</p>
+          {gewaehlt.gesamt === 0 ? (
+            <p className="kal-detail-leer">An diesem Tag wurde nichts gelernt.</p>
+          ) : (
+            <div className="kal-detail-werte">
+              {gewaehlt.wiederholungen > 0 && (
+                <div className="kal-wert kal-wert-wdh">
+                  <b>{gewaehlt.wiederholungen}</b>
+                  <span>{gewaehlt.wiederholungen === 1 ? 'Wiederholung' : 'Wiederholungen'}</span>
+                </div>
+              )}
+              {gewaehlt.lektionen > 0 && (
+                <div className="kal-wert kal-wert-lek">
+                  <b>{gewaehlt.lektionen}</b>
+                  <span>{gewaehlt.lektionen === 1 ? 'Lektion' : 'Lektionen'}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
