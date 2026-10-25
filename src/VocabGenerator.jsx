@@ -1,4 +1,5 @@
 import { API_URL } from './api.js'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
@@ -76,15 +77,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
   if (uebrig <= 0 && !suggestions) {
     return (
       <div className="vocab-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} Listen für heute sind aufgebraucht. Neue gibt es {naechsteAuffuellung()} –
-            unbegrenzte Vokabel-Generierung kommt mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Vokabeln" />
       </div>
     )
   }

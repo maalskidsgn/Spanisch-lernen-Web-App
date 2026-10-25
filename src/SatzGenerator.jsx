@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { API_URL } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
@@ -102,15 +103,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
   if (uebrig <= 0 && !liste) {
     return (
       <div className="list-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} kostenlosen Generierungen sind für heute
-            aufgebraucht – unbegrenzte Sätze kommen mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Sätze" />
       </div>
     )
   }

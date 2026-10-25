@@ -8,7 +8,7 @@
 // Bewusst nicht "zehn pro Video": Sonst könnte man beliebig viele
 // Videos öffnen und das Kontingent wäre praktisch unbegrenzt.
 
-export const LISTEN_PRO_TAG = 10
+export const LISTEN_PRO_TAG = 3
 
 import { heute } from './datum.js'
 

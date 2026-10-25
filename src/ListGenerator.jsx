@@ -1,4 +1,5 @@
 import { API_URL } from './api.js'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
@@ -93,15 +94,7 @@ export default function ListGenerator({ vocab, setVocab }) {
   if (uebrig <= 0 && !liste) {
     return (
       <div className="list-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} kostenlosen Listen sind aufgebraucht – unbegrenzte
-            KI-Vokabellisten kommen mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Vokabellisten" />
       </div>
     )
   }
