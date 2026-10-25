@@ -1,4 +1,5 @@
 import { API_URL } from './api.js'
+import { TUTOREN } from './tutoren.js'
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
@@ -684,22 +685,16 @@ function TutorenTeaser({ nutzerEmail }) {
 
   return (
     <section className="start-karte tutoren">
-      <span className="tutoren-marke">Bald neu</span>
+      <span className="tutoren-marke">Bald neu · Live-Unterricht</span>
       <h2 className="tutoren-titel">Unterricht mit echten Tutoren</h2>
       <p className="tutoren-text">
         Sprich live mit Muttersprachlern – in kleinen Gruppen oder 1:1, passend zu
         deinem Niveau. Wir sagen dir Bescheid, sobald es losgeht.
       </p>
 
-      {/* Die erste Tutorin – von spanisch-lernen.com übernommen */}
-      <div className="tutorin">
-        <img src="/tutoren/yulibeth.jpg" alt="Yulibeth" width="56" height="56" loading="lazy" />
-        <div className="tutorin-text">
-          <span className="tutorin-rolle">Deine erste Tutorin</span>
-          <b>Yulibeth M.</b>
-          <span className="tutorin-sprachen">🇪🇸 Spanisch · 🇬🇧 Englisch</span>
-        </div>
-      </div>
+      {TUTOREN.map((t) => (
+        <TutorProfil key={t.id} t={t} />
+      ))}
 
       {eingetragen ? (
         <p className="tutoren-ok">
@@ -708,7 +703,7 @@ function TutorenTeaser({ nutzerEmail }) {
       ) : !andere ? (
         <div className="tutoren-knoepfe">
           <button className="btn" disabled={laedt} onClick={() => eintragen(nutzerEmail)}>
-            {laedt ? 'Einen Moment …' : 'Ja, sag mir Bescheid'}
+            {laedt ? 'Einen Moment …' : 'Probestunde vormerken'}
           </button>
           <button className="btn-plain tutoren-andere" onClick={() => setAndere(true)}>
             An andere Adresse
@@ -737,5 +732,89 @@ function TutorenTeaser({ nutzerEmail }) {
       )}
       {fehler && <p className="error">{fehler}</p>}
     </section>
+  )
+}
+
+/** Profilkarte im Stil einer Tutorenplattform. Leere Felder fallen weg. */
+function TutorProfil({ t }) {
+  const [mehr, setMehr] = useState(false)
+  const kennzahlen = [
+    t.bewertung != null && {
+      wert: (
+        <>
+          <span className="tp-stern" aria-hidden="true">★</span> {String(t.bewertung).replace('.', ',')}
+        </>
+      ),
+      text: t.bewertungen != null ? `${t.bewertungen} Bewertungen` : 'Bewertung',
+    },
+    t.lektionen != null && { wert: t.lektionen.toLocaleString('de-DE'), text: 'Unterrichtsstunden' },
+    t.preis != null && { wert: `${t.preis} €`, text: '50-Min.-Stunde' },
+  ].filter(Boolean)
+
+  return (
+    <article className="tp-karte">
+      <div className="tp-kopf">
+        <div className="tp-foto">
+          <img src={t.foto} alt={t.name} width="84" height="84" loading="lazy" />
+          <span className="tp-online" title="Bald verfügbar" />
+        </div>
+        <div className="tp-name-block">
+          <h3 className="tp-name">
+            {t.name} <span aria-hidden="true">{t.herkunft?.flagge}</span>
+            {t.verifiziert && (
+              <span className="tp-verifiziert" title="Geprüfte Tutorin">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                  <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            )}
+          </h3>
+          <p className="tp-ueberschrift">{t.ueberschrift}</p>
+        </div>
+      </div>
+
+      <div className="tp-sprachen">
+        {t.sprachen.map((s) => (
+          <span key={s.name} className="tp-chip">
+            <b>{s.name}</b>
+            {s.stufe && <span>{s.stufe}</span>}
+          </span>
+        ))}
+      </div>
+
+      {kennzahlen.length > 0 && (
+        <div className="tp-zahlen">
+          {kennzahlen.map((k, i) => (
+            <div key={i}>
+              <b>{k.wert}</b>
+              <span>{k.text}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {t.schwerpunkte?.length > 0 && (
+        <div className="tp-schwerpunkte">
+          {t.schwerpunkte.map((s) => (
+            <span key={s}>{s}</span>
+          ))}
+        </div>
+      )}
+
+      {t.ueber && (
+        <div className="tp-ueber">
+          <p className={mehr ? '' : 'tp-gekuerzt'}>{t.ueber}</p>
+          <button type="button" className="tp-mehr" onClick={() => setMehr(!mehr)}>
+            {mehr ? 'Weniger' : 'Mehr lesen'}
+          </button>
+        </div>
+      )}
+
+      <ul className="tp-vorteile">
+        <li>1:1 oder kleine Gruppe</li>
+        <li>Per Video, bequem von zu Hause</li>
+        <li>Passend zu deinem Niveau in Habloo</li>
+      </ul>
+    </article>
   )
 }

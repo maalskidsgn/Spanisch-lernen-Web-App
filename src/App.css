@@ -11562,3 +11562,79 @@ body.lektion-laeuft .lessons > .player-top,
 /* Ausgewählter Tag: weicher Ring statt harter Navy-Kante */
 .kal-tag.kal-gewaehlt { box-shadow: 0 0 0 2px #fff, 0 0 0 4px rgba(255, 108, 0, .45); }
 .kal-tag.kal-aktiv.kal-gewaehlt { background: linear-gradient(145deg, #ffe0c4, #ffc999); }
+
+/* ---------- Tutorenprofil im Plattform-Stil ---------- */
+.tp-karte {
+  margin: 16px 0;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid #efe6da;
+  box-shadow: 0 6px 20px rgba(0, 0, 65, .06);
+}
+.tp-kopf { display: flex; gap: 14px; align-items: center; }
+.tp-foto { position: relative; flex: none; }
+.tp-foto img {
+  display: block; width: 84px; height: 84px; object-fit: cover;
+  border-radius: 18px;
+}
+.tp-online {
+  position: absolute; right: -3px; bottom: -3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--success); border: 3px solid #fff;
+}
+.tp-name-block { min-width: 0; }
+.tp-name {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  margin: 0 0 4px; font-size: 1.2rem; color: var(--navy);
+}
+.tp-verifiziert {
+  display: inline-grid; place-items: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #2b7cff; color: #fff;
+}
+.tp-ueberschrift { margin: 0; font-size: .9rem; line-height: 1.4; color: var(--muted); }
+
+.tp-sprachen { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.tp-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 11px; border-radius: 999px;
+  background: var(--flaeche); font-size: .82rem; color: var(--navy);
+}
+.tp-chip span { color: var(--muted); font-size: .76rem; }
+.tp-chip span::before { content: '· '; }
+
+.tp-zahlen {
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  margin: 14px 0 0; padding: 12px 0;
+  border-top: 1px solid #f1eae0; border-bottom: 1px solid #f1eae0;
+}
+.tp-zahlen > div { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.tp-zahlen > div + div { border-left: 1px solid #f1eae0; }
+.tp-zahlen b { font-size: 1.15rem; color: var(--navy); }
+.tp-zahlen span { font-size: .72rem; color: var(--muted); }
+.tp-stern { color: #ffb400; }
+
+.tp-schwerpunkte { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+.tp-schwerpunkte span {
+  padding: 4px 10px; border-radius: 8px;
+  background: #fff0e3; color: var(--primary-dark);
+  font-size: .76rem; font-weight: 700;
+}
+
+.tp-ueber { margin: 12px 0 0; }
+.tp-ueber p { margin: 0; font-size: .9rem; line-height: 1.55; color: var(--navy); }
+.tp-gekuerzt { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.tp-mehr {
+  margin-top: 4px; padding: 0; border: none; background: none; box-shadow: none;
+  color: var(--primary); font: inherit; font-size: .85rem; font-weight: 800;
+}
+
+.tp-vorteile { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 6px; }
+.tp-vorteile li { position: relative; padding-left: 24px; font-size: .86rem; color: var(--navy); }
+.tp-vorteile li::before {
+  content: '✓'; position: absolute; left: 0; top: 0;
+  width: 16px; height: 16px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #e3f6ea; color: var(--success); font-size: 10px; font-weight: 900;
+}
