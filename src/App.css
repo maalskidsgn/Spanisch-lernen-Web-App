@@ -11773,3 +11773,32 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .ms-teilen { width: 100%; }
 .ms-zu { margin-top: 6px; width: 100%; }
 .ms-meldung { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
+
+/* ---------- Meilensteine im Marken-Look (überschreibt) ---------- */
+.ms-symbol {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, #fff);
+}
+.ms-medaille {
+  clip-path: none;
+  border-radius: 28%;
+  background: var(--flaeche);
+  color: color-mix(in srgb, var(--muted) 70%, #fff);
+  gap: 2px;
+}
+.ms-medaille:disabled { opacity: 1; }
+.ms-medaille .ms-medaille-zahl { color: var(--muted); }
+.ms-medaille.ist-da { color: #fff; animation: none; box-shadow: 0 3px 0 var(--primary-press, var(--primary-dark)); }
+.ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: none; }
+.ms-medaille-symbol { display: grid; place-items: center; }
+.ms-stufe-0 { background: color-mix(in srgb, var(--primary) 38%, #fff); }
+.ms-stufe-1 { background: color-mix(in srgb, var(--primary) 55%, #fff); }
+.ms-stufe-2 { background: color-mix(in srgb, var(--primary) 72%, #fff); }
+.ms-stufe-3 { background: color-mix(in srgb, var(--primary) 88%, #fff); }
+.ms-stufe-4 { background: linear-gradient(150deg, var(--primary), var(--primary-dark)); }
+.ms-stufe-5 {
+  background: linear-gradient(150deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffc800 !important;
+}
+.ms-gross { clip-path: none; border-radius: 30%; color: #fff; }
+.ms-balken span { background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 60%, #fff), var(--primary)); }
