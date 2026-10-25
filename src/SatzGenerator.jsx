@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { API_URL } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
@@ -41,6 +41,10 @@ export default function SatzGenerator({ saetze, setSaetze }) {
   const [erfolg, setErfolg] = useState(0) // wie viele gerade übernommen wurden
   const { premium } = usePremium()
   const [uebrig, setUebrig] = useState(() => verbleibend())
+  // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium])
 
   const bekannt = Object.values(saetze).map((s) => s.anzeige ?? '')
 
