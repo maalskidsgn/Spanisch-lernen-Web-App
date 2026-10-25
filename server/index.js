@@ -202,6 +202,31 @@ function runYtDlp(args) {
   })
 }
 
+/**
+ * Kostenlose Vorpruefung vor TubeAlfred: Gibt es das Video und hat es
+ * eine spanische Untertitelspur (auch automatische)? Jeder Abruf bei
+ * TubeAlfred kostet Guthaben – auch die, die am Ende leer ausgehen.
+ *
+ * @returns {Promise<boolean|null>} true/false, oder null wenn unklar
+ */
+async function hatSpanischeSpur(videoId) {
+  const schluessel = process.env.YOUTUBE_API_KEY
+  if (!schluessel) return null
+  try {
+    const antwort = await fetch(
+      'https://www.googleapis.com/youtube/v3/captions' +
+        `?part=snippet&videoId=${videoId}&key=${schluessel}`
+    )
+    const daten = await antwort.json().catch(() => ({}))
+    // Video gibt es nicht (geloescht/privat) → sicher kein Text
+    if (antwort.status === 404) return false
+    if (!antwort.ok || daten.error) return null
+    return (daten.items ?? []).some((t) => (t.snippet?.language ?? '').startsWith('es'))
+  } catch {
+    return null
+  }
+}
+
 app.get('/api/transcript', async (req, res) => {
   const videoId = extractVideoId(req.query.url || '')
   // Songs sollen als Musik abgelegt werden, nicht als normales Video
@@ -222,6 +247,12 @@ app.get('/api/transcript', async (req, res) => {
   const token = (req.headers.authorization || '').replace('Bearer ', '')
   const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
   let schonGezaehlt = false
+
+  // Ohne Login nur Videos, die schon in der Bibliothek liegen –
+  // sonst koennte jeder mit der Adresse unser Guthaben verbrauchen.
+  if (!nutzer && !(await ausBibliothek(videoId))) {
+    return res.status(401).json({ error: 'Bitte melde dich an, um neue Videos zu holen.', grund: 'login' })
+  }
 
   if (nutzer) {
     const liegtSchonDa = await ausBibliothek(videoId)
@@ -316,6 +347,12 @@ app.get('/api/transcript', async (req, res) => {
       // Hat nichts gekostet – also auch nichts vom Kontingent
       if (schonGezaehlt) await gibNutzungZurueck(nutzer.id, 'video')
       return res.json({ ...gespeichert, qualitaet: pruefeQualitaet(gespeichert.lines) })
+    }
+
+    if (tubeAlfredBereit() && (await hatSpanischeSpur(videoId)) === false) {
+      console.log('keine spanische Spur, TubeAlfred gespart:', videoId)
+      if (schonGezaehlt) await gibNutzungZurueck(nutzer.id, 'video')
+      return res.status(404).json({ error: 'Für dieses Video gibt es keine spanischen Untertitel.', stoerung: false })
     }
 
     if (tubeAlfredBereit()) {

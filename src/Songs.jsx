@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { db, holeVideoMitTranskript } from './supabase.js'
+
+// Neue Songs holt der Server nur fuer angemeldete Nutzer
+async function mitLogin() {
+  const { data } = (await db?.auth.getSession().catch(() => null)) ?? { data: null }
+  const zugang = data?.session?.access_token
+  return zugang ? { headers: { Authorization: 'Bearer ' + zugang } } : undefined
+}
 import { songAlsPdf } from './songPdf.js'
 import {
   spotifyBereit,
@@ -292,7 +299,8 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         try {
           status('Songtext wird geholt – das kann eine halbe Minute dauern …')
           const pruefung = await fetch(
-            API_URL + '/api/transcript?url=' + kandidat.videoId + '&art=musik'
+            API_URL + '/api/transcript?url=' + kandidat.videoId + '&art=musik',
+            await mitLogin()
           )
           if (pruefung.ok) {
             setSongMeldung(null)
@@ -367,7 +375,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     for (const k of kandidaten) {
       setPrueft(k.videoId)
       try {
-        const res = await fetch(API_URL + '/api/transcript?url=' + k.videoId + '&art=musik')
+        const res = await fetch(API_URL + '/api/transcript?url=' + k.videoId + '&art=musik', await mitLogin())
         if (res.ok) {
           setPrueft(null)
           onOpenVideo(k.videoId, 'musik')
