@@ -11282,12 +11282,13 @@ body.lektion-laeuft .lessons > .player-top,
    Helle Pille mit orangem Pfeilkreis, linksbuendig. Ersetzt die
    frueheren Varianten (btn-plain, recht-zurueck, kassen-zurueck). */
 .btn-zurueck {
-  display: inline-flex;
+  display: flex;
+  width: fit-content;
   align-items: center;
   gap: 10px;
   align-self: flex-start;
   justify-self: start;
-  margin: 0 0 14px;
+  margin: 0 auto 14px 0;
   padding: 6px 16px 6px 6px;
   background: var(--card);
   border: 1px solid #efe6da;
