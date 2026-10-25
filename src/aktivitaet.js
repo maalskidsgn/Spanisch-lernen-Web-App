@@ -45,8 +45,9 @@ export function merkeEinheit(art = 'wiederholung') {
   else eintrag.w = (eintrag.w ?? 0) + 1
   daten[tag] = eintrag
 
-  // Nur die letzten 60 Tage behalten – mehr zeigt niemand an
-  const grenze = tagesSchluessel(new Date(Date.now() - 60 * 86400000))
+  // Zwei Jahre behalten – die Jahresansicht im Kalender braucht sie.
+  // Ein Tag sind nur ein paar Bytes, das bleibt winzig.
+  const grenze = tagesSchluessel(new Date(Date.now() - 731 * 86400000))
   for (const t of Object.keys(daten)) {
     if (t < grenze) delete daten[t]
   }
@@ -109,4 +110,45 @@ export function kalenderRaster(wochen = 6) {
     })
   }
   return zellen
+}
+
+/**
+ * Alle zwoelf Monate eines Jahres fuer die Jahresansicht.
+ * Je Monat: Name, Versatz (leere Felder vor dem 1., Montag = 0) und
+ * die Tage im selben Format wie kalenderRaster().
+ */
+export function jahresRaster(jahr) {
+  const daten = lade()
+  const heuteSchluessel = heute()
+
+  return Array.from({ length: 12 }, (_, m) => {
+    const erster = new Date(jahr, m, 1)
+    const laenge = new Date(jahr, m + 1, 0).getDate()
+    const tage = []
+    for (let t = 1; t <= laenge; t++) {
+      const schluessel = tagesSchluessel(new Date(jahr, m, t))
+      const eintrag = daten[schluessel]
+      tage.push({
+        schluessel,
+        tag: t,
+        lektionen: typeof eintrag === 'number' ? 0 : eintrag?.l ?? 0,
+        wiederholungen: typeof eintrag === 'number' ? eintrag : eintrag?.w ?? 0,
+        gesamt: gesamtVon(eintrag),
+        istHeute: schluessel === heuteSchluessel,
+        zukunft: schluessel > heuteSchluessel,
+      })
+    }
+    return {
+      name: erster.toLocaleDateString('de-DE', { month: 'long' }),
+      versatz: (erster.getDay() + 6) % 7,
+      tage,
+      aktiv: tage.filter((t) => t.gesamt > 0).length,
+    }
+  })
+}
+
+/** Das frueheste Jahr mit Eintraegen – Grenze fuer das Zurueckblaettern. */
+export function erstesJahr() {
+  const tage = Object.keys(lade()).sort()
+  return tage.length ? Number(tage[0].slice(0, 4)) : new Date().getFullYear()
 }

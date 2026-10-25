@@ -11394,3 +11394,53 @@ body.lektion-laeuft .lessons > .player-top,
   font-weight: 700;
   color: var(--primary-dark);
 }
+
+/* ---------- Kalender: Umschalter + Jahresansicht ---------- */
+.kal-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.kal-kopf .kal-titel { margin: 0; }
+.kal-umschalter { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--flaeche); }
+.kal-umschalter button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+}
+.kal-umschalter button.ist-aktiv { background: var(--card); color: var(--navy); box-shadow: 0 1px 4px rgba(0, 0, 65, 0.1); }
+.kal-umschalter button:active { transform: none; }
+
+.kal-jahr-nav { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 4px 0 12px; }
+.kal-jahr-nav b { font-size: 17px; color: var(--navy); min-width: 48px; text-align: center; }
+.kal-jahr-nav button {
+  width: 34px; height: 34px; padding: 0;
+  border-radius: 50%; border: 1px solid #efe6da;
+  background: var(--card); box-shadow: none;
+  color: var(--primary); font-size: 20px; font-weight: 800; line-height: 1;
+}
+.kal-jahr-nav button:disabled { opacity: 0.3; }
+
+.kal-jahr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px 12px; }
+@media (min-width: 640px) { .kal-jahr { grid-template-columns: repeat(4, 1fr); } }
+.kal-monat-name {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 0 0 5px; font-size: 12.5px; font-weight: 800; color: var(--navy);
+}
+.kal-monat-name span {
+  padding: 1px 6px; border-radius: 999px;
+  background: #fff0e3; color: var(--primary-dark); font-size: 11px;
+}
+.kal-mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.kal-mini > * { aspect-ratio: 1; }
+.kal-punkt {
+  padding: 0; min-width: 0; border: none; box-shadow: none;
+  border-radius: 3px; background: #efe8de;
+}
+.kal-punkt.kal-aktiv { background: var(--primary); }
+.kal-punkt.kal-heute { box-shadow: 0 0 0 1.5px var(--navy); }
+.kal-punkt.kal-zukunft { background: #f6f2ec; opacity: 1; }
+.kal-punkt.kal-gewaehlt { outline: 2px solid var(--navy); outline-offset: 1px; }
+.kal-punkt:active { transform: scale(0.9); }
