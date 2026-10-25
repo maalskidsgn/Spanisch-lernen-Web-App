@@ -122,29 +122,25 @@ export default function ListGenerator({ vocab, setVocab }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        <div className="wort-vorschlaege">
-          {/* Ein Tipp auf den Chip GENERIERT direkt – nicht erst das
-              Feld fuellen und dann noch einen Knopf suchen (Manuels
-              Wunsch: nichts eintippen muessen). */}
-          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen'].map((v) => (
+        {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen">
+          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen', 'Familie', 'Gesundheit'].map((v) => (
             <button
               key={v}
               type="button"
-              className="vorschlag-chip"
+              className={'sg-thema' + (thema === v ? ' ist-aktiv' : '')}
               disabled={laden || uebrig <= 0}
-              onClick={(e) => {
-                setThema(v)
-                generieren(e, false, v)
-              }}
+              onClick={() => setThema(thema === v ? '' : v)}
             >
               {v}
             </button>
           ))}
         </div>
 
-        {/* Wortart wählen: gemischt oder gezielt Verben/Adjektive/Nomen.
-            So kann man z. B. eine reine Verbenliste zum Thema holen. */}
-        <div className="wortart-wahl">
+        {/* Schritt 2: Wortart – gemischt oder gezielt */}
+        <p className="sg-schritt"><span>2</span> Wortart <small>optional</small></p>
+        <div className="sg-themen sg-vier">
           {[
             ['alle', 'Gemischt'],
             ['verben', 'Verben'],
@@ -154,7 +150,7 @@ export default function ListGenerator({ vocab, setVocab }) {
             <button
               key={wert}
               type="button"
-              className={'vorschlag-chip' + (wortart === wert ? ' vorschlag-chip-aktiv' : '')}
+              className={'sg-thema' + (wortart === wert ? ' ist-aktiv' : '')}
               onClick={() => setWortart(wert)}
             >
               {text}

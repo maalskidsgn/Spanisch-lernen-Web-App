@@ -11638,3 +11638,64 @@ body.lektion-laeuft .lessons > .player-top,
   display: grid; place-items: center;
   background: #e3f6ea; color: var(--success); font-size: 10px; font-weight: 900;
 }
+
+/* ---------- Sätze erzeugen: klar in zwei Schritte gegliedert ---------- */
+.sg-schritt {
+  display: flex; align-items: center; gap: 8px;
+  margin: 18px 0 10px;
+  font-size: .95rem; font-weight: 800; color: var(--navy);
+}
+.sg-schritt:first-child { margin-top: 4px; }
+.sg-schritt span {
+  display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--primary); color: #fff; font-size: .75rem;
+}
+.sg-schritt small { font-weight: 600; color: var(--muted); font-size: .8rem; }
+
+.sg-themen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.sg-thema {
+  padding: 11px 6px; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--flaeche); box-shadow: none;
+  color: var(--navy); font: inherit; font-size: .9rem; font-weight: 700;
+}
+.sg-thema:active { transform: scale(.97); background: #ffe9d6; }
+
+.sg-reiter {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  margin: 0 -2px 12px; padding: 2px;
+}
+.sg-reiter::-webkit-scrollbar { display: none; }
+.sg-reiter button {
+  position: relative; flex: none;
+  padding: 8px 14px; border-radius: 999px;
+  border: 1px solid var(--line); background: #fff; box-shadow: none;
+  color: var(--muted); font: inherit; font-size: .85rem; font-weight: 700;
+}
+.sg-reiter button.ist-aktiv { background: var(--navy); border-color: var(--navy); color: #fff; }
+.sg-reiter button.hat-wahl::after {
+  content: ''; position: absolute; top: 4px; right: 6px;
+  width: 7px; height: 7px; border-radius: 50%; background: var(--success);
+}
+
+.sg-formen { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.sg-form {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  padding: 12px 14px; border-radius: 14px; text-align: left;
+  border: 1.5px solid var(--line); background: #fff; box-shadow: none;
+  font: inherit;
+}
+.sg-form b { font-size: .92rem; color: var(--navy); }
+.sg-form span { font-size: .8rem; color: var(--muted); }
+.sg-form.ist-aktiv { border-color: var(--primary); background: #fff4ea; }
+.sg-form.ist-aktiv b { color: var(--primary-dark); }
+.sg-gemischt {
+  margin: 0; padding: 12px 14px; border-radius: 14px;
+  background: var(--flaeche); color: var(--muted); font-size: .88rem;
+}
+
+
+.sg-thema.ist-aktiv { border-color: var(--primary); background: #fff1e4; color: var(--primary-dark); box-shadow: inset 0 0 0 1px var(--primary); }
+.sg-vier { grid-template-columns: repeat(4, 1fr); }
+.sg-vier .sg-thema { font-size: .82rem; padding: 11px 2px; }
+.sg-drei { grid-template-columns: repeat(3, 1fr); }

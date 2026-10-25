@@ -126,43 +126,36 @@ export default function SatzGenerator({ saetze, setSaetze }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        {/* Themen: ein Tipp erzeugt sofort */}
-        <div className="wort-vorschlaege">
+        {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen">
           {THEMEN.map((t) => (
             <button
               key={t}
               type="button"
-              className="vorschlag-chip"
+              className={'sg-thema' + (thema === t ? ' ist-aktiv' : '')}
               disabled={laden}
-              onClick={(e) => {
-                setThema(t)
-                generieren(e, t)
-              }}
+              onClick={() => setThema(thema === t ? '' : t)}
             >
               {t}
             </button>
           ))}
         </div>
 
-        {/* Zeitform: bleibt gewählt, gilt für die nächste Generierung */}
-        <div className="zeitform-wahl">
-          <span className="zeitform-titel">Zeitform</span>
-          <div className="wort-vorschlaege">
-            {ZEITFORMEN.map(([wert, name, hilfe]) => (
-              <button
-                key={wert || 'alle'}
-                type="button"
-                className={
-                  'vorschlag-chip zeit-chip' + (zeitform === wert ? ' vorschlag-chip-aktiv' : '')
-                }
-                onClick={() => setZeitform(wert)}
-                title={hilfe}
-              >
-                {name}
-                <small>{hilfe}</small>
-              </button>
-            ))}
-          </div>
+        {/* Schritt 2: Zeitform – bleibt gewählt */}
+        <p className="sg-schritt"><span>2</span> Zeitform <small>optional</small></p>
+        <div className="sg-formen">
+          {ZEITFORMEN.map(([wert, name, hilfe]) => (
+            <button
+              key={wert || 'alle'}
+              type="button"
+              className={'sg-form' + (zeitform === wert ? ' ist-aktiv' : '')}
+              onClick={() => setZeitform(wert)}
+            >
+              <b>{name}</b>
+              <span>{hilfe}</span>
+            </button>
+          ))}
         </div>
 
         <div className="gen-feld">
