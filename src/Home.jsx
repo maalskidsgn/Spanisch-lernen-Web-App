@@ -274,7 +274,7 @@ function Kalender() {
                 onClick={() => setGewaehlt(z)}
               >
                 <span className="kal-zahl">{z.tag}</span>
-                {z.gesamt > 0 && <span className="kal-kreuz" aria-hidden="true">✕</span>}
+                {z.gesamt > 0 && <span className="kal-punkt-mini" aria-hidden="true" />}
               </button>
             ))}
           </div>
