@@ -152,3 +152,11 @@ export function erstesJahr() {
   const tage = Object.keys(lade()).sort()
   return tage.length ? Number(tage[0].slice(0, 4)) : new Date().getFullYear()
 }
+
+/** Alle gespeicherten Wiederholungen zusammen – fuer die Meilensteine. */
+export function summeWiederholungen() {
+  return Object.values(lade()).reduce(
+    (summe, e) => summe + (typeof e === 'number' ? e : e?.w ?? 0),
+    0
+  )
+}

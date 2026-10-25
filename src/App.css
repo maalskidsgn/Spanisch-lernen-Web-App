@@ -11710,3 +11710,66 @@ button.kal-monat-name {
   font: inherit; font-size: 12.5px; font-weight: 800; color: var(--navy); text-align: left;
 }
 button.kal-monat-name:active { transform: none; opacity: .7; }
+
+/* ---------- Meilensteine ---------- */
+.ms-kopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.ms-kopf .start-abschnitt { margin: 0; }
+.ms-zaehler {
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--flaeche); color: var(--navy); font-weight: 800; font-size: .85rem;
+}
+.ms-liste { display: grid; gap: 16px; }
+.ms-kategorie { padding-bottom: 14px; border-bottom: 1px solid var(--line, #eee); }
+.ms-kategorie:last-child { border-bottom: none; padding-bottom: 0; }
+.ms-zeile { display: flex; align-items: center; gap: 12px; }
+.ms-symbol {
+  flex: none; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--flaeche); font-size: 22px;
+}
+.ms-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ms-info b { color: var(--navy); font-size: .95rem; }
+.ms-info > span:not(.ms-balken) { color: var(--muted); font-size: .8rem; }
+.ms-balken { display: block; height: 6px; margin-top: 5px; border-radius: 99px; background: var(--flaeche); overflow: hidden; }
+.ms-balken span { display: block; height: 100%; border-radius: 99px; background: var(--primary); transition: width .4s ease; }
+
+.ms-abzeichen { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 10px; }
+.ms-medaille {
+  position: relative; aspect-ratio: 1; padding: 0; border: none;
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background: #eee9e2; box-shadow: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+}
+.ms-medaille:disabled { cursor: default; opacity: .55; }
+.ms-medaille.ist-da { animation: ms-glanz 2.8s ease-in-out infinite; }
+.ms-medaille.ist-da:active { transform: scale(.92); }
+@keyframes ms-glanz { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12); } }
+.ms-medaille-symbol { font-size: 18px; line-height: 1; }
+.ms-medaille-zahl { font-size: .62rem; font-weight: 900; color: var(--navy); line-height: 1.3; }
+.ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+
+.ms-schicht {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center; padding: 24px;
+  background: rgba(20, 10, 40, .45); backdrop-filter: blur(4px);
+  animation: kal-ein .2s ease;
+}
+.ms-dialog {
+  width: 100%; max-width: 340px; padding: 28px 22px 18px;
+  border-radius: 26px; background: var(--card); text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.ms-gross {
+  width: 132px; height: 132px; margin: 0 auto 14px;
+  display: grid; place-items: center;
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  animation: ms-pop .45s cubic-bezier(.2, 1.6, .4, 1);
+}
+.ms-gross span { font-size: 60px; }
+@keyframes ms-pop { from { transform: scale(.4) rotate(-12deg); } to { transform: none; } }
+.ms-stufe { margin: 0; font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); }
+.ms-ziel { margin: 4px 0 6px; font-size: 1.5rem; color: var(--navy); }
+.ms-lob { margin: 0 0 18px; color: var(--muted); font-size: .9rem; }
+.ms-teilen { width: 100%; }
+.ms-zu { margin-top: 6px; width: 100%; }
+.ms-meldung { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }

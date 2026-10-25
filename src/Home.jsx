@@ -3,8 +3,9 @@ import { TUTOREN } from './tutoren.js'
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
-import { letzteWoche, jahresRaster, erstesJahr } from './aktivitaet.js'
+import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
 import Lernkurve from './Lernkurve.jsx'
+import Meilensteine from './Meilensteine.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
@@ -174,6 +175,20 @@ export default function Home({
         {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
         <Lernkurve />
       </section>
+
+      {/* Meilensteine: Abzeichen zum Teilen */}
+      <Meilensteine
+        app="Habloo"
+        adresse="habloo.de"
+        werte={{
+          woerter: counts.woerter ?? 0,
+          texte: counts.texte ?? 0,
+          saetze: counts.saetze ?? 0,
+          lektionen: lektionenFertig,
+          streak: progress.streak ?? 0,
+          wiederholungen: summeWiederholungen(),
+        }}
+      />
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
     </div>
