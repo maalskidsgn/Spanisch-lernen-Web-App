@@ -11699,3 +11699,14 @@ body.lektion-laeuft .lessons > .player-top,
 .sg-vier { grid-template-columns: repeat(4, 1fr); }
 .sg-vier .sg-thema { font-size: .82rem; padding: 11px 2px; }
 .sg-drei { grid-template-columns: repeat(3, 1fr); }
+
+/* Kalender: Monat/Jahr mit Wischen */
+.kal-wischflaeche { touch-action: pan-y; }
+.kal-blatt { animation: kal-ein .22s ease; }
+@keyframes kal-ein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.kal-jahr-nav b { min-width: 150px; }
+button.kal-monat-name {
+  width: 100%; padding: 0; border: none; background: none; box-shadow: none;
+  font: inherit; font-size: 12.5px; font-weight: 800; color: var(--navy); text-align: left;
+}
+button.kal-monat-name:active { transform: none; opacity: .7; }

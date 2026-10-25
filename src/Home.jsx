@@ -3,7 +3,7 @@ import { TUTOREN } from './tutoren.js'
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
-import { letzteWoche, kalenderRaster, jahresRaster, erstesJahr } from './aktivitaet.js'
+import { letzteWoche, jahresRaster, erstesJahr } from './aktivitaet.js'
 import Lernkurve from './Lernkurve.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
@@ -207,25 +207,62 @@ function Sammelbalken({ werte }) {
  * zeigt die Aufschlüsselung in Lektionen und Wiederholungen.
  */
 function Kalender() {
-  const [ansicht, setAnsicht] = useState('wochen') // 'wochen' | 'jahr'
+  const jetzt = new Date()
+  const [ansicht, setAnsicht] = useState('monat') // 'monat' | 'jahr'
   const [gewaehlt, setGewaehlt] = useState(null)
-  const diesesJahr = new Date().getFullYear()
-  const [jahr, setJahr] = useState(diesesJahr)
+  const [jahr, setJahr] = useState(jetzt.getFullYear())
+  const [monat, setMonat] = useState(jetzt.getMonth())
+  const [wisch, setWisch] = useState(null) // Startpunkt einer Wischgeste
 
-  const zellen = ansicht === 'wochen' ? kalenderRaster(6) : null
-  const monate = ansicht === 'jahr' ? jahresRaster(jahr) : null
+  const monate = jahresRaster(jahr)
+  const frueh = Math.min(erstesJahr(), jetzt.getFullYear())
   const wochentage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 
-  const aktiveTage =
-    ansicht === 'wochen'
-      ? zellen.filter((z) => z.gesamt > 0).length
-      : monate.reduce((summe, m) => summe + m.aktiv, 0)
+  // Grenzen: nicht vor das erste Jahr mit Daten, nicht in die Zukunft
+  const amAnfang = ansicht === 'monat' ? jahr <= frueh && monat === 0 : jahr <= frueh
+  const amEnde =
+    ansicht === 'monat'
+      ? jahr === jetzt.getFullYear() && monat === jetzt.getMonth()
+      : jahr >= jetzt.getFullYear()
+
+  function blaettern(richtung) {
+    if ((richtung < 0 && amAnfang) || (richtung > 0 && amEnde)) return
+    setGewaehlt(null)
+    if (ansicht === 'jahr') return setJahr(jahr + richtung)
+    const neu = monat + richtung
+    if (neu < 0) { setMonat(11); setJahr(jahr - 1) }
+    else if (neu > 11) { setMonat(0); setJahr(jahr + 1) }
+    else setMonat(neu)
+  }
+
+  // Wischen: nach links = vor, nach rechts = zurück
+  function wischStart(e) {
+    const t = e.touches[0]
+    setWisch({ x: t.clientX, y: t.clientY })
+  }
+  function wischEnde(e) {
+    if (!wisch) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - wisch.x
+    const dy = t.clientY - wisch.y
+    setWisch(null)
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) blaettern(dx < 0 ? 1 : -1)
+  }
 
   function wechsle(neu) {
     setAnsicht(neu)
     setGewaehlt(null)
-    setJahr(diesesJahr)
+    setJahr(jetzt.getFullYear())
+    setMonat(jetzt.getMonth())
   }
+
+  const aktuellerMonat = monate[monat]
+  const aktiveTage =
+    ansicht === 'monat' ? aktuellerMonat.aktiv : monate.reduce((summe, m) => summe + m.aktiv, 0)
+  const titel =
+    ansicht === 'monat'
+      ? aktuellerMonat.name.charAt(0).toUpperCase() + aktuellerMonat.name.slice(1) + ' ' + jahr
+      : String(jahr)
 
   return (
     <div className="kalender">
@@ -234,87 +271,71 @@ function Kalender() {
           Kalender · {aktiveTage} {aktiveTage === 1 ? 'aktiver Tag' : 'aktive Tage'}
         </p>
         <div className="kal-umschalter" role="tablist">
-          <button
-            type="button"
-            className={ansicht === 'wochen' ? 'ist-aktiv' : ''}
-            onClick={() => wechsle('wochen')}
-          >
-            6 Wochen
+          <button type="button" className={ansicht === 'monat' ? 'ist-aktiv' : ''} onClick={() => wechsle('monat')}>
+            Monat
           </button>
-          <button
-            type="button"
-            className={ansicht === 'jahr' ? 'ist-aktiv' : ''}
-            onClick={() => wechsle('jahr')}
-          >
+          <button type="button" className={ansicht === 'jahr' ? 'ist-aktiv' : ''} onClick={() => wechsle('jahr')}>
             Jahr
           </button>
         </div>
       </div>
 
-      {ansicht === 'wochen' && (
-        <>
-          <div className="kal-wochentage">
-            {wochentage.map((t) => (
-              <span key={t}>{t}</span>
-            ))}
-          </div>
+      <div className="kal-jahr-nav">
+        <button type="button" aria-label="Zurück" disabled={amAnfang} onClick={() => blaettern(-1)}>‹</button>
+        <b>{titel}</b>
+        <button type="button" aria-label="Weiter" disabled={amEnde} onClick={() => blaettern(1)}>›</button>
+      </div>
 
-          <div className="kal-gitter">
-            {zellen.map((z) => (
-              <button
-                key={z.schluessel}
-                type="button"
-                disabled={z.zukunft}
-                className={
-                  'kal-tag' +
-                  (z.gesamt > 0 ? ' kal-aktiv' : '') +
-                  (z.istHeute ? ' kal-heute' : '') +
-                  (z.zukunft ? ' kal-zukunft' : '') +
-                  (gewaehlt?.schluessel === z.schluessel ? ' kal-gewaehlt' : '')
-                }
-                onClick={() => setGewaehlt(z)}
-              >
-                <span className="kal-zahl">{z.tag}</span>
-                {z.gesamt > 0 && (
-                  <svg className="kal-haken" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </button>
-            ))}
+      <div className="kal-wischflaeche" onTouchStart={wischStart} onTouchEnd={wischEnde}>
+        {ansicht === 'monat' && (
+          <div key={jahr + '-' + monat} className="kal-blatt">
+            <div className="kal-wochentage">
+              {wochentage.map((t) => (
+                <span key={t}>{t}</span>
+              ))}
+            </div>
+            <div className="kal-gitter">
+              {Array.from({ length: aktuellerMonat.versatz }, (_, i) => (
+                <span key={'l' + i} />
+              ))}
+              {aktuellerMonat.tage.map((z) => (
+                <button
+                  key={z.schluessel}
+                  type="button"
+                  disabled={z.zukunft}
+                  className={
+                    'kal-tag' +
+                    (z.gesamt > 0 ? ' kal-aktiv' : '') +
+                    (z.istHeute ? ' kal-heute' : '') +
+                    (z.zukunft ? ' kal-zukunft' : '') +
+                    (gewaehlt?.schluessel === z.schluessel ? ' kal-gewaehlt' : '')
+                  }
+                  onClick={() => setGewaehlt(z)}
+                >
+                  <span className="kal-zahl">{z.tag}</span>
+                  {z.gesamt > 0 && (
+                    <svg className="kal-haken" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
-        </>
-      )}
+        )}
 
-      {ansicht === 'jahr' && (
-        <>
-          <div className="kal-jahr-nav">
-            <button
-              type="button"
-              aria-label="Vorheriges Jahr"
-              disabled={jahr <= Math.min(erstesJahr(), diesesJahr)}
-              onClick={() => { setJahr(jahr - 1); setGewaehlt(null) }}
-            >
-              ‹
-            </button>
-            <b>{jahr}</b>
-            <button
-              type="button"
-              aria-label="Nächstes Jahr"
-              disabled={jahr >= diesesJahr}
-              onClick={() => { setJahr(jahr + 1); setGewaehlt(null) }}
-            >
-              ›
-            </button>
-          </div>
-
-          <div className="kal-jahr">
-            {monate.map((m) => (
+        {ansicht === 'jahr' && (
+          <div key={jahr} className="kal-jahr kal-blatt">
+            {monate.map((m, i) => (
               <div key={m.name} className="kal-monat">
-                <p className="kal-monat-name">
+                <button
+                  type="button"
+                  className="kal-monat-name"
+                  onClick={() => { setMonat(i); setAnsicht('monat'); setGewaehlt(null) }}
+                >
                   {m.name}
                   {m.aktiv > 0 && <span>{m.aktiv}</span>}
-                </p>
+                </button>
                 <div className="kal-mini">
                   {Array.from({ length: m.versatz }, (_, i) => (
                     <span key={'l' + i} />
@@ -339,8 +360,8 @@ function Kalender() {
               </div>
             ))}
           </div>
-        </>
-      )}
+        )}
+      </div>
 
       {gewaehlt && (
         <div className={'kal-detail' + (gewaehlt.gesamt > 0 ? ' kal-detail-aktiv' : '')}>
