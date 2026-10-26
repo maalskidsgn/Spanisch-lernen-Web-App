@@ -8,6 +8,7 @@
  */
 
 import { db } from './supabase.js'
+import { lokalerVerlauf, vereineVerlauf, uebernimmVerlauf } from './verlauf.js'
 import { INTERVALS_DAYS } from './srs.js'
 
 /**
@@ -198,10 +199,22 @@ export async function ladeStatistik(nutzerId) {
     streak: data.serie,
     lastDay: data.letzter_tag,
     xpToday: data.xp_heute,
+    verlauf: data.ki_nutzung?.verlauf ?? null,
   }
 }
 
 export async function speichereStatistik(nutzerId, stats) {
+  // Kalender + Lernkurve mitschicken. Vorher den Stand in der
+  // Datenbank dazunehmen: Hat ein anderes Gerät inzwischen Tage
+  // ergänzt, würden wir sie sonst überschreiben.
+  const { data: alt } = await db
+    .from('statistik')
+    .select('ki_nutzung')
+    .eq('nutzer_id', nutzerId)
+    .maybeSingle()
+  const verlauf = vereineVerlauf(lokalerVerlauf(), alt?.ki_nutzung?.verlauf)
+  uebernimmVerlauf(verlauf)
+
   const { error } = await db.from('statistik').upsert(
     {
       nutzer_id: nutzerId,
@@ -210,6 +223,7 @@ export async function speichereStatistik(nutzerId, stats) {
       serie: stats.streak ?? 0,
       letzter_tag: stats.lastDay ?? null,
       xp_heute: stats.xpToday ?? 0,
+      ki_nutzung: { ...(alt?.ki_nutzung ?? {}), verlauf },
       aktualisiert_am: new Date().toISOString(),
     },
     { onConflict: 'nutzer_id' }

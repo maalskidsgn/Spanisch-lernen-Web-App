@@ -35,6 +35,18 @@ export default function Home({
   onNavigate,
   nutzerEmail,
 }) {
+  // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
+  const [, setVerlaufStand] = useState(0)
+  useEffect(() => {
+    const neu = () => setVerlaufStand((n) => n + 1)
+    window.addEventListener('aktivitaet', neu)
+    window.addEventListener('lernkurve', neu)
+    return () => {
+      window.removeEventListener('aktivitaet', neu)
+      window.removeEventListener('lernkurve', neu)
+    }
+  }, [])
+
   const modul = nextLesson
     ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
     : null
