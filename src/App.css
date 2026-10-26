@@ -11805,99 +11805,78 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 
 /* ---------- Lernpfad (Kartenansicht der Lektionen) ---------- */
 .pfad {
-  padding: 18px 14px 28px;
+  padding: 18px 16px 24px;
   border-radius: 24px;
   background: var(--card);
   border: 1px solid #f1e8dc;
+  box-shadow: 0 8px 28px rgba(60, 30, 0, .05);
 }
-.pfad-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
-.pfad-kopf b { font-size: .9rem; color: var(--navy); }
-.pfad-fortschritt { flex: 1; height: 10px; border-radius: 99px; background: var(--flaeche); overflow: hidden; }
-.pfad-fortschritt span {
-  display: block; height: 100%; border-radius: 99px;
-  background: linear-gradient(90deg, #ff9a45, var(--primary));
-  transition: width .5s ease;
+.pfad-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.pfad-kopf b { font-size: .8rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.pfad-fortschritt { flex: 1; height: 6px; border-radius: 99px; background: var(--flaeche); overflow: hidden; }
+.pfad-fortschritt span { display: block; height: 100%; border-radius: 99px; background: var(--primary); transition: width .5s ease; }
+
+/* Aktuelle Lektion als ruhige Karte oben */
+.pfad-jetzt {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; margin-bottom: 22px; padding: 14px;
+  border: 1px solid #f3e3d2; border-radius: 18px;
+  background: linear-gradient(180deg, #fffaf5, #fff);
+  box-shadow: none; text-align: left; font: inherit;
+}
+.pfad-jetzt:active { transform: scale(.99); }
+.pfad-jetzt-nr {
+  flex: none; display: grid; place-items: center;
+  width: 46px; height: 46px; border-radius: 14px;
+  background: var(--primary); color: #fff; font-weight: 800; font-size: 1.1rem;
+}
+.pfad-jetzt-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pfad-jetzt-marke { font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+.pfad-jetzt-text b { font-size: 1rem; color: var(--navy); line-height: 1.25; }
+.pfad-jetzt-text > span:last-child { font-size: .8rem; color: var(--muted); }
+.pfad-jetzt-pfeil {
+  flex: none; display: grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--navy); color: #fff;
 }
 
-.pfad-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
-.pfad-etappe {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center;
-  transform: translateX(var(--versatz));
-  padding: 10px 0 6px;
-}
-/* Punkte zwischen den Etappen – ein angedeuteter Weg */
-.pfad-etappe + .pfad-etappe::before {
-  content: '';
-  position: absolute; top: -8px; left: 50%;
-  width: 6px; height: 14px; margin-left: -3px;
-  border-radius: 3px; background: #f0e6da;
-}
+/* Buehne mit Weg und Etappen */
+.pfad-buehne { position: relative; }
+.pfad-weg { position: absolute; top: 0; left: 50%; transform: translateX(-50%); overflow: visible; pointer-events: none; }
+.pfad-weg-grund { fill: none; stroke: #f1ebe3; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 1 10; }
+.pfad-weg-voll { fill: none; stroke: var(--primary); stroke-width: 4; stroke-linecap: round; opacity: .35; }
 
+.pfad-liste { position: relative; list-style: none; margin: 0; padding: 0; }
+.pfad-etappe { position: relative; display: flex; align-items: center; justify-content: center; }
 .pfad-knopf {
-  width: 72px; height: 66px; padding: 0;
+  position: relative; z-index: 1;
+  width: 56px; height: 56px; padding: 0;
   display: grid; place-items: center;
-  border: none; border-radius: 50%;
-  background: color-mix(in srgb, var(--primary) 22%, #fff);
-  color: var(--primary);
-  box-shadow: 0 6px 0 color-mix(in srgb, var(--primary) 35%, #fff);
-  transition: transform .1s ease, box-shadow .1s ease;
+  transform: translateX(var(--versatz));
+  border: 1.5px solid #eadfd2; border-radius: 50%;
+  background: #fff; color: var(--navy);
+  box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(60, 30, 0, .06);
+  transition: transform .15s ease, box-shadow .15s ease;
 }
-.pfad-knopf:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 color-mix(in srgb, var(--primary) 35%, #fff); }
-.pfad-knopf.ist-fertig {
-  background: linear-gradient(160deg, #ff9a45, var(--primary));
-  color: #fff;
-  box-shadow: 0 6px 0 var(--primary-press);
-}
-.pfad-knopf.ist-fertig:active { box-shadow: 0 1px 0 var(--primary-press); }
+.pfad-knopf:active:not(:disabled) { transform: translateX(var(--versatz)) scale(.94); }
+.pfad-nr { font-size: .95rem; font-weight: 800; }
+.pfad-knopf.ist-fertig { border-color: transparent; background: var(--primary); color: #fff; }
 .pfad-knopf.ist-dran {
-  width: 84px; height: 78px;
-  background: linear-gradient(160deg, #ff9a45, var(--primary));
-  color: #fff;
-  box-shadow: 0 7px 0 var(--primary-press), 0 0 0 8px color-mix(in srgb, var(--primary) 18%, transparent);
-  animation: pfad-puls 2s ease-in-out infinite;
+  width: 64px; height: 64px;
+  border: none; background: var(--primary); color: #fff;
+  box-shadow: 0 0 0 6px #fff, 0 0 0 8px color-mix(in srgb, var(--primary) 30%, #fff), 0 10px 24px rgba(255, 108, 0, .25);
 }
-@keyframes pfad-puls {
-  0%, 100% { box-shadow: 0 7px 0 var(--primary-press), 0 0 0 8px color-mix(in srgb, var(--primary) 18%, transparent); }
-  50% { box-shadow: 0 7px 0 var(--primary-press), 0 0 0 14px color-mix(in srgb, var(--primary) 8%, transparent); }
-}
-.pfad-knopf.ist-zu { background: #efebe6; color: #b9b0a4; box-shadow: 0 6px 0 #ddd6cc; cursor: default; }
+.pfad-knopf.ist-dran .pfad-nr { font-size: 1.1rem; }
+.pfad-knopf.ist-zu { background: #faf8f5; border-color: #efe9e1; color: #c2b8ab; box-shadow: none; cursor: default; }
 
 .pfad-titel {
-  margin-top: 10px; max-width: 150px;
-  text-align: center; font-size: .78rem; font-weight: 800; line-height: 1.25;
-  color: var(--navy);
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: calc(50% - 60px);
+  display: flex; flex-direction: column; gap: 1px;
+  font-size: .82rem; font-weight: 700; line-height: 1.25; color: var(--navy);
 }
+.pfad-titel small { font-size: .72rem; font-weight: 600; color: var(--muted); }
 .pfad-titel.ist-zu { color: #b3a898; }
-
-/* Sprechblase ueber der aktuellen Etappe */
-.pfad-blase {
-  position: relative;
-  width: min(280px, 78vw);
-  margin-bottom: 18px;
-  padding: 14px 16px 16px;
-  border-radius: 20px;
-  background: var(--card);
-  border: 2px solid color-mix(in srgb, var(--primary) 30%, #fff);
-  box-shadow: 0 10px 24px rgba(255, 108, 0, .12);
-  text-align: center;
-  transform: translateX(calc(var(--versatz) * -1));
-  animation: kal-ein .3s ease;
-}
-.pfad-blase::after {
-  content: '';
-  position: absolute; left: calc(50% + var(--versatz)); bottom: -9px;
-  width: 16px; height: 16px; margin-left: -8px;
-  background: var(--card);
-  border-right: 2px solid color-mix(in srgb, var(--primary) 30%, #fff);
-  border-bottom: 2px solid color-mix(in srgb, var(--primary) 30%, #fff);
-  transform: rotate(45deg);
-}
-.pfad-blase-marke {
-  display: inline-block; margin-bottom: 6px; padding: 3px 10px; border-radius: 99px;
-  background: color-mix(in srgb, var(--primary) 12%, #fff);
-  color: var(--primary-dark); font-size: .7rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
-}
-.pfad-blase b { display: block; font-size: 1.08rem; color: var(--navy); line-height: 1.25; }
-.pfad-blase-unter { display: block; margin: 4px 0 12px; font-size: .82rem; color: var(--muted); }
-.pfad-start { width: 100%; }
+.pfad-titel.ist-dran { color: var(--primary-dark); }
+.pfad-rechts .pfad-titel { left: calc(50% + var(--versatz) + 44px); text-align: left; }
+.pfad-links .pfad-titel { right: calc(50% - var(--versatz) + 44px); text-align: right; }

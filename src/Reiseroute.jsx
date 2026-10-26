@@ -1,39 +1,55 @@
 // Die Reiseroute: der Lernpfad eines Moduls.
 //
-// Runde Etappen-Knoepfe in der Mitte, die sanft hin und her pendeln –
-// wie ein Weg, den man entlanggeht. Geschafft = gefuellt mit Haken,
-// die aktuelle Etappe ist groesser, pulsiert und traegt eine
-// Sprechblase mit Titel und Start-Knopf. Gesperrte sind grau.
+// Ein durchgehender, weicher Weg mit runden Etappen, die sanft hin
+// und her pendeln. Oben steht die aktuelle Lektion als eigene Karte –
+// so behaelt jede Zeile ihre feste Hoehe und der Weg trifft die
+// Knoepfe genau. Beschriftungen stehen neben dem Knopf, nicht darunter.
 
 import { ALLES_OFFEN, dauerMinuten } from './lektionen.js'
 
-// Versatz der Knoepfe in px: eine weiche Welle statt starrem Zickzack
-const WELLE = [0, 46, 70, 46, 0, -46, -70, -46]
+const WELLE = [0, 40, 64, 40, 0, -40, -64, -40] // Versatz in px
+const ZEILE = 96 // feste Zeilenhoehe
+const BREITE = 320 // Zeichenflaeche des Weges
 
-function IconHaken() {
-  return (
-    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
-      <path d="M5 12.5l5 5L19 7" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-function IconStern() {
-  return (
-    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
-      <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9L12 3.5z" fill="currentColor" />
-    </svg>
-  )
-}
-function IconSchloss() {
+function Haken() {
   return (
     <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M5 12.5l5 5L19 7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function Schloss() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M7.5 11V8.5a4.5 4.5 0 0 1 9 0V11M6.5 11h11v8.5h-11z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function Pfeil() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
 
 export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart }) {
   const fertigAnzahl = lektionen.filter((l) => fortschritt[l.id]?.fertig).length
+  const dran = lektionen.find((l) => l.id === naechsteId)
+  const dranNr = lektionen.findIndex((l) => l.id === naechsteId)
+
+  // Punkte des Weges, Mitte der Zeichenflaeche = x 0
+  const punkte = lektionen.map((_, i) => ({ x: BREITE / 2 + WELLE[i % WELLE.length], y: i * ZEILE + ZEILE / 2 }))
+  const weg = punkte.reduce((d, p, i) => {
+    if (i === 0) return `M ${p.x} ${p.y}`
+    const v = punkte[i - 1]
+    const b = (p.y - v.y) * 0.5
+    return d + ` C ${v.x} ${v.y + b}, ${p.x} ${p.y - b}, ${p.x} ${p.y}`
+  }, '')
+  // geschaffter Teil des Weges
+  const letzterFertig = lektionen.reduce((n, l, i) => (fortschritt[l.id]?.fertig ? i : n), -1)
+  const bis = Math.max(letzterFertig, dranNr)
+  const anteil = lektionen.length > 1 ? Math.max(0, bis) / (lektionen.length - 1) : 0
 
   return (
     <div className="pfad">
@@ -42,60 +58,78 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
           <span style={{ width: (lektionen.length ? (fertigAnzahl / lektionen.length) * 100 : 0) + '%' }} />
         </span>
         <b>
-          {fertigAnzahl}/{lektionen.length}
+          {fertigAnzahl} von {lektionen.length}
         </b>
       </div>
 
-      <ol className="pfad-liste">
-        {lektionen.map((l, i) => {
-          const fertig = fortschritt[l.id]?.fertig
-          const dran = l.id === naechsteId
-          const zu = !ALLES_OFFEN && !fertig && !dran
-          const dauer = dauerMinuten(l)
-          const versatz = WELLE[i % WELLE.length]
+      {dran && (
+        <button type="button" className="pfad-jetzt" onClick={() => onStart(dran)}>
+          <span className="pfad-jetzt-nr">{dranNr + 1}</span>
+          <span className="pfad-jetzt-text">
+            <span className="pfad-jetzt-marke">Als Nächstes</span>
+            <b>{dran.titel}</b>
+            <span>
+              {dran.grammatik?.[0] ?? dran.beschreibung} · {dauerMinuten(dran).von}–{dauerMinuten(dran).bis} Min.
+            </span>
+          </span>
+          <span className="pfad-jetzt-pfeil">
+            <Pfeil />
+          </span>
+        </button>
+      )}
 
-          return (
-            <li
-              key={l.id}
-              className={'pfad-etappe' + (dran ? ' ist-dran' : '')}
-              style={{ '--versatz': versatz + 'px' }}
-            >
-              {dran && (
-                <div className="pfad-blase">
-                  <span className="pfad-blase-marke">Lektion {l.kursNr ?? i + 1}</span>
-                  <b>{l.titel}</b>
-                  <span className="pfad-blase-unter">
-                    {l.grammatik?.[0] ?? l.beschreibung} · {dauer.von}–{dauer.bis} Min.
-                  </span>
-                  <button type="button" className="btn pfad-start" onClick={() => onStart(l)}>
-                    {fortschritt[l.id] ? 'Weiterlernen' : 'Starten'}
-                  </button>
-                </div>
-              )}
+      <div className="pfad-buehne" style={{ height: lektionen.length * ZEILE + 'px' }}>
+        <svg
+          className="pfad-weg"
+          viewBox={`0 0 ${BREITE} ${lektionen.length * ZEILE}`}
+          width={BREITE}
+          height={lektionen.length * ZEILE}
+          aria-hidden="true"
+        >
+          <path d={weg} className="pfad-weg-grund" />
+          {anteil > 0 && (
+            <path d={weg} className="pfad-weg-voll" pathLength="1" strokeDasharray={`${anteil} 1`} />
+          )}
+        </svg>
 
-              <button
-                type="button"
-                className={
-                  'pfad-knopf' +
-                  (fertig ? ' ist-fertig' : '') +
-                  (dran ? ' ist-dran' : '') +
-                  (zu ? ' ist-zu' : '') +
-                  (!fertig && !dran && !zu ? ' ist-offen' : '')
-                }
-                disabled={zu}
-                onClick={() => onStart(l)}
-                aria-label={l.titel + (fertig ? ' – geschafft' : zu ? ' – gesperrt' : '')}
+        <ol className="pfad-liste">
+          {lektionen.map((l, i) => {
+            const fertig = fortschritt[l.id]?.fertig
+            const istDran = l.id === naechsteId
+            const zu = !ALLES_OFFEN && !fertig && !istDran
+            const versatz = WELLE[i % WELLE.length]
+            // Beschriftung auf die Seite mit mehr Platz
+            const seite = versatz > 0 ? 'links' : 'rechts'
+
+            return (
+              <li
+                key={l.id}
+                className={'pfad-etappe pfad-' + seite}
+                style={{ '--versatz': versatz + 'px', height: ZEILE + 'px' }}
               >
-                {fertig ? <IconHaken /> : zu ? <IconSchloss /> : <IconStern />}
-              </button>
-
-              {!dran && (
-                <span className={'pfad-titel' + (zu ? ' ist-zu' : '')}>{l.titel}</span>
-              )}
-            </li>
-          )
-        })}
-      </ol>
+                <button
+                  type="button"
+                  className={
+                    'pfad-knopf' +
+                    (fertig ? ' ist-fertig' : '') +
+                    (istDran ? ' ist-dran' : '') +
+                    (zu ? ' ist-zu' : '')
+                  }
+                  disabled={zu}
+                  onClick={() => onStart(l)}
+                  aria-label={l.titel + (fertig ? ' – geschafft' : zu ? ' – gesperrt' : '')}
+                >
+                  {fertig ? <Haken /> : zu ? <Schloss /> : <span className="pfad-nr">{i + 1}</span>}
+                </button>
+                <span className={'pfad-titel' + (zu ? ' ist-zu' : '') + (istDran ? ' ist-dran' : '')}>
+                  {l.titel}
+                  <small>{fertig ? 'Geschafft' : `${dauerMinuten(l).von}–${dauerMinuten(l).bis} Min.`}</small>
+                </span>
+              </li>
+            )
+          })}
+        </ol>
+      </div>
     </div>
   )
 }
