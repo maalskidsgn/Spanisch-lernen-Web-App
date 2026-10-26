@@ -53,7 +53,22 @@ const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
  * Zukunft. Serverseitig geprüft, damit das Limit nicht über den
  * Client umgangen werden kann.
  */
+// ---------------------------------------------------------------
+//  Testphase: alles für alle offen
+// ---------------------------------------------------------------
+//
+// Solange die App im geschlossenen Test läuft, soll niemand an
+// einer Premium-Schranke hängen bleiben – die Tester sollen ja
+// gerade alles ausprobieren. Bezahlen lässt sich ohnehin noch
+// nicht echt: Stripe steht auf Testmodus, es kommt kein Geld an.
+//
+// Zum Zurückdrehen: diesen Schalter auf false setzen. Dann gilt
+// wieder das Abo aus der Datenbank, der Code darunter ist
+// unverändert geblieben.
+const TESTPHASE_ALLES_FREI = true
+
 export async function istPremium(nutzerId) {
+  if (TESTPHASE_ALLES_FREI) return true
   const antwort = await fetch(
     `${BASIS()}/abos?select=status,laeuft_ab&nutzer_id=eq.${nutzerId}`,
     { headers: supabaseKopf() }

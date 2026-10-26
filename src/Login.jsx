@@ -59,7 +59,8 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
         } else if (mailBestaetigen) {
           setHinweis(
             'Fast geschafft! Wir haben dir eine E-Mail geschickt – ' +
-            'klicke den Link darin, dann kannst du dich anmelden.'
+            'klicke den Link darin, dann kannst du dich anmelden. ' +
+            'Schau bitte auch im Spam-Ordner nach, falls nichts ankommt.'
           )
         } else {
           onFertig?.()
@@ -67,7 +68,10 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
         }
       } else {
         await passwortVergessen(email)
-        setHinweis('Wir haben dir einen Link zum Zurücksetzen geschickt.')
+        setHinweis(
+          'Wir haben dir einen Link zum Zurücksetzen geschickt. ' +
+          'Schau bitte auch im Spam-Ordner nach, falls nichts ankommt.'
+        )
       }
     } catch (f) {
       setFehler(f.message)

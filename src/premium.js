@@ -17,7 +17,16 @@ import { API_URL } from './api.js'
  * Liest die Berechtigung des angemeldeten Nutzers.
  * @returns {Promise<{premium: boolean, bis: Date|null, status: string|null}>}
  */
+// Testphase: keine Premium-Schranken.
+//
+// Dasselbe wie der Schalter in server/gespraech.js – beide gehören
+// zusammen. Der Server entscheidet über die teuren Abrufe, diese
+// Zeile hier sorgt dafür, dass die Oberfläche auch gar nicht erst
+// eine Schranke zeigt. Zum Zurückdrehen beide auf false setzen.
+const TESTPHASE_ALLES_FREI = true
+
 export async function holeBerechtigung() {
+  if (TESTPHASE_ALLES_FREI) return { premium: true, bis: null, status: 'testphase' }
   // Ohne eingerichtete Datenbank gibt es keine Abos – und vor allem
   // keinen Absturz: db ist dann null.
   if (!supabaseBereit) return { premium: false, bis: null, status: null }
