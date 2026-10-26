@@ -426,7 +426,7 @@ export default function Settings({
               {!istApp && TESTPHASE_ALLES_FREI && (
                 <button
                   className="btn-plain testkauf-knopf"
-                  onClick={() => { testkaufAn(); location.reload() }}
+                  onClick={() => { testkaufAn(); neuLaden() }}
                 >
                   Bezahlung testen
                 </button>
@@ -457,7 +457,7 @@ export default function Settings({
               Testkauf-Modus: Du siehst die App gerade als Gratis-Nutzer.{' '}
               <button
                 className="btn-plain"
-                onClick={() => { testkaufAus(); location.reload() }}
+                onClick={() => { testkaufAus(); neuLaden() }}
               >
                 Zurück zur Testphase
               </button>
