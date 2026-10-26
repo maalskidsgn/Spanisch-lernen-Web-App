@@ -20,6 +20,31 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
     bezahlungBereit().then(setBezahlbar).catch(() => setBezahlbar(false))
   }, [])
 
+  // In der Store-App kein Wort über Premium: Apple und Google werten
+  // das als Hinweis, ausserhalb des Stores zu kaufen.
+  if (istApp) {
+    return (
+      <div className="premium-werbung">
+        <div className="pw-kopf">
+          <span className="pw-symbol" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              <circle cx="12" cy="12" r="8.5" />
+              <path d="M12 7.5V12l3 2" />
+            </svg>
+          </span>
+          <div>
+            <p className="pw-ueber">Für heute geschafft</p>
+            <h3 className="pw-titel">Morgen geht's weiter</h3>
+          </div>
+        </div>
+        <p className="pw-text">
+          Deine Generierungen für heute sind aufgebraucht. Neue {was} gibt es{' '}
+          {naechsteAuffuellung()} – bis dahin kannst du mit dem Gesammelten üben.
+        </p>
+      </div>
+    )
+  }
+
   function zurKasse() {
     window.history.pushState({ kasse: true }, '', '/kasse')
     window.dispatchEvent(new PopStateEvent('popstate', { state: { kasse: true } }))

@@ -1,4 +1,4 @@
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import { TUTOREN } from './tutoren.js'
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
@@ -529,7 +529,7 @@ function Gruppenstunde({ onNavigate }) {
           </button>
         )}
 
-        {!premium && (
+        {!premium && !istApp && (
           <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
             Mit Premium teilnehmen <IconPfeil groesse={16} />
           </button>

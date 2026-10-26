@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
 
@@ -219,7 +220,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       </section>
 
       {/* ================= PREISE ================= */}
-      <section className="wk-sektion wk-sektion-warm">
+      {!istApp && (
+<section className="wk-sektion wk-sektion-warm">
         <span className="wk-wolke wk-wolke-4" />
         <div className="wk-breite">
           <div className="wk-kopf zeigt-sich">
@@ -285,6 +287,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           </div>
         </div>
       </section>
+      )}
 
       {/* ================= ABSCHLUSS ================= */}
       <section className="wk-sektion wk-sektion-schluss">

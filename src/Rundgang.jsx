@@ -90,7 +90,7 @@ export const BEREICHE = {
     icon: IconMehr,
     titel: 'Mehr',
     text:
-      'Dein Konto, Tagesziel, Backups und Premium. Und falls du mal ' +
+      'Dein Konto, Tagesziel, und Backups. Und falls du mal ' +
       'etwas suchst: Der Leitfaden „So nutzt du Habloo" erklärt die ' +
       'ganze App in Ruhe.',
   },

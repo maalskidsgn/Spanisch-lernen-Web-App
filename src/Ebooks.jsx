@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import { db } from './supabase.js'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2']
@@ -171,14 +171,15 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
-              Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du
-              unbegrenzt viele Bücher.
+              {istApp
+                ? 'Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.'
+                : 'Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.'}
             </p>
           )}
         </form>
       </section>
 
-      {aufgebraucht && (
+      {aufgebraucht && !istApp && (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
             Unbegrenzt lesen <span className="plan-badge badge-soon">Premium</span>

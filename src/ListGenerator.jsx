@@ -1,4 +1,4 @@
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
@@ -245,7 +245,7 @@ export default function ListGenerator({ vocab, setVocab }) {
 
       {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}
 
-      {fehler === 'premium' ? (
+      {fehler === 'premium' && !istApp ? (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
             Premium-Funktion <span className="plan-badge badge-soon">Bald verfügbar</span>

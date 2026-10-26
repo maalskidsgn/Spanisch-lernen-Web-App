@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom'
 
 import { useState, useRef, useEffect } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
 import { erfolgston } from './erfolgston.js'
@@ -277,7 +277,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             nur vom Gespräch ab. */}
         {frei !== null && frei <= 5 && !fehler && (
           <p className="gespr-rest">
-            Noch {frei} {frei === 1 ? 'Nachricht' : 'Nachrichten'} heute · unbegrenzt mit Premium
+            Noch {frei} {frei === 1 ? 'Nachricht' : 'Nachrichten'} heute{!istApp && ' · unbegrenzt mit Premium'}
           </p>
         )}
         <div ref={endeRef} />
