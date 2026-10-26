@@ -11951,3 +11951,29 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .anbieter-apple { background: #000; border-color: #000; color: #fff; }
 .login-oder { display: flex; align-items: center; gap: 10px; margin: 6px 0 2px; color: var(--muted); font-size: .8rem; }
 .login-oder::before, .login-oder::after { content: ''; flex: 1; height: 1px; background: var(--line, #eee); }
+
+/* ---------- Testkauf (nur während der Testphase) ----------
+   Bewusst zurückhaltend: Das ist Werkzeug für den Betreiber,
+   kein Angebot an den Nutzer. Es soll auffindbar sein, aber
+   nicht mit "Premium holen" konkurrieren. */
+.testkauf-knopf {
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+.testkauf-knopf:hover { opacity: 1; }
+
+.testkauf-hinweis {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff6e8;
+  border: 1px dashed #ffb061;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #6b4a1f;
+}
+.testkauf-hinweis .btn-plain {
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 0.9rem;
+}

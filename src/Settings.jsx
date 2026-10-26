@@ -1,6 +1,9 @@
 import { useRef, useState, useEffect } from 'react'
 import { API_URL, istApp } from './api.js'
-import { usePremium, zurKasse, aboVerwalten, TESTPHASE_ALLES_FREI } from './premium.js'
+import {
+  usePremium, zurKasse, aboVerwalten,
+  TESTPHASE_ALLES_FREI, testkaufAn, testkaufAus, testkaufLaeuft,
+} from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
@@ -418,6 +421,16 @@ export default function Settings({
                   {laedt ? 'Öffnet …' : 'Abo verwalten'}
                 </button>
               )}
+              {/* Nur während der Testphase: den Bezahlweg ausprobieren,
+                  ohne allen anderen das Premium wegzunehmen. */}
+              {!istApp && TESTPHASE_ALLES_FREI && (
+                <button
+                  className="btn-plain testkauf-knopf"
+                  onClick={() => { testkaufAn(); location.reload() }}
+                >
+                  Bezahlung testen
+                </button>
+              )}
             </>
           ) : istApp ? (
             /* Kein Kauf und kein Link nach draussen – nur der neutrale
@@ -436,6 +449,20 @@ export default function Settings({
             </button>
           )}
 
+          {/* Der Weg zurück: Wer den Bezahlweg ausprobiert hat, soll
+              sein geschenktes Premium wiederbekommen – sonst sitzt er
+              bis zum Ende der Testphase auf dem Gratis-Zugang fest. */}
+          {TESTPHASE_ALLES_FREI && !premium && testkaufLaeuft() && (
+            <p className="testkauf-hinweis">
+              Testkauf-Modus: Du siehst die App gerade als Gratis-Nutzer.{' '}
+              <button
+                className="btn-plain"
+                onClick={() => { testkaufAus(); location.reload() }}
+              >
+                Zurück zur Testphase
+              </button>
+            </p>
+          )}
 
           {kaufFehler && <p className="error">{kaufFehler}</p>}
         </div>

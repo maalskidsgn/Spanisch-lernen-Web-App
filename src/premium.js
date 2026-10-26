@@ -25,8 +25,38 @@ import { API_URL } from './api.js'
 // eine Schranke zeigt. Zum Zurückdrehen beide auf false setzen.
 export const TESTPHASE_ALLES_FREI = true
 
+/**
+ * Ausnahme von der Testphase – nur für dieses eine Gerät.
+ *
+ * Solange alle Premium geschenkt bekommen, lässt sich der Bezahlweg
+ * nicht ausprobieren: Wer schon Premium hat, bekommt keine Kasse zu
+ * sehen. Wer hier einschaltet, wird für sich selbst wieder zum
+ * Gratis-Nutzer und kann eine echte Zahlung durchspielen. Alle
+ * anderen merken davon nichts.
+ *
+ * Der Merker liegt im Browser, nicht auf dem Konto: Auf einem anderen
+ * Gerät ist wieder alles frei.
+ */
+export function testkaufAn() {
+  try { localStorage.setItem('testkauf', 'ja') } catch { /* privater Modus */ }
+}
+export function testkaufAus() {
+  try { localStorage.removeItem('testkauf') } catch { /* egal */ }
+}
+export function testkaufLaeuft() {
+  try {
+    // Auch per Adresse einschaltbar: habloo.de/?testkauf=1
+    if (new URLSearchParams(location.search).get('testkauf') === '1') testkaufAn()
+    return localStorage.getItem('testkauf') === 'ja'
+  } catch {
+    return false
+  }
+}
+
 export async function holeBerechtigung() {
-  if (TESTPHASE_ALLES_FREI) return { premium: true, bis: null, status: 'testphase' }
+  if (TESTPHASE_ALLES_FREI && !testkaufLaeuft()) {
+    return { premium: true, bis: null, status: 'testphase' }
+  }
   // Ohne eingerichtete Datenbank gibt es keine Abos – und vor allem
   // keinen Absturz: db ist dann null.
   if (!supabaseBereit) return { premium: false, bis: null, status: null }
