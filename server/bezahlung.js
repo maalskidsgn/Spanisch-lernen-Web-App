@@ -23,6 +23,36 @@ import { createClient } from '@supabase/supabase-js'
 const APP_KENNUNG = process.env.APP_KENNUNG || 'habloo'
 
 let stripe = null
+
+// Die drei Tarife. Die Preise stehen in Stripe und tragen feste
+// Kennungen (lookup_key) – so findet der Server sie ohne weitere
+// Umgebungsvariablen, und ein neuer Preis braucht keinen Deploy:
+// in Stripe anlegen, Kennung uebertragen, fertig.
+export const TARIFE = ['monat', 'jahr', 'lifetime']
+const KENNUNG = (tarif) => `${APP_KENNUNG}_${tarif}`
+
+let preisSpeicher = { zeit: 0, preise: null }
+async function preisIds() {
+  if (preisSpeicher.preise && Date.now() - preisSpeicher.zeit < 10 * 60 * 1000) {
+    return preisSpeicher.preise
+  }
+  const liste = await client().prices.list({
+    lookup_keys: TARIFE.map(KENNUNG),
+    active: true,
+    limit: 10,
+  })
+  const preise = {}
+  for (const pr of liste.data) {
+    const tarif = TARIFE.find((t) => KENNUNG(t) === pr.lookup_key)
+    if (tarif) preise[tarif] = pr
+  }
+  // Rueckfall: alter Einzelpreis aus der Umgebung gilt als Monatspreis
+  if (!preise.monat && process.env.STRIPE_PREIS_ID) {
+    preise.monat = await client().prices.retrieve(process.env.STRIPE_PREIS_ID)
+  }
+  preisSpeicher = { zeit: Date.now(), preise }
+  return preise
+}
 export function stripeBereit() {
   return Boolean(process.env.STRIPE_SECRET_KEY)
 }
@@ -69,22 +99,26 @@ function datenbank() {
  * @param {string} herkunft – z.B. "https://habloo.de"
  * @param {string} art      – 'elements' (Standard) oder 'hosted'
  */
-export async function starteBezahlung(nutzerId, email, herkunft, art = 'elements') {
+export async function starteBezahlung(nutzerId, email, herkunft, art = 'elements', tarif = 'monat') {
   if (!nutzerId) throw new Error('Ohne Anmeldung geht das nicht.')
-  if (!process.env.STRIPE_PREIS_ID) {
-    throw new Error('Auf dem Server fehlt STRIPE_PREIS_ID.')
-  }
+  if (!TARIFE.includes(tarif)) tarif = 'monat'
+  const preis = (await preisIds())[tarif]
+  if (!preis) throw new Error(`Für den Tarif "${tarif}" ist in Stripe kein Preis hinterlegt.`)
+  const einmalig = tarif === 'lifetime'
 
   const gemeinsam = {
-    mode: 'subscription',
-    line_items: [{ price: process.env.STRIPE_PREIS_ID, quantity: 1 }],
+    // Lifetime ist eine Einmalzahlung, die anderen sind Abos
+    mode: einmalig ? 'payment' : 'subscription',
+    line_items: [{ price: preis.id, quantity: 1 }],
     customer_email: email || undefined,
 
     // Die Nutzer-Kennung reist mit und kommt in der Meldung
     // zurück – so wissen wir später, wem die Zahlung gehört.
     client_reference_id: nutzerId,
-    subscription_data: { metadata: { nutzer_id: nutzerId, app: APP_KENNUNG } },
-    metadata: { nutzer_id: nutzerId, app: APP_KENNUNG },
+    ...(einmalig
+      ? { payment_intent_data: { metadata: { nutzer_id: nutzerId, app: APP_KENNUNG, tarif } } }
+      : { subscription_data: { metadata: { nutzer_id: nutzerId, app: APP_KENNUNG, tarif } } }),
+    metadata: { nutzer_id: nutzerId, app: APP_KENNUNG, tarif },
 
     allow_promotion_codes: true,
   }
@@ -183,8 +217,19 @@ function periodenEnde(abo) {
  * Stripe. "tarif" ist ein Pflichtfeld mit fester Auswahl, also
  * uebersetzen wir Stripes Abrechnungszeitraum darauf.
  */
-async function setzeBerechtigung(nutzerId, { status, laeuftAb, externId, zeitraum }) {
-  const tarif = zeitraum === 'year' ? 'jaehrlich' : 'monatlich'
+async function setzeBerechtigung(nutzerId, { status, laeuftAb, externId, zeitraum, lifetime = false }) {
+  const tarif = lifetime ? 'lifetime' : zeitraum === 'year' ? 'jaehrlich' : 'monatlich'
+
+  // Wer Lifetime hat, behaelt es – ein altes Abo, das spaeter
+  // ausläuft, darf das nicht ueberschreiben.
+  if (!lifetime) {
+    const { data: jetzt } = await datenbank()
+      .from('abos')
+      .select('tarif, status')
+      .eq('nutzer_id', nutzerId)
+      .maybeSingle()
+    if (jetzt?.tarif === 'lifetime' && jetzt.status === 'aktiv') return
+  }
 
   const { error } = await datenbank()
     .from('abos')
@@ -193,7 +238,7 @@ async function setzeBerechtigung(nutzerId, { status, laeuftAb, externId, zeitrau
         nutzer_id: nutzerId,
         status,
         tarif,
-        laeuft_ab: new Date(laeuftAb * 1000).toISOString(),
+        laeuft_ab: lifetime ? null : new Date(laeuftAb * 1000).toISOString(),
         quelle: 'stripe',
         extern_id: externId,
       },
@@ -242,6 +287,24 @@ export async function verarbeiteMeldung(ereignis) {
       return { erledigt: true, nutzerId, status }
     }
 
+    // Einmalkauf (Lifetime) abgeschlossen
+    case 'checkout.session.completed': {
+      if (d.mode !== 'payment') return { erledigt: false, grund: 'Abo – kommt über subscription.*' }
+      const nutzerId = d.metadata?.nutzer_id || d.client_reference_id
+      if (!nutzerId) return { erledigt: false, grund: 'keine Nutzer-Kennung' }
+      if (d.metadata?.app && d.metadata.app !== APP_KENNUNG) {
+        return { erledigt: false, grund: 'gehoert zu ' + d.metadata.app }
+      }
+      if (d.payment_status !== 'paid') return { erledigt: false, grund: 'noch nicht bezahlt' }
+      await setzeBerechtigung(nutzerId, {
+        status: 'aktiv',
+        laeuftAb: null,
+        externId: d.payment_intent || d.id,
+        lifetime: true,
+      })
+      return { erledigt: true, nutzerId, status: 'lifetime' }
+    }
+
     // Abo endgültig beendet
     case 'customer.subscription.deleted': {
       const nutzerId = d.metadata?.nutzer_id
@@ -273,14 +336,21 @@ export async function verarbeiteMeldung(ereignis) {
  * jemand Code anfassen muss.
  */
 export async function holePreis() {
-  if (!process.env.STRIPE_PREIS_ID) return null
-  const preis = await client().prices.retrieve(process.env.STRIPE_PREIS_ID)
-  return {
-    betrag: preis.unit_amount / 100,
-    waehrung: preis.currency.toUpperCase(),
-    // "month" oder "year" – bei Einmalzahlung null
-    zeitraum: preis.recurring?.interval ?? null,
+  return (await holePreise()).monat ?? null
+}
+
+/** Alle drei Preise fuer die Anzeige. */
+export async function holePreise() {
+  const preise = await preisIds()
+  const aus = {}
+  for (const [tarif, pr] of Object.entries(preise)) {
+    aus[tarif] = {
+      betrag: pr.unit_amount / 100,
+      waehrung: pr.currency.toUpperCase(),
+      zeitraum: pr.recurring?.interval ?? null,
+    }
   }
+  return aus
 }
 
 /**

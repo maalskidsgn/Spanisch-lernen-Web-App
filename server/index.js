@@ -19,6 +19,7 @@ import {
   verarbeiteMeldung,
   stripeBereit,
   holePreis,
+  holePreise,
 } from './bezahlung.js'
 import {
   holeTranskript as holeUeberDienst,
@@ -927,7 +928,8 @@ app.get('/api/bezahlung/status', async (req, res) => {
   }
 
   try {
-    res.json({ ...antwort, preis: await holePreis() })
+    const preise = await holePreise()
+    res.json({ ...antwort, preis: preise.monat ?? null, preise })
   } catch (fehler) {
     // Bezahlen geht, nur der Preis liess sich nicht laden
     res.json({ ...antwort, preis: null, hinweis: fehler.message })
@@ -946,7 +948,8 @@ app.post('/api/bezahlung/start', async (req, res) => {
     const herkunft = req.body?.herkunft || 'https://habloo.de'
     // 'elements' = Formular in der App (Standard), 'hosted' = Stripe-Seite
     const art = req.body?.art === 'hosted' ? 'hosted' : 'elements'
-    res.json(await starteBezahlung(nutzer.id, nutzer.email, herkunft, art))
+    const tarif = ['monat', 'jahr', 'lifetime'].includes(req.body?.tarif) ? req.body.tarif : 'monat'
+    res.json(await starteBezahlung(nutzer.id, nutzer.email, herkunft, art, tarif))
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })
   }

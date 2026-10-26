@@ -118,13 +118,16 @@ function stripeHolen(schluessel) {
 export default function Bezahlen({ onFertig, onAbbrechen }) {
   const [clientSecret, setClientSecret] = useState(null)
   const [stripe, setStripe] = useState(null)
-  const [preis, setPreis] = useState(null)
+  const [preise, setPreise] = useState(null) // { monat, jahr, lifetime }
+  const [tarif, setTarif] = useState('jahr')
   const [fehler, setFehler] = useState('')
 
   useEffect(() => {
     let abgebrochen = false
 
     async function vorbereiten() {
+      setClientSecret(null)
+      setFehler('')
       try {
         if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
         const { data } = await db.auth.getSession()
@@ -138,7 +141,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           fetch(API_URL + '/api/bezahlung/start', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-            body: JSON.stringify({ herkunft: window.location.origin, art: 'elements' }),
+            body: JSON.stringify({ herkunft: window.location.origin, art: 'elements', tarif }),
           }).then((r) => r.json()),
         ])
 
@@ -153,7 +156,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
 
         const s = await stripeHolen(status.schluessel)
         if (abgebrochen) return
-        setPreis(status.preis ?? null)
+        setPreise(status.preise ?? (status.preis ? { monat: status.preis } : null))
         setStripe(s)
         setClientSecret(start.clientSecret)
       } catch (f) {
@@ -165,12 +168,33 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
     return () => {
       abgebrochen = true
     }
-  }, [])
+  }, [tarif]) // anderer Tarif = neuer Bezahlvorgang
 
-  const preisText = preis
-    ? preis.betrag.toLocaleString('de-DE', { style: 'currency', currency: preis.waehrung })
-    : null
-  const zeitraum = preis?.zeitraum === 'year' ? 'Jahr' : 'Monat'
+  const geld = (p) =>
+    p ? p.betrag.toLocaleString('de-DE', { style: 'currency', currency: p.waehrung }) : null
+  const preis = preise?.[tarif] ?? null
+  const preisText = geld(preis)
+  const zeitraum = { monat: 'pro Monat', jahr: 'pro Jahr', lifetime: 'einmalig' }[tarif]
+  const abrechnung = {
+    monat: 'monatlich, jederzeit kündbar',
+    jahr: 'jährlich, jederzeit kündbar',
+    lifetime: 'einmal zahlen, für immer',
+  }[tarif]
+  // Ersparnis des Jahrestarifs gegenueber 12 Monaten
+  const ersparnis =
+    preise?.monat && preise?.jahr
+      ? Math.round((1 - preise.jahr.betrag / (preise.monat.betrag * 12)) * 100)
+      : null
+  const TARIF_KARTEN = [
+    { id: 'monat', name: 'Monatlich', unter: 'pro Monat' },
+    {
+      id: 'jahr',
+      name: 'Jährlich',
+      unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : 'pro Jahr',
+      marke: ersparnis > 0 ? `−${ersparnis} %` : 'Beliebt',
+    },
+    { id: 'lifetime', name: 'Lifetime', unter: 'einmalig, für immer' },
+  ].filter((k) => preise?.[k.id])
 
   return (
     <div className="kassen-seite">
@@ -189,11 +213,31 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       <div className="kassen-raster">
         {/* ---------- Links: was man kauft ---------- */}
         <aside className="kassen-bestellung">
-          <p className="kassen-label">Dein Abo</p>
+          <p className="kassen-label">{tarif === 'lifetime' ? 'Dein Zugang' : 'Dein Abo'}</p>
           <h1 className="kassen-titel">Habloo Premium</h1>
+          {TARIF_KARTEN.length > 1 && (
+            <div className="kassen-tarife" role="radiogroup" aria-label="Tarif wählen">
+              {TARIF_KARTEN.map((k) => (
+                <button
+                  key={k.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={tarif === k.id}
+                  className={'kassen-tarif' + (tarif === k.id ? ' ist-aktiv' : '')}
+                  onClick={() => setTarif(k.id)}
+                >
+                  {k.marke && <span className="kassen-tarif-marke">{k.marke}</span>}
+                  <span className="kassen-tarif-name">{k.name}</span>
+                  <b>{geld(preise[k.id])}</b>
+                  <span className="kassen-tarif-unter">{k.unter}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
           {preisText && (
             <p className="kassen-grosspreis">
-              {preisText} <span>pro {zeitraum}</span>
+              {preisText} <span>{zeitraum}</span>
             </p>
           )}
 
@@ -211,7 +255,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
               </div>
               <div className="kassen-zeile kassen-zeile-klein">
                 <span>Abrechnung</span>
-                <span>monatlich, jederzeit kündbar</span>
+                <span>{abrechnung}</span>
               </div>
               <div className="kassen-zeile kassen-gesamt">
                 <span>Heute fällig</span>
@@ -249,7 +293,10 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       <footer className="kassen-fuss">
         <p>
           Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu
-          sehen. Monatlich kündbar, jederzeit in den Einstellungen.
+          sehen.{' '}
+          {tarif === 'lifetime'
+            ? 'Einmalige Zahlung – kein Abo, keine Verlängerung.'
+            : 'Jederzeit kündbar in den Einstellungen.'}
         </p>
       </footer>
     </div>
