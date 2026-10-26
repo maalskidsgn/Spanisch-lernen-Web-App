@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { API_URL, istApp } from './api.js'
-import { usePremium, zurKasse, aboVerwalten } from './premium.js'
+import { usePremium, zurKasse, aboVerwalten, TESTPHASE_ALLES_FREI } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
@@ -401,13 +401,19 @@ export default function Settings({
           {premium ? (
             <>
               <p className="abo-status">
-                {!gueltigBis
-                  ? 'Aktiv – unbegrenzt'
-                  : aboStatus === 'gekuendigt'
-                    ? `Gekündigt – läuft noch bis ${gueltigBis}`
-                    : `Aktiv – verlängert sich am ${gueltigBis}`}
+                {TESTPHASE_ALLES_FREI
+                  ? 'Testphase – alle Funktionen frei'
+                  : !gueltigBis
+                    ? 'Aktiv – unbegrenzt'
+                    : aboStatus === 'gekuendigt'
+                      ? `Gekündigt – läuft noch bis ${gueltigBis}`
+                      : `Aktiv – verlängert sich am ${gueltigBis}`}
               </p>
-              {!istApp && (
+              {/* In der Testphase gibt es nichts zu verwalten: Premium
+                  kommt vom Schalter, nicht von einem bezahlten Abo. Der
+                  Knopf würde bei Stripe nach einem Abo fragen, das es
+                  nicht gibt – und eine Fehlermeldung zeigen. */}
+              {!istApp && !TESTPHASE_ALLES_FREI && (
                 <button onClick={verwalten} disabled={laedt}>
                   {laedt ? 'Öffnet …' : 'Abo verwalten'}
                 </button>

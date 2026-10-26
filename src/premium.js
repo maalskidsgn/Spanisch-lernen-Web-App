@@ -23,7 +23,7 @@ import { API_URL } from './api.js'
 // zusammen. Der Server entscheidet über die teuren Abrufe, diese
 // Zeile hier sorgt dafür, dass die Oberfläche auch gar nicht erst
 // eine Schranke zeigt. Zum Zurückdrehen beide auf false setzen.
-const TESTPHASE_ALLES_FREI = true
+export const TESTPHASE_ALLES_FREI = true
 
 export async function holeBerechtigung() {
   if (TESTPHASE_ALLES_FREI) return { premium: true, bis: null, status: 'testphase' }
