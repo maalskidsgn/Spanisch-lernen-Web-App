@@ -426,7 +426,14 @@ export default function Settings({
               {!istApp && TESTPHASE_ALLES_FREI && (
                 <button
                   className="btn-plain testkauf-knopf"
-                  onClick={() => { testkaufAn(); neuLaden() }}
+                  onClick={() => {
+                    testkaufAn()
+                    // Den gemerkten Stand gleich mit umstellen: sonst
+                    // zeigt die Oberfläche bis zur Antwort der
+                    // Datenbank weiter Premium an.
+                    try { localStorage.setItem('premium-stand', 'nein') } catch { /* egal */ }
+                    neuLaden()
+                  }}
                 >
                   Bezahlung testen
                 </button>

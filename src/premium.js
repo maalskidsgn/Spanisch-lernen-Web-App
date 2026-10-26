@@ -45,12 +45,23 @@ export function testkaufAus() {
 }
 export function testkaufLaeuft() {
   try {
-    // Auch per Adresse einschaltbar: habloo.de/?testkauf=1
-    if (new URLSearchParams(location.search).get('testkauf') === '1') testkaufAn()
     return localStorage.getItem('testkauf') === 'ja'
   } catch {
     return false
   }
+}
+
+// Die Adresse wird EINMAL beim Laden ausgewertet, nicht erst wenn
+// zufällig jemand nach dem Premium-Stand fragt. Vorher hing es davon
+// ab, ob gerade eine Abfrage lief – mal klappte es, mal nicht.
+//   habloo.de/?testkauf=1  schaltet ein
+//   habloo.de/?testkauf=0  schaltet wieder aus
+try {
+  const wunsch = new URLSearchParams(location.search).get('testkauf')
+  if (wunsch === '1') testkaufAn()
+  if (wunsch === '0') testkaufAus()
+} catch {
+  /* kein Browser (Tests) – dann gibt es auch keine Adresse */
 }
 
 export async function holeBerechtigung() {
