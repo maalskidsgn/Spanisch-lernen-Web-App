@@ -9051,7 +9051,8 @@ body.lektion-laeuft .lessons > .player-top,
   justify-content: center;
   margin-top: 10px;
 }
-.wk-footer-recht button {
+.wk-footer-recht button,
+.wk-footer-recht a {
   background: none;
   border: none;
   padding: 0;
@@ -9062,7 +9063,8 @@ body.lektion-laeuft .lessons > .player-top,
   text-decoration: underline;
   cursor: pointer;
 }
-.wk-footer-recht button:hover { opacity: 1; }
+.wk-footer-recht button:hover,
+.wk-footer-recht a:hover { opacity: 1; }
 
 /* Link im Cookie-Banner */
 .ew-link {

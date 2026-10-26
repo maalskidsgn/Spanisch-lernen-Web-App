@@ -315,6 +315,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         {/* Pflichtangaben – muessen von jeder Seite aus in zwei Klicks
             erreichbar sein, deshalb hier im Fuss der Startseite. */}
         <span className="wk-footer-recht">
+          <a href="/blog/">Ratgeber</a>
           <button onClick={() => onRecht('impressum')}>Impressum</button>
           <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
           <button onClick={() => onRecht('agb')}>AGB</button>

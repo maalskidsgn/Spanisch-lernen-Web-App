@@ -1,0 +1,622 @@
+{
+ "Begrüßung": [
+  [
+   "hola",
+   "hallo"
+  ],
+  [
+   "adiós",
+   "tschüss"
+  ],
+  [
+   "gracias",
+   "danke"
+  ],
+  [
+   "por favor",
+   "bitte"
+  ],
+  [
+   "sí",
+   "ja"
+  ],
+  [
+   "no",
+   "nein"
+  ],
+  [
+   "buenos días",
+   "guten Morgen"
+  ],
+  [
+   "buenas noches",
+   "gute Nacht"
+  ],
+  [
+   "perdón",
+   "Entschuldigung"
+  ],
+  [
+   "de nada",
+   "gern geschehen"
+  ],
+  [
+   "¿qué tal?",
+   "wie geht’s?"
+  ],
+  [
+   "muy bien",
+   "sehr gut"
+  ],
+  [
+   "hasta mañana",
+   "bis morgen"
+  ],
+  [
+   "bienvenido",
+   "willkommen"
+  ],
+  [
+   "vale",
+   "okay"
+  ]
+ ],
+ "Familie": [
+  [
+   "la familia",
+   "die Familie"
+  ],
+  [
+   "la madre",
+   "die Mutter"
+  ],
+  [
+   "el padre",
+   "der Vater"
+  ],
+  [
+   "el hermano",
+   "der Bruder"
+  ],
+  [
+   "la hermana",
+   "die Schwester"
+  ],
+  [
+   "el hijo",
+   "der Sohn"
+  ],
+  [
+   "la hija",
+   "die Tochter"
+  ],
+  [
+   "el abuelo",
+   "der Großvater"
+  ],
+  [
+   "la abuela",
+   "die Großmutter"
+  ],
+  [
+   "el tío",
+   "der Onkel"
+  ],
+  [
+   "la tía",
+   "die Tante"
+  ],
+  [
+   "el primo",
+   "der Cousin"
+  ],
+  [
+   "el bebé",
+   "das Baby"
+  ],
+  [
+   "los padres",
+   "die Eltern"
+  ],
+  [
+   "el marido",
+   "der Ehemann"
+  ]
+ ],
+ "Zuhause": [
+  [
+   "la casa",
+   "das Haus"
+  ],
+  [
+   "la cama",
+   "das Bett"
+  ],
+  [
+   "la mesa",
+   "der Tisch"
+  ],
+  [
+   "la silla",
+   "der Stuhl"
+  ],
+  [
+   "la puerta",
+   "die Tür"
+  ],
+  [
+   "la ventana",
+   "das Fenster"
+  ],
+  [
+   "la cocina",
+   "die Küche"
+  ],
+  [
+   "el baño",
+   "das Bad"
+  ],
+  [
+   "el dormitorio",
+   "das Schlafzimmer"
+  ],
+  [
+   "la lámpara",
+   "die Lampe"
+  ],
+  [
+   "el sofá",
+   "das Sofa"
+  ],
+  [
+   "la llave",
+   "der Schlüssel"
+  ],
+  [
+   "el jardín",
+   "der Garten"
+  ],
+  [
+   "la almohada",
+   "das Kopfkissen"
+  ],
+  [
+   "la manta",
+   "die Decke"
+  ]
+ ],
+ "Essen": [
+  [
+   "el pan",
+   "das Brot"
+  ],
+  [
+   "el agua",
+   "das Wasser"
+  ],
+  [
+   "la leche",
+   "die Milch"
+  ],
+  [
+   "el café",
+   "der Kaffee"
+  ],
+  [
+   "el té",
+   "der Tee"
+  ],
+  [
+   "la fruta",
+   "das Obst"
+  ],
+  [
+   "la manzana",
+   "der Apfel"
+  ],
+  [
+   "el queso",
+   "der Käse"
+  ],
+  [
+   "el huevo",
+   "das Ei"
+  ],
+  [
+   "el arroz",
+   "der Reis"
+  ],
+  [
+   "la sopa",
+   "die Suppe"
+  ],
+  [
+   "el pescado",
+   "der Fisch"
+  ],
+  [
+   "la carne",
+   "das Fleisch"
+  ],
+  [
+   "el azúcar",
+   "der Zucker"
+  ],
+  [
+   "la sal",
+   "das Salz"
+  ]
+ ],
+ "Natur": [
+  [
+   "el sol",
+   "die Sonne"
+  ],
+  [
+   "la luna",
+   "der Mond"
+  ],
+  [
+   "la estrella",
+   "der Stern"
+  ],
+  [
+   "el cielo",
+   "der Himmel"
+  ],
+  [
+   "el mar",
+   "das Meer"
+  ],
+  [
+   "la playa",
+   "der Strand"
+  ],
+  [
+   "el río",
+   "der Fluss"
+  ],
+  [
+   "la montaña",
+   "der Berg"
+  ],
+  [
+   "el árbol",
+   "der Baum"
+  ],
+  [
+   "la flor",
+   "die Blume"
+  ],
+  [
+   "la lluvia",
+   "der Regen"
+  ],
+  [
+   "el viento",
+   "der Wind"
+  ],
+  [
+   "la nube",
+   "die Wolke"
+  ],
+  [
+   "la noche",
+   "die Nacht"
+  ],
+  [
+   "el bosque",
+   "der Wald"
+  ]
+ ],
+ "Zeit": [
+  [
+   "hoy",
+   "heute"
+  ],
+  [
+   "mañana",
+   "morgen"
+  ],
+  [
+   "ayer",
+   "gestern"
+  ],
+  [
+   "el día",
+   "der Tag"
+  ],
+  [
+   "la semana",
+   "die Woche"
+  ],
+  [
+   "el mes",
+   "der Monat"
+  ],
+  [
+   "el año",
+   "das Jahr"
+  ],
+  [
+   "ahora",
+   "jetzt"
+  ],
+  [
+   "siempre",
+   "immer"
+  ],
+  [
+   "nunca",
+   "nie"
+  ],
+  [
+   "temprano",
+   "früh"
+  ],
+  [
+   "tarde",
+   "spät"
+  ],
+  [
+   "la hora",
+   "die Stunde"
+  ],
+  [
+   "el minuto",
+   "die Minute"
+  ],
+  [
+   "el fin de semana",
+   "das Wochenende"
+  ]
+ ],
+ "Gefühle": [
+  [
+   "feliz",
+   "glücklich"
+  ],
+  [
+   "triste",
+   "traurig"
+  ],
+  [
+   "cansado",
+   "müde"
+  ],
+  [
+   "tranquilo",
+   "ruhig"
+  ],
+  [
+   "contento",
+   "zufrieden"
+  ],
+  [
+   "nervioso",
+   "nervös"
+  ],
+  [
+   "el amor",
+   "die Liebe"
+  ],
+  [
+   "la paz",
+   "der Frieden"
+  ],
+  [
+   "el sueño",
+   "der Traum"
+  ],
+  [
+   "la calma",
+   "die Ruhe"
+  ],
+  [
+   "la alegría",
+   "die Freude"
+  ],
+  [
+   "el miedo",
+   "die Angst"
+  ],
+  [
+   "relajado",
+   "entspannt"
+  ],
+  [
+   "la sonrisa",
+   "das Lächeln"
+  ],
+  [
+   "el abrazo",
+   "die Umarmung"
+  ]
+ ],
+ "Unterwegs": [
+  [
+   "la ciudad",
+   "die Stadt"
+  ],
+  [
+   "la calle",
+   "die Straße"
+  ],
+  [
+   "el tren",
+   "der Zug"
+  ],
+  [
+   "el avión",
+   "das Flugzeug"
+  ],
+  [
+   "el coche",
+   "das Auto"
+  ],
+  [
+   "el autobús",
+   "der Bus"
+  ],
+  [
+   "la estación",
+   "der Bahnhof"
+  ],
+  [
+   "el hotel",
+   "das Hotel"
+  ],
+  [
+   "el aeropuerto",
+   "der Flughafen"
+  ],
+  [
+   "el mapa",
+   "die Landkarte"
+  ],
+  [
+   "la maleta",
+   "der Koffer"
+  ],
+  [
+   "el billete",
+   "die Fahrkarte"
+  ],
+  [
+   "el museo",
+   "das Museum"
+  ],
+  [
+   "el parque",
+   "der Park"
+  ],
+  [
+   "la tienda",
+   "der Laden"
+  ]
+ ],
+ "Verben": [
+  [
+   "hablar",
+   "sprechen"
+  ],
+  [
+   "comer",
+   "essen"
+  ],
+  [
+   "beber",
+   "trinken"
+  ],
+  [
+   "dormir",
+   "schlafen"
+  ],
+  [
+   "vivir",
+   "leben"
+  ],
+  [
+   "ir",
+   "gehen"
+  ],
+  [
+   "venir",
+   "kommen"
+  ],
+  [
+   "ver",
+   "sehen"
+  ],
+  [
+   "escuchar",
+   "zuhören"
+  ],
+  [
+   "leer",
+   "lesen"
+  ],
+  [
+   "escribir",
+   "schreiben"
+  ],
+  [
+   "aprender",
+   "lernen"
+  ],
+  [
+   "trabajar",
+   "arbeiten"
+  ],
+  [
+   "descansar",
+   "sich ausruhen"
+  ],
+  [
+   "soñar",
+   "träumen"
+  ]
+ ],
+ "Körper & Farben": [
+  [
+   "la mano",
+   "die Hand"
+  ],
+  [
+   "el pie",
+   "der Fuß"
+  ],
+  [
+   "la cabeza",
+   "der Kopf"
+  ],
+  [
+   "el ojo",
+   "das Auge"
+  ],
+  [
+   "la boca",
+   "der Mund"
+  ],
+  [
+   "el corazón",
+   "das Herz"
+  ],
+  [
+   "la cara",
+   "das Gesicht"
+  ],
+  [
+   "el brazo",
+   "der Arm"
+  ],
+  [
+   "rojo",
+   "rot"
+  ],
+  [
+   "azul",
+   "blau"
+  ],
+  [
+   "verde",
+   "grün"
+  ],
+  [
+   "amarillo",
+   "gelb"
+  ],
+  [
+   "blanco",
+   "weiß"
+  ],
+  [
+   "negro",
+   "schwarz"
+  ],
+  [
+   "gris",
+   "grau"
+  ]
+ ]
+}

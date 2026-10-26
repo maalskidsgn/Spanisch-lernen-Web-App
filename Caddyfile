@@ -32,6 +32,8 @@
 	@html not path /assets/*
 	header @html Cache-Control "no-cache"
 
-	try_files {path} /index.html
+	# Blog/Ratgeber: fertige HTML-Seiten unter /blog/... – Ordner-Adressen
+	# bekommen ihre index.html, alles andere geht wie bisher an die App.
+	try_files {path} {path}/index.html {path}index.html /index.html
 	file_server
 }
