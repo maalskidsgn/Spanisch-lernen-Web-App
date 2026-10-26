@@ -6,6 +6,7 @@ import { usePremium } from './premium.js'
 import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
 import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
+import InstallKnopf from './InstallKnopf.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
@@ -58,6 +59,9 @@ export default function Home({
       <h1 className="trainer-titel start-gruss">
         ¡Hola<span className="accent">!</span>
       </h1>
+
+      {/* Nur im Browser: App auf den Startbildschirm holen */}
+      <InstallKnopf app="Habloo" />
       {/* Der Satz des Tages steht da, wo vorher eine feste Zeile
           stand. Er ist zweisprachig: Wer ihn liest, hat schon einen
           echten spanischen Satz gelesen, bevor die erste Lektion

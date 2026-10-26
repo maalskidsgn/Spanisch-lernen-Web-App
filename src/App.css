@@ -11880,3 +11880,26 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .pfad-titel.ist-dran { color: var(--primary-dark); }
 .pfad-rechts .pfad-titel { left: calc(50% + var(--versatz) + 44px); text-align: left; }
 .pfad-links .pfad-titel { right: calc(50% - var(--versatz) + 44px); text-align: right; }
+
+/* ---------- Zum Startbildschirm hinzufügen ---------- */
+.install-karte {
+  margin: 0 0 16px;
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1.5px solid color-mix(in srgb, var(--primary) 25%, #fff);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.install-kopf { display: flex; gap: 12px; align-items: center; }
+.install-kopf img { flex: none; border-radius: 12px; }
+.install-kopf b { display: block; color: var(--navy); font-size: .98rem; }
+.install-kopf span { display: block; margin-top: 2px; color: var(--muted); font-size: .84rem; line-height: 1.4; }
+.install-knoepfe { display: flex; gap: 8px; margin-top: 14px; }
+.install-knoepfe .btn { flex: 1; }
+.install-schritte { margin: 14px 0 4px; padding-left: 20px; display: grid; gap: 8px; color: var(--navy); font-size: .9rem; }
+.install-symbol {
+  display: inline-grid; place-items: center; vertical-align: -3px;
+  width: 24px; height: 24px; border-radius: 6px;
+  background: color-mix(in srgb, var(--primary) 12%, #fff); color: var(--primary);
+}
+.install-zu { width: 100%; margin-top: 6px; }

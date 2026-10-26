@@ -1,0 +1,19 @@
+{
+  "name": "Habloo – Spanisch lernen",
+  "short_name": "Habloo",
+  "description": "Spanisch lernen mit echten Videos, geführten Lektionen und einem Vokabeltrainer, der sich merkt, wann du wiederholen musst.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdf7f1",
+  "theme_color": "#ff6c00",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icon-192-1.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-1.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512-1.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
