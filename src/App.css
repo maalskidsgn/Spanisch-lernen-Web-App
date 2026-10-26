@@ -11802,3 +11802,102 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 }
 .ms-gross { clip-path: none; border-radius: 30%; color: #fff; }
 .ms-balken span { background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 60%, #fff), var(--primary)); }
+
+/* ---------- Lernpfad (Kartenansicht der Lektionen) ---------- */
+.pfad {
+  padding: 18px 14px 28px;
+  border-radius: 24px;
+  background: var(--card);
+  border: 1px solid #f1e8dc;
+}
+.pfad-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.pfad-kopf b { font-size: .9rem; color: var(--navy); }
+.pfad-fortschritt { flex: 1; height: 10px; border-radius: 99px; background: var(--flaeche); overflow: hidden; }
+.pfad-fortschritt span {
+  display: block; height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, #ff9a45, var(--primary));
+  transition: width .5s ease;
+}
+
+.pfad-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; }
+.pfad-etappe {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  transform: translateX(var(--versatz));
+  padding: 10px 0 6px;
+}
+/* Punkte zwischen den Etappen – ein angedeuteter Weg */
+.pfad-etappe + .pfad-etappe::before {
+  content: '';
+  position: absolute; top: -8px; left: 50%;
+  width: 6px; height: 14px; margin-left: -3px;
+  border-radius: 3px; background: #f0e6da;
+}
+
+.pfad-knopf {
+  width: 72px; height: 66px; padding: 0;
+  display: grid; place-items: center;
+  border: none; border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 22%, #fff);
+  color: var(--primary);
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--primary) 35%, #fff);
+  transition: transform .1s ease, box-shadow .1s ease;
+}
+.pfad-knopf:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 1px 0 color-mix(in srgb, var(--primary) 35%, #fff); }
+.pfad-knopf.ist-fertig {
+  background: linear-gradient(160deg, #ff9a45, var(--primary));
+  color: #fff;
+  box-shadow: 0 6px 0 var(--primary-press);
+}
+.pfad-knopf.ist-fertig:active { box-shadow: 0 1px 0 var(--primary-press); }
+.pfad-knopf.ist-dran {
+  width: 84px; height: 78px;
+  background: linear-gradient(160deg, #ff9a45, var(--primary));
+  color: #fff;
+  box-shadow: 0 7px 0 var(--primary-press), 0 0 0 8px color-mix(in srgb, var(--primary) 18%, transparent);
+  animation: pfad-puls 2s ease-in-out infinite;
+}
+@keyframes pfad-puls {
+  0%, 100% { box-shadow: 0 7px 0 var(--primary-press), 0 0 0 8px color-mix(in srgb, var(--primary) 18%, transparent); }
+  50% { box-shadow: 0 7px 0 var(--primary-press), 0 0 0 14px color-mix(in srgb, var(--primary) 8%, transparent); }
+}
+.pfad-knopf.ist-zu { background: #efebe6; color: #b9b0a4; box-shadow: 0 6px 0 #ddd6cc; cursor: default; }
+
+.pfad-titel {
+  margin-top: 10px; max-width: 150px;
+  text-align: center; font-size: .78rem; font-weight: 800; line-height: 1.25;
+  color: var(--navy);
+}
+.pfad-titel.ist-zu { color: #b3a898; }
+
+/* Sprechblase ueber der aktuellen Etappe */
+.pfad-blase {
+  position: relative;
+  width: min(280px, 78vw);
+  margin-bottom: 18px;
+  padding: 14px 16px 16px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 2px solid color-mix(in srgb, var(--primary) 30%, #fff);
+  box-shadow: 0 10px 24px rgba(255, 108, 0, .12);
+  text-align: center;
+  transform: translateX(calc(var(--versatz) * -1));
+  animation: kal-ein .3s ease;
+}
+.pfad-blase::after {
+  content: '';
+  position: absolute; left: calc(50% + var(--versatz)); bottom: -9px;
+  width: 16px; height: 16px; margin-left: -8px;
+  background: var(--card);
+  border-right: 2px solid color-mix(in srgb, var(--primary) 30%, #fff);
+  border-bottom: 2px solid color-mix(in srgb, var(--primary) 30%, #fff);
+  transform: rotate(45deg);
+}
+.pfad-blase-marke {
+  display: inline-block; margin-bottom: 6px; padding: 3px 10px; border-radius: 99px;
+  background: color-mix(in srgb, var(--primary) 12%, #fff);
+  color: var(--primary-dark); font-size: .7rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+}
+.pfad-blase b { display: block; font-size: 1.08rem; color: var(--navy); line-height: 1.25; }
+.pfad-blase-unter { display: block; margin: 4px 0 12px; font-size: .82rem; color: var(--muted); }
+.pfad-start { width: 100%; }
