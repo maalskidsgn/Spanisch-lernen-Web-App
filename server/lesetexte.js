@@ -126,7 +126,9 @@ export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bek
 
   const auftrag =
     (thema?.trim()
-      ? `Thema: ${thema.trim()}`
+      ? `Wunsch der lernenden Person (eigene Beschreibung, meist auf Deutsch): "${thema.trim()}"\n` +
+        'Schreibe den Text genau zu diesem Wunsch – Inhalt, Blickwinkel und Zweck übernehmen, ' +
+        'auch wenn es kein klassisches Wissensthema ist (z. B. Ratgeber, Erklärung, Geschichte).'
       : gebietName
         ? `Wissensgebiet: ${gebietName}. Wähle daraus ein konkretes, überraschendes Thema.`
         : 'Wähle selbst ein konkretes, überraschendes Allgemeinwissen-Thema.') +

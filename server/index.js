@@ -665,7 +665,7 @@ app.post('/api/saetze', async (req, res) => {
 // Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
 app.post('/api/lesetext', async (req, res) => {
   const gebiet = GEBIETE[req.body?.gebiet] ? req.body.gebiet : ''
-  const thema = (req.body?.thema || '').trim().slice(0, 80)
+  const thema = (req.body?.thema || '').trim().slice(0, 600)
   const stufe = ['a2', 'b1', 'b2'].includes(req.body?.stufe) ? req.body.stufe : 'b1'
   const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
 

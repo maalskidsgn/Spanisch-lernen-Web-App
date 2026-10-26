@@ -543,32 +543,20 @@ function TextGenerator({ texte, setTexte, onFertig }) {
           ))}
         </div>
 
-        <div className="gen-feld">
-          <input
-            type="text"
-            value={thema}
-            onChange={(e) => setThema(e.target.value)}
-            placeholder="Eigenes Thema, z. B. Vulkane …"
-            disabled={laden}
-          />
-          <button
-            type="submit"
-            className="gen-pfeil"
-            disabled={laden || (!thema.trim() && !gebiet)}
-            aria-label="Text erzeugen"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path
-                d="M4 12h15M13 6l6 6-6 6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+        {/* Eigener Wunsch: ein ganzer Absatz statt nur ein Stichwort */}
+        <p className="sg-schritt"><span>3</span> Oder eigener Wunsch <small>optional</small></p>
+        <textarea
+          className="text-wunsch"
+          value={thema}
+          onChange={(e) => {
+            setThema(e.target.value)
+            if (e.target.value.trim()) setGebiet('')
+          }}
+          placeholder="z. B. Ich möchte einen Text, der erklärt, wie man langfristig an einer Sache dranbleibt."
+          rows={3}
+          maxLength={600}
+          disabled={laden}
+        />
 
         <div className="gen-knoepfe">
           <button
