@@ -24,6 +24,8 @@ import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 // Die Gruppenstunde steht nicht mehr auf dem Start. Ihr Bauplan ist
 // unten erhalten: Diese eine Zeile holt sie zurueck.
 const PRAXIS_ZEIGEN = false
+// Tutoren-Teaser (Warteliste, Yulibeth) – vorerst ausgeblendet
+const TUTOREN_ZEIGEN = false
 
 export default function Home({
   progress,
@@ -116,7 +118,7 @@ export default function Home({
       </section>
 
       {/* ============ TEASER: Unterricht mit Tutoren ============ */}
-      <TutorenTeaser nutzerEmail={nutzerEmail} />
+      {TUTOREN_ZEIGEN && <TutorenTeaser nutzerEmail={nutzerEmail} />}
 
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
