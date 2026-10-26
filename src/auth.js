@@ -102,6 +102,35 @@ export async function abmelden() {
   if (error) throw new Error(uebersetzeFehler(error))
 }
 
+/**
+ * Anmeldung über Google oder Apple. Supabase leitet zum Anbieter
+ * und danach zurück auf die Seite – dort steht die Sitzung bereit.
+ * @param {'google'|'apple'} anbieter
+ */
+export async function mitAnbieter(anbieter) {
+  const { error } = await db.auth.signInWithOAuth({
+    provider: anbieter,
+    options: { redirectTo: window.location.origin },
+  })
+  if (error) throw new Error(uebersetzeFehler(error))
+}
+
+/**
+ * Welche Anbieter sind in Supabase eingeschaltet? So erscheinen die
+ * Knöpfe von selbst, sobald ein Anbieter eingerichtet ist.
+ */
+export async function aktiveAnbieter() {
+  try {
+    const url = import.meta.env.VITE_SUPABASE_URL
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+    const r = await fetch(url + '/auth/v1/settings', { headers: { apikey: key } })
+    const d = await r.json()
+    return ['apple', 'google'].filter((a) => d.external?.[a])
+  } catch {
+    return []
+  }
+}
+
 /** Schickt eine E-Mail zum Zurücksetzen des Passworts. */
 export async function passwortVergessen(email) {
   const { error } = await db.auth.resetPasswordForEmail(email.trim(), {
