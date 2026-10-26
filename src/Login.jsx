@@ -29,8 +29,16 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
         onFertig?.()
         onSchliessen()
       } else if (modus === 'registrieren') {
-        const { mailBestaetigen } = await registrieren(email, passwort, name)
-        if (mailBestaetigen) {
+        const { mailBestaetigen, schonVorhanden } = await registrieren(email, passwort, name)
+        if (schonVorhanden) {
+          // Gleich zur Anmeldung wechseln – die Adresse bleibt stehen
+          setModus('anmelden')
+          setPasswort('')
+          setHinweis(
+            'Für diese E-Mail gibt es schon ein Konto. Melde dich einfach an – ' +
+            'oder setze dein Passwort zurück, falls du es vergessen hast.'
+          )
+        } else if (mailBestaetigen) {
           setHinweis(
             'Fast geschafft! Wir haben dir eine E-Mail geschickt – ' +
             'klicke den Link darin, dann kannst du dich anmelden.'

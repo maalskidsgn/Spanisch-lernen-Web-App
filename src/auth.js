@@ -75,6 +75,13 @@ export async function registrieren(email, passwort, name) {
   })
   if (error) throw new Error(uebersetzeFehler(error))
 
+  // Gibt es die Adresse schon, meldet Supabase KEINEN Fehler und
+  // schickt auch keine Mail (Schutz gegen Konten-Raten). Erkennbar
+  // ist es nur an der leeren identities-Liste.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return { schonVorhanden: true }
+  }
+
   // Wenn Supabase eine Bestätigungs-Mail verschickt, gibt es noch keine Sitzung.
   return { nutzer: data.user, sitzung: data.session, mailBestaetigen: !data.session }
 }
