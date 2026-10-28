@@ -22,6 +22,7 @@ import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './me
 import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import Bezahlen from './Bezahlen.jsx'
+import { gleicheVideosAb, ladeGeloeschteLokal, speichereGeloeschteLokal } from './videoSync.js'
 import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -617,10 +618,50 @@ export default function App() {
     }
   }, [nutzer])
 
-  // Gespeicherte Videos ebenfalls im Browser sichern
+  // Gespeicherte Videos im Browser sichern und mit dem Konto abgleichen
+  // (vorher nur lokal – auf dem Tablet fehlte die Liste vom Handy).
+  // Verschwundene Videos bekommen einen Lösch-Zeitpunkt, damit ein
+  // anderes Gerät sie nicht wieder zurückbringt (siehe videoSync.js).
+  const vorherigeVideos = useRef(savedVideos)
+  const [videosAbgeglichen, setVideosAbgeglichen] = useState(false)
   useEffect(() => {
     localStorage.setItem('videos', JSON.stringify(savedVideos))
-  }, [savedVideos])
+    const jetzt = new Set(savedVideos.map((v) => v.videoId))
+    const weg = vorherigeVideos.current.filter((v) => !jetzt.has(v.videoId))
+    vorherigeVideos.current = savedVideos
+    if (weg.length) {
+      const geloescht = ladeGeloeschteLokal()
+      for (const v of weg) geloescht[v.videoId] = Date.now()
+      speichereGeloeschteLokal(geloescht)
+    }
+
+    if (!nutzer || !videosAbgeglichen) return
+    const timer = setTimeout(() => {
+      gleicheVideosAb(nutzer.id, { videos: savedVideos, geloescht: ladeGeloeschteLokal() }).catch((f) =>
+        console.warn('Videos konnten nicht gesichert werden:', f.message)
+      )
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [savedVideos, nutzer, videosAbgeglichen])
+
+  // Beim Start/Anmelden: Liste vom Konto holen und vereinen
+  useEffect(() => {
+    setVideosAbgeglichen(false)
+    if (!nutzer) return
+    let abgebrochen = false
+    gleicheVideosAb(nutzer.id, { videos: loadSavedVideos(), geloescht: ladeGeloeschteLokal() })
+      .then((vereint) => {
+        if (abgebrochen) return
+        speichereGeloeschteLokal(vereint.geloescht)
+        vorherigeVideos.current = vereint.videos // vom Konto entfernte sind kein neues Löschen
+        setSavedVideos(vereint.videos)
+        setVideosAbgeglichen(true)
+      })
+      .catch((f) => console.warn('Videos konnten nicht abgeglichen werden:', f.message))
+    return () => {
+      abgebrochen = true
+    }
+  }, [nutzer])
 
   // Einstellungen sichern
   useEffect(() => {
