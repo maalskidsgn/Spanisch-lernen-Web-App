@@ -13773,3 +13773,12 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 
 /* Ungerade Zahl an Spielen: das letzte über die ganze Breite */
 .spiel-paar > .spiel-karte:last-child:nth-child(odd) { grid-column: 1 / -1; }
+.satzbau-kachel.platz-richtig { border-color: var(--success); background: #e8f7ee; }
+.satzbau-kachel.platz-falsch { border-color: #e5484d; background: #fdecec; animation: kachel-wackeln .35s; }
+.satzbau-kachel.platz-korrigiert { border-color: var(--success); background: #e8f7ee; transition: background .4s, border-color .4s; }
+.satzbau-kachel.gelegt:disabled { opacity: 1; cursor: default; }
+@keyframes kachel-wackeln {
+  25% { transform: translateX(-4px); } 75% { transform: translateX(4px); }
+}
+@media (prefers-reduced-motion: reduce) { .satzbau-kachel.platz-falsch { animation: none; } }
+.satzbau-zeile.satzbau-korrigiert { border-style: solid; border-color: var(--success); background: #f4fbf7; }

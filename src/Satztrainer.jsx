@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
@@ -723,6 +723,38 @@ function SatzBauen({ satz, onFertig }) {
   })
   const [gelegt, setGelegt] = useState([]) // Positionen in kacheln
   const [ergebnis, setErgebnis] = useState(null) // null | 'richtig' | 'falsch'
+  const [korrigiert, setKorrigiert] = useState(false) // Kacheln stehen nach Fehler richtig
+  const knoepfe = useRef({}) // Kachel-Elemente in der Zeile, für die Schiebe-Animation
+  const vorher = useRef(null) // Positionen vor dem Umsortieren
+
+  // Falscher Satz: Die Kacheln gleiten an ihren richtigen Platz (FLIP –
+  // alte Position merken, neu sortieren, Versatz per transform zurückrollen).
+  useLayoutEffect(() => {
+    const alt = vorher.current
+    if (!alt) return
+    vorher.current = null
+    for (const [n, el] of Object.entries(knoepfe.current)) {
+      if (!el || !alt[n]) continue
+      const neu = el.getBoundingClientRect()
+      const dx = alt[n].left - neu.left
+      const dy = alt[n].top - neu.top
+      if (!dx && !dy) continue
+      el.style.transition = 'none'
+      el.style.transform = `translate(${dx}px, ${dy}px)`
+      el.getBoundingClientRect() // Neuberechnung erzwingen
+      el.style.transition = 'transform .6s cubic-bezier(.3,.8,.3,1)'
+      el.style.transform = ''
+    }
+  }, [gelegt])
+
+  function korrigiere(neu) {
+    const pos = {}
+    for (const [n, el] of Object.entries(knoepfe.current)) if (el) pos[n] = el.getBoundingClientRect()
+    vorher.current = pos
+    // Ursprüngliche Reihenfolge – gleiche Wörter sind austauschbar
+    setGelegt([...neu].sort((a, b) => kacheln[a].i - kacheln[b].i))
+    setKorrigiert(true)
+  }
 
   function lege(idx) {
     if (ergebnis || gelegt.includes(idx)) return
@@ -733,18 +765,30 @@ function SatzBauen({ satz, onFertig }) {
       const ziel = woerter.map(glatt).join(' ')
       const ok = gebaut === ziel
       setErgebnis(ok ? 'richtig' : 'falsch')
-      setTimeout(() => onFertig(ok), ok ? 900 : 2600)
+      if (ok) setTimeout(() => onFertig(true), 900)
+      else {
+        // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz schieben
+        setTimeout(() => korrigiere(neu), 900)
+        setTimeout(() => onFertig(false), 3600)
+      }
     }
   }
 
   return (
     <div className="satzbau">
-      <div className={'satzbau-zeile' + (ergebnis ? ' satzbau-' + ergebnis : '')}>
+      <div className={'satzbau-zeile' + (ergebnis ? ' satzbau-' + (korrigiert ? 'korrigiert' : ergebnis) : '')}>
         {gelegt.length === 0 && <span className="satzbau-platzhalter">Tippe die Wörter in der richtigen Reihenfolge</span>}
-        {gelegt.map((n) => (
+        {gelegt.map((n, pos) => (
           <button
             key={n}
-            className="satzbau-kachel gelegt"
+            ref={(el) => { knoepfe.current[n] = el }}
+            className={
+              'satzbau-kachel gelegt' +
+              (ergebnis === 'falsch' && !korrigiert
+                ? glatt(kacheln[n].w) === glatt(woerter[pos]) ? ' platz-richtig' : ' platz-falsch'
+                : '') +
+              (korrigiert ? ' platz-korrigiert' : '')
+            }
             disabled={Boolean(ergebnis)}
             onClick={() => setGelegt((g) => g.filter((x) => x !== n))}
           >
@@ -752,7 +796,7 @@ function SatzBauen({ satz, onFertig }) {
           </button>
         ))}
       </div>
-      {ergebnis === 'falsch' && (
+      {korrigiert && (
         <p className="satzbau-loesung">
           Richtig wäre: <b>{satz}</b>
         </p>
