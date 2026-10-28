@@ -13724,3 +13724,49 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 }
 .quiz-option.satzpaar-de { font-weight: 600; }
 .quiz-option.satzpaar-de:disabled:not(.option-richtig) { opacity: .75; }
+
+/* ---------- Satz bauen ---------- */
+.satz-vorgabe { font-size: 1.05rem; }
+.satzbau { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+.satzbau-zeile {
+  min-height: 58px;
+  display: flex; flex-wrap: wrap; gap: 7px; align-items: flex-start; align-content: flex-start;
+  padding: 10px;
+  border: 2px dashed var(--line);
+  border-radius: 14px;
+  background: #fff;
+  transition: border-color .2s, background .2s;
+}
+.satzbau-zeile.satzbau-richtig { border-style: solid; border-color: var(--success); background: #e8f7ee; }
+.satzbau-zeile.satzbau-falsch { border-style: solid; border-color: #e5484d; background: #fdecec; }
+.satzbau-platzhalter { color: var(--muted); font-size: .85rem; align-self: center; margin: 0 auto; }
+.satzbau-vorrat { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.satzbau-kachel {
+  font: inherit; font-weight: 700; font-size: .95rem;
+  color: var(--navy) !important;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: transform .1s, opacity .15s;
+}
+.satzbau-kachel:active { transform: translateY(2px); }
+.satzbau-kachel.gelegt { border-color: var(--primary); background: #fff7ef; }
+.satzbau-kachel.verbaut { opacity: .25; cursor: default; }
+.satzbau-loesung { margin: 0; font-size: .88rem; color: var(--navy); text-align: center; }
+
+/* ---------- Lückensatz ---------- */
+.luecken-satz { line-height: 1.7; }
+.luecke {
+  display: inline-block;
+  min-width: 3em;
+  border-bottom: 3px solid var(--primary);
+  margin: 0 2px;
+  padding: 0 4px;
+  font-weight: 800;
+}
+.luecke-richtig { color: #1f7a45; border-color: var(--success); background: #e8f7ee; border-radius: 6px 6px 0 0; }
+.luecke-falsch { color: #b42318; border-color: #e5484d; background: #fdecec; border-radius: 6px 6px 0 0; }
+.luecken-hilfe { margin: 6px 0 14px; font-size: .88rem; color: var(--muted); text-align: center; }
