@@ -38,6 +38,7 @@ import {
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
+import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
 import {
   VIDEOS_PRO_TAG,
   nutzungHeute,
@@ -381,6 +382,55 @@ app.get('/api/transcript', async (req, res) => {
   } finally {
     // Temporären Ordner wieder aufräumen
     rm(dir, { recursive: true, force: true }).catch(() => {})
+  }
+})
+
+// ---------------------------------------------------------------
+//  Freundschaftsanfrage per Mail melden
+// ---------------------------------------------------------------
+//
+// Die App ruft das auf, nachdem eine Anfrage in der Datenbank steht.
+// Der Server glaubt ihr dabei nichts: Er prüft das Token, sucht die
+// Anfrage selbst und holt sich die Adresse des Empfängers. So kommt
+// die E-Mail nie in den Browser des Anfragenden – und niemand kann
+// über diesen Weg fremde Adressen anschreiben.
+app.post('/api/freunde/melden', async (req, res) => {
+  try {
+    if (!mailBereit()) return res.json({ gesendet: false, grund: 'kein-smtp' })
+
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+    if (!nutzer) return res.status(401).json({ error: 'Nicht angemeldet.' })
+
+    const kopf = {
+      apikey: process.env.SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+    }
+    const basis = `${process.env.SUPABASE_URL}/rest/v1`
+
+    // Gibt es die offene Anfrage wirklich, und ist sie von diesem Nutzer?
+    const a = await fetch(
+      `${basis}/freunde?select=an&von=eq.${nutzer.id}&status=eq.offen&order=erstellt_am.desc&limit=1`,
+      { headers: kopf }
+    )
+    const anfrage = (await a.json())[0]
+    if (!anfrage) return res.json({ gesendet: false, grund: 'keine-anfrage' })
+
+    // Name des Anfragenden – der steht in der Mail
+    const p = await fetch(`${basis}/profile?select=benutzername&id=eq.${nutzer.id}`, { headers: kopf })
+    const von = (await p.json())[0]?.benutzername || 'Jemand'
+
+    // Adresse des Empfängers – nur hier, nie im Browser
+    const u = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users/${anfrage.an}`, { headers: kopf })
+    const ziel = (await u.json())?.email
+    if (!ziel) return res.json({ gesendet: false, grund: 'keine-adresse' })
+
+    const adresse = (req.body?.herkunft || 'https://habloo.de').replace(/\/$/, '')
+    const ok = await schicke({ an: ziel, ...freundschaftsanfrage({ von, adresse }) })
+    res.json({ gesendet: ok })
+  } catch (fehler) {
+    console.error('Freundesmail:', fehler.message)
+    res.json({ gesendet: false })
   }
 })
 

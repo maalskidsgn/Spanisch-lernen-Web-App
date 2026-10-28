@@ -9,6 +9,7 @@
  */
 
 import { db, supabaseBereit } from './supabase.js'
+import { API_URL } from './api.js'
 
 // Gleiche Regel wie der CHECK in der Datenbank
 export const NAME_MUSTER = /^[A-Za-z0-9_.]{3,20}$/
@@ -267,7 +268,28 @@ export async function frageFreund(benutzername) {
   const { data, error } = await db.rpc('freund_anfragen', { name: benutzername })
   if (error) throw new Error(error.message)
   window.dispatchEvent(new CustomEvent('freunde'))
+
+  // Den Empfänger per Mail benachrichtigen. Der Server prüft selbst,
+  // ob die Anfrage existiert, und holt sich die Adresse – sie kommt
+  // nie in diesen Browser. Scheitert der Versand, ist das kein Grund,
+  // die Anfrage als misslungen zu melden.
+  if (data === 'gesendet') meldePerMail()
   return data
+}
+
+async function meldePerMail() {
+  try {
+    const { data: sitzung } = await db.auth.getSession()
+    const token = sitzung?.session?.access_token
+    if (!token) return
+    await fetch(API_URL + '/api/freunde/melden', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ herkunft: window.location.origin }),
+    })
+  } catch {
+    /* Mail ist Beiwerk – die Anfrage steht trotzdem */
+  }
 }
 
 /** Eine Anfrage annehmen. */
