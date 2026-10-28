@@ -24,9 +24,12 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   const [wechselt, setWechselt] = useState(false)
   // Wer gerade angeschaut wird – leer heisst: niemand
   const [schau, setSchau] = useState('')
+  // Nur Freunde: macht die Liste persönlich – gegen Leute antreten,
+  // die man kennt, zieht mehr als gegen 47 Unbekannte.
+  const [nurFreunde, setNurFreunde] = useState(false)
 
-  async function laden(z = zeitraum) {
-    const [n, l] = await Promise.all([ladeBenutzername(nutzerId), ladeRangliste(10, z)])
+  async function laden(z = zeitraum, f = nurFreunde) {
+    const [n, l] = await Promise.all([ladeBenutzername(nutzerId), ladeRangliste(10, z, f)])
     setName(n)
     setListe(l)
     setWechselt(false)
@@ -38,7 +41,7 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
     window.addEventListener('benutzername', neu)
     return () => window.removeEventListener('benutzername', neu)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nutzerId, zeitraum])
+  }, [nutzerId, zeitraum, nurFreunde])
 
   if (name === undefined || liste === null) return null
 
@@ -81,6 +84,27 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
         {meinPlatz && <span className="rang-meiner">Platz {meinPlatz}</span>}
       </div>
 
+      {/* Alle oder nur Freunde. Gegen Leute antreten, die man kennt,
+          zieht mehr als gegen siebenundvierzig Unbekannte. */}
+      <div className="rang-kreis" role="tablist" aria-label="Wer zählt">
+        <button
+          role="tab"
+          aria-selected={!nurFreunde}
+          className={'rang-kr' + (!nurFreunde ? ' ist-aktiv' : '')}
+          onClick={() => { if (nurFreunde) { setWechselt(true); setNurFreunde(false) } }}
+        >
+          Alle
+        </button>
+        <button
+          role="tab"
+          aria-selected={nurFreunde}
+          className={'rang-kr' + (nurFreunde ? ' ist-aktiv' : '')}
+          onClick={() => { if (!nurFreunde) { setWechselt(true); setNurFreunde(true) } }}
+        >
+          Nur Freunde
+        </button>
+      </div>
+
       {/* Drei Zeiträume: Wer lange dabei ist, steht insgesamt vorn –
           wer gerade loslegt, hat im Monat eine faire Chance. */}
       <div className="rang-zeitraum" role="tablist" aria-label="Zeitraum">
@@ -114,7 +138,11 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
 
       {top.length === 0 ? (
         <div className="rang-leer">
-          {zeitraum === 'gesamt' ? (
+          {nurFreunde ? (
+            <p>
+              <b>Noch keine Freunde.</b>
+            </p>
+          ) : zeitraum === 'gesamt' ? (
             <p>Noch niemand drin – sei die Nummer 1.</p>
           ) : (
             <>

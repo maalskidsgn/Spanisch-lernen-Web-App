@@ -55,7 +55,12 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
   return (
     <div className="ps-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
       <div className="ps-karte" onClick={(e) => e.stopPropagation()}>
-        <button className="ps-zu" onClick={onSchliessen} aria-label="Schließen">×</button>
+        <button className="ps-zu" onClick={onSchliessen} aria-label="Schließen">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6"
+                  strokeLinecap="round" />
+          </svg>
+        </button>
 
         {profil === undefined ? (
           <p className="ps-laedt">Lädt …</p>

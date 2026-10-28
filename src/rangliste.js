@@ -93,9 +93,11 @@ export const ZEITRAEUME = [
  * @returns {Promise<Array<{platz:number, benutzername:string, xp:number, ich:boolean}>|null>}
  *   null = nicht verfügbar
  */
-export async function ladeRangliste(anzahl = 10, zeitraum = 'gesamt') {
+export async function ladeRangliste(anzahl = 10, zeitraum = 'gesamt', nurFreunde = false) {
   if (!supabaseBereit) return null
-  const { data, error } = await db.rpc('rangliste_zeitraum', { zeitraum, anzahl })
+  const { data, error } = await db.rpc('rangliste_zeitraum', {
+    zeitraum, anzahl, nur_freunde: nurFreunde,
+  })
   // Solange die zweite Migration fehlt, gibt es wenigstens die
   // Gesamtliste über die ältere Funktion.
   if (error && zeitraum === 'gesamt') {
@@ -230,4 +232,54 @@ export async function ladeProfilbild(nutzerId) {
   const { data, error } = await db.from('profile').select('bild').eq('id', nutzerId).maybeSingle()
   if (error) return null
   return data?.bild ?? null
+}
+
+// ---------------------------------------------------------------
+//  Freunde
+// ---------------------------------------------------------------
+
+/**
+ * Sucht nach Benutzernamen. Ab zwei Zeichen, höchstens 20 Treffer.
+ * Jeder Treffer sagt mit, wie man zueinander steht:
+ * 'ich' | 'freund' | 'gesendet' | 'wartet' | 'fremd'
+ */
+export async function sucheNutzer(was) {
+  if (!supabaseBereit || (was || '').trim().length < 2) return []
+  const { data, error } = await db.rpc('nutzer_suchen', { was })
+  return error ? [] : data
+}
+
+/** Meine Freunde und alle offenen Anfragen in einer Liste. */
+export async function ladeFreunde() {
+  if (!supabaseBereit) return []
+  const { data, error } = await db.rpc('meine_freunde')
+  return error ? [] : data
+}
+
+/**
+ * Freundschaft anfragen.
+ * @returns {Promise<string>} 'gesendet' | 'freund' | 'unbekannt' | 'ich'
+ *   'freund' heisst: Die andere Seite hatte schon angefragt – damit
+ *   ist die Freundschaft sofort geschlossen.
+ */
+export async function frageFreund(benutzername) {
+  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  const { data, error } = await db.rpc('freund_anfragen', { name: benutzername })
+  if (error) throw new Error(error.message)
+  window.dispatchEvent(new CustomEvent('freunde'))
+  return data
+}
+
+/** Eine Anfrage annehmen. */
+export async function nimmAn(anfrageId) {
+  const { error } = await db.from('freunde').update({ status: 'angenommen' }).eq('id', anfrageId)
+  if (error) throw new Error(error.message)
+  window.dispatchEvent(new CustomEvent('freunde'))
+}
+
+/** Anfrage ablehnen, zurückziehen oder Freundschaft beenden – alles dasselbe. */
+export async function beende(anfrageId) {
+  const { error } = await db.from('freunde').delete().eq('id', anfrageId)
+  if (error) throw new Error(error.message)
+  window.dispatchEvent(new CustomEvent('freunde'))
 }

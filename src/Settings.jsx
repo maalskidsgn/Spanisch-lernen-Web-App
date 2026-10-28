@@ -10,6 +10,7 @@ import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { BenutzernameFeld } from './Rangliste.jsx'
+import Freunde from './Freunde.jsx'
 import {
   ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse,
 } from './rangliste.js'
@@ -400,6 +401,16 @@ export default function Settings({
           <div><dt>Videos</dt><dd>{counts.videos}</dd></div>
         </dl>
       </header>
+
+      {/* ---------- Freunde ----------
+          Steht oben, nicht hinter einer Klappe: Wer sein Profil
+          öffnet, sucht eher Leute als Einstellungen. */}
+      {supabaseBereit && nutzer && (
+        <section className="pf-kasten pf-freunde">
+          <h2 className="pf-kasten-titel">Freunde</h2>
+          <Freunde />
+        </section>
+      )}
 
       {/* ---------- Konto und Hilfe ----------
           Stehen in einem eigenen Kasten, nicht offen auf der Seite:
