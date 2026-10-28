@@ -136,6 +136,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       : 'videos'
   ) // 'videos', 'songs' oder 'ebooks'
   const [buecher, setBuecher] = useState(ladeBuecher)
+  // Bücher vom anderen Gerät übernehmen, sobald der Abgleich sie bringt
+  useEffect(() => {
+    const neu = (e) => e.detail.includes('buecher') && setBuecher(ladeBuecher())
+    window.addEventListener('geraetedaten', neu)
+    return () => window.removeEventListener('geraetedaten', neu)
+  }, [])
   const [buchTitel, setBuchTitel] = useState('')
   const [buchLaden, setBuchLaden] = useState(false)
   const [buchFehler, setBuchFehler] = useState('')

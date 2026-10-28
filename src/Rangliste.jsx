@@ -14,9 +14,23 @@ import ProfilSchau from './ProfilSchau.jsx'
  * Fehlt die Datenbank-Migration (supabase-rangliste.sql), bleibt die
  * Karte unsichtbar statt kaputt.
  */
+// Letzter Stand der Rangliste im Browser – damit die Karte sofort
+// steht und nicht erst nach 2–3 s Datenbank-Antwort aufploppt.
+// Die frische Liste ersetzt den Stand still, sobald sie da ist.
+function cacheSchluessel(nutzerId, z, f) {
+  return 'rangliste:' + (nutzerId || '-') + ':' + z + ':' + (f ? 'freunde' : 'alle')
+}
+function ausCache(nutzerId, z, f) {
+  try {
+    return JSON.parse(localStorage.getItem(cacheSchluessel(nutzerId, z, f))) || {}
+  } catch {
+    return {}
+  }
+}
+
 export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
-  const [name, setName] = useState(undefined) // undefined = lädt/nicht verfügbar
-  const [liste, setListe] = useState(null)
+  const [name, setName] = useState(() => ausCache(nutzerId, 'gesamt', false).name) // undefined = lädt/nicht verfügbar
+  const [liste, setListe] = useState(() => ausCache(nutzerId, 'gesamt', false).liste ?? null)
   const [zeitraum, setZeitraum] = useState('gesamt')
   // Während ein anderer Zeitraum geladen wird, bleibt die alte Liste
   // stehen und blendet nur ab. Sie ganz zu entfernen liess die Karte
@@ -36,6 +50,11 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
     setName(n)
     setListe(l)
     setWechselt(false)
+    if (n !== undefined && l) {
+      try {
+        localStorage.setItem(cacheSchluessel(nutzerId, z, f), JSON.stringify({ name: n, liste: l }))
+      } catch { /* Speicher voll – dann eben ohne Vorrat */ }
+    }
 
     // Eine gemerkte Einladung einlösen, sobald es einen Benutzernamen
     // gibt – vorher kann die Anfrage niemandem zugeordnet werden.
@@ -49,6 +68,13 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   }
 
   useEffect(() => {
+    // Gemerkten Stand für diesen Zeitraum sofort zeigen, dann frisch laden
+    const vorrat = ausCache(nutzerId, zeitraum, nurFreunde)
+    if (vorrat.liste) {
+      setName(vorrat.name)
+      setListe(vorrat.liste)
+      setWechselt(false)
+    }
     laden()
     const neu = () => laden()
     window.addEventListener('benutzername', neu)

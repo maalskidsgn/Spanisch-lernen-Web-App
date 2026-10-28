@@ -22,6 +22,7 @@ import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './me
 import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import Bezahlen from './Bezahlen.jsx'
+import { gleicheGeraetedatenAb } from './geraeteSync.js'
 import { gleicheVideosAb, ladeGeloeschteLokal, speichereGeloeschteLokal } from './videoSync.js'
 import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
@@ -643,6 +644,29 @@ export default function App() {
     }, 1500)
     return () => clearTimeout(timer)
   }, [savedVideos, nutzer, videosAbgeglichen])
+
+  // Übrige Lerndaten (Einstellungen, Grammatik, Video-Stände, Bücher,
+  // "schon belohnt"-Listen …) mit dem Konto abgleichen: beim Start,
+  // jede Minute und beim Verlassen der App (siehe geraeteSync.js).
+  useEffect(() => {
+    if (!nutzer) return
+    const abgleich = () =>
+      gleicheGeraetedatenAb(nutzer.id).catch((f) => console.warn('Abgleich fehlgeschlagen:', f.message))
+    abgleich()
+    const takt = setInterval(abgleich, 60000)
+    const weg = () => document.visibilityState === 'hidden' && abgleich()
+    document.addEventListener('visibilitychange', weg)
+    const neuEinlesen = (e) => {
+      if (e.detail.includes('einstellungen')) setSettings(loadSettings())
+      if (e.detail.includes('bausteine')) setBausteinStand(loadBausteine())
+    }
+    window.addEventListener('geraetedaten', neuEinlesen)
+    return () => {
+      clearInterval(takt)
+      document.removeEventListener('visibilitychange', weg)
+      window.removeEventListener('geraetedaten', neuEinlesen)
+    }
+  }, [nutzer])
 
   // Beim Start/Anmelden: Liste vom Konto holen und vereinen
   useEffect(() => {
