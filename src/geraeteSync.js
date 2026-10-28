@@ -24,6 +24,7 @@ export const SCHLUESSEL = [
   'tagesplan',
   'spotify_interpreten', // gewählte Künstler bei Songs
   'bausteinVarianten',
+  'blitz-rekord', // Bestwert der Blitzrunde
 ]
 
 // Diese Werte hält die App im React-Zustand – sie muss sie nach einem

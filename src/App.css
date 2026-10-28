@@ -13782,3 +13782,86 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 }
 @media (prefers-reduced-motion: reduce) { .satzbau-kachel.platz-falsch { animation: none; } }
 .satzbau-zeile.satzbau-korrigiert { border-style: solid; border-color: var(--success); background: #f4fbf7; }
+
+/* ===== Spiele: Blitzrunde, Galgenmännchen, Buchstabensalat ===== */
+.spiel-bild-text {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--primary);
+  background: #fff1e4;
+  border-radius: 14px;
+}
+.spiel-bild-text b { font-size: .95rem; font-weight: 900; letter-spacing: .08em; color: var(--primary-dark, #c2560a); }
+
+.blitz-kopf { margin-bottom: 16px; }
+.blitz-zeit { height: 10px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.blitz-zeit-balken { height: 100%; background: var(--primary); border-radius: 999px; transition: width 1s linear; }
+.blitz-werte { display: flex; justify-content: space-between; margin-top: 8px; font-size: .88rem; color: var(--muted); font-weight: 700; }
+.blitz-werte b { color: var(--navy); font-size: 1.05rem; }
+.blitz-serie.heiss { color: var(--primary); font-weight: 900; }
+.blitz-karte {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 28px 18px;
+  background: #fff;
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  text-align: center;
+  animation: blitz-rein .18s ease-out;
+  transition: border-color .15s, background .15s;
+}
+.blitz-karte.blitz-richtig { border-color: var(--success); background: #e8f7ee; }
+.blitz-karte.blitz-falsch { border-color: #e5484d; background: #fdecec; }
+.blitz-es { font-size: 1.5rem; font-weight: 900; color: var(--navy); }
+.blitz-gleich { color: var(--muted); font-weight: 800; }
+.blitz-de { font-size: 1.15rem; font-weight: 700; color: var(--navy); }
+@keyframes blitz-rein { from { transform: scale(.96); opacity: .4; } }
+.blitz-knoepfe { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0 10px; }
+.blitz-knopf {
+  font: inherit; font-weight: 900; font-size: 1.05rem;
+  padding: 18px 10px;
+  border-radius: 16px;
+  border: none;
+  border-bottom: 5px solid rgba(0,0,0,.18);
+  cursor: pointer;
+  color: #fff !important;
+}
+.blitz-knopf:active { transform: translateY(3px); border-bottom-width: 2px; }
+.blitz-knopf.ja { background: var(--success); }
+.blitz-knopf.nein { background: #e5484d; }
+
+.galgen-leben { display: flex; justify-content: center; gap: 6px; margin: 4px 0 10px; }
+.galgen-herz { font-size: 1.35rem; color: #e5484d; transition: opacity .3s, transform .3s; }
+.galgen-herz.weg { opacity: .18; transform: scale(.8); }
+.galgen-hinweis { text-align: center; font-size: 1.1rem; font-weight: 800; color: var(--navy); margin: 6px 0 14px; }
+.galgen-wort { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 18px; }
+.galgen-feld {
+  width: 30px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 900; color: var(--navy);
+  border-bottom: 3px solid var(--line);
+}
+.galgen-feld.offen { border-color: var(--primary); }
+.galgen-luecke { width: 14px; }
+.galgen-geloest .galgen-feld { color: #1f7a45; border-color: var(--success); }
+.galgen-verloren .galgen-feld:not(.offen) { color: #b42318; border-color: #e5484d; }
+.galgen-tastatur { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+.galgen-taste {
+  font: inherit; font-weight: 800; font-size: 1rem;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: #fff;
+  color: var(--navy) !important;
+  cursor: pointer;
+}
+.galgen-taste.treffer { background: #e8f7ee; border-color: var(--success); color: #1f7a45 !important; }
+.galgen-taste.niete { opacity: .3; }
+.galgen-ende { text-align: center; }
+.galgen-ende p { font-weight: 800; color: var(--navy); }
+
+.salat-kacheln { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.salat-kachel { min-width: 44px; font-size: 1.15rem; text-transform: none; }
+@media (max-width: 420px) {
+  .galgen-tastatur { gap: 4px; }
+  .galgen-taste { font-size: .9rem; padding: 9px 0; }
+  .galgen-feld { width: 24px; height: 36px; font-size: 1.1rem; }
+}

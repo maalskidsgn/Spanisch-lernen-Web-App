@@ -3,8 +3,8 @@ import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 
-// Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare
-// und Wortsuche.
+// Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare, Wortsuche,
+// Blitzrunde, Galgenmännchen und Buchstabensalat.
 //
 // Wichtig: Die Spiele sind kein Zeitvertreib neben dem Trainer, sondern
 // ein Teil davon. Sie nehmen bevorzugt die Wörter, die als Nächstes
@@ -88,7 +88,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       <div className="player-top">
         <button className="btn-plain" onClick={onClose}>✕</button>
         <h2 className="game-title">
-          {{ memory: 'Memory', paare: 'Wortpaare', suche: 'Wortsuche'}[spiel]}
+          {{ memory: 'Memory', paare: 'Wortpaare', suche: 'Wortsuche', blitz: 'Blitzrunde', galgen: 'Galgenmännchen', salat: 'Buchstabensalat' }[spiel]}
         </h2>
       </div>
       {spiel === 'memory' && (
@@ -99,6 +99,15 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       )}
       {spiel === 'suche' && (
         <Wortsuche paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
+      {spiel === 'blitz' && (
+        <Blitzrunde paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
+      {spiel === 'galgen' && (
+        <Galgenmaennchen paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
+      )}
+      {spiel === 'salat' && (
+        <Buchstabensalat paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
     </div>
   )
@@ -591,6 +600,357 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
         Abbrechen
       </button>
+    </div>
+  )
+}
+
+/** Buchstabe ohne Akzent, klein – "á" zählt beim Raten wie "a" */
+const grundbuchstabe = (z) =>
+  z.toLocaleLowerCase('es') === 'ñ' ? 'ñ' : z.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+const istBuchstabe = (z) => /\p{L}/u.test(z)
+
+/* ---------- Spiel 4: Blitzrunde ---------- */
+// 60 Sekunden: Wort + Übersetzung – passt das oder nicht? Jede richtige
+// Antwort in Folge erhöht die Serie, ab 3 gibt es doppelte Punkte.
+const BLITZ_SEKUNDEN = 60
+const BLITZ_REKORD = 'blitz-rekord'
+
+function neueBlitzFrage(paare, letzte) {
+  let p
+  do p = paare[Math.floor(Math.random() * paare.length)]
+  while (paare.length > 1 && p.es === letzte)
+  const passt = Math.random() < 0.5
+  let de = p.de
+  if (!passt) {
+    const andere = paare.filter((x) => x.de !== p.de)
+    de = andere[Math.floor(Math.random() * andere.length)].de
+  }
+  return { es: p.es, de, passt, key: Math.random() }
+}
+
+function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
+  const [laeuft, setLaeuft] = useState(false)
+  const [rest, setRest] = useState(BLITZ_SEKUNDEN)
+  const [frage, setFrage] = useState(() => neueBlitzFrage(paare))
+  const [punkte, setPunkte] = useState(0)
+  const [serie, setSerie] = useState(0)
+  const [richtig, setRichtig] = useState(0)
+  const [falsch, setFalsch] = useState(0)
+  const [blitz, setBlitz] = useState(null) // kurzes Grün/Rot
+  const gewusst = useRef(new Set())
+  const daneben = useRef(new Set())
+  const [rekordVorher] = useState(() => Number(localStorage.getItem(BLITZ_REKORD)) || 0)
+
+  useEffect(() => {
+    if (!laeuft) return
+    const takt = setInterval(() => setRest((r) => r - 1), 1000)
+    return () => clearInterval(takt)
+  }, [laeuft])
+
+  const vorbei = rest <= 0
+  useEffect(() => {
+    if (!vorbei) return
+    if (punkte > rekordVorher) localStorage.setItem(BLITZ_REKORD, String(punkte))
+    if (richtig > 0) belohne(XP.SPIEL, 'Zeit um!')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vorbei])
+
+  function antworte(sagtPasst) {
+    if (vorbei) return
+    if (!laeuft) setLaeuft(true)
+    const ok = sagtPasst === frage.passt
+    if (ok) {
+      const plus = serie + 1 >= 3 ? 2 : 1
+      setPunkte((x) => x + plus)
+      setSerie((x) => x + 1)
+      setRichtig((x) => x + 1)
+      gewusst.current.add(frage.es)
+      addXp(XP.QUIZ_RICHTIG)
+    } else {
+      setSerie(0)
+      setFalsch((x) => x + 1)
+      daneben.current.add(frage.es)
+    }
+    setBlitz(ok ? 'richtig' : 'falsch')
+    setTimeout(() => setBlitz(null), 250)
+    setFrage(neueBlitzFrage(paare, frage.es))
+  }
+
+  if (vorbei) {
+    // Hochgestuft wird nur, was nie danebenging
+    const woerter = [...gewusst.current].filter((w) => !daneben.current.has(w))
+    const neuerRekord = punkte > rekordVorher
+    return (
+      <>
+        {xpAnzeige}
+        <SpielFertig
+          text={`${punkte} Punkte · ${richtig} richtig, ${falsch} falsch` +
+            (neuerRekord ? ' · Neuer Rekord!' : rekordVorher ? ` · Rekord ${rekordVorher}` : '')}
+          woerter={woerter}
+          onGespielt={onGespielt}
+          onClose={onClose}
+        />
+      </>
+    )
+  }
+
+  return (
+    <>
+      {xpAnzeige}
+      <div className="blitz-kopf">
+        <div className="blitz-zeit">
+          <div className="blitz-zeit-balken" style={{ width: (rest / BLITZ_SEKUNDEN) * 100 + '%' }} />
+        </div>
+        <div className="blitz-werte">
+          <span><b>{rest}</b> s</span>
+          <span><b>{punkte}</b> Punkte</span>
+          <span className={serie >= 3 ? 'blitz-serie heiss' : 'blitz-serie'}>
+            {serie >= 3 ? `${serie}er-Serie · ×2` : `Serie ${serie}`}
+          </span>
+        </div>
+      </div>
+      <div className={'blitz-karte' + (blitz ? ' blitz-' + blitz : '')} key={frage.key}>
+        <span className="blitz-es">{frage.es}</span>
+        <span className="blitz-gleich" aria-hidden="true">=</span>
+        <span className="blitz-de">{frage.de}</span>
+      </div>
+      {!laeuft && <p className="training-progress">Die Zeit läuft ab der ersten Antwort. Ab 3 richtigen in Folge zählt jede doppelt.</p>}
+      <div className="blitz-knoepfe">
+        <button className="blitz-knopf nein" onClick={() => antworte(false)}>Passt nicht</button>
+        <button className="blitz-knopf ja" onClick={() => antworte(true)}>Passt</button>
+      </div>
+    </>
+  )
+}
+
+/* ---------- Spiel 5: Galgenmännchen ---------- */
+// Die deutsche Bedeutung ist der Hinweis, das spanische Wort wird
+// Buchstabe für Buchstabe geraten. 6 Fehlversuche pro Wort, 3 Wörter.
+// Statt Strichmännchen: sechs Herzen, die nacheinander verblassen.
+const GALGEN_WOERTER = 3
+const GALGEN_LEBEN = 6
+const TASTATUR = 'abcdefghijklmnñopqrstuvwxyz'.split('')
+
+function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
+  const [runde] = useState(() =>
+    paare.filter((p) => [...p.es].filter(istBuchstabe).length >= 3).slice(0, GALGEN_WOERTER)
+  )
+  const [nr, setNr] = useState(0)
+  const [geraten, setGeraten] = useState([])
+  const [geloest, setGeloest] = useState([])
+  const [ende, setEnde] = useState(null) // null | 'geloest' | 'verloren'
+
+  const wort = runde[nr]
+  if (!wort) {
+    return (
+      <SpielFertig
+        text={`${geloest.length} von ${runde.length} Wörtern erraten`}
+        woerter={geloest}
+        onGespielt={onGespielt}
+        onClose={onClose}
+      />
+    )
+  }
+
+  const zeichen = [...wort.es]
+  const offen = (z) => !istBuchstabe(z) || geraten.includes(grundbuchstabe(z))
+  const fehler = geraten.filter((b) => !zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)).length
+
+  function rate(b) {
+    if (ende || geraten.includes(b)) return
+    const neu = [...geraten, b]
+    setGeraten(neu)
+    const alleOffen = zeichen.every((z) => !istBuchstabe(z) || neu.includes(grundbuchstabe(z)))
+    const neueFehler = neu.filter((x) => !zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === x)).length
+    if (alleOffen) {
+      setEnde('geloest')
+      setGeloest((g) => [...g, wort.es])
+      belohne(XP.QUIZ_RICHTIG * 5, 'Erraten!')
+    } else if (neueFehler >= GALGEN_LEBEN) {
+      setEnde('verloren')
+    }
+  }
+
+  function weiter() {
+    if (nr + 1 >= runde.length && geloest.length > 0) belohne(XP.SPIEL, 'Geschafft!')
+    setNr((n) => n + 1)
+    setGeraten([])
+    setEnde(null)
+  }
+
+  return (
+    <>
+      {xpAnzeige}
+      <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
+      <div className="galgen-leben" aria-label={`${GALGEN_LEBEN - fehler} Versuche übrig`}>
+        {Array.from({ length: GALGEN_LEBEN }, (_, i) => (
+          <span key={i} className={'galgen-herz' + (i < GALGEN_LEBEN - fehler ? '' : ' weg')}>♥</span>
+        ))}
+      </div>
+      <p className="galgen-hinweis">{wort.de}</p>
+      <div className={'galgen-wort' + (ende ? ' galgen-' + ende : '')}>
+        {zeichen.map((z, i) =>
+          z === ' ' ? (
+            <span key={i} className="galgen-luecke" />
+          ) : (
+            <span key={i} className={'galgen-feld' + (offen(z) ? ' offen' : '')}>
+              {offen(z) || ende ? z : ''}
+            </span>
+          )
+        )}
+      </div>
+      {ende ? (
+        <div className="galgen-ende">
+          <p>{ende === 'geloest' ? 'Richtig!' : 'Leider nicht – so heißt es richtig.'}</p>
+          <button className="btn" onClick={weiter}>
+            {nr + 1 >= runde.length ? 'Auswertung' : 'Nächstes Wort'}
+          </button>
+        </div>
+      ) : (
+        <div className="galgen-tastatur">
+          {TASTATUR.map((b) => {
+            const drin = geraten.includes(b)
+            const treffer = drin && zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)
+            return (
+              <button
+                key={b}
+                className={'galgen-taste' + (drin ? (treffer ? ' treffer' : ' niete') : '')}
+                disabled={drin}
+                onClick={() => rate(b)}
+              >
+                {b}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </>
+  )
+}
+
+/* ---------- Spiel 6: Buchstabensalat ---------- */
+// Die deutsche Bedeutung steht oben, darunter die Buchstaben des
+// spanischen Worts gemischt. Der Reihe nach antippen – ein falscher
+// Buchstabe wackelt nur kurz, man muss nichts zurücknehmen.
+const SALAT_WOERTER = 5
+
+function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
+  const [xpAnzeige, belohne] = useXpMeldung(addXp)
+  const [runde] = useState(() =>
+    paare
+      .filter((p) => {
+        const n = [...p.es].filter(istBuchstabe).length
+        return n >= 3 && n <= 12
+      })
+      .slice(0, SALAT_WOERTER)
+  )
+  const [nr, setNr] = useState(0)
+  const [fertigWoerter, setFertigWoerter] = useState([])
+
+  const wort = runde[nr]
+  if (!wort) {
+    return (
+      <SpielFertig
+        text={`${runde.length} Wörter richtig zusammengesetzt`}
+        woerter={fertigWoerter}
+        onGespielt={onGespielt}
+        onClose={onClose}
+      />
+    )
+  }
+
+  return (
+    <>
+      {xpAnzeige}
+      <div className="lern-fortschritt">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} />
+        </div>
+        <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
+      </div>
+      <SalatWort
+        key={wort.es}
+        wort={wort}
+        onFertig={(ohneFehler) => {
+          belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? 'Fehlerfrei!' : 'Richtig!')
+          if (ohneFehler) setFertigWoerter((f) => [...f, wort.es])
+          setTimeout(() => {
+            if (nr + 1 >= runde.length) belohne(XP.SPIEL, 'Geschafft!')
+            setNr((n) => n + 1)
+          }, 900)
+        }}
+      />
+    </>
+  )
+}
+
+function SalatWort({ wort, onFertig }) {
+  const zeichen = [...wort.es]
+  // Nur Buchstaben werden gemischt; Leerzeichen & Co. stehen fest
+  const [kacheln] = useState(() => {
+    const b = zeichen.map((z, i) => ({ z, i })).filter((k) => istBuchstabe(k.z))
+    let m = mischen(b)
+    if (m.length > 1 && m.every((k, j) => k.i === b[j].i)) m = [...m.slice(1), m[0]]
+    return m
+  })
+  const [gesetzt, setGesetzt] = useState([]) // Kachel-Indizes in Reihenfolge
+  const [wackelt, setWackelt] = useState(null)
+  const [fehler, setFehler] = useState(0)
+
+  const ziel = zeichen.filter(istBuchstabe)
+  const fertig = gesetzt.length === ziel.length
+
+  function tippe(n) {
+    if (fertig || gesetzt.includes(n)) return
+    // Gleiche Buchstaben sind austauschbar – verglichen wird der Buchstabe
+    if (grundbuchstabe(kacheln[n].z) === grundbuchstabe(ziel[gesetzt.length])) {
+      const neu = [...gesetzt, n]
+      setGesetzt(neu)
+      if (neu.length === ziel.length) onFertig(fehler === 0)
+    } else {
+      setFehler((f) => f + 1)
+      setWackelt(n)
+      setTimeout(() => setWackelt(null), 400)
+    }
+  }
+
+  // Anzeige: feste Zeichen + bisher gesetzte Buchstaben (in Original-Schreibung)
+  let b = 0
+  return (
+    <div className="salat">
+      <p className="galgen-hinweis">{wort.de}</p>
+      <div className={'galgen-wort' + (fertig ? ' galgen-geloest' : '')}>
+        {zeichen.map((z, i) => {
+          if (z === ' ') return <span key={i} className="galgen-luecke" />
+          if (!istBuchstabe(z)) return <span key={i} className="galgen-feld offen">{z}</span>
+          const da = b < gesetzt.length
+          b++
+          return (
+            <span key={i} className={'galgen-feld' + (da ? ' offen' : '')}>
+              {da ? z : ''}
+            </span>
+          )
+        })}
+      </div>
+      <div className="salat-kacheln">
+        {kacheln.map((k, n) => (
+          <button
+            key={n}
+            className={
+              'satzbau-kachel salat-kachel' +
+              (gesetzt.includes(n) ? ' verbaut' : '') +
+              (wackelt === n ? ' platz-falsch' : '')
+            }
+            disabled={gesetzt.includes(n)}
+            onClick={() => tippe(n)}
+          >
+            {k.z.toLocaleLowerCase('es')}
+          </button>
+        ))}
+      </div>
+      {fehler > 0 && !fertig && <p className="training-progress">{fehler} {fehler === 1 ? 'Fehler' : 'Fehler'}</p>}
     </div>
   )
 }
