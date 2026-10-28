@@ -12729,3 +12729,119 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 @media (prefers-reduced-motion: reduce) {
   .start-weg { transition: none; }
 }
+
+/* ---------- Meilenstein erreicht ----------
+   Legt sich über die Seite, weil ein Abzeichen ein Moment sein soll.
+   Ein Hinweis am Rand würde untergehen – gerade bei jemandem, der
+   mitten im Lernen ist. */
+.ms-schicht {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 65, 0.55);
+  backdrop-filter: blur(3px);
+  animation: ms-schicht-auf 0.25s ease;
+}
+@keyframes ms-schicht-auf { from { opacity: 0; } to { opacity: 1; } }
+
+.ms-karte {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 340px;
+  padding: 34px 26px 26px;
+  border-radius: 28px;
+  background: var(--card);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 65, 0.3);
+  animation: ms-karte-auf 0.42s cubic-bezier(0.22, 1, 0.3, 1);
+}
+@keyframes ms-karte-auf {
+  from { opacity: 0; transform: translateY(18px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Das Abzeichen: dieselbe Form wie Profilbild und Pokal */
+.ms-abzeichen {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 16px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 12px 28px rgba(255, 108, 0, 0.4);
+  animation: ms-puls 1.8s ease-in-out infinite;
+}
+@keyframes ms-puls {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+.ms-stufe {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.ms-titel {
+  margin: 4px 0 6px;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.ms-text {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.ms-xp {
+  display: inline-block;
+  margin-bottom: 22px;
+  padding: 9px 20px;
+  border-radius: 100px;
+  background: rgba(255, 108, 0, 0.12);
+  color: var(--primary);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+.ms-knopf { width: 100%; }
+
+/* Schnipsel fallen einmal durchs Bild – kein Dauerregen */
+.ms-konfetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.ms-schnipsel {
+  position: absolute;
+  top: -12px;
+  left: calc(var(--n) * 7.5%);
+  width: 7px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0;
+  animation: ms-fallen 1.5s cubic-bezier(0.3, 0.7, 0.4, 1) forwards;
+  animation-delay: calc(var(--n) * 55ms);
+}
+.ms-schnipsel:nth-child(3n) { background: #ffc27f; }
+.ms-schnipsel:nth-child(3n + 1) { background: var(--navy); }
+@keyframes ms-fallen {
+  0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(340px) rotate(420deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ms-karte, .ms-schicht { animation: none; }
+  .ms-abzeichen { animation: none; }
+  .ms-schnipsel { display: none; }
+}

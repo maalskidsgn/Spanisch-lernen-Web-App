@@ -17,6 +17,9 @@ import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
 import { BenutzernameWahl } from './Rangliste.jsx'
+import MeilensteinMeldung from './MeilensteinMeldung.jsx'
+import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './meilensteine.js'
+import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import Bezahlen from './Bezahlen.jsx'
 import Feed from './Feed.jsx'
@@ -1031,6 +1034,31 @@ export default function App() {
   // Wie viele Vokabeln sind gerade zum Üben fällig? (für das rote Punkt-Badge im Tab)
   const faellig = Object.values(vocab).filter((v) => isDue(withSrsDefaults(v))).length
 
+  // ---------- Meilensteine ----------
+  // Nach jeder Änderung an den Zählern nachsehen, ob eine Stufe
+  // dazugekommen ist. Beim allerersten Mal wird nur gleichgesetzt,
+  // ohne XP – sonst regnet es beim Update XP für alte Arbeit.
+  const [neueAbzeichen, setNeueAbzeichen] = useState([])
+  useEffect(() => {
+    const werte = {
+      woerter: Object.keys(vocab).length,
+      texte: Object.values(texte).reduce((n, t) => n + (t.gelesen ?? 0), 0),
+      saetze: Object.keys(saetze).length,
+      lektionen: Object.keys(lessonProgress).filter(
+        (id) => lessonProgress[id]?.fertig && !id.startsWith('station-')
+      ).length,
+      streak: progress.streak ?? 0,
+      wiederholungen: summeWiederholungen(),
+    }
+    if (meilensteineGleichsetzen(werte)) return
+    const neu = neueMeilensteine(werte)
+    if (neu.length) {
+      addXp(MEILENSTEIN_XP * neu.length)
+      setNeueAbzeichen(neu)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vocab, texte, saetze, lessonProgress, progress.streak])
+
   // Level-Fortschritt für die Anzeige oben berechnen
   const level = levelFromXp(progress.xp)
   const levelStartXp = xpForLevel(level)
@@ -1125,6 +1153,10 @@ export default function App() {
     )
   }
 
+  const meldung = (
+    <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+  )
+
   if (nutzer && nameFragen) {
     return <BenutzernameWahl nutzerId={nutzer.id} onFertig={nameGefragt} />
   }
@@ -1159,6 +1191,9 @@ export default function App() {
     <div className="app">
       {/* Nach dem Klick in der Passwort-Mail: erst neues Passwort, dann App */}
       {passwortNeuSetzen && <NeuesPasswort onFertig={passwortGesetzt} />}
+
+      {/* Abzeichen erreicht – liegt über allem, wie der Level-Aufstieg */}
+      {meldung}
 
       {/* Feier-Einblendung beim Level-Aufstieg */}
       {levelUp && (
