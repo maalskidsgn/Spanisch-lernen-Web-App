@@ -697,13 +697,13 @@ export default function Trainer({
           ))}
         </div>
 
-        {/* Die vier Spiele als spielerische Alternative zur Abfrage */}
+        {/* Die drei Spiele als spielerische Alternative zur Abfrage */}
       <section className="bereich bereich-spiele">
         <div className="bereich-kopf">
           <h2>Oder lieber spielen?</h2>
           <p>
             {spielbar
-              ? 'Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
+              ? 'Alle drei Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
               : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
           </p>
         </div>
@@ -728,13 +728,6 @@ export default function Trainer({
             </span>
             <span className="spiel-name">Wortsuche</span>
             <span className="spiel-hinweis">5 Wörter im Gitter</span>
-          </button>
-          <button className="spiel-karte" onClick={() => setSpiel('fang')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
-              <i /><i /><i />
-            </span>
-            <span className="spiel-name">Wortfang</span>
-            <span className="spiel-hinweis">Richtige antippen</span>
           </button>
         </div>
       </section>

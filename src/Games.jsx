@@ -3,8 +3,8 @@ import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 
-// Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare,
-// Wortsuche und Wortfang.
+// Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare
+// und Wortsuche.
 //
 // Wichtig: Die Spiele sind kein Zeitvertreib neben dem Trainer, sondern
 // ein Teil davon. Sie nehmen bevorzugt die Wörter, die als Nächstes
@@ -88,7 +88,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       <div className="player-top">
         <button className="btn-plain" onClick={onClose}>✕</button>
         <h2 className="game-title">
-          {{ memory: 'Memory', paare: 'Wortpaare', suche: 'Wortsuche', fang: 'Wortfang' }[spiel]}
+          {{ memory: 'Memory', paare: 'Wortpaare', suche: 'Wortsuche'}[spiel]}
         </h2>
       </div>
       {spiel === 'memory' && (
@@ -99,9 +99,6 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       )}
       {spiel === 'suche' && (
         <Wortsuche paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
-      )}
-      {spiel === 'fang' && (
-        <Wortfang paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
     </div>
   )
@@ -590,146 +587,6 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <RundenWoerter woerter={platziert} />
-
-      <button className="btn-plain spiel-abbrechen" onClick={onClose}>
-        Abbrechen
-      </button>
-    </div>
-  )
-}
-
-/* ---------- Spiel 4: Wortfang ---------- */
-// Oben steht die deutsche Bedeutung, von oben fallen spanische
-// Wörter herunter. Tippe nur die richtigen an – die falschen
-// lässt du durchfallen. Wer daneben tippt, verliert ein Leben.
-
-const FALLDAUER = 7000  // wie lange ein Wort von oben nach unten braucht
-const ABSTAND = 1400    // Abstand zwischen zwei Würfen
-const LEBEN = 3
-const RUNDEN = 8        // so viele Wörter muss man fangen
-
-// Drei feste Bahnen statt Zufallsposition. Vorher konnten lange
-// Wörter wie "la existencia" rechts aus dem Feld ragen und zwei
-// Wörter auf derselben Höhe übereinanderliegen.
-const BAHNEN = [2, 28, 54] // linker Rand in Prozent
-
-function Wortfang({ paare, addXp, onClose, onGespielt }) {
-  const [xpAnzeige, belohne] = useXpMeldung(addXp)
-  // Ziele einmal festlegen, damit sie nicht neu gemischt werden
-  const [ziele] = useState(() => paare.slice(0, RUNDEN))
-  const [runde, setRunde] = useState(0)
-  const [leben, setLeben] = useState(LEBEN)
-  const [fallend, setFallend] = useState([])  // {id, wort, richtig, links}
-  const [gefangen, setGefangen] = useState([])
-  const [blitz, setBlitz] = useState(null)    // 'gut' | 'schlecht'
-  const naechsteId = useRef(0)
-  const naechsteBahn = useRef(0)
-
-  const ziel = ziele[runde]
-  const vorbei = runde >= ziele.length || leben <= 0
-
-  // Wörter losschicken: das gesuchte plus Ablenker
-  useEffect(() => {
-    if (vorbei || !ziel) return
-
-    // Ablenker sind andere echte Vokabeln – nicht erfundene Wörter,
-    // damit man wirklich Bedeutungen unterscheiden muss.
-    const ablenker = paare
-      .filter((p) => p.es !== ziel.es)
-      .slice(0, 12)
-    const mischung = mischen([
-      { wort: ziel.es, richtig: true },
-      ...mischen(ablenker).slice(0, 3).map((a) => ({ wort: a.es, richtig: false })),
-    ])
-
-    let index = 0
-    const werfen = () => {
-      const eintrag = mischung[index % mischung.length]
-      index++
-      const id = naechsteId.current++
-      // Reihum durch die Bahnen – so überlappt nichts
-      const bahn = BAHNEN[naechsteBahn.current++ % BAHNEN.length]
-      setFallend((f) => {
-        // Dasselbe Wort nie zweimal gleichzeitig zeigen
-        if (f.some((x) => x.wort === eintrag.wort)) return f
-        return [...f, { id, ...eintrag, links: bahn }]
-      })
-      // Nach der Fallzeit wieder entfernen
-      setTimeout(() => {
-        setFallend((f) => f.filter((x) => x.id !== id))
-      }, FALLDAUER)
-    }
-
-    werfen()
-    const takt = setInterval(werfen, ABSTAND)
-    return () => clearInterval(takt)
-  }, [runde, ziel, vorbei, paare])
-
-  function antippen(eintrag) {
-    setFallend((f) => f.filter((x) => x.id !== eintrag.id))
-
-    if (eintrag.richtig) {
-      setBlitz('gut')
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
-      setGefangen((g) => [...g, ziel.es])
-      setFallend([])          // Runde räumen
-      setRunde((r) => r + 1)
-    } else {
-      setBlitz('schlecht')
-      setLeben((l) => l - 1)
-    }
-    setTimeout(() => setBlitz(null), 320)
-  }
-
-  if (vorbei) {
-    const geschafft = gefangen.length
-    return (
-      <SpielFertig
-        text={
-          leben > 0
-            ? `Alle ${geschafft} Wörter gefangen – ohne alle Leben zu verlieren!`
-            : `${geschafft} von ${ziele.length} gefangen. Beim nächsten Mal mehr!`
-        }
-        woerter={gefangen}
-        onGespielt={onGespielt}
-        onClose={onClose}
-      />
-    )
-  }
-
-  return (
-    <div className="spiel-buehne">
-      {xpAnzeige}
-      <div className="spiel-kopf">
-        <span className="spiel-titel">🎣 Wortfang</span>
-        <span className="spiel-stand">
-          {'❤️'.repeat(leben)}
-          {'🖤'.repeat(LEBEN - leben)} · {runde}/{ziele.length}
-        </span>
-      </div>
-
-      <div className="fang-auftrag">
-        <span className="fang-label">Finde</span>
-        <b className="fang-wort">{ziel.de}</b>
-      </div>
-
-      <div className={'fang-feld' + (blitz ? ' fang-' + blitz : '')}>
-        {fallend.map((f) => (
-          <button
-            key={f.id}
-            className="fang-tropfen"
-            style={{
-              left: f.links + '%',
-              animationDuration: FALLDAUER + 'ms',
-            }}
-            onClick={() => antippen(f)}
-          >
-            {f.wort}
-          </button>
-        ))}
-      </div>
-
-      <RundenWoerter woerter={ziele} />
 
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
         Abbrechen

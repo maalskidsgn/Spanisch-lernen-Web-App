@@ -678,7 +678,7 @@ const STATIONEN = [
   },
   {
     titel: 'Und an den Tagen ohne Lust',
-    text: 'Vier Spiele: Memory, Wortpaare, Wortsuche, Wortfang. Sie nehmen genau die Wörter, die als Nächstes fällig wären. Wer sie im Spiel wiedererkennt, schiebt sie eine Stufe weiter. Lernen, das sich nicht danach anfühlt.',
+    text: 'Drei Spiele: Memory, Wortpaare, Wortsuche. Sie nehmen genau die Wörter, die als Nächstes fällig wären. Wer sie im Spiel wiedererkennt, schiebt sie eine Stufe weiter. Lernen, das sich nicht danach anfühlt.',
     ziel: 'trainer',
     link: 'Zu den Spielen',
   },

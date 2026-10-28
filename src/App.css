@@ -13770,3 +13770,6 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 .luecke-richtig { color: #1f7a45; border-color: var(--success); background: #e8f7ee; border-radius: 6px 6px 0 0; }
 .luecke-falsch { color: #b42318; border-color: #e5484d; background: #fdecec; border-radius: 6px 6px 0 0; }
 .luecken-hilfe { margin: 6px 0 14px; font-size: .88rem; color: var(--muted); text-align: center; }
+
+/* Ungerade Zahl an Spielen: das letzte über die ganze Breite */
+.spiel-paar > .spiel-karte:last-child:nth-child(odd) { grid-column: 1 / -1; }
