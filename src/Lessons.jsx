@@ -744,7 +744,12 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                     </span>
                   </span>
                   {geschafft ? (
-                    <span className="plan-haken">✓</span>
+                    <span className="plan-haken" aria-label="geschafft">
+                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M5 12.5 10 17.5 19 7" stroke="currentColor" strokeWidth="3"
+                              strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
                   ) : dran ? (
                     <span className="plan-knopf">Start</span>
                   ) : (

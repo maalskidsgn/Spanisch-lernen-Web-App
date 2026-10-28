@@ -6076,7 +6076,10 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: var(--muted);
 }
 
-.plan-haken { font-size: 15px; font-weight: 800; color: var(--success); }
+/* Diese Regel stand spaeter in der Datei und ueberschrieb die
+   orange Fassung oben mit Gruen – als einziger gruener Punkt in
+   einer sonst orangen Liste. Jetzt nur noch die Groesse. */
+.plan-haken { font-size: 15px; font-weight: 800; }
 
 .plan-schloss {
   width: 13px;
@@ -12876,3 +12879,7 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .pf-kasten .konto-karte { margin-top: 16px; }
 .pf-kasten .name-einstellung { margin-top: 16px; }
 .pf-kasten .name-einstellung h3 { font-size: 0.95rem; font-weight: 800; color: var(--navy); }
+
+/* Der Haken als Zeichnung statt Textzeichen: "✓" wird auf manchen
+   Geräten farbig als Emoji gerendert und sprengt die Linie. */
+.plan-haken svg { width: 13px; height: 13px; display: block; }
