@@ -12043,7 +12043,6 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .rang-p2 .rang-platz { color: #8d96a6; }
 .rang-p3 .rang-platz { color: #b47044; }
 
-.rang-mitte { flex: 1; min-width: 0; display: grid; gap: 5px; }
 .rang-name {
   display: flex;
   align-items: center;
@@ -12081,8 +12080,6 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   background: var(--primary);
   opacity: 0.55;
 }
-.rang-p1 .rang-balken-fuell { background: #f0a500; opacity: 1; }
-.rang-p2 .rang-balken-fuell, .rang-p3 .rang-balken-fuell { opacity: 0.8; }
 
 .rang-xp {
   flex: none;
@@ -12457,3 +12454,121 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 @media (prefers-reduced-motion: reduce) {
   .start-karte::before { transition: none; }
 }
+
+/* ===================================================================
+   RANGLISTE MIT PODEST (28.10.2026)
+   Die ersten drei stehen auf Säulen – Gold in der Mitte, höher und
+   größer. Das gibt der Spitze Gewicht und weckt eher den Ehrgeiz,
+   dort hinzuwollen, als eine reine Liste.
+   =================================================================== */
+
+.rang-inhalt { transition: opacity 0.26s ease, transform 0.26s ease; }
+.rang-inhalt.ist-wechsel {
+  opacity: 0.25;
+  transform: translateY(5px);
+  pointer-events: none;
+}
+
+.rang-podest {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.rang-saeule { text-align: center; min-width: 0; }
+
+.rs-bild {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 7px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+.rang-erster .rs-bild {
+  width: 66px;
+  height: 66px;
+  border-radius: 22px;
+  font-size: 27px;
+  background: #f5b301;
+}
+.rang-zweiter .rs-bild { background: #c3cad6; }
+.rang-dritter .rs-bild { background: #cf8450; }
+
+.rs-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rs-name small {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: var(--primary);
+  color: #fff;
+  vertical-align: 1px;
+}
+.rs-xp {
+  display: block;
+  margin-top: 1px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Der Block darunter trägt die Platzziffer – unterschiedlich hoch,
+   damit das Podest auch ohne Zahlen lesbar ist. */
+.rs-block {
+  display: grid;
+  place-items: center;
+  margin-top: 8px;
+  border-radius: 12px 12px 0 0;
+  font-size: 19px;
+  font-weight: 900;
+  color: #fff;
+}
+.rang-erster .rs-block { height: 60px; background: var(--primary); }
+.rang-zweiter .rs-block { height: 42px; background: #e7dfd4; color: var(--muted); }
+.rang-dritter .rs-block { height: 32px; background: #efe8df; color: var(--muted); }
+
+/* Die Liste darunter: schlank, ohne Balken – die Abstände zeigt
+   jetzt das Podest. */
+.rang-liste { border-top: 1px solid var(--line); }
+.rang-zeile { padding: 11px 4px; gap: 12px; border-radius: 0; }
+.rang-zeile + .rang-zeile { border-top: 1px solid var(--line); }
+.rang-zeile:first-child, .rang-zeile:last-child { border-radius: 0; }
+.rang-initial { width: 32px; height: 32px; border-radius: 11px; font-size: 14px; }
+.rang-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+}
+.rang-xp { font-size: 14.5px; }
+
+/* Die eigene Zeile hebt sich als Fläche ab */
+.rang-zeile.rang-ich {
+  border-radius: 14px;
+  border-top-color: transparent;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: 4px 0;
+}
+.rang-ich + .rang-zeile { border-top-color: transparent; }

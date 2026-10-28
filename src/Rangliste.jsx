@@ -51,8 +51,9 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   // wie ein Fehler – dann lieber der Hinweis darunter.
   const echte = zeitraum === 'gesamt' ? zeilen : zeilen.filter((z) => z.xp > 0)
   const top = echte.filter((z) => z.platz <= 10)
-  // Maßstab für die Balken: die Spitze der sichtbaren Liste
-  const hoechste = Math.max(...echte.map((z) => z.xp), 1)
+  // Die ersten drei stehen auf dem Podest, der Rest in der Liste
+  const podest = top.filter((z) => z.platz <= 3)
+  const rest = top.filter((z) => z.platz > 3)
   const ichDraussen = echte.find((z) => z.ich && z.platz > 10)
 
   return (
@@ -109,17 +110,30 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
           )}
         </div>
       ) : (
-        <ol className={'rang-liste' + (wechselt ? ' ist-wechsel' : '')}>
-          {top.map((z, i) => (
-            <RangZeile key={zeitraum + '-' + z.platz} z={z} hoechste={hoechste} nr={i} />
-          ))}
-          {ichDraussen && (
-            <>
-              <li className="rang-luecke" aria-hidden="true">···</li>
-              <RangZeile z={ichDraussen} hoechste={hoechste} nr={top.length} />
-            </>
+        <div className={'rang-inhalt' + (wechselt ? ' ist-wechsel' : '')}>
+          {/* Die drei Besten auf dem Podest – Gold in der Mitte und
+              höher. Weniger als drei kommen in die Liste darunter,
+              ein Podest mit einer Säule wäre albern. */}
+          {podest.length === 3 && (
+            <div className="rang-podest">
+              <Saeule z={podest[1]} stufe="zweiter" />
+              <Saeule z={podest[0]} stufe="erster" />
+              <Saeule z={podest[2]} stufe="dritter" />
+            </div>
           )}
-        </ol>
+
+          <ol className="rang-liste">
+            {(podest.length === 3 ? rest : top).map((z, i) => (
+              <RangZeile key={zeitraum + '-' + z.platz} z={z} nr={i} />
+            ))}
+            {ichDraussen && (
+              <>
+                <li className="rang-luecke" aria-hidden="true">···</li>
+                <RangZeile z={ichDraussen} nr={rest.length} />
+              </>
+            )}
+          </ol>
+        </div>
       )}
 
       {name === null && (
@@ -135,6 +149,21 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   )
 }
 
+/** Eine Säule des Podests: Bild, Name, XP und der Block mit dem Platz. */
+function Saeule({ z, stufe }) {
+  return (
+    <div className={'rang-saeule rang-' + stufe + (z.ich ? ' ist-ich' : '')}>
+      <span className="rs-bild" aria-hidden="true">{z.benutzername.charAt(0).toUpperCase()}</span>
+      <span className="rs-name">
+        {z.benutzername}
+        {z.ich && <small>du</small>}
+      </span>
+      <span className="rs-xp">{z.xp.toLocaleString('de-DE')} XP</span>
+      <span className="rs-block">{z.platz}</span>
+    </div>
+  )
+}
+
 /**
  * Eine Zeile der Rangliste.
  *
@@ -143,8 +172,7 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
  * Der Balken darunter zeigt den Abstand zur Spitze – so sieht man
  * auf einen Blick, ob es knapp ist oder uneinholbar.
  */
-function RangZeile({ z, hoechste, nr = 0 }) {
-  const anteil = hoechste > 0 ? Math.max(4, Math.round((z.xp / hoechste) * 100)) : 0
+function RangZeile({ z, nr = 0 }) {
   const stufe = z.platz <= 3 ? ' rang-p' + z.platz : ''
   return (
     <li
@@ -155,14 +183,9 @@ function RangZeile({ z, hoechste, nr = 0 }) {
       <span className="rang-initial" aria-hidden="true">
         {z.benutzername.charAt(0).toUpperCase()}
       </span>
-      <span className="rang-mitte">
-        <span className="rang-name">
-          {z.benutzername}
-          {z.ich && <small>du</small>}
-        </span>
-        <span className="rang-balken">
-          <span className="rang-balken-fuell" style={{ width: anteil + '%' }} />
-        </span>
+      <span className="rang-name">
+        {z.benutzername}
+        {z.ich && <small>du</small>}
       </span>
       <b className="rang-xp">
         {z.xp.toLocaleString('de-DE')}
