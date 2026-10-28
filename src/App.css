@@ -12601,3 +12601,52 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   margin: 4px 0;
 }
 .rang-ich + .rang-zeile { border-top-color: transparent; }
+
+/* ---------- Puls auf dem Podest ----------
+   Die drei Besten atmen leicht – Platz 1 am deutlichsten, danach
+   immer ruhiger. Der Puls liegt auf dem Bild, nicht auf der ganzen
+   Säule: So bleibt das Layout ruhig und nur das Zeichen lebt.
+   Die Takte sind unterschiedlich lang, damit die drei nicht im
+   Gleichschritt pochen – das wirkte wie ein Fehler. */
+.rang-saeule .rs-bild {
+  animation: rs-puls 2.6s ease-in-out infinite;
+  will-change: transform;
+}
+.rang-erster .rs-bild {
+  animation-duration: 2.2s;
+  --puls: 1.055;
+  --schein: rgba(255, 108, 0, 0.45);
+}
+.rang-zweiter .rs-bild {
+  animation-duration: 2.9s;
+  animation-delay: 0.35s;
+  --puls: 1.032;
+  --schein: rgba(255, 154, 64, 0.34);
+}
+.rang-dritter .rs-bild {
+  animation-duration: 3.4s;
+  animation-delay: 0.7s;
+  --puls: 1.018;
+  --schein: rgba(255, 192, 143, 0.28);
+}
+
+@keyframes rs-puls {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--schein, transparent);
+  }
+  50% {
+    transform: scale(var(--puls, 1.02));
+    /* Der Schein wächst mit und verläuft nach außen */
+    box-shadow: 0 0 0 10px rgba(255, 108, 0, 0);
+  }
+  /* Kurz vor der Mitte sitzt der Schein eng am Feld – das gibt dem
+     Puls den Anschlag, statt ihn nur weich schwellen zu lassen. */
+  32% {
+    box-shadow: 0 0 0 3px var(--schein, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rang-saeule .rs-bild { animation: none; }
+}
