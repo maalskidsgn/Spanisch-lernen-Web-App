@@ -122,3 +122,20 @@ export async function merkeTagesXp(tag, punkte) {
     /* Migration fehlt oder offline – egal, beim nächsten Mal wieder */
   }
 }
+
+/**
+ * Das öffentliche Profil einer Person aus der Rangliste.
+ *
+ * Gibt nur heraus, was öffentlich sein soll – keine E-Mail, keine
+ * Nutzer-ID. Die Datenbank-Funktion sorgt dafür, nicht der Browser:
+ * Was hier nicht ankommt, kann auch niemand abfangen.
+ *
+ * @returns {Promise<object|null>} null = nicht gefunden oder nicht verfügbar
+ */
+export async function ladeProfil(benutzername) {
+  if (!supabaseBereit || !benutzername) return null
+  const { data, error } = await db.rpc('profil_oeffentlich', { name: benutzername })
+  if (error || !data?.length) return null
+  const p = data[0]
+  return { ...p, platz: Number(p.platz) }
+}

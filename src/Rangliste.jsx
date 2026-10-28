@@ -3,6 +3,7 @@ import {
   ladeBenutzername, ladeRangliste, setzeBenutzername, istNameFrei, nameFehler, ZEITRAEUME,
 } from './rangliste.js'
 import Logo from './Logo.jsx'
+import ProfilSchau from './ProfilSchau.jsx'
 
 /**
  * Die Rangliste auf der Startseite: die zehn Lernenden mit den meisten
@@ -20,6 +21,8 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   // stehen und blendet nur ab. Sie ganz zu entfernen liess die Karte
   // zusammenklappen – das sprang.
   const [wechselt, setWechselt] = useState(false)
+  // Wer gerade angeschaut wird – leer heisst: niemand
+  const [schau, setSchau] = useState('')
 
   async function laden(z = zeitraum) {
     const [n, l] = await Promise.all([ladeBenutzername(nutzerId), ladeRangliste(10, z)])
@@ -132,25 +135,27 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
               ein Podest mit einer Säule wäre albern. */}
           {podest.length === 3 && (
             <div className="rang-podest">
-              <Saeule z={podest[1]} stufe="zweiter" />
-              <Saeule z={podest[0]} stufe="erster" />
-              <Saeule z={podest[2]} stufe="dritter" />
+              <Saeule z={podest[1]} stufe="zweiter" onOeffnen={setSchau} />
+              <Saeule z={podest[0]} stufe="erster" onOeffnen={setSchau} />
+              <Saeule z={podest[2]} stufe="dritter" onOeffnen={setSchau} />
             </div>
           )}
 
           <ol className="rang-liste">
             {(podest.length === 3 ? rest : top).map((z, i) => (
-              <RangZeile key={zeitraum + '-' + z.platz} z={z} nr={i} />
+              <RangZeile key={zeitraum + '-' + z.platz} z={z} nr={i} onOeffnen={setSchau} />
             ))}
             {ichDraussen && (
               <>
                 <li className="rang-luecke" aria-hidden="true">···</li>
-                <RangZeile z={ichDraussen} nr={rest.length} />
+                <RangZeile z={ichDraussen} nr={rest.length} onOeffnen={setSchau} />
               </>
             )}
           </ol>
         </div>
       )}
+
+      {schau && <ProfilSchau benutzername={schau} onSchliessen={() => setSchau('')} />}
 
       {name === null && (
         <div className="rang-mitmachen">
@@ -166,9 +171,14 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
 }
 
 /** Eine Säule des Podests: Bild, Name, XP und der Block mit dem Platz. */
-function Saeule({ z, stufe }) {
+function Saeule({ z, stufe, onOeffnen }) {
   return (
-    <div className={'rang-saeule rang-' + stufe + (z.ich ? ' ist-ich' : '')}>
+    <button
+      type="button"
+      className={'rang-saeule rang-' + stufe + (z.ich ? ' ist-ich' : '')}
+      onClick={() => onOeffnen?.(z.benutzername)}
+      aria-label={`Profil von ${z.benutzername} ansehen`}
+    >
       <span className="rs-bild" aria-hidden="true">{z.benutzername.charAt(0).toUpperCase()}</span>
       <span className="rs-name">
         {z.benutzername}
@@ -176,7 +186,7 @@ function Saeule({ z, stufe }) {
       </span>
       <span className="rs-xp">{z.xp.toLocaleString('de-DE')} XP</span>
       <span className="rs-block">{z.platz}</span>
-    </div>
+    </button>
   )
 }
 
@@ -188,13 +198,16 @@ function Saeule({ z, stufe }) {
  * Der Balken darunter zeigt den Abstand zur Spitze – so sieht man
  * auf einen Blick, ob es knapp ist oder uneinholbar.
  */
-function RangZeile({ z, nr = 0 }) {
+function RangZeile({ z, nr = 0, onOeffnen }) {
   const stufe = z.platz <= 3 ? ' rang-p' + z.platz : ''
   return (
-    <li
-      className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + stufe}
-      style={{ '--nr': nr }}
-    >
+    <li style={{ '--nr': nr }} className="rang-eintrag">
+      <button
+        type="button"
+        className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + stufe}
+        onClick={() => onOeffnen?.(z.benutzername)}
+        aria-label={`Profil von ${z.benutzername} ansehen`}
+      >
       <span className="rang-platz">{z.platz}</span>
       <span className="rang-initial" aria-hidden="true">
         {z.benutzername.charAt(0).toUpperCase()}
@@ -203,10 +216,11 @@ function RangZeile({ z, nr = 0 }) {
         {z.benutzername}
         {z.ich && <small>du</small>}
       </span>
-      <b className="rang-xp">
-        {z.xp.toLocaleString('de-DE')}
-        <small>XP</small>
-      </b>
+        <b className="rang-xp">
+          {z.xp.toLocaleString('de-DE')}
+          <small>XP</small>
+        </b>
+      </button>
     </li>
   )
 }
