@@ -30,6 +30,7 @@ const TUTOREN_ZEIGEN = false
 // Die Karte "Nächste aktive Lektion" ist vorerst ausgeblendet (Manuel,
 // 28.10.). Der Code bleibt stehen – auf true setzen, dann ist sie zurück.
 const LEKTIONSKARTE_ZEIGEN = false
+const ZITAT_ZEIGEN = false
 
 export default function Home({
   progress,
@@ -84,10 +85,9 @@ export default function Home({
 
       {/* Nur im Browser: App auf den Startbildschirm holen */}
       <InstallKnopf app="Habloo" />
-      {/* Der Satz des Tages steht da, wo vorher eine feste Zeile
-          stand. Er ist zweisprachig: Wer ihn liest, hat schon einen
-          echten spanischen Satz gelesen, bevor die erste Lektion
-          anfaengt. */}
+      {/* Der Satz des Tages ist ausgeblendet (Manuel, 28.10.) –
+          auf true setzen, dann ist er zurueck. */}
+      {ZITAT_ZEIGEN && (
       <div className="zitat">
         <p className="zitat-es">{zitat.es}</p>
         <p className="zitat-de">
@@ -95,6 +95,7 @@ export default function Home({
           {zitat.quelle && <span className="zitat-quelle"> · {zitat.quelle}</span>}
         </p>
       </div>
+      )}
 
       {/* ============ 1. WEITERLERNEN ============ */}
       {LEKTIONSKARTE_ZEIGEN && (

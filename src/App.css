@@ -12172,3 +12172,9 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 }
 .rang-zr.ist-aktiv:hover { background: var(--navy, #000041); }
 .rang-zr:active { transform: scale(0.97); box-shadow: none; }
+
+/* Rangliste: Hinweis, solange ein Zeitraum noch keine Daten hat */
+.rang-leer { margin: 4px 0 0; color: var(--muted); }
+.rang-leer p { margin: 0; }
+.rang-leer b { color: var(--navy); }
+.rang-leer-klein { margin-top: 6px !important; font-size: 13.5px; line-height: 1.45; }

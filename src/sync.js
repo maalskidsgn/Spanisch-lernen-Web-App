@@ -10,6 +10,7 @@
 import { db } from './supabase.js'
 import { lokalerVerlauf, vereineVerlauf, uebernimmVerlauf } from './verlauf.js'
 import { merkeTagesXp } from './rangliste.js'
+import { heute } from './datum.js'
 import { INTERVALS_DAYS } from './srs.js'
 
 /**
@@ -236,7 +237,11 @@ export async function speichereStatistik(nutzerId, stats) {
   // Monats- und Jahresrangliste. Bewusst nach dem Speichern und
   // ohne await-Fehler: Klappt es nicht, ist nur die Rangliste
   // unvollständig, der Fortschritt steht trotzdem.
-  if (stats.lastDay) merkeTagesXp(stats.lastDay, stats.xpToday ?? 0)
+  //
+  // lastDay ist in der Praxis oft leer (die Spalte letzter_tag steht
+  // bei allen auf NULL) – dann zählt der heutige Tag, denn xp_heute
+  // bezieht sich genau darauf.
+  merkeTagesXp(stats.lastDay || heute(), stats.xpToday ?? 0)
 }
 
 // ---------------------------------------------------------------

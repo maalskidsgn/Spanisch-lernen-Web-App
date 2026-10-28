@@ -41,10 +41,14 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
     zeitraum === 'gesamt'
       ? liste.map((z) => (z.ich ? { ...z, xp: Math.max(z.xp, eigeneXp) } : z))
       : liste
-  const top = zeilen.filter((z) => z.platz <= 10)
+  // Bei Monat und Jahr nur zeigen, wer in dem Zeitraum wirklich XP
+  // hat. Sich selbst mit 0 XP allein in der Liste zu sehen, wirkt
+  // wie ein Fehler – dann lieber der Hinweis darunter.
+  const echte = zeitraum === 'gesamt' ? zeilen : zeilen.filter((z) => z.xp > 0)
+  const top = echte.filter((z) => z.platz <= 10)
   // Maßstab für die Balken: die Spitze der sichtbaren Liste
-  const hoechste = Math.max(...zeilen.map((z) => z.xp), 1)
-  const ichDraussen = zeilen.find((z) => z.ich && z.platz > 10)
+  const hoechste = Math.max(...echte.map((z) => z.xp), 1)
+  const ichDraussen = echte.find((z) => z.ich && z.platz > 10)
 
   return (
     <section className="start-karte rangliste">
@@ -73,11 +77,22 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
       </div>
 
       {top.length === 0 ? (
-        <p className="rang-leer">
-          {zeitraum === 'gesamt'
-            ? 'Noch niemand drin – sei die Nummer 1.'
-            : 'In diesem Zeitraum hat noch niemand gelernt – leg los!'}
-        </p>
+        <div className="rang-leer">
+          {zeitraum === 'gesamt' ? (
+            <p>Noch niemand drin – sei die Nummer 1.</p>
+          ) : (
+            <>
+              <p>
+                <b>Die Wertung läuft ab jetzt.</b>
+              </p>
+              <p className="rang-leer-klein">
+                Wer wann gelernt hat, wird erst seit heute festgehalten – vorher gab es nur
+                den Gesamtstand. Die erste XP {zeitraum === 'monat' ? 'dieses Monats' : 'dieses Jahres'}{' '}
+                bringt dich auf Platz 1.
+              </p>
+            </>
+          )}
+        </div>
       ) : (
         <ol className="rang-liste">
           {top.map((z) => (
