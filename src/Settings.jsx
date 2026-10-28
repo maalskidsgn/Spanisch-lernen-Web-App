@@ -9,6 +9,8 @@ import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
+import { BenutzernameFeld } from './Rangliste.jsx'
+import { ladeBenutzername } from './rangliste.js'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
@@ -335,6 +337,7 @@ export default function Settings({
                 Dein Fortschritt wird automatisch gesichert und steht auf allen
                 Geräten zur Verfügung.
               </p>
+              <BenutzernameEinstellung nutzerId={nutzer.id} />
               <button className="btn-outline" onClick={abmeldenKlick}>
                 Abmelden
               </button>
@@ -690,6 +693,30 @@ export default function Settings({
 
       {/* ---------- Über ---------- */}
       <p className="about-note">Mit Herz entwickelt von Klarwerk Digital</p>
+    </div>
+  )
+}
+
+/** Benutzername für die Rangliste ansehen und ändern. */
+function BenutzernameEinstellung({ nutzerId }) {
+  const [name, setName] = useState(undefined)
+  useEffect(() => {
+    ladeBenutzername(nutzerId).then(setName)
+  }, [nutzerId])
+  if (name === undefined) return null // Rangliste noch nicht verfügbar
+  return (
+    <div className="name-einstellung">
+      <h3>Benutzername</h3>
+      <p className="settings-hint">
+        So erscheinst du in der Rangliste auf der Startseite. Jeden Namen gibt es nur einmal.
+      </p>
+      <BenutzernameFeld
+        key={name ?? ''}
+        nutzerId={nutzerId}
+        start={name ?? ''}
+        knopf={name ? 'Ändern' : 'Speichern'}
+        onGespeichert={setName}
+      />
     </div>
   )
 }

@@ -11977,3 +11977,55 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   padding: 2px 8px;
   font-size: 0.9rem;
 }
+
+/* ===================================================================
+   Rangliste + Benutzername (28.10.2026)
+   =================================================================== */
+.rang-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.rang-pokal { font-size: 2rem; line-height: 1; }
+.rang-titel { margin: 0; }
+.rang-unter { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+.rang-leer { margin: 4px 0 0; color: var(--muted); }
+.rang-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rang-zeile {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: var(--flaeche);
+}
+.rang-podest { background: #fff4e8; }
+.rang-ich { background: var(--navy); color: #fff; }
+.rang-ich .rang-xp, .rang-ich small { color: #fff; }
+.rang-platz { width: 28px; text-align: center; font-weight: 800; font-size: 15px; color: var(--muted); }
+.rang-podest .rang-platz { font-size: 20px; }
+.rang-ich .rang-platz { color: #ffc27f; }
+.rang-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.rang-name small { font-weight: 600; color: var(--muted); }
+.rang-xp { color: var(--primary); font-size: 14px; white-space: nowrap; }
+.rang-luecke { text-align: center; color: var(--muted); letter-spacing: 3px; line-height: 1; }
+.rang-mitmachen { margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed var(--line); }
+.rang-mitmachen p { margin: 0 0 10px; font-size: 14.5px; }
+
+.name-form { margin: 0; }
+.name-zeile {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 4px 4px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+.name-zeile:focus-within { border-color: var(--primary); }
+.name-at { color: var(--muted); font-weight: 800; }
+.name-zeile input {
+  flex: 1; min-width: 0;
+  border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 16px; font-weight: 700; color: var(--navy);
+}
+.name-knopf { margin: 0; padding: 9px 16px; white-space: nowrap; width: auto; }
+.name-hinweis { margin: 6px 2px 0; font-size: 13px; }
+.name-gut { color: var(--success); }
+.name-schlecht { color: var(--red); }
+.name-wahl .name-form { width: 100%; margin-top: 8px; text-align: left; }
+.name-spaeter { margin-top: 14px; }
+.name-einstellung { margin: 14px 0; }
+.name-einstellung h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }

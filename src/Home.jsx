@@ -12,6 +12,7 @@ import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
 import { useEffect, useState } from 'react'
 import { FeedTuer } from './Feed.jsx'
+import { RanglistenKarte } from './Rangliste.jsx'
 import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 
 // Die Startseite.
@@ -34,6 +35,7 @@ export default function Home({
   lessonProgress = {},
   onNavigate,
   nutzerEmail,
+  nutzerId,
 }) {
   // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
   const [, setVerlaufStand] = useState(0)
@@ -73,6 +75,9 @@ export default function Home({
       <h1 className="trainer-titel start-gruss">
         ¡Hola<span className="accent">!</span>
       </h1>
+
+      {/* Rangliste: die Top 10 nach XP – ganz oben, als Ansporn */}
+      {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} />}
 
       {/* Nur im Browser: App auf den Startbildschirm holen */}
       <InstallKnopf app="Habloo" />

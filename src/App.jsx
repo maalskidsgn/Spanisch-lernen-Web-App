@@ -16,6 +16,8 @@ import BereichsIntro, { BEREICHE, RUNDGANG_REIHE, gesehene } from './Rundgang.js
 import Willkommen from './Willkommen.jsx'
 import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
+import { BenutzernameWahl } from './Rangliste.jsx'
+import { ladeBenutzername } from './rangliste.js'
 import Bezahlen from './Bezahlen.jsx'
 import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
@@ -416,6 +418,25 @@ export default function App() {
     setOnboardingFertig(schonDurch)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nutzer])
+
+  // Benutzername: einmal nach der Anmeldung fragen (für die Rangliste).
+  // "Später" merkt sich das Gerät – dann bleibt das Feld auf dem Start.
+  const [nameFragen, setNameFragen] = useState(false)
+  useEffect(() => {
+    setNameFragen(false)
+    if (!nutzer) return
+    let gefragt = false
+    try { gefragt = localStorage.getItem('benutzername-gefragt:' + nutzer.id) === 'ja' } catch { gefragt = true }
+    if (gefragt) return
+    let aktiv = true
+    ladeBenutzername(nutzer.id).then((n) => { if (aktiv && n === null) setNameFragen(true) })
+    return () => { aktiv = false }
+  }, [nutzer])
+
+  function nameGefragt() {
+    try { localStorage.setItem('benutzername-gefragt:' + nutzer.id, 'ja') } catch { /* egal */ }
+    setNameFragen(false)
+  }
 
   function merkeOnboarding() {
     try {
@@ -1106,6 +1127,10 @@ export default function App() {
     )
   }
 
+  if (nutzer && nameFragen) {
+    return <BenutzernameWahl nutzerId={nutzer.id} onFertig={nameGefragt} />
+  }
+
   // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
   // Eine Karte je Bildschirm – da störte eine Menüleiste am unteren
   // Rand beim Wischen und würde die Karte beschneiden.
@@ -1244,6 +1269,7 @@ export default function App() {
             lessonProgress={lessonProgress}
             onNavigate={setView}
             nutzerEmail={nutzer?.email}
+            nutzerId={nutzer?.id}
             onAddVocab={addVocabWords}
           />
         </main>
