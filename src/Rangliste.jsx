@@ -42,6 +42,8 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
       ? liste.map((z) => (z.ich ? { ...z, xp: Math.max(z.xp, eigeneXp) } : z))
       : liste
   const top = zeilen.filter((z) => z.platz <= 10)
+  // Maßstab für die Balken: die Spitze der sichtbaren Liste
+  const hoechste = Math.max(...zeilen.map((z) => z.xp), 1)
   const ichDraussen = zeilen.find((z) => z.ich && z.platz > 10)
 
   return (
@@ -79,12 +81,12 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
       ) : (
         <ol className="rang-liste">
           {top.map((z) => (
-            <RangZeile key={z.platz} z={z} />
+            <RangZeile key={z.platz} z={z} hoechste={hoechste} />
           ))}
           {ichDraussen && (
             <>
               <li className="rang-luecke" aria-hidden="true">···</li>
-              <RangZeile z={ichDraussen} />
+              <RangZeile z={ichDraussen} hoechste={hoechste} />
             </>
           )}
         </ol>
@@ -103,16 +105,36 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   )
 }
 
-function RangZeile({ z }) {
-  const medaille = { 1: '🥇', 2: '🥈', 3: '🥉' }[z.platz]
+/**
+ * Eine Zeile der Rangliste.
+ *
+ * Statt Medaillen-Emojis (die auf jedem Gerät anders aussehen) trägt
+ * der Platz eine eigene Farbe: Gold, Silber, Bronze, danach ruhig.
+ * Der Balken darunter zeigt den Abstand zur Spitze – so sieht man
+ * auf einen Blick, ob es knapp ist oder uneinholbar.
+ */
+function RangZeile({ z, hoechste }) {
+  const anteil = hoechste > 0 ? Math.max(4, Math.round((z.xp / hoechste) * 100)) : 0
+  const stufe = z.platz <= 3 ? ' rang-p' + z.platz : ''
   return (
-    <li className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + (z.platz <= 3 ? ' rang-podest' : '')}>
-      <span className="rang-platz">{medaille ?? z.platz}</span>
-      <span className="rang-name">
-        {z.benutzername}
-        {z.ich && <small> (du)</small>}
+    <li className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + stufe}>
+      <span className="rang-platz">{z.platz}</span>
+      <span className="rang-initial" aria-hidden="true">
+        {z.benutzername.charAt(0).toUpperCase()}
       </span>
-      <b className="rang-xp">{z.xp.toLocaleString('de-DE')} XP</b>
+      <span className="rang-mitte">
+        <span className="rang-name">
+          {z.benutzername}
+          {z.ich && <small>du</small>}
+        </span>
+        <span className="rang-balken">
+          <span className="rang-balken-fuell" style={{ width: anteil + '%' }} />
+        </span>
+      </span>
+      <b className="rang-xp">
+        {z.xp.toLocaleString('de-DE')}
+        <small>XP</small>
+      </b>
     </li>
   )
 }

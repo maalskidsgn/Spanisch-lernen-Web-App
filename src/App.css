@@ -11986,22 +11986,132 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .rang-titel { margin: 0; }
 .rang-unter { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
 .rang-leer { margin: 4px 0 0; color: var(--muted); }
-.rang-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rang-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+
+/* Eine Zeile: Platz · Initiale · Name mit Balken · XP.
+   Kompakt gehalten – zehn Zeilen sollen auf den Schirm passen,
+   ohne dass man scrollt. */
 .rang-zeile {
-  display: flex; align-items: center; gap: 12px;
-  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 12px 8px 8px;
   border-radius: 14px;
-  background: var(--flaeche);
+  background: transparent;
+  transition: background 0.18s;
 }
-.rang-podest { background: #fff4e8; }
-.rang-ich { background: var(--navy); color: #fff; }
-.rang-ich .rang-xp, .rang-ich small { color: #fff; }
-.rang-platz { width: 28px; text-align: center; font-weight: 800; font-size: 15px; color: var(--muted); }
-.rang-podest .rang-platz { font-size: 20px; }
+/* Alle Zeilen gleich ruhig – Streifen machten die Liste unruhig.
+   Hervorgehoben wird nur, was hervorgehoben gehört: die ersten
+   drei Plätze über die Initiale, die eigene Zeile über die Fläche. */
+.rang-zeile + .rang-zeile { border-top: 1px solid var(--line); border-radius: 0; }
+.rang-zeile:last-child { border-radius: 0 0 14px 14px; }
+.rang-zeile:first-child { border-radius: 14px 14px 0 0; }
+.rang-ich + .rang-zeile, .rang-zeile.rang-ich { border-top-color: transparent; }
+
+/* Platzziffer: schmal und ruhig, die Farbe macht den Unterschied */
+.rang-platz {
+  width: 22px;
+  flex: none;
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Die Initiale ersetzt die Medaillen-Emojis: auf jedem Gerät gleich,
+   und sie macht die Liste persönlicher. */
+.rang-initial {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Gold, Silber, Bronze – als Farbe des Feldes, nicht als Bildchen */
+.rang-p1 .rang-initial { background: linear-gradient(145deg, #ffcf5c, #f0a500); color: #4a3000; }
+.rang-p2 .rang-initial { background: linear-gradient(145deg, #e3e7ee, #bcc4d1); color: #3c4350; }
+.rang-p3 .rang-initial { background: linear-gradient(145deg, #e8b084, #cf8450); color: #4a2a12; }
+.rang-p1 .rang-platz { color: #d08c00; }
+.rang-p2 .rang-platz { color: #8d96a6; }
+.rang-p3 .rang-platz { color: #b47044; }
+
+.rang-mitte { flex: 1; min-width: 0; display: grid; gap: 5px; }
+.rang-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.1;
+}
+.rang-name small {
+  flex: none;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: rgba(255, 108, 0, 0.16);
+  color: var(--primary);
+}
+.rang-ich .rang-name small { background: var(--primary); color: #fff; }
+
+/* Der Balken zeigt den Abstand zur Spitze – ohne Zahlenvergleich */
+.rang-balken {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 65, 0.08);
+  overflow: hidden;
+}
+.rang-balken-fuell {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0.55;
+}
+.rang-p1 .rang-balken-fuell { background: #f0a500; opacity: 1; }
+.rang-p2 .rang-balken-fuell, .rang-p3 .rang-balken-fuell { opacity: 0.8; }
+
+.rang-xp {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rang-xp small { font-size: 10.5px; font-weight: 800; color: var(--muted); }
+
+/* Die eigene Zeile: dunkel, damit man sie beim Scrollen sofort findet */
+.rang-ich {
+  background: var(--navy) !important;
+  color: #fff;
+}
 .rang-ich .rang-platz { color: #ffc27f; }
-.rang-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
-.rang-name small { font-weight: 600; color: var(--muted); }
-.rang-xp { color: var(--primary); font-size: 14px; white-space: nowrap; }
+.rang-ich .rang-xp { color: #fff; }
+.rang-ich .rang-xp small { color: rgba(255, 255, 255, 0.6); }
+.rang-ich .rang-balken { background: rgba(255, 255, 255, 0.16); }
+.rang-ich .rang-balken-fuell { background: var(--primary); opacity: 1; }
+.rang-ich:not(.rang-p1):not(.rang-p2):not(.rang-p3) .rang-initial {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
 .rang-luecke { text-align: center; color: var(--muted); letter-spacing: 3px; line-height: 1; }
 .rang-mitmachen { margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed var(--line); }
 .rang-mitmachen p { margin: 0 0 10px; font-size: 14.5px; }
