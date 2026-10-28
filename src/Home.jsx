@@ -27,6 +27,9 @@ import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 const PRAXIS_ZEIGEN = false
 // Tutoren-Teaser (Warteliste, Yulibeth) – vorerst ausgeblendet
 const TUTOREN_ZEIGEN = false
+// Die Karte "Nächste aktive Lektion" ist vorerst ausgeblendet (Manuel,
+// 28.10.). Der Code bleibt stehen – auf true setzen, dann ist sie zurück.
+const LEKTIONSKARTE_ZEIGEN = false
 
 export default function Home({
   progress,
@@ -94,6 +97,7 @@ export default function Home({
       </div>
 
       {/* ============ 1. WEITERLERNEN ============ */}
+      {LEKTIONSKARTE_ZEIGEN && (
       <section className="start-karte start-lektion">
         <MiniRoute fertig={!nextLesson} />
         <div className="start-lektion-text">
@@ -133,6 +137,7 @@ export default function Home({
           </button>
         </div>
       </section>
+      )}
 
       {/* ============ TEASER: Unterricht mit Tutoren ============ */}
       {TUTOREN_ZEIGEN && <TutorenTeaser nutzerEmail={nutzerEmail} />}

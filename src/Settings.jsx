@@ -15,7 +15,9 @@ import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 
-// Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
+// Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
+// Einstellungen. Hier kommen später die sozialen Sachen dazu –
+// Benutzername, Rangliste, Freunde.
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
 // Preis und Status kommen aus Stripe bzw. der Datenbank – hier steht
 // bewusst keine Zahl fest verdrahtet, sonst weicht die Anzeige

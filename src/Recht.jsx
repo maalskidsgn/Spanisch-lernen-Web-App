@@ -484,7 +484,7 @@ export function KontoLoeschen({ onZurueck }) {
 
       <H2>In der App</H2>
       <P>
-        Öffne <b>Mehr</b> und scrolle nach unten zu <b>Konto löschen</b>.
+        Öffne <b>Profil</b> und scrolle nach unten zu <b>Konto löschen</b>.
         Nach zwei Rückfragen ist das Konto weg. Das ist der schnellste Weg.
       </P>
 

@@ -12029,3 +12029,36 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .name-spaeter { margin-top: 14px; }
 .name-einstellung { margin: 14px 0; }
 .name-einstellung h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }
+
+/* ---------- Rangliste: Zeitraum wählen ----------
+   Drei Knöpfe in einer Schiene, der aktive dunkel. Bewusst ruhig:
+   Die Liste darunter ist der Inhalt, nicht die Umschaltung. */
+.rang-zeitraum {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0 16px;
+  padding: 5px;
+  background: var(--flaeche, #f5f1ea);
+  border-radius: 14px;
+}
+.rang-zr {
+  flex: 1;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  padding: 10px 8px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--muted, #756a5c);
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.rang-zr:hover { background: rgba(0, 0, 65, 0.05); filter: none; }
+.rang-zr.ist-aktiv {
+  background: var(--navy, #000041);
+  color: #fff;
+}
+.rang-zr.ist-aktiv:hover { background: var(--navy, #000041); }
+.rang-zr:active { transform: scale(0.97); box-shadow: none; }

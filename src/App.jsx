@@ -290,7 +290,7 @@ export default function App() {
   // Adresse. Das ist kein nachtraeglich eingebauter Router, sondern
   // eine Notwendigkeit: Der Play Store verlangt eine oeffentlich
   // aufrufbare Adresse zur Datenschutzerklaerung, und "irgendwo in
-  // der App unter Mehr" ist keine Adresse. Dasselbe gilt fuer das
+  // der App unter Profil" ist keine Adresse. Dasselbe gilt fuer das
   // Impressum, auf das man von aussen verlinken koennen muss.
   const [rechtSeite, setRechtSeite] = useState(rechtAusAdresse)
   // Die Kassenseite – eigene Vollbildseite unter /kasse
@@ -1216,7 +1216,7 @@ export default function App() {
             onClick={() => setView('mehr')}
           >
             <span className="tab-icon">{ICONS.mehr}</span>
-            <span className="tab-label">Mehr</span>
+            <span className="tab-label">Profil</span>
           </button>
         </nav>
         <div className="stats">

@@ -88,11 +88,11 @@ export const BEREICHE = {
   },
   mehr: {
     icon: IconMehr,
-    titel: 'Mehr',
+    titel: 'Profil',
     text:
-      'Dein Konto, Tagesziel, und Backups. Und falls du mal ' +
-      'etwas suchst: Der Leitfaden „So nutzt du Habloo" erklärt die ' +
-      'ganze App in Ruhe.',
+      'Dein Konto, dein Benutzername für die Rangliste, Tagesziel ' +
+      'und Backups. Und falls du mal etwas suchst: Der Leitfaden ' +
+      '„So nutzt du Habloo" erklärt die ganze App in Ruhe.',
   },
 }
 

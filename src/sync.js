@@ -9,6 +9,7 @@
 
 import { db } from './supabase.js'
 import { lokalerVerlauf, vereineVerlauf, uebernimmVerlauf } from './verlauf.js'
+import { merkeTagesXp } from './rangliste.js'
 import { INTERVALS_DAYS } from './srs.js'
 
 /**
@@ -230,6 +231,12 @@ export async function speichereStatistik(nutzerId, stats) {
   )
 
   if (error) throw new Error(error.message)
+
+  // Den Tagesstand getrennt festhalten – daraus entstehen die
+  // Monats- und Jahresrangliste. Bewusst nach dem Speichern und
+  // ohne await-Fehler: Klappt es nicht, ist nur die Rangliste
+  // unvollständig, der Fortschritt steht trotzdem.
+  if (stats.lastDay) merkeTagesXp(stats.lastDay, stats.xpToday ?? 0)
 }
 
 // ---------------------------------------------------------------

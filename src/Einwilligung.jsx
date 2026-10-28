@@ -55,7 +55,7 @@ export default function Einwilligung({ onRecht }) {
           zu analysieren und unser Angebot zu verbessern. Einzelheiten stehen in
           der <button className="ew-link" onClick={() => onRecht('datenschutz')}>
           Datenschutzerklärung</button>. Du kannst deine Auswahl jederzeit unter
-          „Mehr" ändern.
+          „Profil" ändern.
         </p>
         <div className="ew-knoepfe">
           <button className="ew-knopf" onClick={() => entscheide(false)}>

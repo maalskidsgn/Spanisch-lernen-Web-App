@@ -78,14 +78,46 @@ export async function setzeBenutzername(nutzerId, name) {
   throw new Error('Hat nicht geklappt: ' + error.message)
 }
 
+/** Die drei Zeiträume, in denen man sich vergleichen kann. */
+export const ZEITRAEUME = [
+  ['gesamt', 'Insgesamt'],
+  ['monat', 'Dieser Monat'],
+  ['jahr', 'Dieses Jahr'],
+]
+
 /**
  * Top 10 plus der eigene Platz, falls man nicht drin ist.
+ *
+ * @param {string} zeitraum – 'gesamt' | 'monat' | 'jahr'
  * @returns {Promise<Array<{platz:number, benutzername:string, xp:number, ich:boolean}>|null>}
  *   null = nicht verfügbar
  */
-export async function ladeRangliste(anzahl = 10) {
+export async function ladeRangliste(anzahl = 10, zeitraum = 'gesamt') {
   if (!supabaseBereit) return null
-  const { data, error } = await db.rpc('rangliste', { anzahl })
+  const { data, error } = await db.rpc('rangliste_zeitraum', { zeitraum, anzahl })
+  // Solange die zweite Migration fehlt, gibt es wenigstens die
+  // Gesamtliste über die ältere Funktion.
+  if (error && zeitraum === 'gesamt') {
+    const alt = await db.rpc('rangliste', { anzahl })
+    if (alt.error) return null
+    return alt.data.map((z) => ({ ...z, platz: Number(z.platz) }))
+  }
   if (error) return null
   return data.map((z) => ({ ...z, platz: Number(z.platz) }))
+}
+
+/**
+ * Hält fest, wie viele XP an einem Tag verdient wurden.
+ *
+ * Ohne das gäbe es nur den Gesamtstand – Monat und Jahr liessen
+ * sich nicht berechnen. Fehlschläge sind hier bewusst still: Das
+ * Lernen soll nicht an der Rangliste scheitern.
+ */
+export async function merkeTagesXp(tag, punkte) {
+  if (!supabaseBereit || !tag) return
+  try {
+    await db.rpc('xp_tag_merken', { tag, punkte: Math.max(0, Math.round(punkte || 0)) })
+  } catch {
+    /* Migration fehlt oder offline – egal, beim nächsten Mal wieder */
+  }
 }
