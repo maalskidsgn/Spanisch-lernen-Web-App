@@ -13644,3 +13644,69 @@ button.rang-saeule:active { transform: none; box-shadow: none; }
   color: var(--muted);
 }
 .du-ende .btn { width: 100%; }
+
+/* ============================================================
+   VIDEO-TITELKARTE (28.10.): Mediathek-Liste in der Karte statt
+   als loses Etikett auf der Welle, Titel dunkel und gut lesbar,
+   Aktionen mit Zeichen und gleich breit.
+   ============================================================ */
+body.liest-video .video-kopf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 18px 16px;
+  text-align: center;
+}
+body.liest-video .video-pane .video-titel {
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--navy);
+  margin: 0 0 16px;
+  max-width: 34em;
+}
+.video-liste {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 5px 12px 5px 10px;
+  border: none;
+  border-radius: 999px;
+  background: #fff1e4;
+  color: var(--primary-dark, #c2560a);
+  font: inherit;
+  font-size: .76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.video-liste b {
+  font-weight: 800;
+  padding-left: 7px;
+  border-left: 1.5px solid currentColor;
+}
+.video-liste:hover { background: #ffe6cf; }
+body.liest-video .video-kopf .video-aktionen {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+body.liest-video .video-kopf .video-aktion {
+  justify-content: center;
+  padding: 11px 10px;
+  color: var(--navy) !important;
+}
+body.liest-video .video-kopf .video-aktion.aktion-an { color: #fff !important; }
+body.liest-video .video-kopf .video-aktion.aktion-fertig { color: #1f7a45 !important; }
+body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
+@media (max-width: 520px) {
+  body.liest-video .video-kopf .video-aktion {
+    flex-direction: column;
+    gap: 4px;
+    font-size: .74rem;
+    padding: 10px 6px;
+    white-space: normal;
+    line-height: 1.2;
+  }
+}

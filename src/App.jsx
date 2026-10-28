@@ -1,3 +1,4 @@
+import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
 import { API_URL } from './api.js'
 import { db, holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useNutzer } from './auth.js'
@@ -1585,6 +1586,18 @@ export default function App() {
                 </p>
               )}
               <div className="video-kopf">
+                {/* Wo das Video gemerkt ist – gehört in die Karte, nicht
+                    lose darunter auf die Welle */}
+                {currentSaved && (
+                  <button
+                    className="video-liste"
+                    onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
+                  >
+                    <IconMediathek groesse={15} />
+                    <span>Mediathek</span>
+                    {currentSaved.category && <b>{currentSaved.category}</b>}
+                  </button>
+                )}
                 <h2 className="video-titel">{video.title}</h2>
                 <div className="video-aktionen">
                   <button
@@ -1592,6 +1605,7 @@ export default function App() {
                     onClick={toggleUebersetzung}
                     disabled={deLoading}
                   >
+                    <IconSprache groesse={17} />
                     {deLoading ? 'Übersetze …' : 'Übersetzung'}
                   </button>
                   {deFehler && (
@@ -1603,23 +1617,20 @@ export default function App() {
                     className="video-aktion"
                     onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
                   >
+                    <IconFunken groesse={17} />
                     Vokabeln sammeln
                   </button>
                   <button
                     className={'video-aktion' + (currentSaved ? ' aktion-fertig' : '')}
                     onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
                   >
+                    <IconLesezeichen groesse={17} />
                     {currentSaved ? 'Gemerkt' : 'Merken'}
                   </button>
                 </div>
               </div>
 
 
-              {currentSaved?.category && (
-                <p className="saved-note">
-                  <span className="category-badge">{currentSaved.category}</span>
-                </p>
-              )}
 
               {selected && (
                 <div className={'word-card' + (cardExit ? ' word-card-exit' : '')}>
