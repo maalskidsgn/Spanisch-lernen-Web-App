@@ -12655,17 +12655,10 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
    Wer die App öffnet, will loslegen – nicht erst suchen, wo was ist.
    Die drei Wege stehen deshalb ganz oben, mit dem jeweils nächsten
    Schritt als Untertitel. */
-/* Der Begrüßungsbereich steht in einem eigenen Kasten, wie alles
-   andere auf dem Start. Vorher lag er lose auf dem Grund und fiel
-   dadurch aus der Reihe. */
-.start-begruessung {
-  margin-bottom: 16px;
-  padding: 22px 18px 18px;
-  border-radius: 22px;
-  background: var(--card);
-  border: 1.5px solid var(--line);
-  box-shadow: 0 6px 22px rgba(255, 108, 0, 0.08);
-}
+/* Die Begrüßung steht offen auf dem Grund, die drei Kacheln sind
+   die Kästen. Mit einem Rahmen drumherum wirkte es gedrungen –
+   Manuel hat beide Fassungen gesehen und diese gewählt. */
+.start-begruessung { margin-bottom: 20px; }
 
 .start-hallo {
   margin: 0;
@@ -12693,10 +12686,9 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   align-items: flex-start;
   gap: 10px;
   padding: 14px 12px;
-  border-radius: 16px;
-  /* Im Kasten keine eigenen Rahmen – sonst Kasten im Kasten */
-  background: var(--flaeche);
-  border: 1.5px solid transparent;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
   box-shadow: none;
   font-family: inherit;
   text-align: left;
@@ -12704,8 +12696,7 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   transition: border-color 0.18s, transform 0.18s;
 }
 .start-weg:hover {
-  border-color: rgba(255, 108, 0, 0.35);
-  background: rgba(255, 108, 0, 0.07);
+  border-color: rgba(255, 108, 0, 0.4);
   filter: none;
 }
 .start-weg:active { transform: scale(0.97); box-shadow: none; }
@@ -12716,7 +12707,7 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border-radius: 13px;
   display: grid;
   place-items: center;
-  background: #fff;
+  background: rgba(255, 108, 0, 0.12);
   color: var(--primary);
 }
 .sw-text { display: grid; gap: 2px; min-width: 0; width: 100%; }
