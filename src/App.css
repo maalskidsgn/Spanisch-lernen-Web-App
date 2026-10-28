@@ -12036,12 +12036,12 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 }
 
 /* Gold, Silber, Bronze – als Farbe des Feldes, nicht als Bildchen */
-.rang-p1 .rang-initial { background: #f5b301; color: #fff; }
-.rang-p2 .rang-initial { background: #c3cad6; color: #fff; }
-.rang-p3 .rang-initial { background: #cf8450; color: #fff; }
-.rang-p1 .rang-platz { color: #d08c00; }
-.rang-p2 .rang-platz { color: #8d96a6; }
-.rang-p3 .rang-platz { color: #b47044; }
+.rang-p1 .rang-initial { background: var(--primary); color: #fff; }
+.rang-p2 .rang-initial { background: #ff9a40; color: #fff; }
+.rang-p3 .rang-initial { background: #ffc08f; color: #8a4500; }
+.rang-p1 .rang-platz { color: var(--primary); }
+.rang-p2 .rang-platz { color: #e07a1f; }
+.rang-p3 .rang-platz { color: #c98a52; }
 
 .rang-name {
   display: flex;
@@ -12490,15 +12490,17 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   font-weight: 900;
   line-height: 1;
 }
+/* Die Abstufung macht den Rang sichtbar: Platz 1 trägt das volle
+   Markenorange, danach wird es Stufe für Stufe weicher. */
 .rang-erster .rs-bild {
   width: 66px;
   height: 66px;
   border-radius: 22px;
   font-size: 27px;
-  background: #f5b301;
+  background: var(--primary);
 }
-.rang-zweiter .rs-bild { background: #c3cad6; }
-.rang-dritter .rs-bild { background: #cf8450; }
+.rang-zweiter .rs-bild { background: #ff9a40; }
+.rang-dritter .rs-bild { background: #ffc08f; color: #8a4500; }
 
 .rs-name {
   display: block;
@@ -12543,8 +12545,9 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   color: #fff;
 }
 .rang-erster .rs-block { height: 60px; background: var(--primary); }
-.rang-zweiter .rs-block { height: 42px; background: #e7dfd4; color: var(--muted); }
-.rang-dritter .rs-block { height: 32px; background: #efe8df; color: var(--muted); }
+.rang-zweiter .rs-block { height: 42px; background: #ffa864; }
+/* Auf dem hellsten Block trägt Weiß zu wenig – dort dunkles Braun */
+.rang-dritter .rs-block { height: 32px; background: #ffd9b8; color: #8a4500; }
 
 /* Die Liste darunter: schlank, ohne Balken – die Abstände zeigt
    jetzt das Podest. */
