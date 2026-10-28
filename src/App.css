@@ -7233,10 +7233,12 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   cursor: default;
 }
 .station-zu:active { transform: none; }
+/* Bestandene Prüfstationen in Markenfarbe – Grün war die einzige
+   Stelle in der App, an der es noch vorkam. */
 .station-fertig {
   border-style: solid;
-  border-color: var(--success);
-  background: #f2fbf5;
+  border-color: var(--primary);
+  background: #fff6ee;
 }
 .station-emoji {
   flex-shrink: 0;
@@ -7261,7 +7263,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   color: var(--primary);
 }
 .station-zu .station-marke { color: var(--muted); }
-.station-fertig .station-marke { color: var(--success-press); }
+.station-fertig .station-marke { color: var(--primary-press); }
 .station-text h3 {
   margin: 2px 0 3px;
   font-size: 16.5px;
@@ -7283,7 +7285,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   font-size: 14px;
   font-weight: 900;
 }
-.station-fertig .station-knopf { background: var(--success); }
+.station-fertig .station-knopf { background: var(--primary); }
 
 /* ===================================================================
    Die Sprach-Reise: Modul-Uebersicht
