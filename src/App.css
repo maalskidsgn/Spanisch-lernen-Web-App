@@ -12390,3 +12390,79 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   .pf-klapper-pfeil { transition: none; }
   .pf-klapper-inhalt { animation: none; }
 }
+
+/* ===================================================================
+   STARTSEITE — derselbe Look wie das Profil (28.10.2026)
+   Eine Kartensprache für die ganze App: warmer Orangeschleier am
+   oberen Rand, orangenes Zeichen neben der Überschrift, Dunkelblau
+   nur für Text. Vorher trug jede Karte ihre eigene Handschrift.
+   =================================================================== */
+
+.start-karte {
+  position: relative;
+  overflow: hidden;
+  border-color: var(--line);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, 0.08);
+}
+/* Der Schleier liegt hinter dem Inhalt und läuft nach unten aus –
+   derselbe Verlauf wie im Profilkopf, nur schwächer. */
+.start-karte::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 120px;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(255, 129, 36, 0.13), rgba(255, 129, 36, 0) 70%);
+  pointer-events: none;
+}
+.start-karte > * { position: relative; }
+
+/* Überschriften bekommen einen orangenen Strich statt nur Fettdruck */
+.start-abschnitt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.start-abschnitt::before {
+  content: '';
+  flex: none;
+  width: 4px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--primary);
+}
+/* Wo schon ein Zeichen daneben steht (Rangliste, Streak), wäre der
+   Strich zu viel. */
+.rang-kopf .start-abschnitt::before,
+.streak-kopf .start-abschnitt::before { display: none; }
+
+/* ---------- Rangliste: Kopf im Profil-Stil ---------- */
+.rang-pokal {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(150deg, var(--primary-light, #ff9a40), var(--primary));
+  font-size: 1.35rem;
+  line-height: 1;
+  box-shadow: 0 6px 16px rgba(255, 108, 0, 0.3);
+}
+.rang-titel { font-size: 1.2rem; }
+
+/* ---------- Kalender und Balken: orange statt blau ---------- */
+.kal-umschalter button.ist-aktiv {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 1px 4px rgba(255, 108, 0, 0.18);
+}
+.kal-jahr-nav b { color: var(--primary); }
+.kal-punkt.kal-heute { box-shadow: 0 0 0 1.5px var(--primary); }
+.kal-punkt.kal-gewaehlt,
+.kal-gewaehlt { outline-color: var(--primary); }
+.kal-tag.kal-gewaehlt { box-shadow: 0 0 0 2px var(--primary); }
+.kal-wert-lek { border-left-color: var(--primary); }
+
+@media (prefers-reduced-motion: reduce) {
+  .start-karte::before { transition: none; }
+}
