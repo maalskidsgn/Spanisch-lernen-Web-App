@@ -687,8 +687,12 @@ export default function App() {
   }, [levelUp])
 
   // XP gutschreiben (pflegt automatisch auch die Tagesserie)
-  function addXp(amount) {
+  // Mit `text` poppt zusätzlich eine "+N XP"-Meldung auf – für Belohnungen,
+  // die sonst still ins Konto wandern würden (Video-Minuten, neue Wörter).
+  const [xpMeldung, setXpMeldung] = useState(null)
+  function addXp(amount, text) {
     setProgress((p) => applyXp(p, amount))
+    if (text && amount > 0) setXpMeldung({ punkte: amount, text, key: Date.now() + Math.random() })
   }
 
   // Videos gucken lohnt sich: je volle Minute Wiedergabe gibt es XP.
@@ -701,7 +705,7 @@ export default function App() {
       videoSekunden.current += 1
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
-        addXp(XP.VIDEO_MINUTE)
+        addXp(XP.VIDEO_MINUTE, 'Video-Minute')
       }
     }, 1000)
     return () => clearInterval(takt)
@@ -957,7 +961,7 @@ export default function App() {
   function addVocabWords(woerter, status = 'lernen') {
     // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
     const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
-    if (neu.size) addXp(XP.WORT_NEU * neu.size)
+    if (neu.size) addXp(XP.WORT_NEU * neu.size, neu.size === 1 ? 'Wort hinzugefügt' : neu.size + ' Wörter hinzugefügt')
     setVocab((v) => {
       const copy = { ...v }
       for (const w of woerter) {
@@ -995,8 +999,8 @@ export default function App() {
 
     // Wort merken, falls es noch nicht bekannt ist – mit dem Videotitel als Quelle,
     // damit man im Trainer sieht, aus welchem Video/Song das Wort stammt.
-    // Für jedes neue Wort gibt es XP!
-    if (!vocab[word]) addXp(XP.WORT_NEU)
+    // XP gibt es erst, wenn man das Wort mit "Lernen" wirklich aufnimmt
+    // (sonst kassiert man still beim Antippen und sieht nur "+2").
     setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
 
     try {
@@ -1033,7 +1037,7 @@ export default function App() {
     let earned = 0
     if (entry && entry.status !== status) {
       setVocab((v) => ({ ...v, [word]: { ...v[word], status } }))
-      earned = status === 'gewusst' ? XP.SCHON_GEWUSST : XP.SAMMELN
+      earned = status === 'gewusst' ? XP.SCHON_GEWUSST : entry.status === 'neu' ? XP.WORT_NEU : XP.SAMMELN
       addXp(earned)
     }
     erfolgston() // kurzer Erfolgsklang wie bei Babbel
@@ -1215,6 +1219,11 @@ export default function App() {
       {meldung}
 
       {/* Feier-Einblendung beim Level-Aufstieg */}
+      {xpMeldung && (
+        <span key={xpMeldung.key} className="spiel-xp" onAnimationEnd={() => setXpMeldung(null)}>
+          +{xpMeldung.punkte} XP · {xpMeldung.text}
+        </span>
+      )}
       {levelUp && (
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
           <div className="levelup-card">
