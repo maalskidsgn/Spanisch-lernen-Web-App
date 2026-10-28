@@ -64,6 +64,7 @@ import {
   XP,
   loadProgress,
   applyXp,
+  xpHeute,
   levelFromXp,
   xpForLevel,
   levelName,
@@ -706,8 +707,11 @@ export default function App() {
         xp: progress.xp,
         level: levelFromXp(progress.xp),
         streak: progress.streak,
-        lastDay: progress.lastDay,
-        xpToday: progress.xpToday,
+        // Der Fortschritt heißt lastActive, nicht lastDay – bis 29.10. ging
+        // hier immer null raus, und die Rangliste buchte die XP vom
+        // letzten Lerntag beim nächsten Öffnen auf den neuen Tag.
+        lastDay: progress.lastActive,
+        xpToday: xpHeute(progress),
       }).catch((f) => console.warn('Statistik nicht gesichert:', f.message))
     }, 1500)
     return () => clearTimeout(timer)

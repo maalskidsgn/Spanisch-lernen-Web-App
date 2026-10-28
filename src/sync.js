@@ -200,6 +200,9 @@ export async function ladeStatistik(nutzerId) {
     level: data.level,
     streak: data.serie,
     lastDay: data.letzter_tag,
+    // Unter diesem Namen führt die App den letzten Lerntag (für die Serie).
+    // Nur setzen, wenn er bekannt ist – null würde die Serie zurücksetzen.
+    ...(data.letzter_tag ? { lastActive: data.letzter_tag } : {}),
     xpToday: data.xp_heute,
     verlauf: data.ki_nutzung?.verlauf ?? null,
   }
