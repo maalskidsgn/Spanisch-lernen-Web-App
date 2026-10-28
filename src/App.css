@@ -12036,9 +12036,9 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 }
 
 /* Gold, Silber, Bronze – als Farbe des Feldes, nicht als Bildchen */
-.rang-p1 .rang-initial { background: linear-gradient(145deg, #ffcf5c, #f0a500); color: #4a3000; }
-.rang-p2 .rang-initial { background: linear-gradient(145deg, #e3e7ee, #bcc4d1); color: #3c4350; }
-.rang-p3 .rang-initial { background: linear-gradient(145deg, #e8b084, #cf8450); color: #4a2a12; }
+.rang-p1 .rang-initial { background: #f5b301; color: #fff; }
+.rang-p2 .rang-initial { background: #c3cad6; color: #fff; }
+.rang-p3 .rang-initial { background: #cf8450; color: #fff; }
 .rang-p1 .rang-platz { color: #d08c00; }
 .rang-p2 .rang-platz { color: #8d96a6; }
 .rang-p3 .rang-platz { color: #b47044; }
@@ -12099,17 +12099,21 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 
 /* Die eigene Zeile: dunkel, damit man sie beim Scrollen sofort findet */
 .rang-ich {
-  background: var(--navy) !important;
+  background: var(--primary) !important;
   color: #fff;
 }
-.rang-ich .rang-platz { color: #ffc27f; }
+.rang-ich .rang-platz { color: rgba(255, 255, 255, 0.75); }
+.rang-ich .rang-name { color: #fff; }
+.rang-ich .rang-name small { background: #fff; color: var(--primary); }
 .rang-ich .rang-xp { color: #fff; }
-.rang-ich .rang-xp small { color: rgba(255, 255, 255, 0.6); }
-.rang-ich .rang-balken { background: rgba(255, 255, 255, 0.16); }
-.rang-ich .rang-balken-fuell { background: var(--primary); opacity: 1; }
-.rang-ich:not(.rang-p1):not(.rang-p2):not(.rang-p3) .rang-initial {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
+.rang-ich .rang-xp small { color: rgba(255, 255, 255, 0.72); }
+.rang-ich .rang-balken { background: rgba(255, 255, 255, 0.28); }
+.rang-ich .rang-balken-fuell { background: #fff; opacity: 1; }
+/* Auf orangem Grund braucht die Initiale eine helle Fläche,
+   sonst verschwindet sie darin. */
+.rang-ich .rang-initial {
+  background: #fff !important;
+  color: var(--primary) !important;
 }
 
 .rang-luecke { text-align: center; color: var(--muted); letter-spacing: 3px; line-height: 1; }
@@ -12162,7 +12166,7 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   width: calc((100% - 10px) / 3);
   height: calc(100% - 10px);
   border-radius: 10px;
-  background: var(--navy, #000041);
+  background: var(--primary);
   transition: transform 0.42s cubic-bezier(0.22, 1, 0.3, 1);
   pointer-events: none;
 }
@@ -12239,9 +12243,7 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   margin-bottom: 20px;
   border-radius: 26px;
   /* Der weiche Orangeschleier ist das Erkennungszeichen der Seite */
-  background:
-    radial-gradient(130% 100% at 50% 0%, rgba(255, 129, 36, 0.20), rgba(255, 129, 36, 0) 62%),
-    var(--card);
+  background: var(--card);
   border: 1px solid var(--line);
 }
 
@@ -12254,12 +12256,11 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border-radius: 34px;
   display: grid;
   place-items: center;
-  background: linear-gradient(150deg, var(--primary-light, #ff9a40), var(--primary));
+  background: var(--primary);
   color: #fff;
   font-size: 44px;
   font-weight: 900;
   line-height: 1;
-  box-shadow: 0 14px 30px rgba(255, 108, 0, 0.32);
 }
 .pf-level {
   position: absolute;
@@ -12404,17 +12405,8 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border-color: var(--line);
   box-shadow: 0 6px 22px rgba(255, 108, 0, 0.08);
 }
-/* Der Schleier liegt hinter dem Inhalt und läuft nach unten aus –
-   derselbe Verlauf wie im Profilkopf, nur schwächer. */
-.start-karte::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto;
-  height: 120px;
-  background: radial-gradient(120% 100% at 50% 0%, rgba(255, 129, 36, 0.13), rgba(255, 129, 36, 0) 70%);
-  pointer-events: none;
-}
-.start-karte > * { position: relative; }
+/* Kein Farbverlauf auf den Karten – Manuel mag die klare Fläche.
+   Die Farbe kommt aus den Elementen selbst, nicht aus dem Grund. */
 
 /* Überschriften bekommen einen orangenen Strich statt nur Fettdruck */
 .start-abschnitt {
@@ -12443,10 +12435,9 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border-radius: 15px;
   display: grid;
   place-items: center;
-  background: linear-gradient(150deg, var(--primary-light, #ff9a40), var(--primary));
+  background: var(--primary);
   font-size: 1.35rem;
   line-height: 1;
-  box-shadow: 0 6px 16px rgba(255, 108, 0, 0.3);
 }
 .rang-titel { font-size: 1.2rem; }
 
