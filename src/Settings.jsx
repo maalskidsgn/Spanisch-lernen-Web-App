@@ -22,6 +22,31 @@ import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messun
 // Preis und Status kommen aus Stripe bzw. der Datenbank – hier steht
 // bewusst keine Zahl fest verdrahtet, sonst weicht die Anzeige
 // irgendwann von dem ab, was tatsaechlich abgebucht wird.
+/**
+ * Ein Abschnitt, der zugeklappt anfängt.
+ *
+ * Das Profil soll beim Öffnen wie ein Profil aussehen, nicht wie
+ * eine Schalttafel. Wer wirklich etwas einstellen will, klappt auf –
+ * alle anderen sehen nur ihre Zahlen und die Rangliste.
+ */
+function Klapper({ titel, hinweis, offen = false, children }) {
+  const [auf, setAuf] = useState(offen)
+  return (
+    <section className={'pf-klapper' + (auf ? ' ist-auf' : '')}>
+      <button className="pf-klapper-kopf" onClick={() => setAuf(!auf)} aria-expanded={auf}>
+        <span className="pf-klapper-text">
+          <b>{titel}</b>
+          {hinweis && <small>{hinweis}</small>}
+        </span>
+        <span className="pf-klapper-pfeil" aria-hidden="true">
+          <IconPfeil groesse={17} />
+        </span>
+      </button>
+      {auf && <div className="pf-klapper-inhalt">{children}</div>}
+    </section>
+  )
+}
+
 export default function Settings({
   progress,
   settings,
@@ -49,6 +74,16 @@ export default function Settings({
   const [kaufFehler, setKaufFehler] = useState('')
   const [kasseInApp, setKasseInApp] = useState(false) // Formular in der App möglich?
   const [loeschLaeuft, setLoeschLaeuft] = useState(false)
+  // Der Benutzername steht im Profilkopf – er ist der Name, unter
+  // dem einen die anderen in der Rangliste sehen.
+  const [benutzername, setBenutzername] = useState('')
+  useEffect(() => {
+    if (!nutzer?.id) return setBenutzername('')
+    ladeBenutzername(nutzer.id).then((n) => setBenutzername(n || ''))
+    const neu = (e) => setBenutzername(e.detail || '')
+    window.addEventListener('benutzername', neu)
+    return () => window.removeEventListener('benutzername', neu)
+  }, [nutzer])
   const [resetLaeuft, setResetLaeuft] = useState(false)
 
   // Steht die Bezahlung bereit, und was kostet es?
@@ -292,17 +327,26 @@ export default function Settings({
 
   return (
     <div className="settings">
-      {/* ---------- Profil-Übersicht ---------- */}
-      <div className="profile-card">
-        <div className="profile-level">{level}</div>
-        <div className="profile-info">
-          <div className="profile-name">{levelName(level)}</div>
-          <div className="profile-stats">
-            {progress.xp} XP · 🔥 {progress.streak} Tage · {counts.woerter} Wörter ·{' '}
-            {counts.videos} Videos
-          </div>
+      {/* ---------- Profilkopf ----------
+          Wie man es von sozialen Netzen kennt: grosses Bild, Name,
+          darunter die Zahlen in einer Reihe. Die Einstellungen
+          liegen weiter unten und sind zugeklappt – wer sein Profil
+          anschaut, will nicht zuerst Schalter sehen. */}
+      <header className="pf-kopf">
+        <div className="pf-bild" aria-hidden="true">
+          {(benutzername || anzeigename(nutzer)).charAt(0).toUpperCase()}
+          <span className="pf-level" title={`Level ${level}`}>{level}</span>
         </div>
-      </div>
+        <h1 className="pf-name">{benutzername || anzeigename(nutzer)}</h1>
+        <p className="pf-rang">{levelName(level)}</p>
+
+        <dl className="pf-zahlen">
+          <div><dt>XP</dt><dd>{progress.xp.toLocaleString('de-DE')}</dd></div>
+          <div><dt>Tage am Stück</dt><dd>{progress.streak}</dd></div>
+          <div><dt>Wörter</dt><dd>{counts.woerter}</dd></div>
+          <div><dt>Videos</dt><dd>{counts.videos}</dd></div>
+        </dl>
+      </header>
 
       {/* ---------- Der Leitfaden ----------
           Zweiter Weg dorthin: Auf dem Start ist er die Karte "Neu
@@ -483,7 +527,7 @@ export default function Settings({
       )}
 
       {/* ---------- Lernziel ---------- */}
-      <h2 className="settings-heading">Tagesziel</h2>
+      <Klapper titel="Tagesziel" hinweis="Wie viel du dir am Tag vornimmst">
       <div className="settings-card">
         <div className="goal-row">
           {[10, 20, 30, 50].map((ziel) => (
@@ -507,7 +551,9 @@ export default function Settings({
       </div>
 
       {/* ---------- Ton ---------- */}
-      <h2 className="settings-heading">Ton</h2>
+      </Klapper>
+
+      <Klapper titel="Ton" hinweis="Aussprache und Erfolgstöne">
       <div className="settings-card">
         <label className="settings-row">
           <div>
@@ -558,7 +604,9 @@ export default function Settings({
       </div>
 
       {/* ---------- Rechtliches ---------- */}
-      <h2 className="settings-heading">Rechtliches</h2>
+      </Klapper>
+
+      <Klapper titel="Rechtliches" hinweis="Impressum, Datenschutz, AGB">
       <div className="settings-card">
         {[
           ['impressum', 'Impressum'],
@@ -581,7 +629,7 @@ export default function Settings({
            und auf localhost gaebe es nichts zu schalten. */}
       {messungMoeglich() && (
         <>
-          <h2 className="settings-heading">Messung</h2>
+          <h3 className="pf-unter">Messung</h3>
           <div className="settings-card">
             <label className="settings-row">
               <div>
@@ -607,8 +655,10 @@ export default function Settings({
         </>
       )}
 
+      </Klapper>
+
       {/* ---------- Benachrichtigungen ---------- */}
-      <h2 className="settings-heading">Benachrichtigungen</h2>
+      <Klapper titel="Erinnerungen" hinweis="Wenn du ans Lernen erinnert werden willst">
       <div className="settings-card">
         <label className="settings-row">
           <div>
@@ -631,7 +681,9 @@ export default function Settings({
       </div>
 
       {/* ---------- Daten ---------- */}
-      <h2 className="settings-heading">Deine Daten</h2>
+      </Klapper>
+
+      <Klapper titel="Deine Daten" hinweis="Sichern, einspielen, Konto löschen">
       <div className="settings-card">
         <div className="settings-row">
           <div>
@@ -692,6 +744,7 @@ export default function Settings({
         </div>
         )}
       </div>
+      </Klapper>
 
       {/* ---------- Über ---------- */}
       <p className="about-note">Mit Herz entwickelt von Klarwerk Digital</p>

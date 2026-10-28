@@ -12225,3 +12225,168 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   .rang-liste:not(.ist-wechsel) .rang-zeile { animation: none; }
   .rang-balken-fuell { transition: none; }
 }
+
+/* ===================================================================
+   PROFIL — wie ein Profil in sozialen Netzen, nicht wie eine
+   Schalttafel. Grosses Bild, Name, Zahlen in einer Reihe; alles
+   Einstellbare liegt darunter und ist zugeklappt.
+   Farbwelt: warmes Orange auf Creme, Blau nur noch für Text.
+   =================================================================== */
+
+.pf-kopf {
+  text-align: center;
+  padding: 34px 20px 26px;
+  margin-bottom: 20px;
+  border-radius: 26px;
+  /* Der weiche Orangeschleier ist das Erkennungszeichen der Seite */
+  background:
+    radial-gradient(130% 100% at 50% 0%, rgba(255, 129, 36, 0.20), rgba(255, 129, 36, 0) 62%),
+    var(--card);
+  border: 1px solid var(--line);
+}
+
+/* Das Bild: die Initiale in Markenfarbe, mit Level-Marke an der Ecke */
+.pf-bild {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto 16px;
+  border-radius: 34px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(150deg, var(--primary-light, #ff9a40), var(--primary));
+  color: #fff;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 14px 30px rgba(255, 108, 0, 0.32);
+}
+.pf-level {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 900;
+  border: 3px solid var(--bg);
+}
+
+.pf-name {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.pf-rang {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Die Zahlenreihe: vier Werte, durch feine Linien getrennt */
+.pf-zahlen {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 24px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.pf-zahlen > div {
+  display: flex;
+  flex-direction: column-reverse;   /* Zahl oben, Wort darunter */
+  gap: 3px;
+  padding: 0 4px;
+}
+.pf-zahlen > div + div { border-left: 1px solid var(--line); }
+.pf-zahlen dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.pf-zahlen dt {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ---------- Zugeklappte Abschnitte ---------- */
+.pf-klapper {
+  margin-bottom: 10px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.pf-klapper.ist-auf { border-color: rgba(255, 108, 0, 0.3); }
+
+.pf-klapper-kopf {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pf-klapper-kopf:hover { background: rgba(255, 108, 0, 0.045); filter: none; }
+.pf-klapper-kopf:active { transform: none; box-shadow: none; }
+
+.pf-klapper-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.pf-klapper-text b { font-size: 1.02rem; font-weight: 800; color: var(--navy); }
+.pf-klapper-text small { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+
+.pf-klapper-pfeil {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 108, 0, 0.1);
+  color: var(--primary);
+  transform: rotate(90deg);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.3, 1), background 0.2s;
+}
+.ist-auf .pf-klapper-pfeil { transform: rotate(-90deg); background: var(--primary); color: #fff; }
+
+.pf-klapper-inhalt {
+  padding: 2px 18px 18px;
+  animation: pf-auf 0.3s cubic-bezier(0.22, 1, 0.3, 1);
+}
+@keyframes pf-auf {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+/* Die Überschriften der alten Abschnitte sind im Klapper überflüssig */
+.pf-klapper-inhalt > .settings-heading:first-child { display: none; }
+.pf-unter {
+  margin: 18px 0 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-klapper-pfeil { transition: none; }
+  .pf-klapper-inhalt { animation: none; }
+}
