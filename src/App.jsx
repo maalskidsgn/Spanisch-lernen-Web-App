@@ -1398,6 +1398,7 @@ export default function App() {
             onNavigate={setView}
             onKasse={() => setKasseOffen(true)}
             onRecht={setRechtSeite}
+            addXp={addXp}
           />
         </main>
       )}

@@ -11,6 +11,7 @@ import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Freunde from './Freunde.jsx'
+import DuellKasten from './Duell.jsx'
 import {
   ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse,
 } from './rangliste.js'
@@ -61,6 +62,7 @@ export default function Settings({
   onNavigate,
   onRecht,
   onKasse,
+  addXp,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   // Der Ton-Schalter liegt nicht in settings: Er soll auch ohne
@@ -409,6 +411,20 @@ export default function Settings({
         <section className="pf-kasten pf-freunde">
           <h2 className="pf-kasten-titel">Freunde</h2>
           <Freunde />
+        </section>
+      )}
+
+      {/* ---------- Duelle ----------
+          Direkt unter den Freunden: Gegen wen man spielt, steht
+          eine Kachel weiter oben. */}
+      {supabaseBereit && nutzer && (
+        <section className="pf-kasten pf-duelle">
+          <h2 className="pf-kasten-titel">Duell</h2>
+          <p className="pf-kasten-text">
+            Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr
+            trifft, gewinnt.
+          </p>
+          <DuellKasten addXp={addXp} />
         </section>
       )}
 
