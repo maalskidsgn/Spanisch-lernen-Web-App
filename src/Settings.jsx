@@ -348,11 +348,11 @@ export default function Settings({
         </dl>
       </header>
 
-      {/* ---------- Der Leitfaden ----------
-          Zweiter Weg dorthin: Auf dem Start ist er die Karte "Neu
-          hier?" – die verschwindet aber gedanklich, sobald man
-          nicht mehr neu ist. Hier findet man ihn wieder. */}
-      <h2 className="settings-heading">Hilfe</h2>
+      {/* ---------- Konto und Hilfe ----------
+          Stehen in einem eigenen Kasten, nicht offen auf der Seite:
+          Abmelden und den Benutzernamen sucht man nicht hinter einer
+          Klappe, aber sie sollen auch nicht lose herumliegen. */}
+      <section className="pf-kasten">
       <button className="leitfaden-zeile" onClick={() => onNavigate('leitfaden')}>
         <span className="leitfaden-zeile-text">
           <b>So nutzt du Habloo</b>
@@ -361,10 +361,8 @@ export default function Settings({
         <IconPfeil groesse={17} />
       </button>
 
-      {/* ---------- Konto ---------- */}
       {supabaseBereit && (
         <>
-          <h2 className="settings-heading">Dein Konto</h2>
           {nutzer ? (
             <>
               <div className="konto-karte">
@@ -402,6 +400,7 @@ export default function Settings({
           )}
         </>
       )}
+      </section>
 
       {/* ---------- Abo ---------- */}
       {/* In der Store-App nur zeigen, wenn schon Premium besteht – kein Angebot */}

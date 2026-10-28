@@ -12655,7 +12655,17 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
    Wer die App öffnet, will loslegen – nicht erst suchen, wo was ist.
    Die drei Wege stehen deshalb ganz oben, mit dem jeweils nächsten
    Schritt als Untertitel. */
-.start-begruessung { margin-bottom: 20px; }
+/* Der Begrüßungsbereich steht in einem eigenen Kasten, wie alles
+   andere auf dem Start. Vorher lag er lose auf dem Grund und fiel
+   dadurch aus der Reihe. */
+.start-begruessung {
+  margin-bottom: 16px;
+  padding: 22px 18px 18px;
+  border-radius: 22px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  box-shadow: 0 6px 22px rgba(255, 108, 0, 0.08);
+}
 
 .start-hallo {
   margin: 0;
@@ -12683,9 +12693,10 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   align-items: flex-start;
   gap: 10px;
   padding: 14px 12px;
-  border-radius: 18px;
-  background: var(--card);
-  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  /* Im Kasten keine eigenen Rahmen – sonst Kasten im Kasten */
+  background: var(--flaeche);
+  border: 1.5px solid transparent;
   box-shadow: none;
   font-family: inherit;
   text-align: left;
@@ -12693,7 +12704,8 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   transition: border-color 0.18s, transform 0.18s;
 }
 .start-weg:hover {
-  border-color: rgba(255, 108, 0, 0.4);
+  border-color: rgba(255, 108, 0, 0.35);
+  background: rgba(255, 108, 0, 0.07);
   filter: none;
 }
 .start-weg:active { transform: scale(0.97); box-shadow: none; }
@@ -12704,7 +12716,7 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border-radius: 13px;
   display: grid;
   place-items: center;
-  background: rgba(255, 108, 0, 0.12);
+  background: #fff;
   color: var(--primary);
 }
 .sw-text { display: grid; gap: 2px; min-width: 0; width: 100%; }
@@ -12845,3 +12857,27 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   .ms-abzeichen { animation: none; }
   .ms-schnipsel { display: none; }
 }
+
+/* Konto und Hilfe im Profil: eigener Kasten statt lose auf der Seite */
+.pf-kasten {
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px 18px 18px;
+  border-radius: 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+.pf-kasten .leitfaden-zeile {
+  margin: 0 -18px;
+  padding-left: 18px;
+  padding-right: 18px;
+  border-radius: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  box-shadow: none;
+}
+.pf-kasten .leitfaden-zeile:hover { background: rgba(255, 108, 0, 0.045); filter: none; }
+.pf-kasten .konto-karte { margin-top: 16px; }
+.pf-kasten .name-einstellung { margin-top: 16px; }
+.pf-kasten .name-einstellung h3 { font-size: 0.95rem; font-weight: 800; color: var(--navy); }
