@@ -80,9 +80,10 @@ export async function setzeBenutzername(nutzerId, name) {
 
 /** Die drei Zeiträume, in denen man sich vergleichen kann. */
 export const ZEITRAEUME = [
-  ['gesamt', 'Insgesamt'],
-  ['monat', 'Dieser Monat'],
-  ['jahr', 'Dieses Jahr'],
+  ['woche', 'Woche'],
+  ['monat', 'Monat'],
+  ['jahr', 'Jahr'],
+  ['gesamt', 'Gesamt'],
 ]
 
 /**

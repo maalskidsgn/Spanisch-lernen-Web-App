@@ -55,15 +55,26 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   const podest = top.filter((z) => z.platz <= 3)
   const rest = top.filter((z) => z.platz > 3)
   const ichDraussen = echte.find((z) => z.ich && z.platz > 10)
+  const meinPlatz = echte.find((z) => z.ich)?.platz
 
   return (
     <section className="start-karte rangliste">
+      {/* Die Überschrift trägt die Zahl, um die es geht: wie viele
+          mitmachen. Der Pokal als Emoji sah auf jedem Gerät anders
+          aus – jetzt ein gezeichnetes Zeichen in Markenfarbe. */}
       <div className="rang-kopf">
-        <span className="rang-pokal" aria-hidden="true">🏆</span>
-        <div>
-          <h2 className="start-abschnitt rang-titel">Rangliste</h2>
-          <p className="rang-unter">Die fleißigsten Lernenden bei Habloo – nach XP</p>
-        </div>
+        <span className="rang-zeichen" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M6 4h12v5a6 6 0 0 1-12 0V4z" fill="currentColor" />
+            <path d="M6 5H4a2 2 0 0 0 0 4h2M18 5h2a2 2 0 0 1 0 4h-2"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            <path d="M12 15v3M9 20h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </span>
+        <h2 className="rang-titel">Rangliste</h2>
+        {/* Rechts der eigene Platz – das ist die Zahl, die einen
+            wirklich interessiert, wenn man die Karte sieht. */}
+        {meinPlatz && <span className="rang-meiner">Platz {meinPlatz}</span>}
       </div>
 
       {/* Drei Zeiträume: Wer lange dabei ist, steht insgesamt vorn –
@@ -73,7 +84,12 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
         <span
           className="rang-zr-pille"
           aria-hidden="true"
-          style={{ transform: `translateX(${ZEITRAEUME.findIndex(([w]) => w === zeitraum) * 100}%)` }}
+          style={{
+            // Breite und Weg richten sich nach der Anzahl der Knöpfe –
+            // sonst passt die Pille nicht mehr, sobald einer dazukommt.
+            width: `calc((100% - 10px) / ${ZEITRAEUME.length})`,
+            transform: `translateX(${ZEITRAEUME.findIndex(([w]) => w === zeitraum) * 100}%)`,
+          }}
         />
         {ZEITRAEUME.map(([wert, text]) => (
           <button

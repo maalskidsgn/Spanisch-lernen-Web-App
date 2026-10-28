@@ -11981,7 +11981,12 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 /* ===================================================================
    Rangliste + Benutzername (28.10.2026)
    =================================================================== */
-.rang-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.rang-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
 .rang-pokal { font-size: 2rem; line-height: 1; }
 .rang-titel { margin: 0; }
 .rang-unter { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
@@ -12160,7 +12165,8 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   position: absolute;
   top: 5px;
   left: 5px;
-  width: calc((100% - 10px) / 3);
+  /* Breite kommt aus der Komponente, sie hängt an der Anzahl */
+  width: calc((100% - 10px) / 4);
   height: calc(100% - 10px);
   border-radius: 10px;
   background: var(--primary);
@@ -12171,13 +12177,14 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   position: relative;      /* über der gleitenden Pille */
   z-index: 1;
   flex: 1;
+  min-width: 0;
   border: 0;
   background: none;
   box-shadow: none;
-  padding: 10px 8px;
+  padding: 10px 4px;
   border-radius: 10px;
   font-family: inherit;
-  font-size: 0.92rem;
+  font-size: 0.87rem;
   font-weight: 800;
   color: var(--muted, #756a5c);
   cursor: pointer;
@@ -12425,18 +12432,37 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .streak-kopf .start-abschnitt::before { display: none; }
 
 /* ---------- Rangliste: Kopf im Profil-Stil ---------- */
-.rang-pokal {
-  width: 44px;
-  height: 44px;
+/* Gezeichneter Pokal statt Emoji: sieht überall gleich aus */
+.rang-zeichen {
+  width: 40px;
+  height: 40px;
   flex: none;
-  border-radius: 15px;
+  border-radius: 13px;
   display: grid;
   place-items: center;
-  background: var(--primary);
-  font-size: 1.35rem;
-  line-height: 1;
+  background: rgba(255, 108, 0, 0.12);
+  color: var(--primary);
 }
-.rang-titel { font-size: 1.2rem; }
+.rang-zeichen svg { width: 22px; height: 22px; display: block; }
+.rang-titel {
+  flex: 1;
+  margin: 0;
+  font-size: 1.22rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+/* Der eigene Platz als Pille rechts */
+.rang-meiner {
+  flex: none;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
 
 /* ---------- Kalender und Balken: orange statt blau ---------- */
 .kal-umschalter button.ist-aktiv {
