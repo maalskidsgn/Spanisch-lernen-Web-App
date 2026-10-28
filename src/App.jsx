@@ -422,15 +422,13 @@ export default function App() {
   // Benutzername: einmal nach der Anmeldung fragen (für die Rangliste).
   // "Später" merkt sich das Gerät – dann bleibt das Feld auf dem Start.
   const [nameFragen, setNameFragen] = useState(false)
+  // Früher wurde hier einmal nach einem Benutzernamen gefragt. Das
+  // hielt die Rangliste leer – wer "Später" tippte, stand nie drin,
+  // obwohl er XP sammelte. Jetzt vergibt die Datenbank den Namen
+  // beim Anlegen des Profils aus dem Anmeldenamen
+  // (supabase-rangliste-automatisch.sql). Ändern geht unter Profil.
   useEffect(() => {
     setNameFragen(false)
-    if (!nutzer) return
-    let gefragt = false
-    try { gefragt = localStorage.getItem('benutzername-gefragt:' + nutzer.id) === 'ja' } catch { gefragt = true }
-    if (gefragt) return
-    let aktiv = true
-    ladeBenutzername(nutzer.id).then((n) => { if (aktiv && n === null) setNameFragen(true) })
-    return () => { aktiv = false }
   }, [nutzer])
 
   function nameGefragt() {
