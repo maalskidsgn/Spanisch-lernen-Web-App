@@ -25,27 +25,27 @@ export default function MeilensteinMeldung({ liste, onFertig }) {
   }
 
   return (
-    <div className="ms-schicht" role="dialog" aria-modal="true" onClick={weiter}>
-      <div className="ms-karte" onClick={(e) => e.stopPropagation()}>
-        <div className="ms-konfetti" aria-hidden="true">
+    <div className="msm-schicht" role="dialog" aria-modal="true" onClick={weiter}>
+      <div className="msm-karte" onClick={(e) => e.stopPropagation()}>
+        <div className="msm-konfetti" aria-hidden="true">
           {Array.from({ length: 14 }).map((_, n) => (
-            <span key={n} className="ms-schnipsel" style={{ '--n': n }} />
+            <span key={n} className="msm-schnipsel" style={{ '--n': n }} />
           ))}
         </div>
 
-        <span className="ms-abzeichen" aria-hidden="true">
+        <span className="msm-abzeichen" aria-hidden="true">
           <b>{STUFEN_NAMEN[m.stufe]?.charAt(0)}</b>
         </span>
 
-        <p className="ms-stufe">{STUFEN_NAMEN[m.stufe]}</p>
-        <h2 className="ms-titel">{m.titel}</h2>
-        <p className="ms-text">
+        <p className="msm-stufe">{STUFEN_NAMEN[m.stufe]}</p>
+        <h2 className="msm-titel">{m.titel}</h2>
+        <p className="msm-text">
           {m.ziel.toLocaleString('de-DE')} {m.einheit} geschafft
         </p>
 
-        <div className="ms-xp">+{MEILENSTEIN_XP} XP</div>
+        <div className="msm-xp">+{MEILENSTEIN_XP} XP</div>
 
-        <button className="btn ms-knopf" onClick={weiter}>
+        <button className="btn msm-knopf" onClick={weiter}>
           {i + 1 < liste.length ? `Weiter (${liste.length - i - 1} mehr)` : 'Stark!'}
         </button>
       </div>

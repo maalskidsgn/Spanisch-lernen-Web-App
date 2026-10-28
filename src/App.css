@@ -12734,10 +12734,14 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 }
 
 /* ---------- Meilenstein erreicht ----------
+   Eigenes Präfix msm-, weil die Abzeichen-Liste (Meilensteine.jsx)
+   schon ms-abzeichen, ms-schicht und ms-stufe benutzt. Ohne das
+   wurden die kleinen Abzeichen dort als 88px-Kacheln mit Puls
+   gezeichnet.
    Legt sich über die Seite, weil ein Abzeichen ein Moment sein soll.
    Ein Hinweis am Rand würde untergehen – gerade bei jemandem, der
    mitten im Lernen ist. */
-.ms-schicht {
+.msm-schicht {
   position: fixed;
   inset: 0;
   z-index: 300;
@@ -12746,11 +12750,11 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   padding: 24px;
   background: rgba(0, 0, 65, 0.55);
   backdrop-filter: blur(3px);
-  animation: ms-schicht-auf 0.25s ease;
+  animation: msm-schicht-auf 0.25s ease;
 }
-@keyframes ms-schicht-auf { from { opacity: 0; } to { opacity: 1; } }
+@keyframes msm-schicht-auf { from { opacity: 0; } to { opacity: 1; } }
 
-.ms-karte {
+.msm-karte {
   position: relative;
   overflow: hidden;
   width: 100%;
@@ -12760,15 +12764,15 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   background: var(--card);
   text-align: center;
   box-shadow: 0 24px 60px rgba(0, 0, 65, 0.3);
-  animation: ms-karte-auf 0.42s cubic-bezier(0.22, 1, 0.3, 1);
+  animation: msm-karte-auf 0.42s cubic-bezier(0.22, 1, 0.3, 1);
 }
-@keyframes ms-karte-auf {
+@keyframes msm-karte-auf {
   from { opacity: 0; transform: translateY(18px) scale(0.94); }
   to   { opacity: 1; transform: none; }
 }
 
 /* Das Abzeichen: dieselbe Form wie Profilbild und Pokal */
-.ms-abzeichen {
+.msm-abzeichen {
   position: relative;
   width: 88px;
   height: 88px;
@@ -12782,14 +12786,14 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   font-weight: 900;
   line-height: 1;
   box-shadow: 0 12px 28px rgba(255, 108, 0, 0.4);
-  animation: ms-puls 1.8s ease-in-out infinite;
+  animation: msm-puls 1.8s ease-in-out infinite;
 }
-@keyframes ms-puls {
+@keyframes msm-puls {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.06); }
 }
 
-.ms-stufe {
+.msm-stufe {
   margin: 0;
   font-size: 0.78rem;
   font-weight: 900;
@@ -12797,20 +12801,20 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   text-transform: uppercase;
   color: var(--primary);
 }
-.ms-titel {
+.msm-titel {
   margin: 4px 0 6px;
   font-size: 1.6rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--navy);
 }
-.ms-text {
+.msm-text {
   margin: 0 0 20px;
   font-size: 1rem;
   font-weight: 600;
   color: var(--muted);
 }
-.ms-xp {
+.msm-xp {
   display: inline-block;
   margin-bottom: 22px;
   padding: 9px 20px;
@@ -12820,11 +12824,11 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   font-size: 1.05rem;
   font-weight: 900;
 }
-.ms-knopf { width: 100%; }
+.msm-knopf { width: 100%; }
 
 /* Schnipsel fallen einmal durchs Bild – kein Dauerregen */
-.ms-konfetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
-.ms-schnipsel {
+.msm-konfetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.msm-schnipsel {
   position: absolute;
   top: -12px;
   left: calc(var(--n) * 7.5%);
@@ -12833,20 +12837,20 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border-radius: 2px;
   background: var(--primary);
   opacity: 0;
-  animation: ms-fallen 1.5s cubic-bezier(0.3, 0.7, 0.4, 1) forwards;
+  animation: msm-fallen 1.5s cubic-bezier(0.3, 0.7, 0.4, 1) forwards;
   animation-delay: calc(var(--n) * 55ms);
 }
-.ms-schnipsel:nth-child(3n) { background: #ffc27f; }
-.ms-schnipsel:nth-child(3n + 1) { background: var(--navy); }
-@keyframes ms-fallen {
+.msm-schnipsel:nth-child(3n) { background: #ffc27f; }
+.msm-schnipsel:nth-child(3n + 1) { background: var(--navy); }
+@keyframes msm-fallen {
   0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
   100% { opacity: 0; transform: translateY(340px) rotate(420deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ms-karte, .ms-schicht { animation: none; }
-  .ms-abzeichen { animation: none; }
-  .ms-schnipsel { display: none; }
+  .msm-karte, .msm-schicht { animation: none; }
+  .msm-abzeichen { animation: none; }
+  .msm-schnipsel { display: none; }
 }
 
 /* Konto und Hilfe im Profil: eigener Kasten statt lose auf der Seite */
