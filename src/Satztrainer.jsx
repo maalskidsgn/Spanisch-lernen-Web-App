@@ -118,8 +118,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     })
 
     if (richtig) {
-      addXp?.(XP.WORT_RICHTIG)
-      setXpPopup({ amount: XP.WORT_RICHTIG, key: Date.now() })
+      addXp?.(XP.SATZ_RICHTIG)
+      setXpPopup({ amount: XP.SATZ_RICHTIG, key: Date.now() })
       setTimeout(() => setXpPopup(null), 900)
     }
 

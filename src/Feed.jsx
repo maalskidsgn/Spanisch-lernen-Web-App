@@ -264,7 +264,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
     if (!aktiv || gelesen) return
     const timer = setTimeout(() => {
       setGelesen(true)
-      addXp?.(XP.WORT_RICHTIG)
+      addXp?.(XP.FEED_RICHTIG)
       merkeEinheit('wiederholung')
     }, 4000)
     return () => clearTimeout(timer)

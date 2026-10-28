@@ -3,18 +3,33 @@
 // ein Level auf, und wer jeden Tag lernt, baut eine Tagesserie (Streak) auf.
 
 // Wie viele XP es für welche Aktion gibt
+//
+// Die Staffelung folgt dem Aufwand: Je länger und schwerer eine
+// Einheit ist, desto mehr bringt sie.
+//
+//   Lektion (30) > Lesetext (20) > Satz (15) > Wort (10)
+//
+// Eine Lektion dauert Minuten, ein Lesetext kostet Konzentration,
+// ein Satz ist mehr als ein Wort – vorher gab es für alles gleich
+// viel, und Lektionen lohnten sich kaum.
 export const XP = {
-  WORT_NEU: 2, // ein neues Wort im Text angeklickt / in den Trainer aufgenommen
+  WORT_NEU: 2, // ein neues Wort im Text oder Video angeklickt
   SAMMELN: 2, // ein Wort bewusst auf "Lernen" gesetzt
   SCHON_GEWUSST: 5, // ein Wort direkt als "Gewusst" markiert
-  RICHTIG: 10, // Karte im Training gewusst
+  RICHTIG: 10, // eine Vokabel im Training gewusst
   FALSCH: 2, // Karte nicht gewusst (Üben zählt trotzdem!)
   RUNDE: 20, // Bonus für eine komplett geschaffte Trainingsrunde
   QUIZ_RICHTIG: 2, // richtige Antwort in einer Lektion oder einem Spiel
-  LEKTION: 15, // Bonus für eine abgeschlossene Lektion
+  LEKTION: 30, // eine ganze Lektion geschafft – die längste Einheit
   SPIEL: 10, // Bonus für ein durchgespieltes Mini-Spiel
-  WORT_RICHTIG: 10, // Satz, Lesetext oder Feed-Karte richtig – fehlte, und undefined machte die XP zu NaN
+  SATZ_RICHTIG: 15, // ein Satz im Satz-Trainer gewusst
+  TEXT_RICHTIG: 20, // ein Lesetext durchgearbeitet
+  FEED_RICHTIG: 10, // eine Karte im Feed – kurz wie eine Vokabel
   LAND: 10, // ein Stück "Land & Leute" gelesen (nur beim ersten Mal)
+
+  // Alter Name, den es überall gab: zeigt jetzt auf den Satzwert.
+  // Bleibt stehen, damit nichts bricht, was ihn noch benutzt.
+  WORT_RICHTIG: 15,
 }
 
 // Titel für die Level (ab dem letzten bleibt man "Legende")

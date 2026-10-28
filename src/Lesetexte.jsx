@@ -81,7 +81,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
         },
       }
     })
-    addXp?.(XP.WORT_RICHTIG)
+    addXp?.(XP.TEXT_RICHTIG)
     merkeEinheit('wiederholung')
     merkeGelernt('texte')
     setOffenerText(null)
