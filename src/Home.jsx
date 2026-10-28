@@ -11,6 +11,8 @@ import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
 import { useEffect, useState } from 'react'
+import { IconLektion, IconKarten, IconMediathek } from './icons.jsx'
+import { ladeBenutzername } from './rangliste.js'
 import { FeedTuer } from './Feed.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
 import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
@@ -32,6 +34,20 @@ const TUTOREN_ZEIGEN = false
 const LEKTIONSKARTE_ZEIGEN = false
 const ZITAT_ZEIGEN = false
 
+/**
+ * Begrüßung nach Tageszeit.
+ *
+ * Spanisch, weil die App Spanisch lehrt – und weil "¡Buenos días!"
+ * schon beim Öffnen ein kleines Erfolgserlebnis ist. Die Grenzen
+ * sind die üblichen: bis 11 Morgen, bis 18 Tag, danach Abend.
+ */
+function gruss() {
+  const stunde = new Date().getHours()
+  if (stunde < 11) return '¡Buenos días'
+  if (stunde < 18) return '¡Buenas tardes'
+  return '¡Buenas noches'
+}
+
 export default function Home({
   progress,
   counts,
@@ -41,6 +57,19 @@ export default function Home({
   nutzerEmail,
   nutzerId,
 }) {
+  const faellig = counts.faellig ?? 0
+
+  // Der Name für die Begrüßung: derselbe, unter dem man in der
+  // Rangliste steht. Ohne Konto bleibt die Begrüßung namenlos.
+  const [name, setName] = useState('')
+  useEffect(() => {
+    if (!nutzerId) return setName('')
+    ladeBenutzername(nutzerId).then((n) => setName(n || ''))
+    const neu = (e) => setName(e.detail || '')
+    window.addEventListener('benutzername', neu)
+    return () => window.removeEventListener('benutzername', neu)
+  }, [nutzerId])
+
   // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
   const [, setVerlaufStand] = useState(0)
   useEffect(() => {
@@ -76,9 +105,43 @@ export default function Home({
 
   return (
     <div className="trainer home">
-      <h1 className="trainer-titel start-gruss">
-        ¡Hola<span className="accent">!</span>
-      </h1>
+      {/* Begrüßung mit Namen und drei Wegen, direkt weiterzumachen.
+          Wer die App öffnet, will loslegen – nicht erst suchen. */}
+      <header className="start-begruessung">
+        <h1 className="start-hallo">
+          {gruss()}
+          {name ? ', ' : ''}
+          {name && <span className="accent">{name}</span>}
+          <span className="accent">!</span>
+        </h1>
+        <p className="start-zurueck">
+          {progress.xp > 0 ? 'Schön, dass du wieder da bist.' : 'Schön, dass du da bist.'}
+        </p>
+
+        <div className="start-wege">
+          <button className="start-weg" onClick={() => onNavigate('lektionen')}>
+            <span className="sw-zeichen"><IconLektion groesse={22} /></span>
+            <span className="sw-text">
+              <b>Lektion</b>
+              <small>{nextLesson ? nextLesson.titel : 'Alles geschafft'}</small>
+            </span>
+          </button>
+          <button className="start-weg" onClick={() => onNavigate('trainer')}>
+            <span className="sw-zeichen"><IconKarten groesse={22} /></span>
+            <span className="sw-text">
+              <b>Trainer</b>
+              <small>{faellig > 0 ? `${faellig} fällig` : 'Wörter üben'}</small>
+            </span>
+          </button>
+          <button className="start-weg" onClick={() => onNavigate('videos')}>
+            <span className="sw-zeichen"><IconMediathek groesse={22} /></span>
+            <span className="sw-text">
+              <b>YouTube</b>
+              <small>Videos ansehen</small>
+            </span>
+          </button>
+        </div>
+      </header>
 
       {/* Rangliste: die Top 10 nach XP – ganz oben, als Ansporn */}
       {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} />}
