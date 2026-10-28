@@ -12144,14 +12144,31 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
    Drei Knöpfe in einer Schiene, der aktive dunkel. Bewusst ruhig:
    Die Liste darunter ist der Inhalt, nicht die Umschaltung. */
 .rang-zeitraum {
+  position: relative;
   display: flex;
-  gap: 6px;
+  gap: 0;
   margin: 14px 0 16px;
   padding: 5px;
   background: var(--flaeche, #f5f1ea);
   border-radius: 14px;
 }
+
+/* Die dunkle Fläche liegt hinter den Knöpfen und gleitet zum
+   gewählten – vorher sprang die Farbe von einem zum anderen. */
+.rang-zr-pille {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: calc((100% - 10px) / 3);
+  height: calc(100% - 10px);
+  border-radius: 10px;
+  background: var(--navy, #000041);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.3, 1);
+  pointer-events: none;
+}
 .rang-zr {
+  position: relative;      /* über der gleitenden Pille */
+  z-index: 1;
   flex: 1;
   border: 0;
   background: none;
@@ -12163,18 +12180,48 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   font-weight: 800;
   color: var(--muted, #756a5c);
   cursor: pointer;
-  transition: background 0.18s, color 0.18s;
+  /* Die Schrift wechselt etwas später als die Pille ankommt –
+     sonst wirkt die Farbe der Bewegung voraus. */
+  transition: color 0.28s ease 0.08s;
 }
-.rang-zr:hover { background: rgba(0, 0, 65, 0.05); filter: none; }
-.rang-zr.ist-aktiv {
-  background: var(--navy, #000041);
-  color: #fff;
-}
-.rang-zr.ist-aktiv:hover { background: var(--navy, #000041); }
-.rang-zr:active { transform: scale(0.97); box-shadow: none; }
+.rang-zr:hover { background: none; filter: none; }
+.rang-zr.ist-aktiv { color: #fff; }
+.rang-zr:active { transform: none; box-shadow: none; }
 
 /* Rangliste: Hinweis, solange ein Zeitraum noch keine Daten hat */
 .rang-leer { margin: 4px 0 0; color: var(--muted); }
 .rang-leer p { margin: 0; }
 .rang-leer b { color: var(--navy); }
 .rang-leer-klein { margin-top: 6px !important; font-size: 13.5px; line-height: 1.45; }
+
+/* ---------- Rangliste: weicher Wechsel zwischen den Zeiträumen ----------
+   Beim Umschalten bleibt die alte Liste stehen und sinkt leicht ab,
+   die neue steigt gestaffelt auf. Früher verschwand die Karte kurz
+   ganz – das sprang. */
+.rang-liste {
+  transition: opacity 0.26s ease, transform 0.26s ease;
+}
+.rang-liste.ist-wechsel {
+  opacity: 0.25;
+  transform: translateY(5px);
+  pointer-events: none;
+}
+.rang-liste:not(.ist-wechsel) .rang-zeile {
+  animation: rang-rein 0.42s cubic-bezier(0.22, 1, 0.3, 1) backwards;
+  /* je Zeile 35 ms später – die Liste rollt von oben herein */
+  animation-delay: calc(var(--nr, 0) * 35ms);
+}
+@keyframes rang-rein {
+  from { opacity: 0; transform: translateY(9px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Der Balken wächst mit, statt sofort dazustehen */
+.rang-balken-fuell { transition: width 0.55s cubic-bezier(0.22, 1, 0.3, 1); }
+
+/* Wer weniger Bewegung eingestellt hat, bekommt nur die Überblendung */
+@media (prefers-reduced-motion: reduce) {
+  .rang-zr-pille { transition: none; }
+  .rang-liste:not(.ist-wechsel) .rang-zeile { animation: none; }
+  .rang-balken-fuell { transition: none; }
+}

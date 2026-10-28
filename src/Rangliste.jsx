@@ -16,11 +16,16 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   const [name, setName] = useState(undefined) // undefined = lädt/nicht verfügbar
   const [liste, setListe] = useState(null)
   const [zeitraum, setZeitraum] = useState('gesamt')
+  // Während ein anderer Zeitraum geladen wird, bleibt die alte Liste
+  // stehen und blendet nur ab. Sie ganz zu entfernen liess die Karte
+  // zusammenklappen – das sprang.
+  const [wechselt, setWechselt] = useState(false)
 
   async function laden(z = zeitraum) {
     const [n, l] = await Promise.all([ladeBenutzername(nutzerId), ladeRangliste(10, z)])
     setName(n)
     setListe(l)
+    setWechselt(false)
   }
 
   useEffect(() => {
@@ -63,13 +68,23 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
       {/* Drei Zeiträume: Wer lange dabei ist, steht insgesamt vorn –
           wer gerade loslegt, hat im Monat eine faire Chance. */}
       <div className="rang-zeitraum" role="tablist" aria-label="Zeitraum">
+        {/* Die Pille gleitet zum gewählten Knopf, statt zu springen */}
+        <span
+          className="rang-zr-pille"
+          aria-hidden="true"
+          style={{ transform: `translateX(${ZEITRAEUME.findIndex(([w]) => w === zeitraum) * 100}%)` }}
+        />
         {ZEITRAEUME.map(([wert, text]) => (
           <button
             key={wert}
             role="tab"
             aria-selected={zeitraum === wert}
             className={'rang-zr' + (zeitraum === wert ? ' ist-aktiv' : '')}
-            onClick={() => { setZeitraum(wert); setListe(null) }}
+            onClick={() => {
+              if (wert === zeitraum) return
+              setWechselt(true)
+              setZeitraum(wert)
+            }}
           >
             {text}
           </button>
@@ -94,14 +109,14 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
           )}
         </div>
       ) : (
-        <ol className="rang-liste">
-          {top.map((z) => (
-            <RangZeile key={z.platz} z={z} hoechste={hoechste} />
+        <ol className={'rang-liste' + (wechselt ? ' ist-wechsel' : '')}>
+          {top.map((z, i) => (
+            <RangZeile key={zeitraum + '-' + z.platz} z={z} hoechste={hoechste} nr={i} />
           ))}
           {ichDraussen && (
             <>
               <li className="rang-luecke" aria-hidden="true">···</li>
-              <RangZeile z={ichDraussen} hoechste={hoechste} />
+              <RangZeile z={ichDraussen} hoechste={hoechste} nr={top.length} />
             </>
           )}
         </ol>
@@ -128,11 +143,14 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
  * Der Balken darunter zeigt den Abstand zur Spitze – so sieht man
  * auf einen Blick, ob es knapp ist oder uneinholbar.
  */
-function RangZeile({ z, hoechste }) {
+function RangZeile({ z, hoechste, nr = 0 }) {
   const anteil = hoechste > 0 ? Math.max(4, Math.round((z.xp / hoechste) * 100)) : 0
   const stufe = z.platz <= 3 ? ' rang-p' + z.platz : ''
   return (
-    <li className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + stufe}>
+    <li
+      className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + stufe}
+      style={{ '--nr': nr }}
+    >
       <span className="rang-platz">{z.platz}</span>
       <span className="rang-initial" aria-hidden="true">
         {z.benutzername.charAt(0).toUpperCase()}
