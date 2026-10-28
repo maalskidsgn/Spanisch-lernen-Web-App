@@ -292,6 +292,66 @@ async function meldePerMail() {
   }
 }
 
+/* ---------------------------------------------------------------- *
+ *  Einladen
+ * ---------------------------------------------------------------- */
+
+const EINLADUNG = 'einladung-von'
+
+/** Der Link, den man seinen Freunden schickt. */
+export function einladungsLink(benutzername) {
+  return 'https://habloo.de/?einladung=' + encodeURIComponent(benutzername)
+}
+
+/**
+ * Steht ein `?einladung=` in der Adresse, wird der Name gemerkt.
+ *
+ * Gleich hier anzufragen ginge nicht: Wer über den Link kommt, ist in
+ * aller Regel noch gar nicht angemeldet. Der Name wartet deshalb im
+ * Browser, bis es ein Konto mit Benutzernamen gibt.
+ */
+export function merkeEinladung() {
+  try {
+    const wer = new URLSearchParams(location.search).get('einladung')
+    if (!wer || !NAME_MUSTER.test(wer)) return
+    localStorage.setItem(EINLADUNG, wer)
+    // Den Parameter aus der Adresse nehmen – sonst steht die Einladung
+    // noch beim fünften Besuch in der Zeile.
+    const sauber = new URL(location.href)
+    sauber.searchParams.delete('einladung')
+    history.replaceState(null, '', sauber.pathname + sauber.search + sauber.hash)
+  } catch {
+    /* kein Browser oder privater Modus */
+  }
+}
+
+/**
+ * Die gemerkte Einladung einlösen: Anfrage an den raus, der eingeladen hat.
+ *
+ * Wird aufgerufen, sobald jemand einen Benutzernamen hat. Scheitert es
+ * (Name gibt es nicht mehr, man ist schon befreundet), wird die
+ * Einladung trotzdem vergessen – ein zweiter Versuch brächte nichts.
+ */
+export async function loeseEinladungEin() {
+  let wer = null
+  try {
+    wer = localStorage.getItem(EINLADUNG)
+  } catch {
+    return null
+  }
+  if (!wer) return null
+  try {
+    localStorage.removeItem(EINLADUNG)
+  } catch { /* egal */ }
+
+  try {
+    const stand = await frageFreund(wer)
+    return stand === 'gesendet' || stand === 'freund' ? wer : null
+  } catch {
+    return null
+  }
+}
+
 /** Eine Anfrage annehmen. */
 export async function nimmAn(anfrageId) {
   const { error } = await db.from('freunde').update({ status: 'angenommen' }).eq('id', anfrageId)

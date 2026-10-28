@@ -13299,3 +13299,72 @@ button.rang-saeule:active { transform: none; box-shadow: none; }
   font-size: 0.78rem;
   color: var(--muted);
 }
+
+/* ---------- Rangliste: Freunde einladen ----------
+   Sitzt unter der Freundesliste, wo auffällt, dass sie kurz ist.
+   Bewusst eine eigene getönte Fläche statt noch einer weissen Karte:
+   Sie gehört zur Rangliste, ist aber kein Platz in ihr. */
+.rang-einladen {
+  margin-top: 16px;
+  padding: 18px 18px 16px;
+  border-radius: 16px;
+  background: var(--flaeche);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.rang-ein-titel {
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 15.5px;
+  color: var(--navy);
+}
+.rang-ein-text {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.rang-ein-knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--primary);
+  box-shadow: 0 3px 0 var(--primary-press);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.rang-ein-knopf:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--primary-press);
+}
+.rang-ein-knopf svg { width: 18px; height: 18px; flex: none; }
+/* Der Link zum Mitlesen - klein, damit er den Knopf nicht verdrängt */
+.rang-ein-adresse {
+  margin: 11px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+}
+.rang-ein-fehler {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--red-press);
+}
+/* Hinweis nach eingelöster Einladung – nur beim ersten Besuch zu sehen */
+.rang-eingeloest {
+  margin: 14px 0 0;
+  padding: 11px 14px;
+  border-radius: 13px;
+  background: #fff1e4;
+  border: 1px solid #ffdcc0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--navy);
+}

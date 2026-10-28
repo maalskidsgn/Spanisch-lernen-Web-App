@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   ladeBenutzername, ladeRangliste, setzeBenutzername, istNameFrei, nameFehler, ZEITRAEUME,
-  bildAdresse,
+  bildAdresse, einladungsLink, loeseEinladungEin,
 } from './rangliste.js'
 import Logo from './Logo.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
@@ -28,11 +28,24 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   // die man kennt, zieht mehr als gegen 47 Unbekannte.
   const [nurFreunde, setNurFreunde] = useState(false)
 
+  // Wer über eine Einladung kam, hat den Einladenden gleich als Freund
+  const [eingeloest, setEingeloest] = useState('')
+
   async function laden(z = zeitraum, f = nurFreunde) {
     const [n, l] = await Promise.all([ladeBenutzername(nutzerId), ladeRangliste(10, z, f)])
     setName(n)
     setListe(l)
     setWechselt(false)
+
+    // Eine gemerkte Einladung einlösen, sobald es einen Benutzernamen
+    // gibt – vorher kann die Anfrage niemandem zugeordnet werden.
+    if (n) {
+      const wer = await loeseEinladungEin()
+      if (wer) {
+        setEingeloest(wer)
+        setListe(await ladeRangliste(10, z, f))
+      }
+    }
   }
 
   useEffect(() => {
@@ -184,6 +197,18 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
         </div>
       )}
 
+      {/* Gegen Freunde antreten geht nur, wenn welche da sind. Der Link
+          steht deshalb direkt unter der Freundesliste – da fällt auf,
+          dass sie kurz ist. */}
+      {eingeloest && (
+        <p className="rang-eingeloest">
+          Anfrage an <b>{eingeloest}</b> ist raus – ihr wart euch über einen
+          Einladungslink begegnet.
+        </p>
+      )}
+
+      {nurFreunde && name && <Einladen name={name} />}
+
       {schau && <ProfilSchau benutzername={schau} onSchliessen={() => setSchau('')} />}
 
       {name === null && (
@@ -196,6 +221,69 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
         </div>
       )}
     </section>
+  )
+}
+
+/**
+ * Freunde einladen.
+ *
+ * Der Link trägt den eigenen Benutzernamen. Wer darüber ein Konto
+ * anlegt, schickt einem automatisch eine Freundschaftsanfrage – sonst
+ * müssten sich beide hinterher noch gegenseitig suchen, und genau da
+ * bricht so eine Einladung ab.
+ */
+function Einladen({ name }) {
+  const [stand, setStand] = useState('') // '' | 'kopiert' | 'fehler'
+  const adresse = einladungsLink(name)
+
+  async function teilen() {
+    const daten = {
+      title: 'Habloo',
+      text: `Lern mit mir Spanisch bei Habloo – mal sehen, wer vorn liegt.`,
+      url: adresse,
+    }
+    // Auf dem Handy das Teilen-Blatt des Systems: WhatsApp, Nachrichten,
+    // was auch immer da ist. Am Rechner gibt es das meist nicht.
+    try {
+      if (navigator.share) {
+        await navigator.share(daten)
+        return
+      }
+    } catch {
+      return // abgebrochen – das ist keine Panne
+    }
+    try {
+      await navigator.clipboard.writeText(adresse)
+      setStand('kopiert')
+      setTimeout(() => setStand(''), 2200)
+    } catch {
+      setStand('fehler')
+    }
+  }
+
+  return (
+    <div className="rang-einladen">
+      <p className="rang-ein-titel">Spiel gegen deine Freunde</p>
+      <p className="rang-ein-text">
+        Schick ihnen den Link. Wer darüber mitmacht, landet direkt in deiner Liste.
+      </p>
+
+      <button type="button" className="rang-ein-knopf" onClick={teilen}>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 16V4M12 4 8 8M12 4l4 4" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" />
+        </svg>
+        {stand === 'kopiert' ? 'Link kopiert' : 'Link teilen'}
+      </button>
+
+      {/* Den Link auch zum Anschauen – manche kopieren lieber selbst */}
+      <p className="rang-ein-adresse">{adresse.replace('https://', '')}</p>
+      {stand === 'fehler' && (
+        <p className="rang-ein-fehler">Kopieren ging nicht – markier den Link oben von Hand.</p>
+      )}
+    </div>
   )
 }
 
