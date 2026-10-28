@@ -1,3 +1,4 @@
+import { XP } from './gamification.js'
 import { API_URL } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
@@ -12,7 +13,7 @@ function cleanWord(word) {
 
 // Der Vokabelgenerator: schickt das Transkript an den Server, bekommt
 // Vokabel-Vorschläge zurück und lässt dich auswählen, welche in den Trainer sollen.
-export default function VocabGenerator({ video, vocab, setVocab }) {
+export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
@@ -60,6 +61,8 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
 
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function addToTrainer() {
+    const neu = new Set(suggestions.filter((s) => s.checked).map((s) => cleanWord(s.wort)).filter((w) => w && !vocab[w]))
+    if (neu.size) addXp?.(XP.WORT_NEU * neu.size)
     setVocab((v) => {
       const copy = { ...v }
       for (const s of suggestions) {

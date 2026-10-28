@@ -13,7 +13,7 @@
 // ein Satz ist mehr als ein Wort – vorher gab es für alles gleich
 // viel, und Lektionen lohnten sich kaum.
 export const XP = {
-  WORT_NEU: 2, // ein neues Wort im Text oder Video angeklickt
+  WORT_NEU: 20, // ein neues Wort in den Trainer aufgenommen (angeklickt oder hinzugefügt, je Wort nur einmal)
   SAMMELN: 2, // ein Wort bewusst auf "Lernen" gesetzt
   SCHON_GEWUSST: 5, // ein Wort direkt als "Gewusst" markiert
   RICHTIG: 10, // eine Vokabel im Training gewusst
@@ -25,6 +25,7 @@ export const XP = {
   SATZ_RICHTIG: 15, // ein Satz im Satz-Trainer gewusst
   TEXT_RICHTIG: 20, // ein Lesetext durchgearbeitet
   FEED_RICHTIG: 10, // eine Karte im Feed – kurz wie eine Vokabel
+  VIDEO_MINUTE: 10, // je volle Minute, die ein Video wirklich läuft
   LAND: 10, // ein Stück "Land & Leute" gelesen (nur beim ersten Mal)
 
   // Alter Name, den es überall gab: zeigt jetzt auf den Satzwert.

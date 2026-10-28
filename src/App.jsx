@@ -691,6 +691,22 @@ export default function App() {
     setProgress((p) => applyXp(p, amount))
   }
 
+  // Videos gucken lohnt sich: je volle Minute Wiedergabe gibt es XP.
+  // Gezählt wird nur, solange das Video wirklich läuft (Pause/Spulen zählt nicht);
+  // angefangene Sekunden bleiben für die nächste Minute stehen.
+  const videoSekunden = useRef(0)
+  useEffect(() => {
+    if (!laeuft) return
+    const takt = setInterval(() => {
+      videoSekunden.current += 1
+      if (videoSekunden.current >= 60) {
+        videoSekunden.current -= 60
+        addXp(XP.VIDEO_MINUTE)
+      }
+    }, 1000)
+    return () => clearInterval(takt)
+  }, [laeuft])
+
   // Wenn ein Video geladen wurde: YouTube-Player erstellen
   useEffect(() => {
     if (!video) return
@@ -939,6 +955,9 @@ export default function App() {
   // status: standardmäßig "lernen"; aus dem Chat kann ein Wort auch gleich
   // als "gewusst" abgelegt werden ("Kenne ich").
   function addVocabWords(woerter, status = 'lernen') {
+    // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
+    const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
+    if (neu.size) addXp(XP.WORT_NEU * neu.size)
     setVocab((v) => {
       const copy = { ...v }
       for (const w of woerter) {
@@ -1741,7 +1760,7 @@ export default function App() {
                     ✕
                   </button>
                 </div>
-                <VocabGenerator video={video} vocab={vocab} setVocab={setVocab} />
+                <VocabGenerator video={video} vocab={vocab} setVocab={setVocab} addXp={addXp} />
               </div>
             )}
           </>

@@ -1,3 +1,4 @@
+import { XP } from './gamification.js'
 import { API_URL, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
@@ -8,7 +9,7 @@ import { IconFunken } from './icons.jsx'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
-export default function ListGenerator({ vocab, setVocab }) {
+export default function ListGenerator({ vocab, setVocab, addXp }) {
   const [thema, setThema] = useState('')
   const [wortart, setWortart] = useState('alle') // 'alle'|'verben'|'adjektive'|'nomen'
   const [fertigThema, setFertigThema] = useState('') // Thema der fertigen Liste
@@ -72,6 +73,8 @@ export default function ListGenerator({ vocab, setVocab }) {
 
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function uebernehmen() {
+    const neu = new Set(liste.filter((s) => s.checked).map((s) => s.wort.toLowerCase()).filter((k) => !vocab[k]))
+    if (neu.size) addXp?.(XP.WORT_NEU * neu.size)
     setVocab((v) => {
       const copy = { ...v }
       for (const s of liste) {
