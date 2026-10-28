@@ -12256,25 +12256,13 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   border: 1px solid var(--line);
 }
 
-/* Das Bild: die Initiale in Markenfarbe, mit Level-Marke an der Ecke */
-.pf-bild {
-  position: relative;
-  width: 104px;
-  height: 104px;
-  margin: 0 auto 16px;
-  border-radius: 34px;
-  display: grid;
-  place-items: center;
-  background: var(--primary);
-  color: #fff;
-  font-size: 44px;
-  font-weight: 900;
-  line-height: 1;
-}
+/* Das Bild sitzt in .pf-bildfeld – die Regeln dazu stehen weiter
+   unten beim Profilbild. */
 .pf-level {
   position: absolute;
   right: -6px;
   bottom: -6px;
+  z-index: 1;
   min-width: 34px;
   height: 34px;
   padding: 0 8px;
@@ -13070,4 +13058,85 @@ button.rang-saeule:active { transform: none; box-shadow: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .ps-schicht, .ps-karte { animation: none; }
+}
+
+/* ---------- Profilbild ----------
+   Bilder sind quadratisch zugeschnitten und füllen ihr Feld ganz
+   aus. Ohne object-fit würde ein Hochformat verzerrt. */
+.rs-bild.hat-bild,
+.rang-initial.hat-bild,
+.ps-bild.hat-bild,
+.pf-bild img {
+  object-fit: cover;
+  display: block;
+}
+.rang-initial.hat-bild { width: 32px; height: 32px; border-radius: 11px; }
+.rs-bild.hat-bild { width: 54px; height: 54px; }
+.rang-erster .rs-bild.hat-bild { width: 66px; height: 66px; border-radius: 22px; }
+
+/* Profilschau: Rahmen trägt jetzt die Level-Marke, nicht das Bild */
+.ps-rahmen {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
+}
+.ps-rahmen .ps-bild {
+  width: 84px;
+  height: 84px;
+  margin: 0;
+  border-radius: 28px;
+}
+
+/* Eigenes Profil: Bild antippen zum Wechseln */
+.pf-bildfeld {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  margin: 0 auto 16px;
+}
+.pf-bild {
+  width: 104px;
+  height: 104px;
+  padding: 0;
+  border: 0;
+  border-radius: 34px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
+}
+.pf-bild img { width: 100%; height: 100%; }
+.pf-bild:hover { filter: brightness(0.94); }
+.pf-bild:active { transform: scale(0.97); box-shadow: none; }
+.pf-bild:disabled { cursor: default; opacity: 0.7; }
+
+/* Der Stift sitzt unten links, die Level-Marke unten rechts –
+   so stören sie sich nicht. */
+.pf-bild-stift {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 65, 0.55);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+.pf-bild-weg {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
 }

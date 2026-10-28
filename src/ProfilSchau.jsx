@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ladeProfil } from './rangliste.js'
+import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
@@ -62,8 +63,8 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
           <p className="ps-laedt">Dieses Profil gibt es nicht mehr.</p>
         ) : (
           <>
-            <span className="ps-bild" aria-hidden="true">
-              {profil.benutzername.charAt(0).toUpperCase()}
+            <span className="ps-rahmen">
+              <Bildnis name={profil.benutzername} bild={profil.bild} klasse="ps-bild" />
               <span className="ps-level">{level}</span>
             </span>
 

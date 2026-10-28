@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   ladeBenutzername, ladeRangliste, setzeBenutzername, istNameFrei, nameFehler, ZEITRAEUME,
+  bildAdresse,
 } from './rangliste.js'
 import Logo from './Logo.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
@@ -170,6 +171,21 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   )
 }
 
+/**
+ * Das Bild einer Person – oder ihre Initiale, wenn keins da ist.
+ *
+ * An vier Stellen gebraucht (Podest, Liste, Profilschau, eigener
+ * Kopf), deshalb ein eigener Baustein: Sonst sieht es an jeder
+ * Stelle ein bisschen anders aus.
+ */
+export function Bildnis({ name, bild, klasse = '' }) {
+  const adresse = bildAdresse(bild)
+  if (adresse) {
+    return <img className={klasse + ' hat-bild'} src={adresse} alt="" loading="lazy" />
+  }
+  return <span className={klasse} aria-hidden="true">{name.charAt(0).toUpperCase()}</span>
+}
+
 /** Eine Säule des Podests: Bild, Name, XP und der Block mit dem Platz. */
 function Saeule({ z, stufe, onOeffnen }) {
   return (
@@ -179,7 +195,7 @@ function Saeule({ z, stufe, onOeffnen }) {
       onClick={() => onOeffnen?.(z.benutzername)}
       aria-label={`Profil von ${z.benutzername} ansehen`}
     >
-      <span className="rs-bild" aria-hidden="true">{z.benutzername.charAt(0).toUpperCase()}</span>
+      <Bildnis name={z.benutzername} bild={z.bild} klasse="rs-bild" />
       <span className="rs-name">
         {z.benutzername}
         {z.ich && <small>du</small>}
@@ -209,9 +225,7 @@ function RangZeile({ z, nr = 0, onOeffnen }) {
         aria-label={`Profil von ${z.benutzername} ansehen`}
       >
       <span className="rang-platz">{z.platz}</span>
-      <span className="rang-initial" aria-hidden="true">
-        {z.benutzername.charAt(0).toUpperCase()}
-      </span>
+      <Bildnis name={z.benutzername} bild={z.bild} klasse="rang-initial" />
       <span className="rang-name">
         {z.benutzername}
         {z.ich && <small>du</small>}

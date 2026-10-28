@@ -10,7 +10,9 @@ import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
 import { BenutzernameFeld } from './Rangliste.jsx'
-import { ladeBenutzername } from './rangliste.js'
+import {
+  ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse,
+} from './rangliste.js'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
@@ -77,9 +79,13 @@ export default function Settings({
   // Der Benutzername steht im Profilkopf – er ist der Name, unter
   // dem einen die anderen in der Rangliste sehen.
   const [benutzername, setBenutzername] = useState('')
+  const [bild, setBild] = useState(null)
+  const [bildLaeuft, setBildLaeuft] = useState(false)
+  const bildFeld = useRef(null)
   useEffect(() => {
     if (!nutzer?.id) return setBenutzername('')
     ladeBenutzername(nutzer.id).then((n) => setBenutzername(n || ''))
+    ladeProfilbild(nutzer.id).then(setBild)
     const neu = (e) => setBenutzername(e.detail || '')
     window.addEventListener('benutzername', neu)
     return () => window.removeEventListener('benutzername', neu)
@@ -333,12 +339,59 @@ export default function Settings({
           liegen weiter unten und sind zugeklappt – wer sein Profil
           anschaut, will nicht zuerst Schalter sehen. */}
       <header className="pf-kopf">
-        <div className="pf-bild" aria-hidden="true">
-          {(benutzername || anzeigename(nutzer)).charAt(0).toUpperCase()}
+        <div className="pf-bildfeld">
+          <button
+            className="pf-bild"
+            onClick={() => bildFeld.current?.click()}
+            disabled={bildLaeuft || !nutzer}
+            aria-label={bild ? 'Profilbild ändern' : 'Profilbild hinzufügen'}
+          >
+            {bild ? (
+              <img src={bildAdresse(bild)} alt="" />
+            ) : (
+              <span aria-hidden="true">
+                {(benutzername || anzeigename(nutzer)).charAt(0).toUpperCase()}
+              </span>
+            )}
+            <span className="pf-bild-stift" aria-hidden="true">
+              {bildLaeuft ? '…' : '✎'}
+            </span>
+          </button>
           <span className="pf-level" title={`Level ${level}`}>{level}</span>
+          <input
+            ref={bildFeld}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={async (e) => {
+              const datei = e.target.files?.[0]
+              e.target.value = ''
+              if (!datei) return
+              setBildLaeuft(true)
+              try {
+                await setzeProfilbild(nutzer.id, datei)
+                setBild(await ladeProfilbild(nutzer.id))
+              } catch (f) {
+                alert(f.message)
+              } finally {
+                setBildLaeuft(false)
+              }
+            }}
+          />
         </div>
         <h1 className="pf-name">{benutzername || anzeigename(nutzer)}</h1>
         <p className="pf-rang">{levelName(level)}</p>
+        {bild && (
+          <button
+            className="btn-plain pf-bild-weg"
+            onClick={async () => {
+              await loescheProfilbild(nutzer.id)
+              setBild(null)
+            }}
+          >
+            Bild entfernen
+          </button>
+        )}
 
         <dl className="pf-zahlen">
           <div><dt>XP</dt><dd>{progress.xp.toLocaleString('de-DE')}</dd></div>

@@ -139,3 +139,95 @@ export async function ladeProfil(benutzername) {
   const p = data[0]
   return { ...p, platz: Number(p.platz) }
 }
+
+// ---------------------------------------------------------------
+//  Profilbild
+// ---------------------------------------------------------------
+
+const EIMER = 'profilbilder'
+
+/** Öffentliche Adresse eines Bildes – oder null. */
+export function bildAdresse(pfad) {
+  if (!pfad || !supabaseBereit) return null
+  const { data } = db.storage.from(EIMER).getPublicUrl(pfad)
+  return data?.publicUrl ?? null
+}
+
+/**
+ * Verkleinert ein Bild auf 400 × 400 und schneidet es mittig quadratisch.
+ *
+ * Warum im Browser und nicht auf dem Server: Ein Handyfoto hat
+ * schnell 4 MB. Das hochzuladen dauert im Mobilfunk spürbar, und
+ * gebraucht werden am Ende 80 Kilobyte.
+ */
+function verkleinern(datei, kante = 400) {
+  return new Promise((fertig, fehler) => {
+    const bild = new Image()
+    const adresse = URL.createObjectURL(datei)
+    bild.onload = () => {
+      URL.revokeObjectURL(adresse)
+      const seite = Math.min(bild.width, bild.height)
+      const x = (bild.width - seite) / 2
+      const y = (bild.height - seite) / 2
+      const c = document.createElement('canvas')
+      c.width = c.height = kante
+      const g = c.getContext('2d')
+      g.drawImage(bild, x, y, seite, seite, 0, 0, kante, kante)
+      c.toBlob((b) => (b ? fertig(b) : fehler(new Error('Bild ließ sich nicht umwandeln.'))),
+        'image/jpeg', 0.86)
+    }
+    bild.onerror = () => {
+      URL.revokeObjectURL(adresse)
+      fehler(new Error('Das ist kein Bild, das wir lesen können.'))
+    }
+    bild.src = adresse
+  })
+}
+
+/**
+ * Lädt ein Profilbild hoch und merkt den Pfad im Profil.
+ * @returns {Promise<string>} die öffentliche Adresse
+ */
+export async function setzeProfilbild(nutzerId, datei) {
+  if (!supabaseBereit || !nutzerId) throw new Error('Bitte zuerst anmelden.')
+  if (!datei.type.startsWith('image/')) throw new Error('Bitte ein Bild auswählen.')
+
+  const klein = await verkleinern(datei)
+  // Der Name wechselt bei jedem Mal, sonst zeigt der Browser noch
+  // tagelang das alte Bild aus seinem Zwischenspeicher.
+  const pfad = `${nutzerId}/${Date.now()}.jpg`
+
+  const hoch = await db.storage.from(EIMER).upload(pfad, klein, {
+    contentType: 'image/jpeg',
+    upsert: true,
+  })
+  if (hoch.error) throw new Error('Hochladen fehlgeschlagen: ' + hoch.error.message)
+
+  // Das alte Bild wegräumen, damit der Speicher nicht zuwächst
+  const { data: vorher } = await db.from('profile').select('bild').eq('id', nutzerId).maybeSingle()
+  const { error } = await db.from('profile').upsert({ id: nutzerId, bild: pfad }, { onConflict: 'id' })
+  if (error) throw new Error('Speichern fehlgeschlagen: ' + error.message)
+  if (vorher?.bild && vorher.bild !== pfad) {
+    db.storage.from(EIMER).remove([vorher.bild]).catch(() => {})
+  }
+
+  window.dispatchEvent(new CustomEvent('profilbild', { detail: pfad }))
+  return bildAdresse(pfad)
+}
+
+/** Entfernt das Profilbild wieder. */
+export async function loescheProfilbild(nutzerId) {
+  if (!supabaseBereit || !nutzerId) return
+  const { data } = await db.from('profile').select('bild').eq('id', nutzerId).maybeSingle()
+  await db.from('profile').upsert({ id: nutzerId, bild: null }, { onConflict: 'id' })
+  if (data?.bild) db.storage.from(EIMER).remove([data.bild]).catch(() => {})
+  window.dispatchEvent(new CustomEvent('profilbild', { detail: '' }))
+}
+
+/** Der eigene Bildpfad – für den Profilkopf. */
+export async function ladeProfilbild(nutzerId) {
+  if (!supabaseBereit || !nutzerId) return null
+  const { data, error } = await db.from('profile').select('bild').eq('id', nutzerId).maybeSingle()
+  if (error) return null
+  return data?.bild ?? null
+}
