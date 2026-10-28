@@ -4,10 +4,13 @@ import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
-import { IconKarten, IconAuswahl, IconListe } from './icons.jsx'
+import { IconKarten, IconAuswahl, IconListe, IconGemischt } from './icons.jsx'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
+
+/** Satzpaare: so viele Paare auf einmal – mehr wird auf dem Handy unübersichtlich */
+const PAARE = 6
 
 // Nur zwei Übungsarten – Schreiben und Gemischt gibt es hier
 // bewusst nicht: Einen ganzen Satz fehlerfrei abzutippen ist
@@ -25,6 +28,12 @@ const ARTEN = [
     icon: IconAuswahl,
     text: 'Vier Übersetzungen – welche passt?',
   },
+  {
+    id: 'paare',
+    titel: 'Satzpaare',
+    icon: IconGemischt,
+    text: `${PAARE} Sätze und ihre Übersetzungen richtig verbinden`,
+  },
 ]
 
 /** Vier falsche Übersetzungen dazumischen. */
@@ -38,8 +47,8 @@ function baueAuswahl(richtig, alle, anzahl = 4) {
  * Der Satz-Karteikasten.
  *
  * Derselbe Spaced-Repetition-Kern wie beim Vokabeltrainer (srs.js) –
- * nur steht auf der Karte ein ganzer Satz. Deshalb keine Spiele:
- * Memory oder Wortpaare brauchen kurze Begriffe, Sätze nicht.
+ * nur steht auf der Karte ein ganzer Satz. Memory passt dafür nicht;
+ * statt Wortpaaren gibt es Satzpaare mit 6 Sätzen untereinander (SatzPaare).
  */
 export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
@@ -78,6 +87,19 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
 
   /** Eine Runde starten – die am längsten fälligen zuerst. */
   function starten(gewaehlteArt) {
+    if (gewaehlteArt === 'paare') {
+      // Fällige zuerst, mit den übrigen auf sechs auffüllen
+      const mitText = entries.filter((e) => e.translation)
+      const sortiert = [
+        ...mitText.filter(isDue).sort((a, b) => (a.due ?? 0) - (b.due ?? 0)),
+        ...mitText.filter((e) => !isDue(e)).sort(() => Math.random() - 0.5),
+      ]
+      setArt('paare')
+      setQueue(sortiert.slice(0, PAARE).map((e) => e.key))
+      setResult({ richtig: 0, falsch: 0 })
+      setArtWahl(false)
+      return
+    }
     const liste = [...faellig].sort((a, b) => (a.due ?? 0) - (b.due ?? 0)).slice(0, RUNDE)
     setArt(gewaehlteArt)
     setQueue(liste.map((e) => e.key))
@@ -143,6 +165,29 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     }, 320)
   }
 
+  /** Satzpaare: ein Satz verbunden – beim ersten Versuch "gut", sonst "schwer". */
+  function paarGeloest(key, ersterVersuch) {
+    merkeGelernt('saetze')
+    setSaetze((alt) => {
+      const eintrag = withSrsDefaults(alt[key] ?? {})
+      return {
+        ...alt,
+        [key]: {
+          ...review(eintrag, ersterVersuch ? 'gut' : 'schwer'),
+          anzeige: eintrag.anzeige,
+          schluessel: eintrag.schluessel,
+          thema: eintrag.thema,
+          zeitform: eintrag.zeitform,
+          richtig: (eintrag.richtig ?? 0) + 1,
+          falsch: eintrag.falsch ?? 0,
+        },
+      }
+    })
+    addXp?.(XP.SATZ_RICHTIG)
+    setXpPopup({ amount: XP.SATZ_RICHTIG, key: Date.now() })
+    setTimeout(() => setXpPopup(null), 900)
+  }
+
   /** Einen Satz aus dem Kasten werfen. */
   function entfernen(key) {
     setSaetze((alt) => {
@@ -202,6 +247,27 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             ))}
           </div>
         )}
+      </div>
+    )
+  }
+
+  // ---------- Satzpaare ----------
+  if (queue !== null && art === 'paare') {
+    return (
+      <div className="trainer training-stage">
+        {xpPopup && (
+          <span key={xpPopup.key} className="xp-popup">
+            +{xpPopup.amount} XP
+          </span>
+        )}
+        <SatzPaare
+          paare={queue
+            .filter((k) => saetze[k])
+            .map((k) => ({ key: k, es: saetze[k].anzeige ?? k, de: saetze[k].translation }))}
+          onGeloest={paarGeloest}
+          onFertig={() => merkeEinheit('wiederholung')}
+          onClose={() => setQueue(null)}
+        />
       </div>
     )
   }
@@ -339,7 +405,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             const Icon = a.icon
             // Multiple Choice braucht falsche Antworten zum Danebenlegen.
             // Mit weniger als vier Sätzen gibt es die nicht.
-            const gesperrt = a.id === 'auswahl' && entries.length < 4
+            const gesperrt =
+              (a.id === 'auswahl' && entries.length < 4) ||
+              (a.id === 'paare' && entries.filter((e) => e.translation).length < 3)
             return (
               <button
                 key={a.id}
@@ -355,7 +423,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                   <span className="art-titel">{a.titel}</span>
                   <span className="art-beschreibung">{a.text}</span>
                   {gesperrt && (
-                    <span className="art-hinweis">Ab vier gesammelten Sätzen</span>
+                    <span className="art-hinweis">
+                      {a.id === 'paare' ? 'Ab drei gesammelten Sätzen' : 'Ab vier gesammelten Sätzen'}
+                    </span>
                   )}
                 </span>
                 <span className="art-pfeil" aria-hidden="true">›</span>
@@ -399,12 +469,13 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 {entries.length} gesammelt · {gewusst.length} sitzen
               </p>
             </div>
+            {/* Nichts fällig? Satzpaare gehen trotzdem – mit den übrigen Sätzen */}
             <button
               className="btn wiederholen-los"
-              disabled={faellig.length === 0}
-              onClick={() => setArtWahl(true)}
+              disabled={faellig.length === 0 && entries.filter((e) => e.translation).length < 3}
+              onClick={() => (faellig.length > 0 ? setArtWahl(true) : starten('paare'))}
             >
-              {faellig.length > 0 ? 'Üben' : 'Nichts fällig'}
+              {faellig.length > 0 ? 'Üben' : entries.filter((e) => e.translation).length >= 3 ? 'Satzpaare' : 'Nichts fällig'}
             </button>
           </section>
         </>
@@ -460,5 +531,108 @@ function SatzAuswahl({ loesung, alle, gewaehlt, onWahl }) {
         )
       })}
     </div>
+  )
+}
+
+/**
+ * Satzpaare: oben die spanischen Sätze, darunter die Übersetzungen in
+ * anderer Reihenfolge. Erst einen Satz antippen, dann seine Übersetzung.
+ * Untereinander statt nebeneinander – zwei Spalten mit ganzen Sätzen
+ * werden auf dem Handy zu schmal.
+ */
+function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
+  // Die Reihenfolge leitet sich aus den Daten ab (wie bei den Wortpaaren),
+  // damit sie bei einem Abgleich im Hintergrund nicht durcheinandergerät
+  const unten = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
+  const [wahl, setWahl] = useState(null)
+  const [geloest, setGeloest] = useState([])
+  const [daneben, setDaneben] = useState([]) // Sätze mit Fehlversuch
+  const [fehler, setFehler] = useState(null)
+
+  const fertig = paare.length > 0 && geloest.length === paare.length
+
+  function klickUnten(p) {
+    if (!wahl || geloest.includes(p.key)) return
+    if (p.key === wahl) {
+      setGeloest((g) => [...g, p.key])
+      onGeloest(p.key, !daneben.includes(p.key))
+      setWahl(null)
+      if (geloest.length + 1 === paare.length) onFertig()
+    } else {
+      setFehler(p.key)
+      setDaneben((d) => (d.includes(wahl) ? d : [...d, wahl]))
+      setTimeout(() => {
+        setFehler(null)
+        setWahl(null)
+      }, 600)
+    }
+  }
+
+  if (fertig) {
+    return (
+      <div className="flashcard done">
+        <div className="confetti-burst" aria-hidden="true">
+          {Array.from({ length: 14 }, (_, i) => (
+            <span key={i} className="confetti" style={{ '--i': i }} />
+          ))}
+        </div>
+        <h2>Alle {paare.length} Satzpaare verbunden! 🎉</h2>
+        <p>
+          {paare.length - daneben.length}× auf Anhieb · {daneben.length}× mit zweitem Versuch
+        </p>
+        <button onClick={onClose}>Fertig</button>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="lern-fortschritt">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
+        </div>
+        <p className="training-progress">
+          {geloest.length}/{paare.length} verbunden – erst den Satz, dann die Übersetzung
+        </p>
+      </div>
+      <div className="satzpaare">
+        <div className="satzpaare-gruppe">
+          {paare.map((p) => (
+            <button
+              key={p.key}
+              className={
+                'quiz-option satzpaar' +
+                (geloest.includes(p.key) ? ' option-richtig' : '') +
+                (wahl === p.key ? ' pair-gewaehlt' : '')
+              }
+              disabled={geloest.includes(p.key)}
+              onClick={() => setWahl(p.key)}
+            >
+              {p.es}
+            </button>
+          ))}
+        </div>
+        <div className="satzpaare-trenner" aria-hidden="true" />
+        <div className="satzpaare-gruppe">
+          {unten.map((p) => (
+            <button
+              key={p.key}
+              className={
+                'quiz-option satzpaar satzpaar-de' +
+                (geloest.includes(p.key) ? ' option-richtig' : '') +
+                (fehler === p.key ? ' option-falsch' : '')
+              }
+              disabled={geloest.includes(p.key) || !wahl}
+              onClick={() => klickUnten(p)}
+            >
+              {p.de}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button className="btn-plain" onClick={onClose}>
+        Runde abbrechen
+      </button>
+    </>
   )
 }
