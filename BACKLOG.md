@@ -29,6 +29,32 @@ Stand: 24. August 2026.
 
 - (frei – nächsten Punkt aus der Liste wählen)
 
+## 🎮 Duell – nächste Stufe (geplant 29.10.2026)
+
+Steht bewusst noch nicht in Arbeit: Das Duell läuft seit 28.10. als
+Fernpartie (beide bekommen dieselben sieben Fragen und spielen, wann
+sie wollen). Wer gerade da ist, sieht man seit 29.10. am grünen Punkt.
+
+Der nächste Schritt wäre ein **Duell in Echtzeit**: Einladung an
+jemanden, der online ist, beide sehen dieselbe Frage gleichzeitig und
+den Punktestand des anderen mitlaufen.
+
+Was dafür fehlt – und warum es kein Nachmittag ist:
+
+- **Einladung mit Ablauf.** Wer nicht binnen ~30 Sekunden annimmt,
+  muss automatisch absagen, sonst wartet einer ins Leere.
+- **Gemeinsame Uhr.** Beide Geräte müssen bei derselben Frage
+  ungefähr gleich weit sein. Die Zeit darf nicht vom Client kommen,
+  sonst gewinnt, wer die Uhr anhält.
+- **Abbruch.** Geht einem das Netz aus oder legt er das Handy weg,
+  braucht das Spiel ein Ende, das nicht "ewig warten" heisst.
+- **Zurückfallen auf die Fernpartie,** wenn die Verbindung stirbt –
+  sonst ist das halbe Spiel verloren.
+
+Technisch über denselben Realtime-Kanal wie die Anwesenheit
+(`src/praesenz.js`), aber mit eigenem Raum je Partie und einer
+Schiedsrichter-Rolle für die Zeit.
+
 ### Satz-Trainer (09.10.2026)
 - [x] **Vierter Reiter „Sätze" im Trainer.** Eigener Karteikasten für
       ganze Sätze mit demselben Spaced-Repetition-Kern wie die
