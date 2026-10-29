@@ -23,7 +23,8 @@ import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './me
 import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import { zeigeMichAn, verschwinde } from './praesenz.js'
-import { kaufMoeglich, kaufVorbereiten, kaufBeenden } from './kauf.js'
+import { kaufMoeglich, kaufVorbereiten, kaufBeenden, istApp } from './kauf.js'
+import { baueBrueckenPlayer } from './ytBruecke.js'
 import Bezahlen from './Bezahlen.jsx'
 import KaufNativ from './KaufNativ.jsx'
 import { gleicheGeraetedatenAb } from './geraeteSync.js'
@@ -848,29 +849,53 @@ export default function App() {
   useEffect(() => {
     if (!video) return
     let cancelled = false
+
+    // Was beim Start passieren soll - fuer beide Wege gleich
+    const ereignisse = {
+      // Damit der Pause-Knopf immer das richtige Symbol zeigt –
+      // auch wenn direkt im Player geklickt wird (1 = läuft)
+      onStateChange: (e) => setLaeuft(e.data === 1),
+      onReady: (e) => {
+        setLaeuft(false)
+        setTempo(1)
+        // Dort weitermachen, wo man aufgehoert hat. Nur wenn man
+        // wirklich mittendrin war: Die ersten 10 Sekunden lohnen
+        // sich nicht, und ab 95 % faengt man lieber neu an.
+        const { prozent, sekunden } = standVon(video.videoId)
+        if (sekunden > 10 && prozent < 95) {
+          e.target.seekTo(sekunden, true)
+          setWeiterAb(sekunden)
+          setTimeout(() => setWeiterAb(null), 4000)
+        }
+      },
+    }
+
+    // In der App ueber die Seite auf habloo.de, im Browser direkt.
+    //
+    // YouTube weist seit Juli 2025 jede Einbettung ohne gueltigen
+    // Referer ab ("Fehler 153"). Eine App laedt ihre Oberflaeche
+    // lokal, hat also keinen - deshalb dort der Umweg ueber eine
+    // Seite, die wirklich auf habloo.de liegt. Im Browser stimmt der
+    // Referer ohnehin, da bleibt der direkte Weg.
+    if (istApp()) {
+      playerRef.current = baueBrueckenPlayer('yt-player', {
+        videoId: video.videoId,
+        events: ereignisse,
+      })
+      return () => {
+        cancelled = true
+        playerRef.current?.destroy?.()
+        playerRef.current = null
+        setActiveLine(-1)
+      }
+    }
+
     loadYouTubeApi().then((YT) => {
       if (cancelled) return
       playerRef.current = new YT.Player('yt-player', {
         videoId: video.videoId,
         playerVars: { rel: 0 },
-        events: {
-          // Damit der Pause-Knopf immer das richtige Symbol zeigt –
-          // auch wenn direkt im Player geklickt wird (1 = läuft)
-          onStateChange: (e) => setLaeuft(e.data === 1),
-          onReady: (e) => {
-            setLaeuft(false)
-            setTempo(1)
-            // Dort weitermachen, wo man aufgehoert hat. Nur wenn man
-            // wirklich mittendrin war: Die ersten 10 Sekunden lohnen
-            // sich nicht, und ab 95 % faengt man lieber neu an.
-            const { prozent, sekunden } = standVon(video.videoId)
-            if (sekunden > 10 && prozent < 95) {
-              e.target.seekTo(sekunden, true)
-              setWeiterAb(sekunden)
-              setTimeout(() => setWeiterAb(null), 4000)
-            }
-          },
-        },
+        events: ereignisse,
       })
     })
     return () => {

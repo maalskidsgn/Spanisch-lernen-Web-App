@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Habloo Player</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #p, iframe { width: 100%; height: 100%; border: 0; display: block; }
+</style>
+</head>
+<body>
+<div id="p"></div>
+<script>
+/*
+ * Die Player-Seite fuer die App.
+ *
+ * Warum es sie gibt: YouTube weist seit Juli 2025 jede Einbettung ab,
+ * die ohne gueltigen HTTP-Referer ankommt ("Fehler 153"). Eine
+ * Capacitor-App laedt ihre Oberflaeche lokal aus dem Bundle - da gibt
+ * es keinen echten Referer, egal unter welchem Namen sie laeuft.
+ *
+ * Diese Seite dagegen liegt wirklich auf habloo.de. Bindet die App
+ * sie ein, kommt der Referer vom Server, und YouTube ist zufrieden.
+ *
+ * Die App steuert den Player von aussen per postMessage. Damit sich
+ * das fuer sie anfuehlt wie der echte Player, meldet die Seite
+ * ununterbrochen zurueck, wo das Video steht - die App braucht die
+ * Zeit synchron, um die Untertitel mitlaufen zu lassen.
+ */
+
+var spieler = null
+var bereit = false
+
+// Nur Nachrichten von der eigenen App annehmen. Im Browser ist das
+// habloo.de, in der App capacitor://localhost oder https://localhost.
+var ERLAUBT = [
+  'https://habloo.de',
+  'https://www.habloo.de',
+  'capacitor://localhost',
+  'https://localhost',
+  'http://localhost:5173',
+]
+
+function erlaubt(herkunft) {
+  return ERLAUBT.indexOf(herkunft) !== -1
+}
+
+/** Nachricht ans Elternfenster. */
+function melde(was) {
+  try {
+    parent.postMessage(JSON.stringify(was), '*')
+  } catch (e) { /* Fenster schon zu */ }
+}
+
+/** Die Video-Kennung steht in der Adresse: ytplayer.html?v=XYZ */
+function videoAusAdresse() {
+  var m = location.search.match(/[?&]v=([A-Za-z0-9_-]{5,20})/)
+  return m ? m[1] : ''
+}
+
+function start(YT) {
+  spieler = new YT.Player('p', {
+    videoId: videoAusAdresse(),
+    playerVars: {
+      rel: 0,
+      playsinline: 1,   // auf dem iPhone nicht in den Vollbildmodus springen
+      modestbranding: 1,
+    },
+    events: {
+      onReady: function () {
+        bereit = true
+        melde({ art: 'bereit', dauer: spieler.getDuration() })
+        takt()
+      },
+      onStateChange: function (e) {
+        melde({ art: 'zustand', zustand: e.data })
+      },
+      onError: function (e) {
+        melde({ art: 'fehler', code: e.data })
+      },
+    },
+  })
+}
+
+/*
+ * Der Takt: fuenfmal pro Sekunde melden, wo das Video steht.
+ *
+ * Die App fragt die Zeit alle 300 ms ab, um die richtige Textzeile zu
+ * markieren. Ueber postMessage geht das nicht direkt - also schickt
+ * die Seite von sich aus, und die App merkt sich den letzten Wert.
+ */
+function takt() {
+  setInterval(function () {
+    if (!bereit || !spieler.getCurrentTime) return
+    melde({
+      art: 'stand',
+      zeit: spieler.getCurrentTime(),
+      dauer: spieler.getDuration(),
+      zustand: spieler.getPlayerState(),
+    })
+  }, 200)
+}
+
+// Befehle von der App
+window.addEventListener('message', function (e) {
+  if (!erlaubt(e.origin)) return
+  var b
+  try {
+    b = typeof e.data === 'string' ? JSON.parse(e.data) : e.data
+  } catch (f) { return }
+  if (!b || !spieler) return
+
+  switch (b.tu) {
+    case 'ab':      spieler.playVideo(); break
+    case 'halt':    spieler.pauseVideo(); break
+    case 'spring':  spieler.seekTo(b.wert, true); break
+    case 'tempo':   spieler.setPlaybackRate(b.wert); break
+    case 'laden':   spieler.loadVideoById(b.wert); break
+  }
+})
+
+// YouTube-API nachladen
+var s = document.createElement('script')
+s.src = 'https://www.youtube.com/iframe_api'
+document.head.appendChild(s)
+window.onYouTubeIframeAPIReady = function () { start(window.YT) }
+</script>
+</body>
+</html>
