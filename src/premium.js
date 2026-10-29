@@ -129,10 +129,18 @@ export function usePremium() {
 
   useEffect(() => {
     neuLaden()
-    if (!supabaseBereit) return
+    // Nach einem Kauf in der App: Die Berechtigung kommt über den
+    // Webhook in die Datenbank, die Oberfläche erfährt davon sonst
+    // erst beim nächsten Start.
+    const frisch = () => neuLaden()
+    window.addEventListener('premium-neu', frisch)
+    if (!supabaseBereit) return () => window.removeEventListener('premium-neu', frisch)
     // Nach einer Anmeldung erneut fragen
     const { data } = db.auth.onAuthStateChange(() => neuLaden())
-    return () => data?.subscription?.unsubscribe()
+    return () => {
+      window.removeEventListener('premium-neu', frisch)
+      data?.subscription?.unsubscribe()
+    }
   }, [])
 
   return { ...stand, neuLaden }

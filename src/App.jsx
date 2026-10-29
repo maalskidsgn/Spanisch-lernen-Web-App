@@ -23,7 +23,9 @@ import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './me
 import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import { zeigeMichAn, verschwinde } from './praesenz.js'
+import { kaufMoeglich, kaufVorbereiten, kaufBeenden } from './kauf.js'
 import Bezahlen from './Bezahlen.jsx'
+import KaufNativ from './KaufNativ.jsx'
 import { gleicheGeraetedatenAb } from './geraeteSync.js'
 import { merkeGelernt } from './lernkurve.js'
 import { gleicheVideosAb, ladeGeloeschteLokal, speichereGeloeschteLokal } from './videoSync.js'
@@ -531,6 +533,20 @@ export default function App() {
       angemeldetRef.current = null
       setSyncStatus('')
     }
+  }, [nutzer])
+
+  // Den Kaufweg der App mit dem Konto verbinden.
+  //
+  // Die Nutzer-Kennung muss VOR dem ersten Kauf bei RevenueCat
+  // stehen: Nur über sie findet die Kaufmeldung später die richtige
+  // Zeile in "abos". Wird sie erst beim Kauf gesetzt, hängt der Kauf
+  // an einem anonymen Gerät und ist beim Handywechsel verloren.
+  useEffect(() => {
+    if (!nutzer) {
+      kaufBeenden()
+      return
+    }
+    kaufVorbereiten(nutzer.id)
   }, [nutzer])
 
   // Freunden zeigen, dass man da ist. Braucht den Benutzernamen –
@@ -1319,10 +1335,19 @@ export default function App() {
   // Einstellungen. Wer bezahlt, soll sehen, was er kauft – und keine
   // Tab-Leiste danebenhaben, die zum Wegklicken einlädt.
   if (kasseOffen) {
+    // In der App muss der Kauf ueber Apple bzw. Google laufen - beide
+    // verlangen das fuer digitale Inhalte. Im Browser auf habloo.de
+    // bleibt Stripe erlaubt.
+    const Kasse = kaufMoeglich() ? KaufNativ : Bezahlen
     return (
-      <Bezahlen
+      <Kasse
         onAbbrechen={() => setKasseOffen(false)}
-        onFertig={() => setKasseOffen(false)}
+        onFertig={() => {
+          setKasseOffen(false)
+          // Die Premium-Anzeige haengt an "abos" - nach dem Kauf
+          // einmal neu fragen, sonst steht dort noch "kein Premium".
+          window.dispatchEvent(new CustomEvent('premium-neu'))
+        }}
       />
     )
   }

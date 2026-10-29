@@ -21,6 +21,7 @@ import {
   holePreis,
   holePreise,
 } from './bezahlung.js'
+import { pruefeHerkunft, verarbeiteKauf, kaufBereit } from './kauf.js'
 import {
   holeTranskript as holeUeberDienst,
   tubeAlfredBereit,
@@ -1006,6 +1007,30 @@ app.post('/api/bezahlung/start', async (req, res) => {
 })
 
 // Stripes eigene Verwaltungsseite (kuendigen, Zahlungsart aendern)
+/**
+ * Meldung von RevenueCat: ein Kauf im App Store oder bei Google.
+ *
+ * Anders als bei Stripe gibt es keine Signatur ueber dem Text,
+ * sondern einen festen Authorization-Header, den man im
+ * RevenueCat-Dashboard selbst eintraegt. Deshalb darf diese Route
+ * auch hinter express.json stehen.
+ */
+app.post('/api/kauf/melden', async (req, res) => {
+  try {
+    if (!kaufBereit()) return res.status(503).json({ error: 'Kaufmeldungen sind nicht eingerichtet.' })
+    pruefeHerkunft(req.headers.authorization)
+    const ergebnis = await verarbeiteKauf(req.body)
+    console.log('[kauf]', JSON.stringify(ergebnis))
+    res.json({ empfangen: true })
+  } catch (fehler) {
+    // 401 bei falschem Schluessel, sonst 400: In beiden Faellen soll
+    // RevenueCat es nicht endlos erneut versuchen.
+    const code = fehler.message === 'Nicht berechtigt.' ? 401 : 400
+    console.error('[kauf] abgelehnt:', fehler.message)
+    res.status(code).json({ error: fehler.message })
+  }
+})
+
 app.post('/api/bezahlung/verwalten', async (req, res) => {
   try {
     const token = (req.headers.authorization || '').replace('Bearer ', '')
