@@ -13865,3 +13865,11 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   .galgen-taste { font-size: .9rem; padding: 9px 0; }
   .galgen-feld { width: 24px; height: 36px; font-size: 1.1rem; }
 }
+
+/* Lernkurve mit fünf Linien: auf dem Handy das fünfte Feld über die
+   ganze Breite, breit alle fünf nebeneinander */
+.lk-chips > .lk-chip:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (min-width: 560px) {
+  .lk-chips { grid-template-columns: repeat(5, 1fr); }
+  .lk-chips > .lk-chip:last-child:nth-child(odd) { grid-column: auto; }
+}

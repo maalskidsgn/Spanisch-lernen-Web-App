@@ -24,6 +24,7 @@ import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import Bezahlen from './Bezahlen.jsx'
 import { gleicheGeraetedatenAb } from './geraeteSync.js'
+import { merkeGelernt } from './lernkurve.js'
 import { gleicheVideosAb, ladeGeloeschteLokal, speichereGeloeschteLokal } from './videoSync.js'
 import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
@@ -776,6 +777,7 @@ export default function App() {
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
         addXp(XP.VIDEO_MINUTE, 'Video-Minute')
+        merkeGelernt('video') // für die Lernkurve
       }
     }, 1000)
     return () => clearInterval(takt)

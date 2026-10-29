@@ -3,7 +3,7 @@ import { verlauf, ARTEN } from './lernkurve.js'
 
 /**
  * Lernkurve: wie viel man an welchem Tag wovon gelernt hat.
- * Vier Linien in vier Farben, oben antippbar zum Ein-/Ausblenden,
+ * Fünf Linien in fünf Farben (inkl. geschauter Video-Minuten), oben antippbar zum Ein-/Ausblenden,
  * ein Punkt im Diagramm antippen zeigt die Zahlen dieses Tages.
  */
 
@@ -12,6 +12,7 @@ const SERIEN = {
   saetze: { name: 'Sätze', farbe: '#7c5cff' },
   lektionen: { name: 'Lektionen', farbe: '#1e9d85' },
   texte: { name: 'Texte', farbe: '#2e8fe8' },
+  video: { name: 'Video-Min.', farbe: '#e5484d' },
 }
 
 const ZEITRAEUME = [
