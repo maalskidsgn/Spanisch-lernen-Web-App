@@ -5,6 +5,7 @@ import {
 } from './duell.js'
 import { ladeFreunde } from './rangliste.js'
 import { Bildnis } from './Rangliste.jsx'
+import { useAnwesend } from './praesenz.js'
 
 /**
  * Duelle gegen Freunde.
@@ -21,6 +22,7 @@ export default function DuellKasten({ addXp }) {
   const [fehler, setFehler] = useState('')
   // Frisch gewonnene Duelle, für die es gerade XP gab
   const [siege, setSiege] = useState([])
+  const da = useAnwesend()
 
   async function neuLaden() {
     const [d, f] = await Promise.all([ladeDuelle(), ladeFreunde()])
@@ -94,10 +96,18 @@ export default function DuellKasten({ addXp }) {
       ) : (
         <div className="du-waehlen">
           <p className="du-waehlen-titel">Gegen wen?</p>
-          {freunde.map((f) => (
+          {/* Wer gerade da ist, steht oben – gegen den lohnt es sich
+              am meisten, weil die Antwort schnell kommt. */}
+          {[...freunde]
+            .sort((x, y) => Number(da(y.benutzername)) - Number(da(x.benutzername)))
+            .map((f) => (
             <button key={f.benutzername} className="du-gegner" onClick={() => fordere(f.benutzername)}>
-              <Bildnis name={f.benutzername} bild={f.bild} klasse="du-bild" />
+              <span className="du-bildfeld">
+                <Bildnis name={f.benutzername} bild={f.bild} klasse="du-bild" />
+                {da(f.benutzername) && <span className="ist-da" />}
+              </span>
               <b>{f.benutzername}</b>
+              {da(f.benutzername) && <span className="du-online">online</span>}
             </button>
           ))}
           <button className="btn-plain du-abbrechen" onClick={() => setWaehlen(false)}>
@@ -151,6 +161,7 @@ export default function DuellKasten({ addXp }) {
 /** Ein Duell in der Liste. */
 function Zeile({ d, onSpielen, onWeg }) {
   const s = stand(d)
+  const da = useAnwesend()
   const [laeuft, setLaeuft] = useState(false)
 
   async function weg() {
@@ -165,7 +176,10 @@ function Zeile({ d, onSpielen, onWeg }) {
 
   return (
     <div className={'du-zeile du-ist-' + s}>
-      <Bildnis name={d.gegner} bild={d.gegner_bild} klasse="du-bild" />
+      <span className="du-bildfeld">
+        <Bildnis name={d.gegner} bild={d.gegner_bild} klasse="du-bild" />
+        {da(d.gegner) && <span className="ist-da" title="gerade online" />}
+      </span>
 
       <span className="du-text">
         <b>{d.gegner}</b>

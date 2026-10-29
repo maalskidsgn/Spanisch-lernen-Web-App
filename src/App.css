@@ -13873,3 +13873,50 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   .lk-chips { grid-template-columns: repeat(5, 1fr); }
   .lk-chips > .lk-chip:last-child:nth-child(odd) { grid-column: auto; }
 }
+/* ---------- "ist gerade da" ----------
+   Ein Punkt am Bild statt Text hinter dem Namen: So bleibt er auch
+   bei langen Namen sichtbar und drückt die Zeile nicht breiter.
+   Der weisse Ring trennt ihn vom Bild darunter – ohne ihn
+   verschwindet Grün auf einem grünen Foto. */
+.fr-bildfeld,
+.du-bildfeld {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  line-height: 0;
+}
+.ist-da {
+  position: absolute;
+  /* Am Kreis sitzt der Punkt knapp aussen, am abgerundeten Quadrat
+     der Freundesliste etwas weiter innen – sonst schwebt er frei. */
+  right: -2px;
+  bottom: -2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 2.5px var(--card);
+  animation: da-puls 2.4s ease-in-out infinite;
+}
+/* Leises Pulsieren – es soll leben, aber nicht blinken */
+@keyframes da-puls {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.82; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ist-da { animation: none; }
+}
+/* Auf der getönten Zeile "du bist dran" passt der weisse Ring nicht */
+.du-ist-ich_dran .ist-da { box-shadow: 0 0 0 2.5px #fff8f2; }
+.du-gegner .ist-da { box-shadow: 0 0 0 2.5px var(--card); }
+
+.du-online {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 9px;
+  background: #e2f7ea;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1f7a45;
+}
+.fr-bildfeld .ist-da { right: 1px; bottom: 1px; }

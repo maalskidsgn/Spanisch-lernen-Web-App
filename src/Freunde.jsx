@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { sucheNutzer, ladeFreunde, frageFreund, nimmAn, beende } from './rangliste.js'
 import { Bildnis } from './Rangliste.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
+import { useAnwesend } from './praesenz.js'
 
 /**
  * Leute finden und Freundschaften verwalten.
@@ -116,6 +117,7 @@ export default function Freunde() {
 /** Eine Person mit dem Knopf, der gerade passt. */
 function Zeile({ p, onSchau, onFertig }) {
   const [laeuft, setLaeuft] = useState(false)
+  const da = useAnwesend()
 
   async function tu(was) {
     setLaeuft(true)
@@ -134,10 +136,19 @@ function Zeile({ p, onSchau, onFertig }) {
   return (
     <div className="fr-zeile">
       <button className="fr-person" onClick={() => onSchau(p.benutzername)}>
-        <Bildnis name={p.benutzername} bild={p.bild} klasse="fr-bild" />
+        {/* Der Punkt sitzt am Bild, nicht hinter dem Namen: So bleibt
+            er auch bei langen Namen sichtbar. */}
+        <span className="fr-bildfeld">
+          <Bildnis name={p.benutzername} bild={p.bild} klasse="fr-bild" />
+          {da(p.benutzername) && <span className="ist-da" title="gerade online" />}
+        </span>
         <span className="fr-text">
           <b>{p.benutzername}</b>
-          <small>{(p.xp ?? 0).toLocaleString('de-DE')} XP</small>
+          <small>
+            {da(p.benutzername)
+              ? 'gerade online'
+              : (p.xp ?? 0).toLocaleString('de-DE') + ' XP'}
+          </small>
         </span>
       </button>
 
