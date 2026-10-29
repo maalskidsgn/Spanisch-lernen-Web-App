@@ -770,9 +770,20 @@ export default function App() {
   // Gezählt wird nur, solange das Video wirklich läuft (Pause/Spulen zählt nicht);
   // angefangene Sekunden bleiben für die nächste Minute stehen.
   const videoSekunden = useRef(0)
+  //
+  // Fehler bis 29.10.: Wechselte man mitten im Video auf "Start", verschwand
+  // der Player ohne Pause-Meldung – `laeuft` blieb true und die Minuten
+  // zählten im Hintergrund weiter. Deshalb jetzt bei jedem Takt prüfen:
+  // Lese-Ansicht offen, Seite sichtbar, Player meldet wirklich "spielt".
   useEffect(() => {
-    if (!laeuft) return
+    if (!laeuft || view !== 'lesen') return
     const takt = setInterval(() => {
+      let spielt = false
+      try {
+        const p = playerRef.current
+        spielt = p?.getIframe?.()?.isConnected && p.getPlayerState?.() === 1
+      } catch { /* Player schon abgebaut */ }
+      if (!spielt || document.hidden) return
       videoSekunden.current += 1
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
@@ -781,7 +792,12 @@ export default function App() {
       }
     }, 1000)
     return () => clearInterval(takt)
-  }, [laeuft])
+  }, [laeuft, view])
+
+  // Beim Verlassen der Lese-Ansicht gilt das Video als angehalten
+  useEffect(() => {
+    if (view !== 'lesen') setLaeuft(false)
+  }, [view])
 
   // Wenn ein Video geladen wurde: YouTube-Player erstellen
   useEffect(() => {
