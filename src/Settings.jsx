@@ -12,6 +12,7 @@ import { IconPfeil } from './icons.jsx'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
+import Blockierte from './Blockierte.jsx'
 import {
   ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse,
 } from './rangliste.js'
@@ -427,6 +428,9 @@ export default function Settings({
           <DuellKasten addXp={addXp} />
         </section>
       )}
+
+      {/* Zeigt sich nur, wenn wirklich jemand blockiert ist */}
+      {supabaseBereit && nutzer && <Blockierte />}
 
       {/* ---------- Konto und Hilfe ----------
           Stehen in einem eigenen Kasten, nicht offen auf der Seite:

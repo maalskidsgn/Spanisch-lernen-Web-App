@@ -12,6 +12,7 @@
 
 import { db, supabaseBereit } from './supabase.js'
 import { LEKTIONEN, mischen } from './lektionen.js'
+import { ladeBlockierte, ohneBlockierte } from './rangliste.js'
 
 /** So viele Fragen hat ein Duell. */
 export const FRAGEN = 7
@@ -102,8 +103,12 @@ export async function duellStarten(gegner) {
 /** Alle eigenen Duelle – offene zuerst. */
 export async function ladeDuelle() {
   if (!supabaseBereit) return []
+  // Laufende Duelle gegen Blockierte loescht die Datenbank beim
+  // Blockieren; abgeschlossene bleiben stehen und werden hier
+  // ausgeblendet.
+  await ladeBlockierte()
   const { data, error } = await db.rpc('meine_duelle')
-  return error ? [] : (data || [])
+  return error ? [] : ohneBlockierte(data || [], 'gegner')
 }
 
 /** Das eigene Ergebnis eintragen. Geht je Duell nur einmal. */

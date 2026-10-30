@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ladeProfil } from './rangliste.js'
+import { ladeProfil, blockiere } from './rangliste.js'
+import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
 
@@ -33,6 +34,11 @@ function dauer(datum) {
  */
 export default function ProfilSchau({ benutzername, onSchliessen }) {
   const [profil, setProfil] = useState(undefined) // undefined = lädt
+  // Melden und Blockieren liegen hinter einem Klick: Sie gehören
+  // nicht neben die XP-Zahlen, sondern dorthin, wo man sie sucht,
+  // wenn etwas nicht stimmt.
+  const [mehr, setMehr] = useState(false)
+  const [meldet, setMeldet] = useState(false)
 
   useEffect(() => {
     let aktiv = true
@@ -51,6 +57,16 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
   if (!benutzername) return null
 
   const level = profil ? levelFromXp(profil.xp) : 1
+
+  if (meldet) {
+    return (
+      <Melden
+        benutzername={benutzername}
+        onSchliessen={() => setMeldet(false)}
+        onFertig={onSchliessen}
+      />
+    )
+  }
 
   return (
     <div className="ps-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
@@ -101,6 +117,34 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
               Dabei seit {seit(profil.dabei_seit)}
               <small>{dauer(profil.dabei_seit)}</small>
             </p>
+
+            {/* Melden und Blockieren - von Apple und Google verlangt,
+                sobald Nutzer Inhalte anderer Nutzer sehen. */}
+            {!mehr ? (
+              <button className="ps-mehr" onClick={() => setMehr(true)}>
+                Problem mit diesem Profil?
+              </button>
+            ) : (
+              <div className="ps-schutz">
+                <button className="ps-schutz-knopf" onClick={() => setMeldet(true)}>
+                  Melden
+                </button>
+                <button
+                  className="ps-schutz-knopf"
+                  onClick={async () => {
+                    if (!confirm(`${benutzername} blockieren? Ihr seht euch dann nicht mehr in Rangliste, Suche und Duellen.`)) return
+                    try {
+                      await blockiere(benutzername)
+                      onSchliessen?.()
+                    } catch (f) {
+                      alert(f.message)
+                    }
+                  }}
+                >
+                  Blockieren
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

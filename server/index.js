@@ -435,6 +435,60 @@ app.post('/api/freunde/melden', async (req, res) => {
   }
 })
 
+/**
+ * Jemand hat einen anderen Nutzer gemeldet.
+ *
+ * Die Meldung steht schon in der Datenbank (Tabelle "meldungen");
+ * hier geht nur die Mail raus. Apple und Google verlangen nicht nur
+ * einen Melde-Knopf, sondern dass jemand die Meldungen auch ansieht -
+ * und eine Tabelle, in die niemand schaut, erfuellt das nicht.
+ */
+app.post('/api/meldung', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+    if (!nutzer) return res.status(401).json({ error: 'Nicht angemeldet.' })
+
+    const { wen, grund, bemerkung } = req.body || {}
+    if (!wen || !grund) return res.status(400).json({ error: 'Unvollstaendig.' })
+
+    if (!mailBereit()) return res.json({ gesendet: false, grund: 'kein-smtp' })
+
+    const kopf = {
+      apikey: process.env.SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+    }
+    const p = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/profile?select=benutzername&id=eq.${nutzer.id}`,
+      { headers: kopf }
+    )
+    const melder = (await p.json())[0]?.benutzername || nutzer.email || 'unbekannt'
+
+    const GRUND_TEXT = {
+      bild: 'Anstoessiges Profilbild',
+      name: 'Anstoessiger Benutzername',
+      belaestigung: 'Belaestigung',
+      spam: 'Spam oder Werbung',
+      anderes: 'Etwas anderes',
+    }
+
+    const ok = await schicke({
+      an: process.env.MELDUNGEN_AN || 'lernen@habloo.de',
+      betreff: `Meldung: ${String(wen).slice(0, 40)} (${GRUND_TEXT[grund] || grund})`,
+      text:
+        `${melder} hat ${wen} gemeldet.\n\n` +
+        `Grund: ${GRUND_TEXT[grund] || grund}\n` +
+        (bemerkung ? `Bemerkung: ${String(bemerkung).slice(0, 500)}\n` : '') +
+        `\nDie Meldung steht in der Tabelle "meldungen" (Stand: offen).\n` +
+        `Profil ansehen: https://habloo.de\n`,
+    })
+    res.json({ gesendet: ok })
+  } catch (fehler) {
+    console.error('Meldung:', fehler.message)
+    res.json({ gesendet: false })
+  }
+})
+
 // Übersetzt ein spanisches Wort ins Deutsche über die Google-Übersetzung.
 // (Die vorher genutzte MyMemory-API lieferte teils falsche/vulgäre Einträge,
 // weil dort jeder Übersetzungen eintragen kann.)

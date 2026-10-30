@@ -144,9 +144,17 @@ main {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(8px);
+  /* Der Bereich hinter Uhrzeit und Dynamic Island gehoert zur Leiste
+     selbst, statt dahinter ein eigener Streifen zu liegen. Zwei
+     Flaechen uebereinander ergaben sonst eine sichtbare Kante - die
+     Leiste ist fast weiss, der Seitengrund cremefarben.
+     Im Browser ist der Wert 0, dort aendert sich nichts. */
+  padding: calc(12px + env(safe-area-inset-top)) 24px 12px;
+  /* Deckend, nicht durchscheinend: Als halbtransparente Flaeche mit
+     Weichzeichner schimmerte der Inhalt beim Scrollen durch die
+     Leiste. Angeschnittene Knoepfe im Kopfbereich sehen nach Fehler
+     aus, nicht nach Glaseffekt. */
+  background: #fff;
   border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
@@ -1878,8 +1886,9 @@ button:disabled {
     right: 0;
     bottom: 0;
     z-index: 70;
-    background: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(10px);
+    /* Deckend wie die obere Leiste: Durchscheinender Inhalt sieht
+       nach Fehler aus. */
+    background: #fff;
     border-top: 1px solid var(--line);
     box-shadow: 0 -8px 24px rgba(255, 108, 0, 0.08);
     padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
@@ -3015,7 +3024,14 @@ body.liest-buch .library { padding-top: 8px; }
 /* Im Fokus: Navigation weg, nur Video und Text */
 body.liest-video .topbar,
 body.liest-video .bottom-nav { display: none !important; }
-body.liest-video .app > main { padding-top: 14px; }
+/* Die Statusleiste muss mitgerechnet werden: Hier ist die obere
+   Leiste ausgeblendet, also gibt es nichts, was Uhrzeit und Dynamic
+   Island freihaelt. Ohne das Polster liegt der Zurueck-Knopf in der
+   App direkt auf der Uhrzeit. Im Browser ist der Wert 0, dort
+   aendert sich nichts. */
+body.liest-video .app > main {
+  padding-top: calc(14px + env(safe-area-inset-top));
+}
 
 /* Der Zurück-Knopf – orange und deutlich sichtbar,
    sowohl bei Videos als auch bei E-Books */
@@ -14029,3 +14045,305 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   line-height: 1.6;
   color: #a2988c;
 }
+
+/* ---------- Der Streifen hinter der Statusleiste ----------
+   iOS laesst Inhalt beim Ueberscrollen nach oben ueber den Rand
+   hinauslaufen. Der landet dann im Bereich von Uhrzeit und Dynamic
+   Island und ueberlagert sie - in der App sah man den Gruss quer
+   ueber der Uhrzeit stehen.
+
+   Ein fester Streifen in Hintergrundfarbe faengt das ab. Er liegt
+   ueber allem, ist aber nicht anklickbar, damit er nichts blockiert.
+   Im Browser ist env(safe-area-inset-top) gleich 0, dort ist der
+   Streifen also nicht vorhanden. */
+/* Der Streifen hinter Uhrzeit und Dynamic Island.
+   iOS laesst Inhalt beim Scrollen bis an die Oberkante laufen - der
+   steht dann neben der Uhrzeit. Die Leiste allein faengt das nicht
+   ab, weil sie erst darunter klebt. Dieser Streifen liegt ueber
+   allem und ist nicht anklickbar.
+   Im Browser ist env(safe-area-inset-top) gleich 0, dort gibt es
+   ihn also gar nicht. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background: #fff;
+  z-index: 200;
+  pointer-events: none;
+}
+/* Die Videoseite blendet die Leiste aus und ist oben orange -
+   dort zieht der Streifen mit. */
+body.liest-video::before { background: var(--primary); }
+
+/* ================================================================
+   Anmeldung: auf dem Handy eine Seite, am Rechner ein Fenster
+   ================================================================
+   Als Fenster mitten auf abgedunkeltem Grund sah die Anmeldung in
+   der App nach Website aus. Apps zeigen so etwas als eigene Seite:
+   Ueberschrift oben links, Felder darunter mit Luft, Knopf gross.
+   Am Rechner bleibt das Fenster - dort waere Vollbild fuer ein paar
+   Eingabefelder verschwenderisch. */
+
+/* Das Zeichen im Schliessen-Knopf: Kreuz am Rechner, Pfeil am Handy */
+.login-schliessen svg { width: 22px; height: 22px; display: block; }
+.login-schliessen .ls-pfeil { display: none; }
+
+@media (max-width: 560px) {
+  .login-overlay {
+    padding: 0;
+    background: var(--bg);
+    backdrop-filter: none;
+    display: block;
+    animation: none;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+    box-shadow: none;
+    /* Oben Platz fuer Uhrzeit und Dynamic Island, unten fuer den
+       Streifen zum Wischen */
+    padding: calc(68px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom));
+    animation: login-seite 0.26s cubic-bezier(0.22, 1, 0.3, 1);
+  }
+  @keyframes login-seite {
+    from { opacity: 0; transform: translateY(12px); }
+  }
+
+  /* Zurueck-Pfeil oben links statt Kreuz oben rechts – so wie man
+     es auf dem Handy erwartet */
+  .login-schliessen {
+    top: calc(14px + env(safe-area-inset-top));
+    left: 14px;
+    right: auto;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--flaeche);
+    color: var(--navy);
+  }
+  .login-schliessen .ls-kreuz { display: none; }
+  .login-schliessen .ls-pfeil { display: block; }
+
+  /* Ueberschrift linksbuendig und gross – das traegt die Seite */
+  .login-kopf {
+    text-align: left;
+    margin-bottom: 30px;
+  }
+  .login-badge { margin: 0 0 18px; width: 54px; height: 54px; }
+  .login-kopf h2 {
+    font-size: 1.9rem;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .login-kopf p { font-size: 1rem; }
+
+  /* Mehr Luft und groessere Flaechen zum Antippen */
+  .login-form { gap: 18px; }
+  .login-feld input {
+    min-height: 54px;
+    font-size: 16px; /* unter 16px zoomt iOS beim Antippen hinein */
+    border-radius: 14px;
+  }
+  .anbieter-knopf { min-height: 54px; border-radius: 14px; }
+  .login-absenden {
+    min-height: 54px;
+    font-size: 1.05rem;
+    border-radius: 15px;
+    margin-top: 10px;
+  }
+
+  /* Der Wechsel zwischen Anmelden und Registrieren rutscht ans Ende
+     der Seite, nicht direkt unter den Knopf */
+  .login-wechsel { margin-top: auto; padding-top: 26px; }
+  .login-box > form { flex: 1; }
+}
+
+/* Der Rechtsfuss in der App: eine schmale Zeile, kein Website-Fuss */
+.wk-footer-app {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px 20px calc(24px + env(safe-area-inset-bottom));
+  background: none;
+  border: 0;
+}
+.wk-footer-app button {
+  background: none;
+  border: 0;
+  padding: 4px;
+  font: inherit;
+  font-size: 12.5px;
+  color: #a2988c;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ================================================================
+   Melden und Blockieren
+   ================================================================ */
+
+/* ---------- Der Hinweis im fremden Profil ---------- */
+.ps-mehr {
+  margin-top: 18px;
+  padding: 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  color: #a2988c;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ps-schutz {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.ps-schutz-knopf {
+  padding: 9px 18px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--card);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--red-press);
+  cursor: pointer;
+}
+.ps-schutz-knopf:hover { background: #ffeceb; border-color: var(--red); }
+
+/* ---------- Der Melde-Dialog ---------- */
+.md-schicht {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(0, 0, 40, 0.5);
+  animation: md-auf 0.2s ease;
+}
+@keyframes md-auf { from { opacity: 0; } }
+
+.md-karte {
+  width: 100%;
+  max-width: 420px;
+  padding: 26px 24px 22px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: 0 18px 50px rgba(0, 0, 40, 0.28);
+  text-align: center;
+  animation: md-rein 0.28s cubic-bezier(0.22, 1, 0.3, 1);
+}
+@keyframes md-rein { from { opacity: 0; transform: translateY(14px) scale(0.97); } }
+
+.md-titel {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.md-text {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.md-gruende { display: grid; gap: 8px; margin-bottom: 14px; }
+.md-grund {
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+.md-grund:hover:not(:disabled) { border-color: #ffd0ab; }
+.md-grund.ist-aktiv { border-color: var(--primary); background: #fff8f2; }
+
+.md-feld {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+  font: inherit;
+  font-size: 16px; /* unter 16px zoomt iOS beim Antippen hinein */
+  color: var(--navy);
+  resize: none;
+}
+.md-feld:focus { outline: none; border-color: var(--primary); }
+
+.md-hinweis {
+  margin: 14px 0 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #a2988c;
+}
+.md-fehler { margin: 12px 0 0; font-size: 13px; color: var(--red-press); }
+
+.md-knoepfe { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.md-senden { flex: 1; }
+.md-senden:disabled { opacity: 0.5; }
+
+/* Die Bestaetigung nach dem Melden */
+.md-haken {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #e2f7ea;
+  color: #1f7a45;
+}
+.md-haken svg { width: 30px; height: 30px; }
+.md-knopf { width: 100%; margin-top: 4px; }
+
+/* ---------- Die Liste der Blockierten im Profil ---------- */
+.bl-liste { display: grid; gap: 8px; }
+.bl-zeile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+}
+.bl-bild {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 14px;
+  object-fit: cover;
+}
+.bl-name { flex: 1; min-width: 0; font-size: 14.5px; color: var(--navy); }
+.bl-frei { flex: none; }

@@ -96,18 +96,24 @@ export const ZEITRAEUME = [
  */
 export async function ladeRangliste(anzahl = 10, zeitraum = 'gesamt', nurFreunde = false) {
   if (!supabaseBereit) return null
+  // Wen man blockiert hat, soll man auch in der Rangliste nicht
+  // mehr sehen. Etwas mehr holen als gebraucht, damit die Liste
+  // nicht kuerzer wird, wenn jemand herausfaellt.
+  await ladeBlockierte()
+  const puffer = blockierte?.size ? anzahl + blockierte.size : anzahl
+
   const { data, error } = await db.rpc('rangliste_zeitraum', {
-    zeitraum, anzahl, nur_freunde: nurFreunde,
+    zeitraum, anzahl: puffer, nur_freunde: nurFreunde,
   })
   // Solange die zweite Migration fehlt, gibt es wenigstens die
   // Gesamtliste über die ältere Funktion.
   if (error && zeitraum === 'gesamt') {
-    const alt = await db.rpc('rangliste', { anzahl })
+    const alt = await db.rpc('rangliste', { anzahl: puffer })
     if (alt.error) return null
-    return alt.data.map((z) => ({ ...z, platz: Number(z.platz) }))
+    return ohneBlockierte(alt.data).slice(0, anzahl).map((z) => ({ ...z, platz: Number(z.platz) }))
   }
   if (error) return null
-  return data.map((z) => ({ ...z, platz: Number(z.platz) }))
+  return ohneBlockierte(data).slice(0, anzahl).map((z) => ({ ...z, platz: Number(z.platz) }))
 }
 
 /**
@@ -246,15 +252,17 @@ export async function ladeProfilbild(nutzerId) {
  */
 export async function sucheNutzer(was) {
   if (!supabaseBereit || (was || '').trim().length < 2) return []
+  await ladeBlockierte()
   const { data, error } = await db.rpc('nutzer_suchen', { was })
-  return error ? [] : data
+  return error ? [] : ohneBlockierte(data)
 }
 
 /** Meine Freunde und alle offenen Anfragen in einer Liste. */
 export async function ladeFreunde() {
   if (!supabaseBereit) return []
+  await ladeBlockierte()
   const { data, error } = await db.rpc('meine_freunde')
-  return error ? [] : data
+  return error ? [] : ohneBlockierte(data)
 }
 
 /**
@@ -364,4 +372,101 @@ export async function beende(anfrageId) {
   const { error } = await db.from('freunde').delete().eq('id', anfrageId)
   if (error) throw new Error(error.message)
   window.dispatchEvent(new CustomEvent('freunde'))
+}
+
+/* ---------------------------------------------------------------- *
+ *  Melden und Blockieren
+ * ---------------------------------------------------------------- */
+
+/**
+ * Wen man blockiert hat, bekommt man nirgends mehr zu sehen.
+ *
+ * Die Liste wird einmal geholt und gemerkt, weil jede Rangliste und
+ * jede Suche gegen sie filtert – sie bei jedem Tastendruck neu
+ * abzufragen wäre Unsinn.
+ */
+let blockierte = null
+
+export async function ladeBlockierte(frisch = false) {
+  if (!supabaseBereit) return new Set()
+  if (blockierte && !frisch) return blockierte
+  const { data, error } = await db.rpc('meine_blockierungen')
+  blockierte = new Set((error ? [] : data || []).map((b) => b.benutzername.toLowerCase()))
+  return blockierte
+}
+
+/** Die blockierten aus einer Liste nehmen. */
+export function ohneBlockierte(liste, feld = 'benutzername') {
+  if (!blockierte?.size) return liste
+  return liste.filter((e) => !blockierte.has(String(e[feld] || '').toLowerCase()))
+}
+
+/** Jemanden blockieren. Löst Freundschaft und laufende Duelle auf. */
+export async function blockiere(benutzername) {
+  const { error } = await db.rpc('nutzer_blockieren', { name: benutzername })
+  if (error) throw new Error(error.message)
+  await ladeBlockierte(true)
+  window.dispatchEvent(new CustomEvent('freunde'))
+  window.dispatchEvent(new CustomEvent('duelle'))
+  window.dispatchEvent(new CustomEvent('blockiert'))
+}
+
+/** Blockierung aufheben. */
+export async function gibFrei(benutzername) {
+  const { error } = await db.rpc('nutzer_freigeben', { name: benutzername })
+  if (error) throw new Error(error.message)
+  await ladeBlockierte(true)
+  window.dispatchEvent(new CustomEvent('blockiert'))
+}
+
+/** Die Liste für die Einstellungen: wen habe ich blockiert? */
+export async function ladeBlockierteListe() {
+  if (!supabaseBereit) return []
+  const { data, error } = await db.rpc('meine_blockierungen')
+  return error ? [] : data || []
+}
+
+/** Die Gründe, aus denen man jemanden melden kann. */
+export const MELDE_GRUENDE = [
+  ['bild', 'Anstößiges Profilbild'],
+  ['name', 'Anstößiger Benutzername'],
+  ['belaestigung', 'Belästigung'],
+  ['spam', 'Spam oder Werbung'],
+  ['anderes', 'Etwas anderes'],
+]
+
+/**
+ * Jemanden melden. Blockiert ihn gleich mit.
+ *
+ * Die Meldung landet in der Datenbank und zusätzlich per Mail bei
+ * Manuel – eine Meldung, die niemand liest, wäre keine.
+ */
+export async function melde(benutzername, grund, bemerkung) {
+  const { data, error } = await db.rpc('nutzer_melden', {
+    name: benutzername,
+    grund,
+    bemerkung: bemerkung || null,
+  })
+  if (error) throw new Error(error.message)
+  await ladeBlockierte(true)
+  window.dispatchEvent(new CustomEvent('freunde'))
+  window.dispatchEvent(new CustomEvent('duelle'))
+  meldungPerMail(benutzername, grund, bemerkung)
+  return data
+}
+
+/** Die Mail an Manuel – scheitert sie, steht die Meldung trotzdem. */
+async function meldungPerMail(wen, grund, bemerkung) {
+  try {
+    const { data: sitzung } = await db.auth.getSession()
+    const token = sitzung?.session?.access_token
+    if (!token) return
+    await fetch(API_URL + '/api/meldung', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ wen, grund, bemerkung }),
+    })
+  } catch {
+    /* Mail ist Beiwerk */
+  }
 }

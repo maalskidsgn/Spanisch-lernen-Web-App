@@ -95,8 +95,16 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
   return (
     <div className="login-overlay" onClick={onSchliessen}>
       <div className="login-box" onClick={(e) => e.stopPropagation()}>
+        {/* Auf dem Handy ein Zurück-Pfeil oben links, am Rechner ein
+            Kreuz oben rechts – beides dasselbe Zeichen, nur gedreht
+            per CSS. Ein getipptes "×" sah auf jedem Gerät anders aus. */}
         <button className="login-schliessen" onClick={onSchliessen} aria-label="Schließen">
-          ×
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path className="ls-kreuz" d="M6 6l12 12M18 6L6 18" stroke="currentColor"
+                  strokeWidth="2.4" strokeLinecap="round" />
+            <path className="ls-pfeil" d="M15 5l-7 7 7 7" stroke="currentColor"
+                  strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
 
         <div className="login-kopf">

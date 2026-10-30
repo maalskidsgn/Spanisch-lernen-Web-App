@@ -334,7 +334,27 @@ export function AGB({ onZurueck }) {
         Passwort geheim und gib dein Konto nicht weiter.
       </P>
 
-      <H2>§ 4 Kostenlose Nutzung und Premium</H2>
+      <H2>§ 4 Benutzername, Profilbild und Umgang miteinander</H2>
+      <P>
+        Benutzername und Profilbild sind für andere Nutzer sichtbar – in der
+        Rangliste, in der Suche und bei Duellen. Wähle beides so, dass niemand
+        sich daran stört: keine Beleidigungen, keine Gewalt, nichts
+        Sexuelles, keine Darstellung anderer Personen ohne deren Einverständnis,
+        keine Werbung und keine fremden Marken oder Urheberrechte.
+      </P>
+      <P>
+        Jeder kann ein Profil über den Knopf „Problem mit diesem Profil?“ melden
+        oder blockieren. Gemeldete Profile sehen wir uns an. Verstößt etwas gegen
+        diese Regeln, entfernen wir Bild oder Name – bei wiederholten oder
+        schweren Verstößen sperren wir das Konto. Wer blockiert wurde,
+        erscheint für die blockierende Person nirgends mehr.
+      </P>
+      <P>
+        Wenn du meinst, wir hätten zu Unrecht etwas entfernt, schreib uns an
+        lernen@habloo.de. Wir antworten und erklären unsere Entscheidung.
+      </P>
+
+      <H2>§ 5 Kostenlose Nutzung und Premium</H2>
       <P>
         Alle Lernfunktionen sind kostenlos nutzbar. Premium schaltet die
         KI-Werkzeuge ohne Tageslimit frei: unbegrenzte Vokabellisten und
@@ -347,7 +367,7 @@ export function AGB({ onZurueck }) {
         Umsatzsteuer.
       </P>
 
-      <H2>§ 5 Vertragsschluss</H2>
+      <H2>§ 6 Vertragsschluss</H2>
       <P>
         Mit dem Anlegen eines Kontos kommt ein unentgeltlicher Nutzungsvertrag
         zustande. Ein Premium-Vertrag kommt zustande, wenn du den
@@ -355,7 +375,7 @@ export function AGB({ onZurueck }) {
         bestätigen dir den Vertrag per E-Mail.
       </P>
 
-      <H2>§ 6 Laufzeit und Kündigung</H2>
+      <H2>§ 7 Laufzeit und Kündigung</H2>
       <P>
         Das Monatsabo läuft einen Monat und verlängert sich um jeweils einen
         weiteren Monat, wenn du es nicht bis zum Ende der Laufzeit kündigst. Das
@@ -369,7 +389,7 @@ export function AGB({ onZurueck }) {
         beenden.
       </P>
 
-      <H2>§ 7 Widerrufsrecht für Verbraucher</H2>
+      <H2>§ 8 Widerrufsrecht für Verbraucher</H2>
       <div className="recht-kasten">
         <H3>Widerrufsbelehrung</H3>
         <P>
@@ -402,7 +422,7 @@ export function AGB({ onZurueck }) {
         </P>
       </div>
 
-      <H2>§ 8 Inhalte, die eine KI erzeugt</H2>
+      <H2>§ 9 Inhalte, die eine KI erzeugt</H2>
       <P>
         Vokabellisten, zusätzliche Übungen, E-Books und Übersetzungen erzeugen
         wir zum Teil automatisch. Solche Inhalte können Fehler enthalten. Wir
@@ -411,7 +431,7 @@ export function AGB({ onZurueck }) {
         Angelegenheiten nicht allein darauf.
       </P>
 
-      <H2>§ 9 Inhalte Dritter</H2>
+      <H2>§ 10 Inhalte Dritter</H2>
       <P>
         Habloo bindet Videos von YouTube ein und kann auf Wunsch auf Spotify
         zugreifen. Für diese Inhalte gelten zusätzlich die Bedingungen der
@@ -419,7 +439,7 @@ export function AGB({ onZurueck }) {
         Einfluss.
       </P>
 
-      <H2>§ 10 Deine Pflichten</H2>
+      <H2>§ 11 Deine Pflichten</H2>
       <P>
         Nutze Habloo nicht missbräuchlich: kein automatisiertes Auslesen, kein
         Umgehen von Nutzungsgrenzen, keine Weitergabe von Zugangsdaten, keine
@@ -427,7 +447,7 @@ export function AGB({ onZurueck }) {
         das Konto sperren.
       </P>
 
-      <H2>§ 11 Verfügbarkeit</H2>
+      <H2>§ 12 Verfügbarkeit</H2>
       <P>
         Wir bemühen uns um einen durchgehenden Betrieb, schulden aber keine
         bestimmte Verfügbarkeit. Wartungsarbeiten, Störungen und Ausfälle bei
@@ -435,7 +455,7 @@ export function AGB({ onZurueck }) {
         Ausfällen im Premium-Zeitraum erstatten wir anteilig.
       </P>
 
-      <H2>§ 12 Haftung</H2>
+      <H2>§ 13 Haftung</H2>
       <P>
         Wir haften unbeschränkt bei Vorsatz und grober Fahrlässigkeit sowie bei
         Verletzung von Leben, Körper und Gesundheit. Bei einfacher Fahrlässigkeit
@@ -445,7 +465,7 @@ export function AGB({ onZurueck }) {
         Haftung nach dem Produkthaftungsgesetz bleibt unberührt.
       </P>
 
-      <H2>§ 13 Änderungen dieser Bedingungen</H2>
+      <H2>§ 14 Änderungen dieser Bedingungen</H2>
       <P>
         Wir dürfen diese Bedingungen ändern, wenn dafür ein sachlicher Grund
         besteht. Über Änderungen informieren wir dich mindestens sechs Wochen
@@ -454,7 +474,7 @@ export function AGB({ onZurueck }) {
         Widersprichst du, dürfen wir zum Ende der Laufzeit kündigen.
       </P>
 
-      <H2>§ 14 Schlussbestimmungen</H2>
+      <H2>§ 15 Schlussbestimmungen</H2>
       <P>
         Es gilt deutsches Recht. Ist eine Bestimmung unwirksam, bleibt der übrige
         Vertrag wirksam. Zur Teilnahme an Streitbeilegungsverfahren vor einer

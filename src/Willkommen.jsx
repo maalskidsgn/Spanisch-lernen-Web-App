@@ -76,8 +76,17 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           </p>
         </div>
 
-        <span className="wk-scroll-hinweis">Mehr entdecken ↓</span>
+        {/* In der App gibt es nichts zum Entdecken - da endet die
+            Seite hier. */}
+        {!istApp && <span className="wk-scroll-hinweis">Mehr entdecken ↓</span>}
       </header>
+
+      {/* Der Rest ist Werbung fuer Leute, die Habloo noch nicht
+          kennen - sinnvoll auf habloo.de, wo man zufaellig landet.
+          Wer die App geladen hat, ist schon ueberzeugt und will sich
+          anmelden, nicht durch eine Verkaufsseite scrollen. */}
+      {!istApp && (
+      <>
 
       {/* ================= SO GEHT'S ================= */}
       <section className="wk-sektion">
@@ -306,21 +315,35 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         </div>
       </section>
 
-      <footer className="wk-footer">
-        <Logo klasse="wk-footer-badge" />
-        <span>{APP_NAME}</span>
-        <span className="wk-footer-klein">
-          Mit Herz entwickelt von Klarwerk Digital
-        </span>
-        {/* Pflichtangaben – muessen von jeder Seite aus in zwei Klicks
-            erreichbar sein, deshalb hier im Fuss der Startseite. */}
-        <span className="wk-footer-recht">
-          <a href="/blog/">Ratgeber</a>
-          <button onClick={() => onRecht('impressum')}>Impressum</button>
+      </>
+      )}
+
+      {/* Pflichtangaben – muessen von jeder Seite aus in zwei Klicks
+          erreichbar sein, deshalb hier im Fuss der Startseite.
+          In der App bleibt nur das Noetige: Markenzeile und ein Link
+          auf den Ratgeber gehoeren auf eine Website, nicht in eine
+          App, die man gerade geladen hat. */}
+      {istApp ? (
+        <footer className="wk-footer wk-footer-app">
           <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
           <button onClick={() => onRecht('agb')}>AGB</button>
-        </span>
-      </footer>
+          <button onClick={() => onRecht('impressum')}>Impressum</button>
+        </footer>
+      ) : (
+        <footer className="wk-footer">
+          <Logo klasse="wk-footer-badge" />
+          <span>{APP_NAME}</span>
+          <span className="wk-footer-klein">
+            Mit Herz entwickelt von Klarwerk Digital
+          </span>
+          <span className="wk-footer-recht">
+            <a href="/blog/">Ratgeber</a>
+            <button onClick={() => onRecht('impressum')}>Impressum</button>
+            <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
+            <button onClick={() => onRecht('agb')}>AGB</button>
+          </span>
+        </footer>
+      )}
     </div>
   )
 }
