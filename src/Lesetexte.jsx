@@ -365,6 +365,10 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       {fertig ? (
         <div className="leser-bewertung">
           <p className="leser-frage">Wie gut hast du den Text verstanden?</p>
+          {/* Was es dafuer gibt, soll man vorher sehen - sonst klickt
+              man auf gut Glueck und erfaehrt die Belohnung erst,
+              wenn sie schon verbucht ist. */}
+          <p className="leser-lohn">+{XP.TEXT_RICHTIG} XP für diesen Text</p>
           <div className="bewertungen">
             {[
               { wert: 'nochmal', text: 'Kaum' },

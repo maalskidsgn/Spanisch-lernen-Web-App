@@ -14347,3 +14347,41 @@ body.liest-video::before { background: var(--primary); }
 }
 .bl-name { flex: 1; min-width: 0; font-size: 14.5px; color: var(--navy); }
 .bl-frei { flex: none; }
+
+/* ---------- Videoseite: mehr Platz fuer den Text ----------
+   Auf dem Handy nahm die Titelkarte die halbe Hoehe ein - fuer die
+   Transkription, um die es eigentlich geht, blieben sechs Zeilen.
+   Titel auf zwei Zeilen begrenzt, Knoepfe flacher, weniger Polster.
+   Am Rechner bleibt alles wie es war, dort ist Platz genug. */
+@media (max-width: 560px) {
+  body.liest-video .video-kopf {
+    padding: 11px 14px;
+    margin-top: 10px;
+    border-radius: 15px;
+  }
+  body.liest-video .video-titel {
+    font-size: 0.95rem;
+    line-height: 1.3;
+    /* Lange YouTube-Titel laufen sonst ueber vier Zeilen */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  body.liest-video .video-aktionen { gap: 6px; }
+  body.liest-video .video-aktion {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    padding: 8px 6px;
+    font-size: 0.74rem;
+    border-radius: 10px;
+    border-width: 1.5px;
+  }
+  /* Die Beschriftung unter das Zeichen, dann passen drei nebeneinander */
+  body.liest-video .video-aktion {
+    flex-direction: column;
+    gap: 3px;
+  }
+}

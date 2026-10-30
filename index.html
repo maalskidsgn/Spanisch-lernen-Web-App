@@ -2,7 +2,12 @@
 <html lang="de">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover ist Pflicht, sobald die App auf einem
+         iPhone mit Dynamic Island laeuft: Ohne diesen Zusatz meldet
+         iOS fuer env(safe-area-inset-*) ueberall 0. Die Leisten
+         bekommen dann kein Polster, und der Inhalt scrollt sichtbar
+         hinter Uhrzeit und Akkuanzeige durch. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <title>Habloo – Spanisch lernen mit echten Videos</title>
     <meta

@@ -99,9 +99,6 @@ export default function Trainer({
   const [gewaehlt, setGewaehlt] = useState(null) // Multiple Choice: angetippte Antwort
   // Swipe auf der Karteikarte: dx waehrend des Zugs, Blitz = die
   // Loesung, die nach dem Wisch kurz aufleuchtet
-  const [swipe, setSwipe] = useState(null)
-  const [blitz, setBlitz] = useState(null) // 'gut' | 'nochmal'
-  const swipeStart = useState({ x: null })[0]
 
   // Alle Vokabeln als Liste, fehlende Felder ergänzen
   const entries = Object.entries(vocab).map(([word, e]) => ({
@@ -190,47 +187,12 @@ export default function Trainer({
     return answer(tippStufe > 0 ? 'schwer' : 'gut')
   }
 
-  /**
-   * Karte wischen (nur Karteikarten, vor dem Aufdecken): rechts =
-   * gewusst, links = nochmal. Nach dem Wisch leuchtet die Loesung
-   * kurz auf – man sieht das Wort also trotzdem, wie von Manuel
-   * gewuenscht – und erst dann wird gewertet.
-   */
-  function swipeAntwort(richtung) {
-    if (blitz || exiting) return
-    const bewertung = richtung === 'rechts' ? 'gut' : 'nochmal'
-    setBlitz(bewertung)
-    setRevealed(true) // die Loesung zeigen
-    setSwipe(null)
-    setTimeout(() => {
-      setBlitz(null)
-      answer(bewertung)
-    }, 900)
-  }
+  // Gewischt wird nicht mehr: Die Hinweise "nochmal / gewusst" standen
+  // staendig ueber der Karte, und jede Fingerbewegung lief durch drei
+  // Zustandswechsel - das ruckelte beim Weitertippen. Bewertet wird
+  // ueber die vier Knoepfe, die ohnehin da sind.
 
-  function swipeStartet(e) {
-    if (revealed || blitz) return
-    const p = e.touches?.[0] ?? e
-    swipeStart.x = p.clientX
-  }
-  function swipeBewegt(e) {
-    if (swipeStart.x == null || revealed || blitz) return
-    const p = e.touches?.[0] ?? e
-    // dx AUCH im Objekt mitfuehren: Der State hinkt bei schnellen
-    // Events einen Render hinterher – swipeEndet saehe sonst null.
-    swipeStart.dx = p.clientX - swipeStart.x
-    setSwipe(swipeStart.dx)
-  }
-  function swipeEndet() {
-    if (swipeStart.x == null) return
-    const dx = swipeStart.dx ?? 0
-    swipeStart.x = null
-    swipeStart.dx = 0
-    if (Math.abs(dx) < 70) return setSwipe(null)
-    swipeAntwort(dx > 0 ? 'rechts' : 'links')
-  }
-
-  // Antwort im Training: die Karte fliegt in die passende Richtung weg,
+    // Antwort im Training: die Karte fliegt in die passende Richtung weg,
   // dann wird die Vokabel neu eingestuft und die nächste Karte gezeigt.
   // "nochmal" links, "schwer" schräg links, "gut" rechts, "einfach" weit rechts.
   function answer(bewertung) {
@@ -517,28 +479,9 @@ export default function Trainer({
         {/* ---------- Art 1: Karteikarten ---------- */}
         {dieseArt === 'karten' && (
           <div
-            className={
-              'flashcard' +
-              (exiting ? ' fliegt-' + exiting : '') +
-              (blitz ? ' karte-blitz-' + blitz : '')
-            }
+            className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
-            style={swipe ? { transform: `translateX(${swipe}px) rotate(${swipe / 18}deg)` } : undefined}
-            onPointerDown={swipeStartet}
-            onPointerMove={swipeBewegt}
-            onPointerUp={swipeEndet}
-            onPointerLeave={swipeEndet}
-            onTouchStart={swipeStartet}
-            onTouchMove={swipeBewegt}
-            onTouchEnd={swipeEndet}
           >
-            {/* Wisch-Hinweise, nur solange die Karte zu ist */}
-            {!revealed && (
-              <div className="swipe-hinweise" aria-hidden="true">
-                <span className="swipe-links">← nochmal</span>
-                <span className="swipe-rechts">gewusst →</span>
-              </div>
-            )}
             {/* Bewusst OHNE Lautsprecher: Nur Lektionswoerter sind
                 vertont, gesammelte nicht – mal Ton, mal keiner wirkte
                 im Trainer uneinheitlich (Manuels Punkt vom 24.08.). */}
