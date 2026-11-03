@@ -1459,7 +1459,7 @@ export default function App() {
             className="level-pill"
             title={t('ap9.levelTitel', { woerter: Object.keys(vocab).length, gewusst: gelernt, level: levelName(level) })}
             role="img"
-            aria-label={`Level ${level} – noch ${nextLevelXp - progress.xp} XP bis Level ${level + 1}`}
+            aria-label={t('ap9.levelFortschritt', { level, xp: nextLevelXp - progress.xp, naechstes: level + 1 })}
           >
             {/* key={xp} lässt den Kreis bei jedem XP-Gewinn kurz hüpfen */}
             <span className="level-circle" key={progress.xp}>
@@ -1472,7 +1472,7 @@ export default function App() {
                 sieht es neben den Tages-XP wie ein zweites, konkurrierendes
                 Punktesystem aus. */}
             <span className="xp-text">
-              Noch {nextLevelXp - progress.xp} XP bis Level {level + 1}
+              {t('ap9.nochXpBisLevel', { xp: nextLevelXp - progress.xp, level: level + 1 })}
             </span>
             {/* Auf dem Handy ist fuer den Satz kein Platz. Statt gar
                 nichts – ein leerer grauer Balken sagt nichts aus –

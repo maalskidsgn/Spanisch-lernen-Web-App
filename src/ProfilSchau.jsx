@@ -3,7 +3,7 @@ import { ladeProfil, blockiere } from './rangliste.js'
 import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
-import { useTexte, gebiet } from './sprache.js'
+import { useTexte, gebiet, t } from './sprache.js'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
@@ -16,13 +16,14 @@ function seit(datum) {
 function dauer(datum) {
   if (!datum) return ''
   const tage = Math.floor((Date.now() - new Date(datum + 'T12:00:00')) / 86400000)
-  if (tage < 1) return 'seit heute'
-  if (tage === 1) return 'seit gestern'
-  if (tage < 31) return `seit ${tage} Tagen`
+  if (tage < 1) return t('ps9.seitHeute')
+  if (tage === 1) return t('ps9.seitGestern')
+  if (tage < 31) return t('ps9.seitTagen', { zahl: tage })
   const monate = Math.floor(tage / 30.4)
-  if (monate < 12) return `seit ${monate} ${monate === 1 ? 'Monat' : 'Monaten'}`
+  if (monate < 12)
+    return t('ps9.seitMonaten', { zahl: monate, einheit: monate === 1 ? t('ps9.monat') : t('ps9.monate') })
   const jahre = Math.floor(monate / 12)
-  return `seit ${jahre} ${jahre === 1 ? 'Jahr' : 'Jahren'}`
+  return t('ps9.seitJahren', { zahl: jahre, einheit: jahre === 1 ? t('ps9.jahr') : t('ps9.jahre') })
 }
 
 /**
@@ -94,12 +95,12 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
             <h2 className="ps-name">{profil.benutzername}</h2>
             <p className="ps-rang">{levelName(level)}</p>
 
-            <div className="ps-platz">Platz {profil.platz}</div>
+            <div className="ps-platz">{t('ps9.platz', { zahl: profil.platz })}</div>
 
             <dl className="ps-zahlen">
               <div>
                 <dd>{profil.xp.toLocaleString(gebiet())}</dd>
-                <dt>XP gesamt</dt>
+                <dt>{t('ps9.xpGesamt')}</dt>
               </div>
               <div>
                 <dd>{profil.serie}</dd>
@@ -116,7 +117,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
             </dl>
 
             <p className="ps-seit">
-              Dabei seit {seit(profil.dabei_seit)}
+              {t('ps9.dabeiSeit', { datum: seit(profil.dabei_seit) })}
               <small>{dauer(profil.dabei_seit)}</small>
             </p>
 
