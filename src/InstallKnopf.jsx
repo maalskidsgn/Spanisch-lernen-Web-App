@@ -96,18 +96,18 @@ export default function InstallKnopf({ app = 'App' }) {
         <ol className="install-schritte">
           <li>
             Tippe unten auf{' '}
-            <span className="install-symbol" aria-label="Teilen">
+            <span className="install-symbol" aria-label={t('ikk.teilen')}>
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                 <path d="M12 3v12M7 8l5-5 5 5M5 13v7h14v-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>{' '}
-            <b>Teilen</b>
+            <b>{t('ikk.teilen')}</b>
           </li>
           <li>
-            Wähle <b>„Zum Home-Bildschirm"</b>
+            Wähle <b>{t('ikk.zumHomeBildschirm')}</b>
           </li>
           <li>
-            Oben rechts auf <b>Hinzufügen</b> – fertig
+            Oben rechts auf <b>{t('ikk.hinzufuegen')}</b> – fertig
           </li>
         </ol>
       ) : (

@@ -7,6 +7,7 @@
 
 import { ALLES_OFFEN, dauerMinuten } from './lektionen.js'
 
+import { useTexte, text as uebersetzt } from './sprache.js'
 const WELLE = [0, 40, 64, 40, 0, -40, -64, -40] // Versatz in px
 const ZEILE = 96 // feste Zeilenhoehe
 const BREITE = 320 // Zeichenflaeche des Weges
@@ -34,6 +35,7 @@ function Pfeil() {
 }
 
 export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart }) {
+  const t = useTexte()
   const fertigAnzahl = lektionen.filter((l) => fortschritt[l.id]?.fertig).length
   const dran = lektionen.find((l) => l.id === naechsteId)
   const dranNr = lektionen.findIndex((l) => l.id === naechsteId)
@@ -58,7 +60,7 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
           <span style={{ width: (lektionen.length ? (fertigAnzahl / lektionen.length) * 100 : 0) + '%' }} />
         </span>
         <b>
-          {fertigAnzahl} von {lektionen.length}
+          {t('lek.vonZahl', { fertig: fertigAnzahl, gesamt: lektionen.length })}
         </b>
       </div>
 
@@ -66,10 +68,10 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
         <button type="button" className="pfad-jetzt" onClick={() => onStart(dran)}>
           <span className="pfad-jetzt-nr">{dranNr + 1}</span>
           <span className="pfad-jetzt-text">
-            <span className="pfad-jetzt-marke">Als Nächstes</span>
-            <b>{dran.titel}</b>
+            <span className="pfad-jetzt-marke">{t('lek.alsNaechstes')}</span>
+            <b>{uebersetzt(dran.titel)}</b>
             <span>
-              {dran.grammatik?.[0] ?? dran.beschreibung} · {dauerMinuten(dran).von}–{dauerMinuten(dran).bis} Min.
+              {uebersetzt(dran.grammatik?.[0] ?? dran.beschreibung)} · {t('lek.minuten', { von: dauerMinuten(dran).von, bis: dauerMinuten(dran).bis })}
             </span>
           </span>
           <span className="pfad-jetzt-pfeil">
@@ -117,13 +119,17 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
                   }
                   disabled={zu}
                   onClick={() => onStart(l)}
-                  aria-label={l.titel + (fertig ? ' – geschafft' : zu ? ' – gesperrt' : '')}
+                  aria-label={uebersetzt(l.titel) + (fertig ? t('rr.geschafftZusatz') : zu ? t('rr.gesperrtZusatz') : '')}
                 >
                   {fertig ? <Haken /> : zu ? <Schloss /> : <span className="pfad-nr">{i + 1}</span>}
                 </button>
                 <span className={'pfad-titel' + (zu ? ' ist-zu' : '') + (istDran ? ' ist-dran' : '')}>
-                  {l.titel}
-                  <small>{fertig ? 'Geschafft' : `${dauerMinuten(l).von}–${dauerMinuten(l).bis} Min.`}</small>
+                  {uebersetzt(l.titel)}
+                  <small>
+                    {fertig
+                      ? t('rr.geschafft')
+                      : t('lek.minuten', { von: dauerMinuten(l).von, bis: dauerMinuten(l).bis })}
+                  </small>
                 </span>
               </li>
             )

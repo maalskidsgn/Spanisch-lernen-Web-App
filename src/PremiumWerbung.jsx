@@ -36,7 +36,7 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
           </span>
           <div>
             <p className="pw-ueber">{t('pw.fuerHeute')}</p>
-            <h3 className="pw-titel">Morgen geht's weiter</h3>
+            <h3 className="pw-titel">{t('pwk.morgenGehtS')}</h3>
           </div>
         </div>
         <p className="pw-text">
@@ -62,9 +62,9 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
           </svg>
         </span>
         <div>
-          <p className="pw-ueber">Tageslimit erreicht</p>
+          <p className="pw-ueber">{t('pwk.tageslimitErreicht')}</p>
           <h3 className="pw-titel">
-            Mehr lernen mit <span className="accent">Premium</span>
+            Mehr lernen mit <span className="accent">{t('pwk.premium')}</span>
           </h3>
         </div>
       </div>
@@ -76,8 +76,8 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
 
       <ul className="pw-vorteile">
         <li>{t('pw.unbegrenzt')}</li>
-        <li>Unbegrenzt eigene YouTube-Videos</li>
-        <li>Zweisprachige E-Books ohne Limit</li>
+        <li>{t('pwk.unbegrenztEigeneYoutube')}</li>
+        <li>{t('pwk.zweisprachigeEBooks')}</li>
       </ul>
 
       {!istApp &&
@@ -86,7 +86,7 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
             Premium freischalten
           </button>
         ) : (
-          <p className="pw-bald">Premium ist bald verfügbar</p>
+          <p className="pw-bald">{t('pwk.premiumIstBald')}</p>
         ))}
     </div>
   )

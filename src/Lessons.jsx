@@ -372,7 +372,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           {lektion.kulturnotiz && (
             <div className="abschluss-notiz">
               <span className="start-marke">{t('ls.gutZuWissen')}</span>
-              <p>{lektion.kulturnotiz}</p>
+              <p>{uebersetzt(lektion.kulturnotiz)}</p>
             </div>
           )}
 
@@ -425,7 +425,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             </p>
             <ul className="intro-goals">
               {lektion.ziele.map((z) => (
-                <li key={z}>✓ {z}</li>
+                <li key={z}>✓ {uebersetzt(z)}</li>
               ))}
             </ul>
             <button onClick={weiter}>{t('ls.vamosLosGeht')}</button>
@@ -550,9 +550,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'verstehen' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">
-              {schritt.szene.fragenAuf === 'es' ? '🎧 Comprensión' : '🎧 Zum Inhalt'}
+              {schritt.szene.fragenAuf === 'es' ? '🎧 Comprensión' : t('ls4.zumInhalt')}
             </p>
-            <div className="verstehen-frage">{schritt.frage.frage}</div>
+            <div className="verstehen-frage">{uebersetzt(schritt.frage.frage)}</div>
             {/* Nochmal hören, so oft man will. Zuhören ist die Übung,
                 nicht Auswendiglernen – und wer beim ersten Mal etwas
                 verpasst hat, soll nicht raten müssen. */}
@@ -663,7 +663,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             {t('lek.lektionenZahl', { fertig: modulFertig, gesamt })}
           </span>
           <span className={'modul-stand-chip' + (modulFertig === gesamt ? ' chip-fertig' : '')}>
-            {modulFertig === gesamt ? 'Alles geschafft' : `${modulFertig} geschafft`}
+            {modulFertig === gesamt ? t('ls4.allesGeschafft') : t('lek.geschafft', { zahl: modulFertig })}
           </span>
         </div>
 
@@ -675,7 +675,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             onClick={() => setAnsicht('karte')}
           >
             <IconLandkarte groesse={18} />
-            Karte
+            {t('lek.karte')}
           </button>
           <button
             role="tab"
@@ -684,7 +684,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             onClick={() => setAnsicht('liste')}
           >
             <IconListe groesse={18} />
-            Liste
+            {t('lek.liste')}
           </button>
         </div>
 
@@ -1162,10 +1162,9 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
         <span className="station-emoji" aria-hidden="true">🔒</span>
         <div className="station-text">
           <span className="station-marke">{t('ls.pruefstation')}</span>
-          <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
+          <h3>{uebersetzt(station.titel).replace(/^(Prüfstation|Checkpoint): /, '')}</h3>
           <p>
-            Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann kannst du das
-            ganze Modul am Stück prüfen.
+{t('ls4.nochLektionenPruefung', { zahl: fehlend, einheit: fehlend === 1 ? t('ms.lektion') : t('ms.lektionen') })}
           </p>
         </div>
       </div>
@@ -1178,11 +1177,11 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
         {geschafft ? '✓' : station.emoji}
       </span>
       <div className="station-text">
-        <span className="station-marke">{geschafft ? 'Bestanden' : 'Prüfstation'}</span>
-        <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
+        <span className="station-marke">{geschafft ? t('ls4.bestanden') : t('ls.pruefstation')}</span>
+        <h3>{uebersetzt(station.titel).replace(/^(Prüfstation|Checkpoint): /, '')}</h3>
         <p>{t('ls2.rueckblickUndRund')}</p>
       </div>
-      <span className="station-knopf">{geschafft ? 'Nochmal' : 'Start'}</span>
+      <span className="station-knopf">{geschafft ? t('ls4.nochmal') : t('ls4.start')}</span>
     </button>
   )
 }
@@ -1196,7 +1195,7 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
  */
 function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
   const t = useTexte()
-  const name = szene.titel.replace('Mitgehört: ', '')
+  const name = uebersetzt(szene.titel).replace(/^(Mitgehört|Overheard): /, '')
 
   if (!offen) {
     return (
@@ -1206,8 +1205,7 @@ function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
           <span className="station-marke">{t('ls.mitgehoert')}</span>
           <h3>{name}</h3>
           <p>
-            Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann hörst du hier
-            ein ganzes Gespräch am Stück.
+{t('ls4.nochLektionenHoeren', { zahl: fehlend, einheit: fehlend === 1 ? t('ms.lektion') : t('ms.lektionen') })}
           </p>
         </div>
       </div>
@@ -1223,14 +1221,13 @@ function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
         {geschafft ? '✓' : szene.emoji}
       </span>
       <div className="station-text">
-        <span className="station-marke">{geschafft ? 'Gehört' : 'Mitgehört'}</span>
+        <span className="station-marke">{geschafft ? t('ls4.gehoert') : t('ls.mitgehoert')}</span>
         <h3>{name}</h3>
         <p>
-          {szene.dialog.length} Zeilen ohne Text hören, {szene.fragen.length} Fragen zum
-          Inhalt – die Abschrift kommt danach.
+{t('ls4.szeneHinweis', { zeilen: szene.dialog.length, fragen: szene.fragen.length })}
         </p>
       </div>
-      <span className="station-knopf">{geschafft ? 'Nochmal' : 'Anhören'}</span>
+      <span className="station-knopf">{geschafft ? t('ls4.nochmal') : t('hk.anhoeren')}</span>
     </button>
   )
 }

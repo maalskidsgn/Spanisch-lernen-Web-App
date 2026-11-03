@@ -849,7 +849,7 @@ function TutorenTeaser({ nutzerEmail }) {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="deine@email.de"
+            placeholder={t('hmk.deineEmailDe')}
             autoComplete="email"
           />
           <button className="btn" disabled={laedt || !email.trim()}>

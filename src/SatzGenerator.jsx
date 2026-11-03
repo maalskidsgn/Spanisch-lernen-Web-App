@@ -9,13 +9,20 @@ import { useTexte } from './sprache.js'
 
 // Themen wie beim Vokabelgenerator – dieselbe Sprache, dieselbe
 // Bedienung. Ein Tipp erzeugt sofort, ohne erst ein Feld zu füllen.
-const THEMEN = ['Reisen', 'Arbeit', 'Restaurant', 'Einkaufen', 'Gesundheit', 'Familie']
+const THEMEN = [
+  ['Reisen', 'thema.reisen'],
+  ['Arbeit', 'thema.arbeit'],
+  ['Restaurant', 'thema.restaurant'],
+  ['Einkaufen', 'thema.einkaufen'],
+  ['Gesundheit', 'thema.gesundheit'],
+  ['Familie', 'thema.familie'],
+]
 
 // Die Zeitformen, die der Server kennt (server/saetze.js). Hier
 // stehen sie mit ihrem Alltagsnamen daneben: "Condicional" sagt
 // Anfängern wenig, "würde …" sofort etwas.
 const ZEITFORMEN = [
-  ['', 'Gemischt', 'alle Zeiten'],
+  ['', 'wortart.gemischt', 'sg2.alleZeiten'],
   ['presente', 'Presente', 'Gegenwart'],
   ['perfecto', 'Perfecto', 'he hablado'],
   ['indefinido', 'Indefinido', 'hablé'],
@@ -137,15 +144,15 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
         <p className="sg-schritt"><span>1</span> {t('sgn.themaWaehlen')}</p>
         <div className="sg-themen">
-          {THEMEN.map((t) => (
+          {THEMEN.map(([wert, schluessel]) => (
             <button
-              key={t}
+              key={wert}
               type="button"
-              className={'sg-thema' + (thema === t ? ' ist-aktiv' : '')}
+              className={'sg-thema' + (thema === wert ? ' ist-aktiv' : '')}
               disabled={laden}
-              onClick={() => setThema(thema === t ? '' : t)}
+              onClick={() => setThema(thema === wert ? '' : wert)}
             >
-              {t}
+              {t(schluessel)}
             </button>
           ))}
         </div>

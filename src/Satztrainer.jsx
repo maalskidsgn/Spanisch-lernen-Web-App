@@ -229,7 +229,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 <button
                   className="satz-weg"
                   onClick={() => entfernen(e.key)}
-                  title="Satz entfernen"
+                  title={t('stk.satzEntfernen')}
                 >
                   ✕
                 </button>
@@ -417,7 +417,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           <button className="btn-zurueck" onClick={() => setArtWahl(false)}>
             <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
           </button>
-          <h1 className="trainer-titel">{t('satX.wieWillstDu')}<span className="accent">üben?</span>
+          <h1 className="trainer-titel">{t('satX.wieWillstDu')}<span className="accent">{t('stk.ueben')}</span>
           </h1>
           <p className="art-unterzeile">
             {Math.min(RUNDE, faellig.length)} Sätze stehen an.

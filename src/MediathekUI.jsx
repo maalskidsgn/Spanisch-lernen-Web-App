@@ -1,3 +1,5 @@
+import { useTexte } from './sprache.js'
+
 // Die gemeinsamen Bausteine der Mediathek.
 //
 // Videos, Songs, Hörtexte und Lesetexte sehen gleich aus – deshalb
@@ -53,7 +55,12 @@ export function Kopf({ symbol, titel, text, aktion, zahl }) {
  * sagt. Wo der Knopf etwas anderes tut (etwa "Filtern"), bleibt die
  * Beschriftung stehen: Ein Pfeil, der filtert, waere eine Luege.
  */
-export function SuchFeld({ wert, onWert, onAbsenden, platzhalter, knopf = 'Suchen', laedt, rund }) {
+export function SuchFeld({ wert, onWert, onAbsenden, platzhalter, knopf, laedt, rund }) {
+  const t = useTexte()
+  // Der Standardtext kann nicht im Parameter stehen: Dort gibt es
+  // den Hook noch nicht, und eine feste Zeichenkette waere beim
+  // Sprachwechsel eingefroren.
+  const knopfText = knopf ?? t('yt.suchen')
   return (
     <form
       className={'video-hero-form' + (rund ? ' hero-form-rund' : '')}
@@ -85,7 +92,7 @@ export function SuchFeld({ wert, onWert, onAbsenden, platzhalter, knopf = 'Suche
         </button>
       ) : (
         <button type="submit" className="btn" disabled={laedt || !wert.trim()}>
-          {laedt ? 'Sucht …' : knopf}
+          {laedt ? t('frd.sucht') : knopfText}
         </button>
       )}
     </form>

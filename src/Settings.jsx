@@ -466,7 +466,7 @@ export default function Settings({
               <p className="settings-hint">{t('st3.deinFortschrittWird')}</p>
               <BenutzernameEinstellung nutzerId={nutzer.id} />
               <button className="btn-outline" onClick={abmeldenKlick}>
-                Abmelden
+                {t('pf.abmelden')}
               </button>
             </>
           ) : (
@@ -489,7 +489,7 @@ export default function Settings({
       <div className="plan-grid">
         <div className="plan-card plan-active">
           <div className="plan-name">
-            Kostenlos{' '}
+            {t('wk.tarifFrei')}{' '}
             {!premium && <span className="plan-badge">{t('st2.aktuellerPlan')}</span>}
           </div>
           <ul className="plan-features">

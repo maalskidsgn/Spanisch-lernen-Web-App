@@ -16,7 +16,7 @@ import { IconPfeil, IconLandkarte } from './icons.jsx'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 
-import { useTexte } from './sprache.js'
+import { useTexte, text as uebersetzt } from './sprache.js'
 const SPEICHER = 'landUndLeute' // { gelesen: [ids] }
 
 export function ladeGelesen() {
@@ -108,12 +108,12 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
 
   return (
     <div className="trainer lul">
-      <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück</button>
+      <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{t('llk.zurueck')}</button>
 
       <div className="lul-kopf">
         <IconLandkarte groesse={22} />
         <div>
-          <h1 className="trainer-titel">Entdecken</h1>
+          <h1 className="trainer-titel">{t('llk.entdecken')}</h1>
           <p className="lul-unter">
 {t('ll.jedenTag')}
           </p>
@@ -123,32 +123,32 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
       {/* ---------- Das Stück ---------- */}
       <article className="start-karte lul-stueck">
         <span className="start-marke">
-          {stueck.id === heute.id ? 'Heute · ' : ''}{stueck.region}
+          {stueck.id === heute.id ? t('ll.heute') + ' · ' : ''}{uebersetzt(stueck.region)}
         </span>
         <h2 className="lul-titel">{stueck.titel}</h2>
-        <p className="lul-titel-de">{stueck.titelDe}</p>
-        <p className="lul-vorspann">{stueck.vorspann}</p>
+        <p className="lul-titel-de">{uebersetzt(stueck.titelDe)}</p>
+        <p className="lul-vorspann">{uebersetzt(stueck.vorspann)}</p>
 
         <button className="lul-schalter" onClick={schalteDeutsch}>
-          {deutschAn ? 'Deutsch ausblenden' : 'Deutsch einblenden'}
+          {deutschAn ? t('ll.uebersetzungAus') : t('ll.uebersetzungAn')}
         </button>
 
         {stueck.absaetze.map((a, i) => (
           <div className="lul-absatz" key={i}>
             <p className="lul-es">{a.es}</p>
-            {deutschAn && <p className="lul-de">{a.de}</p>}
+            {deutschAn && <p className="lul-de">{uebersetzt(a.de)}</p>}
           </div>
         ))}
 
         <div className="lul-wusstest">
           <span className="start-marke">{t('ll.wusstestDu')}</span>
-          <p>{stueck.wusstest}</p>
+          <p>{uebersetzt(stueck.wusstest)}</p>
         </div>
       </article>
 
       {/* ---------- Die sechs Wörter ---------- */}
       <section className="start-karte">
-        <h2 className="start-abschnitt">Wörter aus dem Text</h2>
+        <h2 className="start-abschnitt">{t('llk.woerterAusDem')}</h2>
         <p className="start-abschnitt-sub">
           {t('ll.alleSechs')}
         </p>
@@ -160,7 +160,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
               <li key={w.es} className={drin ? 'lul-wort lul-wort-drin' : 'lul-wort'}>
                 <b>{w.es}</b>
                 <span>{w.de}</span>
-                {drin && <em>im Trainer</em>}
+                {drin && <em>{t('llk.imTrainer')}</em>}
               </li>
             )
           })}
@@ -180,7 +180,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
 
       {/* ---------- Die anderen Stücke ---------- */}
       <section className="start-karte">
-        <h2 className="start-abschnitt">Alle Stücke</h2>
+        <h2 className="start-abschnitt">{t('llk.alleStuecke')}</h2>
         <p className="start-abschnitt-sub">
           {gelesen.size} von {STUECKE.length} gelesen
         </p>
@@ -202,7 +202,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
                 <b>{s.titel}</b>
                 <span>
                   {s.region}
-                  {gelesen.has(s.id) && <em className="lul-haken"> · gelesen</em>}
+                  {gelesen.has(s.id) && <em className="lul-haken"> {t('llk.gelesen')}</em>}
                 </span>
               </span>
               <IconPfeil groesse={17} />

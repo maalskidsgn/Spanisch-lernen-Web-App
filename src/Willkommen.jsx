@@ -147,11 +147,11 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
 {t('wk.videoText')}
               </p>
               <div className="wk-demo">
-                <span className="wk-demo-zeile">Hola, ¿qué tal?</span>
+                <span className="wk-demo-zeile">{t('wkk.holaQuTal')}</span>
                 <span className="wk-demo-zeile wk-demo-aktiv">
                   Hoy vamos a <b>cocinar</b> algo rico.
                 </span>
-                <span className="wk-demo-zeile">¿Te apetece probarlo?</span>
+                <span className="wk-demo-zeile">{t('wkk.teApeteceProbarlo')}</span>
               </div>
             </div>
 
@@ -292,7 +292,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         <div className="wk-breite">
           <div className="wk-abschluss zeigt-sich">
             <span className="wk-wolke wk-wolke-5" />
-            <h2>¿Empezamos?</h2>
+            <h2>{t('wkk.empezamos')}</h2>
             <p>
 {t('wk.schlussText', { app: APP_NAME })}
             </p>

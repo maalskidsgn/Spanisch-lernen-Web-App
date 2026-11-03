@@ -1603,14 +1603,14 @@ export default function App() {
       {view === 'lesen' && (
       <main>
         <button className="zurueck-knopf" onClick={() => setView('videos')}>
-          ← Zu den Videos
+          ← {t('yt.zuDenVideosKurz')}
         </button>
 
         {/* Statt "Lade Transkript…" ein Geruest, das schon so
             aussieht wie das, was gleich kommt. Wartezeit fuehlt
             sich kuerzer an, wenn man sieht, WAS geladen wird. */}
         {loading && (
-          <div className="lade-geruest" aria-label="Video wird geladen" role="status">
+          <div className="lade-geruest" aria-label={t('apk.videoWirdGeladen')} role="status">
             <div className="lade-buehne">
               <div className="lade-video schimmer" />
               <div className="lade-titel schimmer" />
@@ -1634,7 +1634,7 @@ export default function App() {
                 />
               ))}
             </div>
-            <p className="lade-text">Untertitel werden geholt …</p>
+            <p className="lade-text">{t('apk.untertitelWerdenGeholt')}</p>
           </div>
         )}
         {error && <p className="error">{error}</p>}
@@ -1644,7 +1644,7 @@ export default function App() {
               Kein Video <span className="accent">geladen</span>
             </h1>
             <p className="intro">{t('ap.suchDirIm')}</p>
-            <button onClick={() => setView('videos')}>Zu den Videos</button>
+            <button onClick={() => setView('videos')}>{t('apk.zuDenVideos')}</button>
           </div>
         )}
 
@@ -1687,7 +1687,7 @@ export default function App() {
                     onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
                   >
                     <IconMediathek groesse={15} />
-                    <span>Mediathek</span>
+                    <span>{t('apk.mediathek')}</span>
                     {currentSaved.category && <b>{currentSaved.category}</b>}
                   </button>
                 )}
@@ -1699,11 +1699,11 @@ export default function App() {
                     disabled={deLoading}
                   >
                     <IconSprache groesse={17} />
-                    {deLoading ? 'Übersetze …' : 'Übersetzung'}
+                    {deLoading ? t('ap3.uebersetzeLaeuft') : t('yt.uebersetzung')}
                   </button>
                   {deFehler && (
                     <span className="de-fehler" role="alert">
-                      Übersetzung geht gerade nicht: {deFehler}
+                      {t('ap3.uebersetzungFehlt')} {deFehler}
                     </span>
                   )}
                   <button
@@ -1711,14 +1711,14 @@ export default function App() {
                     onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
                   >
                     <IconFunken groesse={17} />
-                    Vokabeln sammeln
+                    {t('yt.vokabelnSammeln')}
                   </button>
                   <button
                     className={'video-aktion' + (currentSaved ? ' aktion-fertig' : '')}
                     onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
                   >
                     <IconLesezeichen groesse={17} />
-                    {currentSaved ? 'Gemerkt' : 'Merken'}
+                    {currentSaved ? t('ap3.gemerkt') : t('yt.merken')}
                   </button>
                 </div>
               </div>
@@ -1730,7 +1730,7 @@ export default function App() {
                   {!cardExit && (
                     <button
                       className="wortkarte-schliessen"
-                      aria-label="Schließen"
+                      aria-label={t('apk.schliessen')}
                       onClick={() => setSelected(null)}
                     >
                       ✕
@@ -1844,7 +1844,7 @@ export default function App() {
                 className="tempo-schritt"
                 onClick={() => setzeTempo(Math.max(0.5, Math.round((tempo - 0.25) * 100) / 100))}
                 disabled={tempo <= 0.5}
-                title="Langsamer"
+                title={t('apk.langsamer')}
               >
                 −
               </button>
@@ -1853,7 +1853,7 @@ export default function App() {
                 className="tempo-schritt"
                 onClick={() => setzeTempo(Math.min(2, Math.round((tempo + 0.25) * 100) / 100))}
                 disabled={tempo >= 2}
-                title="Schneller"
+                title={t('apk.schneller')}
               >
                 +
               </button>
@@ -1862,9 +1862,9 @@ export default function App() {
             <button
               className={'fuss-knopf' + (autoScroll ? ' fuss-an' : '')}
               onClick={() => setAutoScroll(!autoScroll)}
-              title="Text läuft mit dem Video mit"
+              title={t('apk.textLaeuftMit')}
             >
-              Mitlaufen
+              {t('yt.mitlaufen')}
             </button>
           </div>
         )}
@@ -1933,7 +1933,7 @@ export default function App() {
             {genOpen && (
               <div className="fab-panel">
                 <div className="fab-panel-head">
-                  <b>Vokabelgenerator</b>
+                  <b>{t('apk.vokabelgenerator')}</b>
                   <button className="btn-plain" onClick={() => setGenOpen(false)}>
                     ✕
                   </button>

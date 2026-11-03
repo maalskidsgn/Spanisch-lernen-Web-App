@@ -13,6 +13,17 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { basename } from 'node:path'
 
 const SRC = '/Users/manuelkillert/Projekte/spanisch-app/src'
+
+/**
+ * Was wie Text aussieht, aber Code ist.
+ *
+ * `a > 10 && b < 95` trifft das Muster >…< genau so gut wie ein
+ * Absatz. Viermal hat dieses Werkzeug deshalb Code zerschossen -
+ * einmal pro Durchlauf, bis diese Regel stand. Klammern und
+ * Operatoren kommen in Oberflaechentexten praktisch nicht vor,
+ * in JavaScript dauernd.
+ */
+const KEIN_TEXT = /[(){}<>=\\|`$]|&&|\|\||\?\.|=>|\b(return|const|let|var|function|length|filter|map)\b/
 const datei = process.argv[2]
 const praefix = process.argv[3]
 const pfad = `${SRC}/${datei}`

@@ -11,6 +11,15 @@ const ZIEL = '/Users/manuelkillert/Projekte/spanisch-app/src/texte/inhalte-en.js
 
 const d = JSON.parse(readFileSync(`${ORDNER}/uebersetzt.json`, 'utf8'))
 
+// Dieselbe Vokabel steht an zwei Stellen: in den Lektionen (dort
+// wird sie ueber das spanische Wort nachgeschlagen) und in
+// Startpaketen, Bausteinen oder Hoerszenen - dort steht nur die
+// deutsche Seite. Damit sie nicht zweimal uebersetzt werden muss,
+// kommt sie unter beiden Schluesseln in die Tabelle.
+const quelle = JSON.parse(readFileSync(`${ORDNER}/zu-uebersetzen.json`, 'utf8'))
+for (const [es, de] of quelle.vokabeln) if (d.vokabeln[es] && !d.texte[de]) d.texte[de] = d.vokabeln[es]
+for (const [es, de] of quelle.saetze)  if (d.saetze[es]   && !d.texte[de]) d.texte[de] = d.saetze[es]
+
 function alsObjekt(map) {
   const zeilen = Object.entries(map)
     .sort(([a], [b]) => a.localeCompare(b, 'es'))

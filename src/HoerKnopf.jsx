@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react'
 import { spiele, spieleVonSelbst, gibtEsAufnahme, sicherVertont } from './audio.js'
 import { IconLautsprecher } from './icons.jsx'
 
+import { useTexte } from './sprache.js'
 /**
  * Ein Lautsprecher – aber nur, wenn es wirklich etwas zu hoeren gibt.
  *
@@ -27,11 +28,12 @@ import { IconLautsprecher } from './icons.jsx'
  */
 export default function HoerKnopf({
   text,
-  titel = 'Anhören',
+  titel,
   klein = false,
   stimme,
   vonSelbst = false,
 }) {
+  const t = useTexte()
   // Beim ERSTEN Zeichnen schon wissen, ob es die Aufnahme gibt.
   // Alles aus dem Kurs steht ohne Nachfrage fest – dadurch ist der
   // Knopf sofort da, statt nach einer Netzanfrage nachzuspringen und
@@ -60,7 +62,7 @@ export default function HoerKnopf({
     <button
       className={'speak-btn' + (klein ? ' speak-btn-mini' : '')}
       onClick={() => spiele(text, stimme ? { stimme } : undefined)}
-      title={titel}
+      title={titel ?? t('hk.anhoeren')}
       aria-label={titel}
     >
       <IconLautsprecher groesse={klein ? 15 : 20} />

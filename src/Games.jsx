@@ -539,7 +539,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
     <div className="spiel-buehne">
       {xpAnzeige}
       <div className="spiel-kopf">
-        <span className="spiel-titel">🔍 Wortsuche</span>
+        <span className="spiel-titel">{t('spk.wortsuche')}</span>
         <span className="spiel-stand">
           {gefunden.length} / {platziert.length}
         </span>
@@ -702,7 +702,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
         </div>
         <div className="blitz-werte">
           <span><b>{rest}</b> s</span>
-          <span><b>{punkte}</b> Punkte</span>
+          <span><b>{punkte}</b> {t('spk.punkte')}</span>
           <span className={serie >= 3 ? 'blitz-serie heiss' : 'blitz-serie'}>
             {serie >= 3 ? `${serie}er-Serie · ×2` : `Serie ${serie}`}
           </span>

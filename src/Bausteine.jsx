@@ -24,7 +24,7 @@ import { gemerkteVarianten, brauchtNachschub, holeVarianten } from './kiAufgaben
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import InfoKnopf from './InfoKnopf.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, text as uebersetzt } from './sprache.js'
 
 // Der Grammatik-Trainer.
 //
@@ -234,11 +234,11 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
                       onClick={() => starte(b)}
                     >
                       <span className="gram-karte-text">
-                        <span className="gram-karte-titel">{b.titel}</span>
+                        <span className="gram-karte-titel">{uebersetzt(b.titel)}</span>
                         <span className="gram-karte-regel">
                           {frei
-                            ? b.regel
-                            : `Wird mit Lektion ${lektion?.kursNr ?? '?'} frei.`}
+                            ? uebersetzt(b.regel)
+                            : t('bs2.wirdFrei', { nr: lektion?.kursNr ?? '?' })}
                         </span>
                       </span>
                       {frei && (
@@ -305,7 +305,7 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
       <p className="lesson-hint">{t('bs.ergaenze')}</p>
-      <p className="gram-deutsch">{aufgabe.de}</p>
+      <p className="gram-deutsch">{uebersetzt(aufgabe.de)}</p>
       <p className="gram-satz">
         {vorn}
         <span className="gram-luecke">{gesperrt ? eingabe || '…' : '…'}</span>
@@ -349,7 +349,7 @@ function AuswahlAufgabe({ aufgabe, rueckmeldung, onAntwort }) {
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
       <p className="lesson-hint">{t('bs.wasPasst')}</p>
-      <p className="gram-deutsch">{aufgabe.de}</p>
+      <p className="gram-deutsch">{uebersetzt(aufgabe.de)}</p>
       <p className="gram-satz">
         {vorn}
         <span className="gram-luecke">{gewaehlt ?? '…'}</span>
@@ -387,7 +387,7 @@ function FehlerSuchen({ aufgabe, rueckmeldung, onAntwort }) {
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
       <p className="lesson-hint">{t('bs.einWortIst')}</p>
-      <p className="gram-deutsch">{aufgabe.de}</p>
+      <p className="gram-deutsch">{uebersetzt(aufgabe.de)}</p>
       <div className="gram-woerter">
         {woerter.map((w, i) => (
           <button
@@ -433,7 +433,7 @@ function SatzBauen({ aufgabe, rueckmeldung, onAntwort }) {
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
       <p className="lesson-hint">{t('bs.baueDenSatz')}</p>
-      <p className="satzbau-deutsch">{aufgabe.de}</p>
+      <p className="satzbau-deutsch">{uebersetzt(aufgabe.de)}</p>
 
       <div className="satzbau-ablage">
         {gewaehlt.length === 0 && <span className="ablage-leer">{t('bs.tippeDieWoerter')}</span>}

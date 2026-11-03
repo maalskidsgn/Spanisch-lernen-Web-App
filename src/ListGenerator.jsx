@@ -132,7 +132,14 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
         <p className="sg-schritt"><span>1</span> {t('lg.themaWaehlen')}</p>
         <div className="sg-themen">
-          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen', 'Familie', 'Gesundheit'].map((v) => (
+          {[
+            ['Restaurant', 'thema.restaurant'],
+            ['Reisen', 'thema.reisen'],
+            ['Arbeit', 'thema.arbeit'],
+            ['Einkaufen', 'thema.einkaufen'],
+            ['Familie', 'thema.familie'],
+            ['Gesundheit', 'thema.gesundheit'],
+          ].map(([v, schluessel]) => (
             <button
               key={v}
               type="button"
@@ -140,7 +147,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
               disabled={laden || uebrig <= 0}
               onClick={() => setThema(thema === v ? '' : v)}
             >
-              {v}
+              {t(schluessel)}
             </button>
           ))}
         </div>
@@ -149,10 +156,10 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
         <p className="sg-schritt"><span>2</span> {t('lg.wortart')} <small>optional</small></p>
         <div className="sg-themen sg-vier">
           {[
-            ['alle', 'Gemischt'],
-            ['verben', 'Verben'],
-            ['adjektive', 'Adjektive'],
-            ['nomen', 'Nomen'],
+            ['alle', 'wortart.gemischt'],
+            ['verben', 'wortart.verben'],
+            ['adjektive', 'wortart.adjektive'],
+            ['nomen', 'wortart.nomen'],
           ].map(([wert, text]) => (
             <button
               key={wert}
@@ -198,7 +205,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
             {laden ? (
               <>{t('lg.stelltZusammen')}<span className="studio-punkte" /></>
             ) : (
-              'Liste erstellen'
+              t('lg.listeErstellen')
             )}
           </button>
 

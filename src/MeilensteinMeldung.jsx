@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MEILENSTEIN_XP, STUFEN_NAMEN } from './meilensteine.js'
 
+import { useTexte, gebiet } from './sprache.js'
 /**
  * Die Meldung, wenn ein Abzeichen dazukommt.
  *
@@ -9,6 +10,7 @@ import { MEILENSTEIN_XP, STUFEN_NAMEN } from './meilensteine.js'
  * nacheinander gezeigt, nicht gestapelt.
  */
 export default function MeilensteinMeldung({ liste, onFertig }) {
+  const t = useTexte()
   const [i, setI] = useState(0)
 
   // Neue Liste: wieder von vorn anfangen
@@ -40,13 +42,13 @@ export default function MeilensteinMeldung({ liste, onFertig }) {
         <p className="msm-stufe">{STUFEN_NAMEN[m.stufe]}</p>
         <h2 className="msm-titel">{m.titel}</h2>
         <p className="msm-text">
-          {m.ziel.toLocaleString('de-DE')} {m.einheit} geschafft
+          {m.ziel.toLocaleString(gebiet())} {m.einheit} geschafft
         </p>
 
         <div className="msm-xp">+{MEILENSTEIN_XP} XP</div>
 
         <button className="btn msm-knopf" onClick={weiter}>
-          {i + 1 < liste.length ? `Weiter (${liste.length - i - 1} mehr)` : 'Stark!'}
+          {i + 1 < liste.length ? t('mm.weiterMehr', { zahl: liste.length - i - 1 }) : t('mm.stark')}
         </button>
       </div>
     </div>

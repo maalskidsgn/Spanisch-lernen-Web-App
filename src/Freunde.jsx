@@ -78,7 +78,7 @@ export default function Freunde() {
       {anfragen.length > 0 && (
         <section className="fr-block">
           <h3 className="fr-titel">
-            Anfragen <span className="fr-zahl">{anfragen.length}</span>
+            {t('frd.anfragen')} <span className="fr-zahl">{anfragen.length}</span>
           </h3>
           {anfragen.map((f) => (
             <Zeile key={f.anfrage_id} p={f} onSchau={setSchau} onFertig={neuLaden} />
@@ -89,7 +89,7 @@ export default function Freunde() {
       {/* ---------- Freunde ---------- */}
       <section className="fr-block">
         <h3 className="fr-titel">
-          Freunde {freunde.length > 0 && <span className="fr-zahl">{freunde.length}</span>}
+          {t('pf.freunde')} {freunde.length > 0 && <span className="fr-zahl">{freunde.length}</span>}
         </h3>
         {freunde.length ? (
           freunde.map((f) => (
@@ -140,7 +140,7 @@ function Zeile({ p, onSchau, onFertig }) {
             er auch bei langen Namen sichtbar. */}
         <span className="fr-bildfeld">
           <Bildnis name={p.benutzername} bild={p.bild} klasse="fr-bild" />
-          {da(p.benutzername) && <span className="ist-da" title="gerade online" />}
+          {da(p.benutzername) && <span className="ist-da" title={t('frk.geradeOnline')} />}
         </span>
         <span className="fr-text">
           <b>{p.benutzername}</b>

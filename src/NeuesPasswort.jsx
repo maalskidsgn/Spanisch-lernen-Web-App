@@ -37,30 +37,30 @@ export default function NeuesPasswort({ onFertig }) {
     // Bewusst kein onClick zum Schliessen am Overlay und kein x-Knopf:
     // Wer hier abbricht, steht beim naechsten Anmelden wieder vor
     // derselben Tuer.
-    <div className="login-overlay" role="dialog" aria-label="Neues Passwort">
+    <div className="login-overlay" role="dialog" aria-label={t('npk.neuesPasswort')}>
       <div className="login-box">
         <div className="login-kopf">
           <Logo klasse="login-badge" />
-          <h2>Neues Passwort</h2>
+          <h2>{t('npk.neuesPasswort')}</h2>
           <p>{t('neuX.duBistUeber')}</p>
         </div>
 
         <form onSubmit={absenden} className="login-form">
           <label className="login-feld">
-            <span>Neues Passwort</span>
+            <span>{t('npk.neuesPasswort')}</span>
             <input
               type="password"
               value={passwort}
               onChange={(e) => setPasswort(e.target.value)}
               minLength={6}
               autoComplete="new-password"
-              placeholder="Mindestens 6 Zeichen"
+              placeholder={t('npk.mindestens6Zeichen')}
               autoFocus
               required
             />
           </label>
           <label className="login-feld">
-            <span>Noch einmal</span>
+            <span>{t('npk.nochEinmal')}</span>
             <input
               type="password"
               value={nochmal}

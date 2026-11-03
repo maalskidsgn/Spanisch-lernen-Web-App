@@ -56,24 +56,24 @@ const EBOOKS_ZEIGEN = false
 const SONGS_ZEIGEN = false
 
 const BEREICHE = [
-  { wert: 'videos', label: 'Videos' },
-  ...(SONGS_ZEIGEN ? [{ wert: 'songs', label: 'Songs' }] : []),
-  ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'Hörtexte' }] : []),
-  ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'Ebooks' }] : []),
+  { wert: 'videos', label: 'kat.videos' },
+  ...(SONGS_ZEIGEN ? [{ wert: 'songs', label: 'kat.songs' }] : []),
+  ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'kat.hoertexte' }] : []),
+  ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'kat.ebooks' }] : []),
 ]
 
 const KATEGORIEN = [
-  { wert: 'alle', label: 'Alle' },
-  { wert: 'sprache', label: 'Spanisch lernen' },
-  { wert: 'gesundheit', label: 'Gesundheit' },
-  { wert: 'sport', label: 'Sport' },
-  { wert: 'ernaehrung', label: 'Ernährung' },
-  { wert: 'produktivitaet', label: 'Produktivität' },
-  { wert: 'stoizismus', label: 'Stoizismus' },
-  { wert: 'psychologie', label: 'Psychologie' },
+  { wert: 'alle', label: 'yt.alle' },
+  { wert: 'sprache', label: 'kat.sprache' },
+  { wert: 'gesundheit', label: 'thema.gesundheit' },
+  { wert: 'sport', label: 'kat.sport' },
+  { wert: 'ernaehrung', label: 'kat.ernaehrung' },
+  { wert: 'produktivitaet', label: 'kat.produktivitaet' },
+  { wert: 'stoizismus', label: 'kat.stoizismus' },
+  { wert: 'psychologie', label: 'thema.psychologie' },
   // Videos, die jemand selbst gesucht hat. Ohne eigene Reihe waeren
   // sie unsichtbar – sie tragen keine der kuratierten Kategorien.
-  { wert: 'gefunden', label: 'Selbst gefunden' },
+  { wert: 'gefunden', label: 'kat.gefunden' },
 ]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
@@ -365,7 +365,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               className={bereich === b.wert ? 'deck-aktiv' : ''}
               onClick={() => setBereich(b.wert)}
             >
-              {b.label}
+              {t(b.label)}
               {zahl != null && <span className="deck-zahl">{zahl}</span>}
             </button>
           )
@@ -516,7 +516,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     {v.category && <span className="category-badge">{v.category}</span>}
                     <button
                       className="btn-delete"
-                      title="Aus der Mediathek entfernen"
+                      title={t('ytk.ausDerMediathek')}
                       onClick={() => removeVideo(v.videoId)}
                     >
                       ✕
@@ -562,14 +562,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                 }}
               >
                 {(() => { const I = KATEGORIE_ICONS[k.wert]; return I ? <I groesse={15} /> : null })()}
-                {k.label}
+                {t(k.label)}
               </button>
             ))}
           </div>
 
           {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
           {!bibliothek && !bibliothekFehler && (
-            <p className="intro">Lade Mediathek…</p>
+            <p className="intro">{t('ytk.ladeMediathek')}</p>
           )}
 
           {bibliothek && (() => {
@@ -633,6 +633,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
  * einen Loeschknopf.
  */
 function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
+  const t = useTexte()
   return (
     <section className="bereich">
       <Kopf
@@ -656,7 +657,7 @@ function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
             </button>
             <button
               className="btn-delete ebook-weg"
-              title="Löschen"
+              title={t('ytk.loeschen')}
               onClick={() => onLoeschen(b.id)}
             >
               ✕
@@ -762,11 +763,11 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
     <div className="library buch-leser">
       {/* Kopfleiste: zurück | Sprache | weiter */}
       <div className="leser-leiste">
-        <button className="leser-knopf" onClick={onClose} aria-label="Zurück zur Mediathek">
+        <button className="leser-knopf" onClick={onClose} aria-label={t('ytk.zurueckZurMediathek')}>
           ←
         </button>
 
-        <div className="leser-sprache" role="tablist" aria-label="Sprache">
+        <div className="leser-sprache" role="tablist" aria-label={t('ytk.sprache')}>
           {[['es', 'Español'], ['de', 'Deutsch']].map(([wert, text]) => (
             <button
               key={wert}
@@ -784,7 +785,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
           className="leser-knopf"
           onClick={() => blaettern(1)}
           disabled={seite >= seiten - 1}
-          aria-label="Weiterblättern"
+          aria-label={t('ytk.weiterblaettern')}
         >
           →
         </button>
@@ -814,7 +815,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
             {sprache === 'es' ? alsWoerter(absaetze[seite].es) : absaetze[seite].de}
           </p>
           {sprache === 'es' && seite === 0 && (
-            <p className="lese-tipp">Tipp: Tippe ein Wort an, um es zu sammeln.</p>
+            <p className="lese-tipp">{t('ytk.tippTippeEin')}</p>
           )}
         </article>
       )}
@@ -834,7 +835,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
             ))}
           </ul>
           {uebernommen ? (
-            <p className="gen-success">Vokabeln sind im Trainer! ✓</p>
+            <p className="gen-success">{t('ytk.vokabelnSindIm')}</p>
           ) : (
             <button className="hero-cta" onClick={vokabelnUebernehmen}>
               Alle {buch.vokabeln.length} Vokabeln in den Trainer
@@ -868,13 +869,13 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
       {wort && (
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
-            <button className="wortkarte-schliessen" aria-label="Schließen" onClick={() => setWort(null)}>
+            <button className="wortkarte-schliessen" aria-label={t('ytk.schliessen')} onClick={() => setWort(null)}>
               ✕
             </button>
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[wortSchluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{t('ytk.imTrainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
@@ -974,7 +975,14 @@ function VideoKarte({ video, onOpen, fortschritt = 0 }) {
 //  Die Video-Engine: Einstieg in die YouTube-Suche
 // ===============================================================
 
-const ENGINE_THEMEN = ['Fußball', 'Kochen', 'Reisen', 'Musik', 'Vlogs', 'Psychologie']
+const ENGINE_THEMEN = [
+  ['Fußball', 'thema.fussball'],
+  ['Kochen', 'thema.kochen'],
+  ['Reisen', 'thema.reisen'],
+  ['Musik', 'thema.musik'],
+  ['Vlogs', 'thema.vlogs'],
+  ['Psychologie', 'thema.psychologie'],
+]
 
 /**
  * Kein Formular, sondern das Aushängeschild der Mediathek: dunkle
@@ -1011,7 +1019,7 @@ function VideoEngine({ wert, onWert, onSuche }) {
       </p>
 
       <ul className="engine-features">
-        <li><b>ES</b> {t('yt.merkmal1')}</li>
+        <li><b>{t('ytk.es')}</b> {t('yt.merkmal1')}</li>
         <li><b>↻</b> {t('yt.merkmal2')}</li>
         <li><b>✦</b> {t('yt.merkmal3')}</li>
       </ul>
@@ -1033,9 +1041,9 @@ function VideoEngine({ wert, onWert, onSuche }) {
       </form>
 
       <div className="engine-themen">
-        {ENGINE_THEMEN.map((t) => (
-          <button key={t} type="button" onClick={() => { onWert(t); onSuche(t) }}>
-            {t}
+        {ENGINE_THEMEN.map(([wert, schluessel]) => (
+          <button key={wert} type="button" onClick={() => { onWert(wert); onSuche(wert) }}>
+            {t(schluessel)}
           </button>
         ))}
       </div>

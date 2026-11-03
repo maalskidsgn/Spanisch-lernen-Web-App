@@ -6,6 +6,7 @@ import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 import { usePremium } from './premium.js'
 
+import { useTexte } from './sprache.js'
 // Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen
 function cleanWord(word) {
   return word.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
@@ -14,6 +15,7 @@ function cleanWord(word) {
 // Der Vokabelgenerator: schickt das Transkript an den Server, bekommt
 // Vokabel-Vorschläge zurück und lässt dich auswählen, welche in den Trainer sollen.
 export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
+  const t = useTexte()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
@@ -62,7 +64,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function addToTrainer() {
     const neu = new Set(suggestions.filter((s) => s.checked).map((s) => cleanWord(s.wort)).filter((w) => w && !vocab[w]))
-    if (neu.size) addXp?.(XP.WORT_NEU * neu.size, neu.size === 1 ? 'Wort hinzugefügt' : neu.size + ' Wörter hinzugefügt')
+    if (neu.size) addXp?.(XP.WORT_NEU * neu.size, neu.size === 1 ? t('vg.wortHinzugefuegt') : t('vg.woerterHinzugefuegt', { zahl: neu.size }))
     setVocab((v) => {
       const copy = { ...v }
       for (const s of suggestions) {
@@ -92,20 +94,20 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
       {!suggestions && (
         <>
           <button onClick={generate} disabled={loading}>
-            {loading ? 'Analysiere Text…' : 'Vokabeln generieren'}
+            {loading ? t('vg.analysiere') : t('vg.generieren')}
           </button>
           <p className="free-hint">
-            Noch {uebrig} von {LISTEN_PRO_TAG} heute
+            {t('vg.nochHeute', { uebrig, gesamt: LISTEN_PRO_TAG })}
           </p>
         </>
       )}
-      {added && <p className="gen-success">Vokabeln wurden in den Trainer übernommen! ✓</p>}
+      {added && <p className="gen-success">{t('vg.uebernommen')}</p>}
       {error && <p className="error">{error}</p>}
 
       {suggestions && (
         <div className="gen-list">
           <p className="gen-hint">
-            Wähle aus, welche Vokabeln in deinen Trainer sollen:
+            {t('vg.waehleAus')}
           </p>
           {suggestions.map((s, i) => (
             <label key={i} className="gen-item">
@@ -124,7 +126,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
               {suggestions.filter((s) => s.checked).length} Vokabeln übernehmen
             </button>
             <button className="btn-plain" onClick={() => setSuggestions(null)}>
-              Abbrechen
+              {t('app.abbrechen')}
             </button>
           </div>
         </div>

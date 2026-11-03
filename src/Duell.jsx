@@ -177,7 +177,7 @@ function Zeile({ d, onSpielen, onWeg }) {
     <div className={t('dum.duZeileDu') + s}>
       <span className="du-bildfeld">
         <Bildnis name={d.gegner} bild={d.gegner_bild} klasse="du-bild" />
-        {da(d.gegner) && <span className="ist-da" title="gerade online" />}
+        {da(d.gegner) && <span className="ist-da" title={t('duk.geradeOnline')} />}
       </span>
 
       <span className="du-text">

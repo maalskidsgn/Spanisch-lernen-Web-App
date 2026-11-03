@@ -410,7 +410,7 @@ export default function Trainer({
         <button className="bereich trainer-sprechen ns-tuer" onClick={() => setNachschlag(true)}>
           <span className="trainer-sprechen-icon"><IconListe groesse={26} /></span>
           <span className="trainer-sprechen-text">
-            <h2>Zeitformen nachschlagen</h2>
+            <h2>{t('trk.zeitformenNachschlagen')}</h2>
             <p>{t('tr3.konjugationstabellen')}</p>
           </span>
           <IconPfeil groesse={20} />
@@ -444,12 +444,12 @@ export default function Trainer({
                 <span key={i} className="confetti" style={{ '--i': i }} />
               ))}
             </div>
-            <h2>Runde geschafft! 🎉</h2>
+            <h2>{t('trk.rundeGeschafft')}</h2>
             <p>
               {result.richtig}× gewusst · {result.falsch}× nicht gewusst
             </p>
             <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
-            <button onClick={() => setQueue(null)}>Zurück zur Übersicht</button>
+            <button onClick={() => setQueue(null)}>{t('trk.zurueckZurUebersicht')}</button>
           </div>
         </div>
       )
@@ -519,7 +519,7 @@ export default function Trainer({
                 </div>
               </div>
             ) : (
-              <button onClick={() => setRevealed(true)}>Übersetzung zeigen</button>
+              <button onClick={() => setRevealed(true)}>{t('trk.uebersetzungZeigen')}</button>
             )}
           </div>
         )}
@@ -555,7 +555,7 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint">Wie sagt man …</p>
+            <p className="lesson-hint">{t('trk.wieSagtMan')}</p>
             {/* Bewusst OHNE Lautsprecher: Gesucht ist hier das
                 spanische Wort. Es vorzusprechen waere die Loesung. */}
             <div className="flash-word">{loesung}</div>
@@ -580,7 +580,7 @@ export default function Trainer({
                 className="schreib-feld"
                 value={eingabe}
                 onChange={(e) => setEingabe(e.target.value)}
-                placeholder="Auf Spanisch tippen …"
+                placeholder={t('trk.aufSpanischTippen')}
                 autoComplete="off"
                 autoCapitalize="off"
                 autoCorrect="off"
@@ -664,43 +664,43 @@ export default function Trainer({
             <span className="spiel-bild" aria-hidden="true">
               <i /><i /><i /><i />
             </span>
-            <span className="spiel-name">Memory</span>
-            <span className="spiel-hinweis">6 Paare aufdecken</span>
+            <span className="spiel-name">{t('trk.memory')}</span>
+            <span className="spiel-hinweis">{t('trk.6PaareAufdecken')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
               <i /><i /><i />
             </span>
-            <span className="spiel-name">Wortpaare</span>
-            <span className="spiel-hinweis">5 Wörter verbinden</span>
+            <span className="spiel-name">{t('trk.wortpaare')}</span>
+            <span className="spiel-hinweis">{t('trk.5WoerterVerbinden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
               <i /><i /><i /><i /><i /><i /><i /><i /><i />
             </span>
-            <span className="spiel-name">Wortsuche</span>
-            <span className="spiel-hinweis">5 Wörter im Gitter</span>
+            <span className="spiel-name">{t('trk.wortsuche')}</span>
+            <span className="spiel-hinweis">{t('trk.5WoerterIm')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('blitz')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
               <svg viewBox="0 0 24 24" width="34" height="34"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" /></svg>
             </span>
-            <span className="spiel-name">Blitzrunde</span>
+            <span className="spiel-name">{t('trk.blitzrunde')}</span>
             <span className="spiel-hinweis">{t('tr3.sechzigSekunden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <b>c_s_</b>
+              <b>{t('trk.cS')}</b>
             </span>
-            <span className="spiel-name">Galgenmännchen</span>
+            <span className="spiel-name">{t('trk.galgenmaennchen')}</span>
             <span className="spiel-hinweis">{t('tr3.buchstabeRaten')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('salat')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <b>ñ a o</b>
+              <b>{t('trk.aO')}</b>
             </span>
-            <span className="spiel-name">Buchstabensalat</span>
-            <span className="spiel-hinweis">Buchstaben ordnen</span>
+            <span className="spiel-name">{t('trk.buchstabensalat')}</span>
+            <span className="spiel-hinweis">{t('trk.buchstabenOrdnen')}</span>
           </button>
         </div>
       </section>
@@ -777,7 +777,7 @@ export default function Trainer({
                   setSuche(e.target.value)
                   setSichtbar(30) // bei neuer Suche wieder oben anfangen
                 }}
-                placeholder="Wort oder Übersetzung suchen…"
+                placeholder={t('trk.wortOderUebersetzung')}
               />
             </div>
 
@@ -802,7 +802,7 @@ export default function Trainer({
                   setFilter(e.target.value === '' ? 'alle' : Number(e.target.value))
                 }
               >
-                <option value="">Nach Stufe filtern …</option>
+                <option value="">{t('trk.nachStufeFiltern')}</option>
                 {LEVEL_LABELS.map((label, lvl) => (
                   <option key={lvl} value={lvl}>
                     {label} ({levelCounts[lvl]})
@@ -822,10 +822,10 @@ export default function Trainer({
                 <table className="vocab-table">
                   <thead>
                     <tr>
-                      <th>Wort</th>
-                      <th>Übersetzung</th>
-                      <th>Stufe</th>
-                      <th>Fällig</th>
+                      <th>{t('trk.wort')}</th>
+                      <th>{t('trk.uebersetzung')}</th>
+                      <th>{t('trk.stufe')}</th>
+                      <th>{t('trk.faellig')}</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -843,7 +843,7 @@ export default function Trainer({
                         <td>
                           <button
                             className="btn-delete"
-                            title="Wort löschen"
+                            title={t('trk.wortLoeschen')}
                             onClick={() => removeWord(e.word)}
                           >
                             ✕
