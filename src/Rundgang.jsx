@@ -110,7 +110,7 @@ export default function BereichsIntro({ bereich, rundgang, onWeiter, onFertig })
             </>
           ) : (
             <button className="btn intro-alles-klar" onClick={onFertig}>
-              Alles klar
+              {t('rg9.allesKlar')}
             </button>
           )}
         </div>

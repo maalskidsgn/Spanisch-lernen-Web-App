@@ -1907,4 +1907,5 @@ export default {
   "bs9.statt": "instead of",
   "hm9.mitPremiumTeilnehmen": "Join with Premium",
   "st9.achteAuf": "Watch out for:",
+  "rg9.allesKlar": "Got it",
 }
