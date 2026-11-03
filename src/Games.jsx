@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
-import { useTexte } from './sprache.js'
+import { useTexte, vokabel } from './sprache.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare, Wortsuche,
 // Blitzrunde, Galgenmännchen und Buchstabensalat.
@@ -52,9 +52,14 @@ export function spielbareVokabeln(vocab) {
   const rest = passend.filter(({ eintrag }) => !isDue(eintrag))
 
   // Erst die fälligen, dann der Rest zum Auffüllen
+  // Die Uebersetzung laeuft durch vokabel(): Wer die App frueher auf
+  // Deutsch benutzt hat und jetzt auf Englisch liest, hat deutsche
+  // Eintraege im Trainer - fuer alles, was aus den Lektionen stammt,
+  // liegt die englische Fassung aber vor. Eigene Eintraege bleiben,
+  // wie sie gespeichert wurden.
   return [...mischen(faellig), ...mischen(rest)].map(({ wort, eintrag }) => ({
     es: wort,
-    de: eintrag.translation,
+    de: vokabel({ es: wort, de: eintrag.translation }),
     beispiel: eintrag.beispiel || '',
     faellig: isDue(eintrag),
   }))
@@ -241,7 +246,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
         <div className="lern-balken">
           <div className="lern-balken-voll" style={{ width: (gefunden.length / anzahl) * 100 + '%' }} />
         </div>
-        <p className="training-progress">{gefunden.length}/{anzahl} Paare · {versuche} Versuche</p>
+        <p className="training-progress">{t('sp.paareVersuche', { gefunden: gefunden.length, anzahl, versuche })}</p>
       </div>
       <div className="memory-grid">
         {karten.map((k) => {
@@ -329,7 +334,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
           <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
         </div>
         <p className="training-progress">
-          {geloest.length}/{paare.length} verbunden – links ein Wort, rechts die Übersetzung
+          {t('sp.verbundenHinweis', { zahl: geloest.length, gesamt: paare.length })}
         </p>
       </div>
       <div className="pairs-grid">
@@ -786,7 +791,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
+      <p className="training-progress">{t('sp.wortVon', { nr: nr + 1, gesamt: runde.length })}</p>
       <div className="galgen-leben" aria-label={t('sp.versucheUebrig', { zahl: GALGEN_LEBEN - fehler })}>
         {Array.from({ length: GALGEN_LEBEN }, (_, i) => (
           <span key={i} className={'galgen-herz' + (i < GALGEN_LEBEN - fehler ? '' : ' weg')}>♥</span>
@@ -872,7 +877,7 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
         <div className="lern-balken">
           <div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} />
         </div>
-        <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
+        <p className="training-progress">{t('sp.wortVon', { nr: nr + 1, gesamt: runde.length })}</p>
       </div>
       <SalatWort
         key={wort.es}

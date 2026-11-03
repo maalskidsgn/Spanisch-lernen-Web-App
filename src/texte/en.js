@@ -1898,4 +1898,7 @@ export default {
   "sg9.saetzeZuWaehle": "Sentences about “{thema}”{zeitform} – pick what goes into the trainer:",
   "tr9.grammatik": "Grammar",
   "tr9.kiTrainer": "AI trainer",
+  "sp.paareVersuche": "{gefunden}/{anzahl} pairs · {versuche} tries",
+  "sp.verbundenHinweis": "{zahl}/{gesamt} matched – word on the left, translation on the right",
+  "sp.wortVon": "Word {nr} of {gesamt}",
 }

@@ -1898,4 +1898,7 @@ export default {
   "sg9.saetzeZuWaehle": "Sätze zu „{thema}“{zeitform} – wähle aus, was in den Trainer soll:",
   "tr9.grammatik": "Grammatik",
   "tr9.kiTrainer": "KI-Trainer",
+  "sp.paareVersuche": "{gefunden}/{anzahl} Paare · {versuche} Versuche",
+  "sp.verbundenHinweis": "{zahl}/{gesamt} verbunden – links ein Wort, rechts die Übersetzung",
+  "sp.wortVon": "Wort {nr} von {gesamt}",
 }
