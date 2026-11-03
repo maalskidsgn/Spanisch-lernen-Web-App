@@ -628,7 +628,7 @@ function Gruppenstunde({ onNavigate }) {
 
         {!premium && !istApp && (
           <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
-            Mit Premium teilnehmen <IconPfeil groesse={16} />
+            {t('hm9.mitPremiumTeilnehmen')} <IconPfeil groesse={16} />
           </button>
         )}
 

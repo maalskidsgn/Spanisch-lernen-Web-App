@@ -1641,7 +1641,7 @@ export default function App() {
         {!video && !loading && !error && (
           <div className="empty-reader">
             <h1>
-              Kein Video <span className="accent">geladen</span>
+              {t('ap9.keinVideo')} <span className="accent">{t('ap9.geladen')}</span>
             </h1>
             <p className="intro">{t('ap.suchDirIm')}</p>
             <button onClick={() => setView('videos')}>{t('apk.zuDenVideos')}</button>

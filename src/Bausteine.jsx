@@ -291,7 +291,7 @@ function Aufloesung({ aufgabe, rueckmeldung }) {
   if (rueckmeldung !== 'falsch') return null
   return (
     <p className="gram-aufloesung">
-      Richtig wäre: <b>{loesungsText(aufgabe)}</b>
+      {t('bs9.richtigWaere')} <b>{loesungsText(aufgabe)}</b>
     </p>
   )
 }
@@ -409,7 +409,7 @@ function FehlerSuchen({ aufgabe, rueckmeldung, onAntwort }) {
       </div>
       {gesperrt && (
         <p className="gram-aufloesung">
-          Richtig wäre: <b>{aufgabe.richtig}</b> statt <b>{aufgabe.falsch}</b>
+          {t('bs9.richtigWaere')} <b>{aufgabe.richtig}</b> {t('bs9.statt')} <b>{aufgabe.falsch}</b>
         </p>
       )}
     </div>

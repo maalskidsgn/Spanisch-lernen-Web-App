@@ -319,7 +319,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 <div className="flash-translation">{loesung}</div>
                 {current.schluessel && (
                   <p className="satz-schluessel-hinweis">
-                    Achte auf: <b>{current.schluessel}</b>
+                    {t('st9.achteAuf')} <b>{current.schluessel}</b>
                   </p>
                 )}
                 <div className="bewertungen">
@@ -774,7 +774,7 @@ function SatzBauen({ satz, onFertig }) {
       </div>
       {korrigiert && (
         <p className="satzbau-loesung">
-          Richtig wäre: <b>{satz}</b>
+          {t('bs9.richtigWaere')} <b>{satz}</b>
         </p>
       )}
       <div className="satzbau-vorrat">

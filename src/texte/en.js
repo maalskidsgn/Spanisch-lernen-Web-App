@@ -1901,4 +1901,10 @@ export default {
   "sp.paareVersuche": "{gefunden}/{anzahl} pairs · {versuche} tries",
   "sp.verbundenHinweis": "{zahl}/{gesamt} matched – word on the left, translation on the right",
   "sp.wortVon": "Word {nr} of {gesamt}",
+  "ap9.keinVideo": "No video",
+  "ap9.geladen": "loaded",
+  "bs9.richtigWaere": "Correct would be:",
+  "bs9.statt": "instead of",
+  "hm9.mitPremiumTeilnehmen": "Join with Premium",
+  "st9.achteAuf": "Watch out for:",
 }

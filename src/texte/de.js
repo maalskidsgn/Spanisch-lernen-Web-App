@@ -1901,4 +1901,10 @@ export default {
   "sp.paareVersuche": "{gefunden}/{anzahl} Paare · {versuche} Versuche",
   "sp.verbundenHinweis": "{zahl}/{gesamt} verbunden – links ein Wort, rechts die Übersetzung",
   "sp.wortVon": "Wort {nr} von {gesamt}",
+  "ap9.keinVideo": "Kein Video",
+  "ap9.geladen": "geladen",
+  "bs9.richtigWaere": "Richtig wäre:",
+  "bs9.statt": "statt",
+  "hm9.mitPremiumTeilnehmen": "Mit Premium teilnehmen",
+  "st9.achteAuf": "Achte auf:",
 }
