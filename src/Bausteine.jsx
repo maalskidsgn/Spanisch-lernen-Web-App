@@ -288,6 +288,7 @@ function Aufgabe({ aufgabe, rueckmeldung, onAntwort }) {
 
 /** Die Lösung nach einer falschen Antwort – überall gleich. */
 function Aufloesung({ aufgabe, rueckmeldung }) {
+  const t = useTexte()
   if (rueckmeldung !== 'falsch') return null
   return (
     <p className="gram-aufloesung">
