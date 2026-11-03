@@ -26,6 +26,7 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
+import { useTexte } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Habloo-Aussehen für die Stripe-Felder
@@ -86,7 +87,7 @@ const AUSSEHEN = {
 // Was Premium kann – dieselbe Liste wie in den Einstellungen.
 const LEISTUNGEN = [
   'Unbegrenzte KI-Vokabellisten',
-  'Unbegrenzte Sätze und zweisprachige E-Books',
+  'bzm.unbegrenzteSaetzeUnd',
   'Eigene Videos ohne Begrenzung',
   'KI-Trainer ohne Tageslimit',
 ]
@@ -116,6 +117,7 @@ function stripeHolen(schluessel) {
  * @param {Function} onAbbrechen – zurück in die App
  */
 export default function Bezahlen({ onFertig, onAbbrechen }) {
+  const t = useTexte()
   const [clientSecret, setClientSecret] = useState(null)
   const [stripe, setStripe] = useState(null)
   const [preise, setPreise] = useState(null) // { monat, jahr, lifetime }
@@ -149,10 +151,10 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
         if (start.error) throw new Error(start.error)
         if (!status.schluessel) {
           throw new Error(
-            'Auf dem Server fehlt der öffentliche Stripe-Schlüssel (STRIPE_PUBLIC_KEY).'
+            t('bzm.aufDemServer')
           )
         }
-        if (!start.clientSecret) throw new Error('Der Bezahlvorgang kam unvollständig zurück.')
+        if (!start.clientSecret) throw new Error(t('bzm.derBezahlvorgangKam'))
 
         const s = await stripeHolen(status.schluessel)
         if (abgebrochen) return
@@ -178,7 +180,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
   const abrechnung = {
     monat: 'monatlich, jederzeit kündbar',
     jahr: 'jährlich, jederzeit kündbar',
-    lifetime: 'einmal zahlen, für immer',
+    lifetime: t('bzm.einmalZahlenFuer'),
   }[tarif]
   // Ersparnis des Jahrestarifs gegenueber 12 Monaten
   const ersparnis =
@@ -186,14 +188,14 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       ? Math.round((1 - preise.jahr.betrag / (preise.monat.betrag * 12)) * 100)
       : null
   const TARIF_KARTEN = [
-    { id: 'monat', name: 'Monatlich', unter: 'pro Monat' },
+    { id: 'monat', name: t('bz.monatlich'), unter: 'pro Monat' },
     {
       id: 'jahr',
-      name: 'Jährlich',
+      name: t('bz.jaehrlich'),
       unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : 'pro Jahr',
       marke: ersparnis > 0 ? `−${ersparnis} %` : 'Beliebt',
     },
-    { id: 'lifetime', name: 'Lifetime', unter: 'einmalig, für immer' },
+    { id: 'lifetime', name: t('bz.lifetime'), unter: t('bzm.einmaligFuerImmer') },
   ].filter((k) => preise?.[k.id])
 
   return (
@@ -205,7 +207,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
         </button>
         <Logo />
-        <span className="kassen-sicher" title="Verschlüsselte Verbindung">
+        <span className="kassen-sicher" title={t('bz.verschluesselteVerbindung')}>
           <SchlossIcon /> Sichere Zahlung
         </span>
       </header>
@@ -214,9 +216,9 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
         {/* ---------- Links: was man kauft ---------- */}
         <aside className="kassen-bestellung">
           <p className="kassen-label">{tarif === 'lifetime' ? 'Dein Zugang' : 'Dein Abo'}</p>
-          <h1 className="kassen-titel">Habloo Premium</h1>
+          <h1 className="kassen-titel">{t('bz.hablooPremium')}</h1>
           {TARIF_KARTEN.length > 1 && (
-            <div className="kassen-tarife" role="radiogroup" aria-label="Tarif wählen">
+            <div className="kassen-tarife" role="radiogroup" aria-label={t('bz.tarifWaehlen')}>
               {TARIF_KARTEN.map((k) => (
                 <button
                   key={k.id}
@@ -243,22 +245,22 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
 
           <ul className="kassen-leistungen">
             {LEISTUNGEN.map((l) => (
-              <li key={l}>{l}</li>
+              <li key={l}>{t(l)}</li>
             ))}
           </ul>
 
           {preisText && (
             <div className="kassen-summe">
               <div className="kassen-zeile">
-                <span>Habloo Premium</span>
+                <span>{t('bz.hablooPremium')}</span>
                 <span>{preisText}</span>
               </div>
               <div className="kassen-zeile kassen-zeile-klein">
-                <span>Abrechnung</span>
+                <span>{t('bz.abrechnung')}</span>
                 <span>{abrechnung}</span>
               </div>
               <div className="kassen-zeile kassen-gesamt">
-                <span>Heute fällig</span>
+                <span>{t('bz.heuteFaellig')}</span>
                 <span>{preisText}</span>
               </div>
             </div>
@@ -270,14 +272,12 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           {fehler ? (
             <>
               <p className="error">{fehler}</p>
-              <button className="btn-plain" onClick={onAbbrechen}>
-                Zurück zur App
-              </button>
+              <button className="btn-plain" onClick={onAbbrechen}>{t('bz2.zurueckZurApp')}</button>
             </>
           ) : !clientSecret || !stripe ? (
             <div className="kasse-laedt">
               <span className="kasse-spinner" aria-hidden="true" />
-              <p>Bezahlung wird vorbereitet …</p>
+              <p>{t('bz.bezahlungWirdVorbereitet')}</p>
             </div>
           ) : (
             <CheckoutElementsProvider
@@ -295,7 +295,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu
           sehen.{' '}
           {tarif === 'lifetime'
-            ? 'Einmalige Zahlung – kein Abo, keine Verlängerung.'
+            ? t('bzm.einmaligeZahlungKein')
             : 'Jederzeit kündbar in den Einstellungen.'}
         </p>
       </footer>
@@ -305,6 +305,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
 
 /** Das eigentliche Formular – braucht den Provider darüber. */
 function KassenFormular({ onFertig, onAbbrechen }) {
+  const t = useTexte()
   const zustand = useCheckoutElements()
   const [laeuft, setLaeuft] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -313,7 +314,7 @@ function KassenFormular({ onFertig, onAbbrechen }) {
     return (
       <div className="kasse-laedt">
         <span className="kasse-spinner" aria-hidden="true" />
-        <p>Einen Moment …</p>
+        <p>{t('bz.einenMoment')}</p>
       </div>
     )
   }
@@ -345,14 +346,14 @@ function KassenFormular({ onFertig, onAbbrechen }) {
 
   return (
     <form className="kasse-form" onSubmit={bezahlen}>
-      <h2 className="kassen-abschnitt">Zahlungsart</h2>
+      <h2 className="kassen-abschnitt">{t('bz.zahlungsart')}</h2>
       <PaymentElement options={{ layout: 'accordion' }} />
 
       {fehler && <p className="error kasse-fehler">{fehler}</p>}
 
       <button type="submit" className="btn kasse-los" disabled={!kasse.canConfirm || laeuft}>
         {laeuft ? (
-          <>Zahlung läuft<span className="studio-punkte" /></>
+          <>{t('bz.zahlungLaeuft')}<span className="studio-punkte" /></>
         ) : summe ? (
           `${summe} zahlungspflichtig abonnieren`
         ) : (

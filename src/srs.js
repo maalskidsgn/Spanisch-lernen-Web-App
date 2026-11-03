@@ -1,3 +1,5 @@
+import { gebiet } from './sprache.js'
+
 // Spaced Repetition = "verteiltes Wiederholen".
 // Jede Vokabel steckt in einer Stufe (wie Fächer in einem Karteikasten).
 // Richtig beantwortet -> eine Stufe höher, das Wort kommt seltener dran.
@@ -171,5 +173,5 @@ export function formatDue(entry) {
   const days = Math.round(diff / DAY_MS)
   if (days === 1) return 'morgen'
   if (days < 31) return `in ${days} Tagen`
-  return new Date(entry.due).toLocaleDateString('de-DE')
+  return new Date(entry.due).toLocaleDateString(gebiet())
 }

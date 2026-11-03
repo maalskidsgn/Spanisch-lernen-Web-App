@@ -51,6 +51,7 @@ import {
   buchstabenMischen,
   stimmtUeberein,
 } from './uebungen.js'
+import { useTexte } from './sprache.js'
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -72,6 +73,7 @@ export default function Trainer({
   texte = {},
   setTexte,
 }) {
+  const t = useTexte()
   // 'woerter' | 'saetze' | 'grammatik' | 'ki'
   const [deck, setDeck] = useState('woerter')
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
@@ -266,29 +268,29 @@ export default function Trainer({
   const schalter = (
     <>
       <h1 className="trainer-titel">
-        Dein{' '}
+        {t('tr.titel1')}{' '}
         <span className="accent">
           {deck === 'woerter'
-            ? 'Vokabeltrainer'
+            ? t('tr.titelVokabeln')
             : deck === 'saetze'
-              ? 'Satz-Trainer'
+              ? t('tr.titelSaetze')
               : deck === 'lesen'
-                ? 'Lesestoff'
+                ? t('tr.titelLesen')
                 : deck === 'grammatik'
-                  ? 'Grammatik-Trainer'
-                  : 'KI-Trainer'}
+                  ? t('tr.titelGrammatik')
+                  : t('tr.titelKi')}
         </span>
       </h1>
       <p className="intro">
         {deck === 'woerter'
-          ? 'Neue Wörter sammeln und sicher behalten.'
+          ? t('tr.untertitel')
           : deck === 'saetze'
-            ? 'Ganze Sätze üben – nach Thema und Zeitform.'
+            ? t('tr.introSaetze')
             : deck === 'lesen'
-              ? 'Kurze Wissenstexte lesen – und wiederlesen.'
+              ? t('tr.introLesen')
               : deck === 'grammatik'
-                ? 'Grammatik wiederholen, bis sie sitzt.'
-                : 'Sprechen üben – rede mit Habla auf Spanisch.'}
+                ? t('tr.introGrammatik')
+                : t('tr.introKi')}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -297,7 +299,7 @@ export default function Trainer({
           className={deck === 'woerter' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('woerter')}
         >
-          Vokabeln
+          {t('tr.vokabeln')}
           {trainable.length > 0 && <span className="deck-zahl">{trainable.length}</span>}
         </button>
         <button
@@ -306,7 +308,7 @@ export default function Trainer({
           className={deck === 'saetze' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('saetze')}
         >
-          Sätze
+          {t('tr.saetze')}
           {faelligeSaetze > 0 && <span className="deck-zahl">{faelligeSaetze}</span>}
         </button>
         <button
@@ -315,7 +317,7 @@ export default function Trainer({
           className={deck === 'lesen' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('lesen')}
         >
-          Texte
+          {t('tr.texte')}
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
         {GRAMMATIK_ZEIGEN && (
@@ -409,7 +411,7 @@ export default function Trainer({
           <span className="trainer-sprechen-icon"><IconListe groesse={26} /></span>
           <span className="trainer-sprechen-text">
             <h2>Zeitformen nachschlagen</h2>
-            <p>Alle Konjugationstabellen auf einen Blick – Presente bis Condicional, samt der Unregelmäßigen.</p>
+            <p>{t('tr3.konjugationstabellen')}</p>
           </span>
           <IconPfeil groesse={20} />
         </button>
@@ -454,7 +456,7 @@ export default function Trainer({
     }
     const wort = queue[0]
     const current = withSrsDefaults(vocab[wort] ?? {})
-    const loesung = current.translation || '(keine Übersetzung gespeichert)'
+    const loesung = current.translation || t('trm.keineUebersetzungGespeichert')
     const dieseArt = artFuer(art, position)
 
     return (
@@ -521,7 +523,7 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint">Was heißt …</p>
+            <p className="lesson-hint">{t('tr.wasHeisst')}</p>
             <div className="word-row">
               <div className="flash-word">{wort}</div>
             </div>
@@ -601,7 +603,7 @@ export default function Trainer({
         )}
 
         <button className="btn-plain" onClick={() => setQueue(null)}>
-          Runde abbrechen
+          {t('tr.rundeAbbrechen')}
         </button>
       </div>
     )
@@ -617,7 +619,7 @@ export default function Trainer({
             <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
           </button>
           <h1 className="trainer-titel">
-            Wie willst du <span className="accent">üben?</span>
+            {t('tr.wieUeben1')} <span className="accent">{t('tr.wieUeben2')}</span>
           </h1>
           <p className="art-unterzeile">
             {anzahl} Wörter · {trainable.length > 0 && `${Math.min(trainable.length, anzahl)} davon fällig`}
@@ -631,9 +633,9 @@ export default function Trainer({
                 {(() => { const I = ART_ICONS[a.icon]; return <I groesse={24} /> })()}
               </span>
               <span className="art-text">
-                <span className="art-titel">{a.titel}</span>
-                <span className="art-beschreibung">{a.text}</span>
-                <span className="art-hinweis">{a.hinweis}</span>
+                <span className="art-titel">{t(a.titel)}</span>
+                <span className="art-beschreibung">{t(a.text)}</span>
+                <span className="art-hinweis">{t(a.hinweis)}</span>
               </span>
               <span className="art-pfeil" aria-hidden="true">›</span>
             </button>
@@ -643,11 +645,11 @@ export default function Trainer({
         {/* Die Spiele als spielerische Alternative zur Abfrage */}
       <section className="bereich bereich-spiele">
         <div className="bereich-kopf">
-          <h2>Oder lieber spielen?</h2>
+          <h2>{t('tr.lieberSpielen')}</h2>
           <p>
             {spielbar
-              ? 'Alle Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
-              : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
+              ? t('trm.alleSpieleNehmen')
+              : t('trm.ab4Gesammelten')}
           </p>
         </div>
         <div className="spiel-paar">
@@ -677,14 +679,14 @@ export default function Trainer({
               <svg viewBox="0 0 24 24" width="34" height="34"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" /></svg>
             </span>
             <span className="spiel-name">Blitzrunde</span>
-            <span className="spiel-hinweis">60 Sekunden: passt oder nicht?</span>
+            <span className="spiel-hinweis">{t('tr3.sechzigSekunden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
               <b>c_s_</b>
             </span>
             <span className="spiel-name">Galgenmännchen</span>
-            <span className="spiel-hinweis">Wort Buchstabe für Buchstabe raten</span>
+            <span className="spiel-hinweis">{t('tr3.buchstabeRaten')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('salat')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
@@ -714,14 +716,14 @@ export default function Trainer({
         <InfoKnopf thema="woerter" />
         <div className="wiederholen-zahl">
           <b>{trainable.length}</b>
-          <span>{trainable.length === 1 ? 'Wort wartet' : 'Wörter warten'}</span>
+          <span>{trainable.length === 1 ? t('tr.wortWartet') : t('tr.woerterWarten2')}</span>
         </div>
         <div className="wiederholen-text">
-          <h2>Heute wiederholen</h2>
+          <h2>{t('tr.heuteWiederholen')}</h2>
           <p>
             {trainable.length > 0
-              ? 'Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
-              : 'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.'}
+              ? t('trm.dieseWoerterDrohst')
+              : t('tr.allesErledigt')}
           </p>
         </div>
         <button
@@ -729,7 +731,7 @@ export default function Trainer({
           onClick={() => setArtWahl(true)}
           disabled={entries.length === 0}
         >
-          {trainable.length > 0 ? 'Üben' : 'Nichts fällig'}
+          {trainable.length > 0 ? t('tr.ueben') : t('tr.nichtsFaellig')}
         </button>
       </section>
 
@@ -747,7 +749,7 @@ export default function Trainer({
           aria-expanded={listeOffen}
         >
           <span className="liste-kopf-text">
-            <span className="liste-titel">Alle deine Wörter</span>
+            <span className="liste-titel">{t('tr3.alleDeineWoerter')}</span>
             <span className="liste-sub">
               {entries.length} gesammelt · {knownCount} sitzen schon fest
             </span>
@@ -806,7 +808,7 @@ export default function Trainer({
               <p className="empty-hint">
                 {suchtext
                   ? `Nichts gefunden zu „${suche}“.`
-                  : 'Keine Wörter in dieser Ansicht. Klicke im Lese-Modus Wörter an, um sie hier zu sammeln.'}
+                  : t('trm.keineWoerterIn')}
               </p>
             ) : (
               <>

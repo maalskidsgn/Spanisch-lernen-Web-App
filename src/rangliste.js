@@ -81,10 +81,10 @@ export async function setzeBenutzername(nutzerId, name) {
 
 /** Die drei Zeiträume, in denen man sich vergleichen kann. */
 export const ZEITRAEUME = [
-  ['woche', 'Woche'],
-  ['monat', 'Monat'],
-  ['jahr', 'Jahr'],
-  ['gesamt', 'Gesamt'],
+  ['woche', 'home.woche'],
+  ['monat', 'home.monat'],
+  ['jahr', 'home.jahr'],
+  ['gesamt', 'home.gesamt'],
 ]
 
 /**
@@ -428,11 +428,11 @@ export async function ladeBlockierteListe() {
 
 /** Die Gründe, aus denen man jemanden melden kann. */
 export const MELDE_GRUENDE = [
-  ['bild', 'Anstößiges Profilbild'],
-  ['name', 'Anstößiger Benutzername'],
-  ['belaestigung', 'Belästigung'],
-  ['spam', 'Spam oder Werbung'],
-  ['anderes', 'Etwas anderes'],
+  ['bild', 'md.bild'],
+  ['name', 'md.name'],
+  ['belaestigung', 'md.belaestigung'],
+  ['spam', 'md.spam'],
+  ['anderes', 'md.anderes'],
 ]
 
 /**

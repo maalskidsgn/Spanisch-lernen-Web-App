@@ -525,7 +525,8 @@ app.get('/api/translate', async (req, res) => {
   try {
     // Der Satz drumherum (optional) – damit mehrdeutige Wörter passend übersetzt werden
     const satz = String(req.query.satz || '').trim().slice(0, 300)
-    const translation = await uebersetzeWort(word, 'es-de', satz)
+    // Welche Sprache die Oberflaeche gerade spricht - ohne Angabe Deutsch.
+    const translation = await uebersetzeWort(word, 'es-de', satz, req.query.sprache)
     if (!translation) throw new Error('Leere Antwort')
     res.json({ translation })
   } catch (err) {
@@ -589,7 +590,7 @@ app.get('/api/search', async (req, res) => {
     let suchbegriff = q
     let uebersetzungGelang = true
     try {
-      const spanisch = await uebersetzeWort(q, 'de-es')
+      const spanisch = await uebersetzeWort(q, 'de-es', '', req.query.sprache)
       if (spanisch) suchbegriff = spanisch
     } catch {
       // Weitergesucht wird trotzdem – aber die App erfährt davon und
@@ -689,7 +690,7 @@ app.post('/api/generate-vocab', async (req, res) => {
   if (!text.trim()) return res.status(400).json({ error: 'Kein Text übergeben.' })
 
   try {
-    const vokabeln = await erzeugeVideoVokabeln(text, bekannt)
+    const vokabeln = await erzeugeVideoVokabeln(text, bekannt, req.body.sprache)
     res.json({ quelle: 'ki', vokabeln })
   } catch (err) {
     console.error('Video-Vokabeln:', err.message)
@@ -705,7 +706,7 @@ app.post('/api/translate-batch', async (req, res) => {
   if (lines.length === 0) return res.status(400).json({ error: 'Keine Zeilen übergeben.' })
 
   try {
-    const uebersetzungen = await uebersetzeZeilen(lines)
+    const uebersetzungen = await uebersetzeZeilen(lines, req.body.sprache)
     res.json({ uebersetzungen })
   } catch (err) {
     console.error('Stapel-Übersetzung fehlgeschlagen:', err.message)
@@ -733,7 +734,7 @@ app.post('/api/vokabelliste', async (req, res) => {
   }
 
   try {
-    const ergebnis = await erzeugeVokabelliste(thema, bekannt, wortart)
+    const ergebnis = await erzeugeVokabelliste(thema, bekannt, wortart, req.body.sprache)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
@@ -775,7 +776,7 @@ app.post('/api/lesetext', async (req, res) => {
   const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
 
   try {
-    res.json(await erzeugeLesetext(gebiet, thema, stufe, bekannt))
+    res.json(await erzeugeLesetext(gebiet, thema, stufe, bekannt, req.body.sprache))
   } catch (err) {
     console.error('Lesetext:', err.message)
     res.status(500).json({ error: err.message })
@@ -915,7 +916,7 @@ app.post('/api/gespraech', async (req, res) => {
     }
 
     const niveau = (req.body.niveau || 'Anfaenger').toString().slice(0, 40)
-    const antwortObj = await antworte(verlauf, niveau)
+    const antwortObj = await antworte(verlauf, niveau, req.body.sprache)
 
     // Erst nach erfolgreicher Antwort verbuchen.
     let frei = null
@@ -970,7 +971,7 @@ app.post('/api/ebook', async (req, res) => {
       })
     }
 
-    const buch = await erzeugeEbook(thema, niveau)
+    const buch = await erzeugeEbook(thema, niveau, req.body.sprache)
     const gespeichert = await speichereEbook(nutzer.id, buch)
 
     res.json({ buch: gespeichert, frei: Math.max(0, FREI_PRO_MONAT - genutzt - 1) })

@@ -17,6 +17,7 @@ import { API_URL, istApp } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
 import { erfolgston } from './erfolgston.js'
+import { useTexte, sprache } from './sprache.js'
 
 const NIVEAU_SPEICHER = 'gespraechNiveau'
 const DEUTSCH_SPEICHER = 'gespraechDeutsch'
@@ -40,21 +41,21 @@ function schluessel(wort) {
 // Der Spanisch-Text ist der erste Zug im Gespräch; die deutsche
 // Beschriftung nur die Aufschrift des Knopfs.
 const THEMEN = [
-  { text: '🥗 Gesundheit & Ernährung', schick: 'Hola Habla. Quiero aprender sobre la salud y comer bien. ¿Me cuentas algo, con palabras fáciles?' },
-  { text: '💻 Technik', schick: 'Me interesa la tecnología. ¿Hablamos de eso con palabras sencillas?' },
-  { text: '🌍 Natur & Umwelt', schick: 'Me gusta la naturaleza y los animales. ¿Me enseñas algo sobre eso?' },
-  { text: '⚽ Sport', schick: 'Me gusta el deporte. ¿Hablamos de deportes?' },
-  { text: '🎵 Musik', schick: 'Hablemos de música en español. ¿Qué me recomiendas escuchar?' },
-  { text: '🍲 Essen', schick: 'Hablemos de la comida española y latina. ¿Qué platos me recomiendas?' },
-  { text: '🎨 Kultur & Feste', schick: 'Cuéntame algo interesante sobre la cultura y las fiestas de España o Latinoamérica.' },
-  { text: '📰 Alltag & Neuigkeiten', schick: 'Hablemos de la vida cotidiana. ¿Qué haces normalmente en un día?' },
+  { text: 'gs.gesundheitErnaehrung', schick: 'Hola Habla. Quiero aprender sobre la salud y comer bien. ¿Me cuentas algo, con palabras fáciles?' },
+  { text: 'gs.technik', schick: 'Me interesa la tecnología. ¿Hablamos de eso con palabras sencillas?' },
+  { text: 'gs.naturUmwelt', schick: 'Me gusta la naturaleza y los animales. ¿Me enseñas algo sobre eso?' },
+  { text: 'gs.sport', schick: 'Me gusta el deporte. ¿Hablamos de deportes?' },
+  { text: 'gs.musik', schick: 'Hablemos de música en español. ¿Qué me recomiendas escuchar?' },
+  { text: 'gs.essen', schick: 'Hablemos de la comida española y latina. ¿Qué platos me recomiendas?' },
+  { text: 'gs.kulturFeste', schick: 'Cuéntame algo interesante sobre la cultura y las fiestas de España o Latinoamérica.' },
+  { text: 'gs.alltagNeuigkeiten', schick: 'Hablemos de la vida cotidiana. ¿Qué haces normalmente en un día?' },
 ]
 
 const SITUATIONEN = [
-  { text: 'Im Café bestellen', schick: 'Vamos a practicar: estoy en un café y quiero pedir algo.' },
-  { text: 'Beim Arzt', schick: 'Practiquemos: estoy en el médico y no me siento bien.' },
-  { text: 'Nach dem Weg fragen', schick: 'Practiquemos: estoy perdido en la ciudad y pregunto por el camino.' },
-  { text: 'Einfach plaudern', schick: 'Hola Habla, ¿cómo estás?' },
+  { text: 'gs.imCafBestellen', schick: 'Vamos a practicar: estoy en un café y quiero pedir algo.' },
+  { text: 'gs.beimArzt', schick: 'Practiquemos: estoy en el médico y no me siento bien.' },
+  { text: 'gs.nachDemWeg', schick: 'Practiquemos: estoy perdido en la ciudad y pregunto por el camino.' },
+  { text: 'gs.einfachPlaudern', schick: 'Hola Habla, ¿cómo estás?' },
 ]
 
 // kopf: Wird der Chat als Reiter IM Trainer gezeigt, kommt hier die
@@ -62,6 +63,7 @@ const SITUATIONEN = [
 // „Zurück", sondern die Umschalter. Als eigene Seite (vom Start aus)
 // bleibt onZurueck und der Zurück-Knopf.
 export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
+  const t = useTexte()
   const [verlauf, setVerlauf] = useState([]) // { rolle:'ich'|'tutor', es, de, korrektur }
   const [eingabe, setEingabe] = useState('')
   const [laedt, setLaedt] = useState(false)
@@ -166,6 +168,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
         },
         body: JSON.stringify({
           niveau,
+          sprache: sprache(),
           // Nur Rolle + Text zum Server – der Tutor braucht nicht die
           // ganze Anzeige-Struktur.
           verlauf: naechster.map((z) => ({ rolle: z.rolle, text: z.es })),
@@ -174,7 +177,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       const data = await res.json()
       if (!res.ok) {
         if (data.error === 'limit') throw new Error(data.nachricht)
-        throw new Error(data.error || 'Der Tutor antwortet gerade nicht.')
+        throw new Error(data.error || t('gsm.derTutorAntwortet'))
       }
       setVerlauf((v) => [
         ...v,
@@ -197,7 +200,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       {kopf ? (
         kopf
       ) : (
-        <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück</button>
+        <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{t('gs.zurueck')}</button>
       )}
 
       {/* Als Reiter im Trainer gibt schon die Reiter-Leiste den Titel
@@ -207,11 +210,8 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
         <div className="gespr-kopf">
           <IconSprache groesse={22} />
           <div>
-            <h1 className="trainer-titel">Sprechen mit Habla</h1>
-            <p className="gespr-unter">
-              Rede auf Spanisch über das, was du willst. Habla antwortet einfach –
-              und übersetzt, falls du hängst.
-            </p>
+            <h1 className="trainer-titel">{t('gs.sprechenMitHabla')}</h1>
+            <p className="gespr-unter">{t('gesX.redeAufSpanisch')}</p>
           </div>
         </div>
       )}
@@ -226,16 +226,16 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       <div className="gespr-verlauf">
         {leer && (
           <div className="gespr-start">
-            <p className="gespr-start-titel">Worüber möchtest du reden?</p>
+            <p className="gespr-start-titel">{t('gs.worueberMoechtestDu')}</p>
             <div className="gespr-einstiege">
               {THEMEN.map((e) => (
                 <button key={e.text} className="gespr-chip" onClick={() => sende(e.schick)}>
-                  {e.text}
+                  {t(e.text)}
                 </button>
               ))}
             </div>
 
-            <p className="gespr-start-titel gespr-start-zwei">Oder eine Situation üben</p>
+            <p className="gespr-start-titel gespr-start-zwei">{t('gs.oderEineSituation')}</p>
             <div className="gespr-einstiege">
               {SITUATIONEN.map((e) => (
                 <button
@@ -243,7 +243,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
                   className="gespr-chip gespr-chip-situation"
                   onClick={() => sende(e.schick)}
                 >
-                  {e.text}
+                  {t(e.text)}
                 </button>
               ))}
             </div>
@@ -295,7 +295,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
           type="text"
           value={eingabe}
           onChange={(e) => setEingabe(e.target.value)}
-          placeholder="Auf Spanisch schreiben …"
+          placeholder={t('gs.aufSpanischSchreiben')}
           autoComplete="off"
           disabled={laedt}
         />
@@ -311,7 +311,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             {/* X zum einfachen Wegklicken, ohne etwas zu sammeln. */}
             <button
               className="wortkarte-schliessen"
-              aria-label="Schließen"
+              aria-label={t('gs.schliessen')}
               onClick={() => setWort(null)}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -321,11 +321,11 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[schluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{t('gs.imTrainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? 'Übersetze …' : wort.de || t('gsm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button

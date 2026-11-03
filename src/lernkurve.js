@@ -9,6 +9,7 @@
 // video = geschaute Video-Minuten (nur echte Wiedergabe, siehe App.jsx)
 
 import { tagesSchluessel } from './datum.js'
+import { gebiet } from './sprache.js'
 
 const SCHLUESSEL = 'lernkurve'
 export const ARTEN = ['woerter', 'saetze', 'lektionen', 'texte', 'video']
@@ -67,8 +68,8 @@ export function verlauf(zeitraum = 'woche') {
         for (const a of ARTEN) werte[a] += e[a] ?? 0
       }
       punkte.push({
-        label: d.toLocaleDateString('de-DE', { month: 'short' }).replace('.', ''),
-        lang: d.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' }),
+        label: d.toLocaleDateString(gebiet(), { month: 'short' }).replace('.', ''),
+        lang: d.toLocaleDateString(gebiet(), { month: 'long', year: 'numeric' }),
         werte,
         istJetzt: i === 0,
       })
@@ -86,9 +87,9 @@ export function verlauf(zeitraum = 'woche') {
     punkte.push({
       label:
         zeitraum === 'woche'
-          ? d.toLocaleDateString('de-DE', { weekday: 'short' }).replace('.', '')
+          ? d.toLocaleDateString(gebiet(), { weekday: 'short' }).replace('.', '')
           : String(d.getDate()),
-      lang: d.toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }),
+      lang: d.toLocaleDateString(gebiet(), { weekday: 'long', day: 'numeric', month: 'long' }),
       werte,
       istJetzt: i === 0,
     })

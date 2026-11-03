@@ -16,6 +16,7 @@ import { IconPfeil, IconLandkarte } from './icons.jsx'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 
+import { useTexte } from './sprache.js'
 const SPEICHER = 'landUndLeute' // { gelesen: [ids] }
 
 export function ladeGelesen() {
@@ -40,6 +41,7 @@ function speichereGelesen(menge) {
 const DEUTSCH_SCHALTER = 'landUndLeuteDeutsch'
 
 export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} }) {
+  const t = useTexte()
   const [offen, setOffen] = useState(() => stueckDesTages().id)
   const [gelesen, setGelesen] = useState(ladeGelesen)
   const [deutschAn, setDeutschAn] = useState(
@@ -113,8 +115,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
         <div>
           <h1 className="trainer-titel">Entdecken</h1>
           <p className="lul-unter">
-            Jeden Tag ein kurzes Stück über Spanien und Lateinamerika – auf
-            Spanisch und Deutsch.
+{t('ll.jedenTag')}
           </p>
         </div>
       </div>
@@ -140,7 +141,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
         ))}
 
         <div className="lul-wusstest">
-          <span className="start-marke">Wusstest du?</span>
+          <span className="start-marke">{t('ll.wusstestDu')}</span>
           <p>{stueck.wusstest}</p>
         </div>
       </article>
@@ -149,7 +150,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
       <section className="start-karte">
         <h2 className="start-abschnitt">Wörter aus dem Text</h2>
         <p className="start-abschnitt-sub">
-          Alle sechs kommen oben wirklich vor.
+          {t('ll.alleSechs')}
         </p>
 
         <ul className="lul-woerter">
@@ -171,7 +172,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
           disabled={neueWoerter.length === 0}
         >
           {neueWoerter.length === 0
-            ? 'Alle sechs sind schon im Trainer'
+            ? t('llm.alleSechsSind')
             : `${neueWoerter.length} ${neueWoerter.length === 1 ? 'Wort' : 'Wörter'} in den Trainer`}
           {neueWoerter.length > 0 && <IconPfeil groesse={18} />}
         </button>

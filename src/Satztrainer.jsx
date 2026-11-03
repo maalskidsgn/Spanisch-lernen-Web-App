@@ -5,6 +5,7 @@ import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
+import { useTexte } from './sprache.js'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
@@ -16,37 +17,13 @@ const PAARE = 6
 // bewusst nicht: Einen ganzen Satz fehlerfrei abzutippen ist
 // Fleißarbeit, kein Lernfortschritt.
 const ARTEN = [
-  {
-    id: 'karten',
-    titel: 'Karten',
-    icon: IconKarten,
-    text: 'Satz lesen, Übersetzung aufdecken, selbst einschätzen',
-  },
-  {
-    id: 'auswahl',
-    titel: 'Auswahl',
-    icon: IconAuswahl,
-    text: 'Vier Übersetzungen – welche passt?',
-  },
-  {
-    id: 'bauen',
-    titel: 'Satz bauen',
-    icon: IconSchreiben,
-    text: 'Deutscher Satz oben – die spanischen Wörter in die richtige Reihenfolge tippen',
-  },
-  {
-    id: 'luecke',
-    titel: 'Lückensatz',
-    icon: IconLektion,
-    text: 'Ein Wort fehlt – welches gehört in die Lücke?',
-  },
-  {
-    id: 'paare',
-    titel: 'Satzpaare',
-    icon: IconGemischt,
-    text: `${PAARE} Sätze und ihre Übersetzungen richtig verbinden`,
-  },
+  { id: 'karten',  titel: 'tr.karten',     icon: IconKarten,    text: 'st.satzLesen' },
+  { id: 'auswahl', titel: 'st.auswahl',    icon: IconAuswahl,   text: 'st.vierUebersetzungen' },
+  { id: 'bauen',   titel: 'st.satzBauen',  icon: IconSchreiben, text: 'st.deutscherSatzOben' },
+  { id: 'luecke',  titel: 'st.lueckensatz', icon: IconLektion,  text: 'st.einWortFehlt' },
+  { id: 'paare',   titel: 'st.satzpaare',  icon: IconGemischt,  text: 'st.satzpaareText' },
 ]
+
 
 /** Vier falsche Übersetzungen dazumischen. */
 function baueAuswahl(richtig, alle, anzahl = 4) {
@@ -63,6 +40,7 @@ function baueAuswahl(richtig, alle, anzahl = 4) {
  * statt Wortpaaren gibt es Satzpaare mit 6 Sätzen untereinander (SatzPaare).
  */
 export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
+  const t = useTexte()
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [artWahl, setArtWahl] = useState(false)
   const [art, setArt] = useState('karten')
@@ -235,7 +213,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         </div>
 
         {gefiltert.length === 0 ? (
-          <p className="empty-hint">Hier ist gerade nichts.</p>
+          <p className="empty-hint">{t('st.nichtsHier')}</p>
         ) : (
           <div className="satz-liste">
             {gefiltert.map((e) => (
@@ -295,11 +273,11 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 <span key={i} className="confetti" style={{ '--i': i }} />
               ))}
             </div>
-            <h2>Runde geschafft! 🎉</h2>
+            <h2>{t('st.rundeGeschafft')}</h2>
             <p>
               {result.richtig}× gewusst · {result.falsch}× nicht gewusst
             </p>
-            <button onClick={() => setQueue(null)}>Fertig</button>
+            <button onClick={() => setQueue(null)}>{t('app.fertig')}</button>
           </div>
         </div>
       )
@@ -308,7 +286,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     const key = queue[0]
     const current = withSrsDefaults(saetze[key] ?? {})
     const satz = current.anzeige ?? key
-    const loesung = current.translation || '(keine Übersetzung gespeichert)'
+    const loesung = current.translation || t('stm2.keineUebersetzungGespeichert')
 
     return (
       <div className="trainer training-stage">
@@ -346,10 +324,10 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 )}
                 <div className="bewertungen">
                   {[
-                    { wert: 'nochmal', text: 'Nochmal' },
-                    { wert: 'schwer', text: 'Schwer' },
+                    { wert: 'nochmal', text: t('st.nochmal') },
+                    { wert: 'schwer', text: t('st.schwer') },
                     { wert: 'gut', text: 'Gut' },
-                    { wert: 'einfach', text: 'Einfach' },
+                    { wert: 'einfach', text: t('st.einfach') },
                   ].map((b) => (
                     <button
                       key={b.wert}
@@ -363,7 +341,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 </div>
               </div>
             ) : (
-              <button onClick={() => setRevealed(true)}>Übersetzung zeigen</button>
+              <button onClick={() => setRevealed(true)}>{t('st.uebersetzungZeigen')}</button>
             )}
           </div>
         )}
@@ -374,7 +352,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint">Was heißt …</p>
+            <p className="lesson-hint">{t('st.wasHeisst')}</p>
             <div className="flash-satz">{satz}</div>
             <SatzAuswahl
               key={key}
@@ -396,7 +374,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint">Bau den Satz auf Spanisch</p>
+            <p className="lesson-hint">{t('st.bauDenSatz')}</p>
             <div className="flash-satz satz-vorgabe">{loesung}</div>
             <SatzBauen
               key={key + queue.length}
@@ -412,7 +390,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint">Welches Wort fehlt?</p>
+            <p className="lesson-hint">{t('st.welchesWortFehlt')}</p>
             <Lueckensatz
               key={key + queue.length}
               satz={satz}
@@ -439,8 +417,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           <button className="btn-zurueck" onClick={() => setArtWahl(false)}>
             <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
           </button>
-          <h1 className="trainer-titel">
-            Wie willst du <span className="accent">üben?</span>
+          <h1 className="trainer-titel">{t('satX.wieWillstDu')}<span className="accent">üben?</span>
           </h1>
           <p className="art-unterzeile">
             {Math.min(RUNDE, faellig.length)} Sätze stehen an.
@@ -460,17 +437,17 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 className="art-karte"
                 onClick={() => starten(a.id)}
                 disabled={gesperrt}
-                title={gesperrt ? 'Dafür brauchst du mindestens vier Sätze' : undefined}
+                title={gesperrt ? t('st.mindestensVier') : undefined}
               >
                 <span className="art-emoji" aria-hidden="true">
                   <Icon groesse={24} />
                 </span>
                 <span className="art-text">
-                  <span className="art-titel">{a.titel}</span>
-                  <span className="art-beschreibung">{a.text}</span>
+                  <span className="art-titel">{t(a.titel)}</span>
+                  <span className="art-beschreibung">{t(a.text)}</span>
                   {gesperrt && (
                     <span className="art-hinweis">
-                      {a.id === 'paare' ? 'Ab drei gesammelten Sätzen' : 'Ab vier gesammelten Sätzen'}
+                      {a.id === 'paare' ? t('st.abDreiSaetzen') : t('st.abVierSaetzen')}
                     </span>
                   )}
                 </span>
@@ -490,11 +467,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
 
       {entries.length === 0 ? (
         <div className="bereich satz-leer">
-          <h2>Noch keine Sätze</h2>
-          <p>
-            Lass dir welche erzeugen – zu einem Thema, zu einer Zeitform oder zu
-            beidem. Danach wiederholst du sie hier, bis sie sitzen.
-          </p>
+          <h2>{t('st.keineSaetze')}</h2>
+          <p>{t('satX.lassDirWelche')}</p>
         </div>
       ) : (
         <>
@@ -502,14 +476,14 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           <section className="bereich bereich-wiederholen">
             <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
-              <span>{faellig.length === 1 ? 'Satz wartet' : 'Sätze warten'}</span>
+              <span>{faellig.length === 1 ? t('st.satzWartet') : t('st.saetzeWarten')}</span>
             </div>
             <div className="wiederholen-text">
-              <h2>Heute wiederholen</h2>
+              <h2>{t('st.heuteWiederholen')}</h2>
               <p>
                 {faellig.length > 0
-                  ? 'Diese Sätze drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
-                  : 'Alles erledigt. Neue Sätze erzeugst du unten mit der KI.'}
+                  ? t('st.drohstZuVergessen')
+                  : t('st.allesErledigt')}
               </p>
               <p className="wiederholen-stand">
                 {entries.length} gesammelt · {gewusst.length} sitzen
@@ -521,7 +495,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               disabled={faellig.length === 0 && entries.filter((e) => e.translation).length < 3}
               onClick={() => (faellig.length > 0 ? setArtWahl(true) : starten('paare'))}
             >
-              {faellig.length > 0 ? 'Üben' : entries.filter((e) => e.translation).length >= 3 ? 'Satzpaare' : 'Nichts fällig'}
+              {faellig.length > 0 ? 'Üben' : entries.filter((e) => e.translation).length >= 3 ? t('st.satzpaare') : t('st.nichtsFaellig')}
             </button>
           </section>
         </>
@@ -540,7 +514,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             <IconListe groesse={26} />
           </span>
           <span className="trainer-sprechen-text">
-            <h2>Deine Sätze</h2>
+            <h2>{t('st.deineSaetze')}</h2>
             <p>{entries.length} gesammelt – ansehen und aufräumen.</p>
           </span>
         </button>
@@ -587,6 +561,7 @@ function SatzAuswahl({ loesung, alle, gewaehlt, onWahl }) {
  * werden auf dem Handy zu schmal.
  */
 function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
+  const t = useTexte()
   // Die Reihenfolge leitet sich aus den Daten ab (wie bei den Wortpaaren),
   // damit sie bei einem Abgleich im Hintergrund nicht durcheinandergerät
   const unten = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
@@ -626,7 +601,7 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
         <p>
           {paare.length - daneben.length}× auf Anhieb · {daneben.length}× mit zweitem Versuch
         </p>
-        <button onClick={onClose}>Fertig</button>
+        <button onClick={onClose}>{t('app.fertig')}</button>
       </div>
     )
   }
@@ -713,6 +688,7 @@ function mische(liste) {
  * Sind alle verbaut, wird geprüft – ohne Groß/Klein und Satzzeichen.
  */
 function SatzBauen({ satz, onFertig }) {
+  const t = useTexte()
   const woerter = woerterVon(satz)
   // Kacheln über ihre Position merken – gleiche Wörter kommen öfter vor
   const [kacheln] = useState(() => {
@@ -777,7 +753,7 @@ function SatzBauen({ satz, onFertig }) {
   return (
     <div className="satzbau">
       <div className={'satzbau-zeile' + (ergebnis ? ' satzbau-' + (korrigiert ? 'korrigiert' : ergebnis) : '')}>
-        {gelegt.length === 0 && <span className="satzbau-platzhalter">Tippe die Wörter in der richtigen Reihenfolge</span>}
+        {gelegt.length === 0 && <span className="satzbau-platzhalter">{t('st.tippeReihenfolge')}</span>}
         {gelegt.map((n, pos) => (
           <button
             key={n}

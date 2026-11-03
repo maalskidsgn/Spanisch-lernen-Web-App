@@ -7,6 +7,7 @@ import { spiele, dialogAbspielen } from './audio.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { IconPfeil } from './icons.jsx'
+import { useTexte } from './sprache.js'
 
 /** Ein Wort auf seinen Nachschlag-Schlüssel bringen. */
 function wortSchluessel(wort) {
@@ -26,6 +27,7 @@ function wortSchluessel(wort) {
  * sondern an jeder Stelle einsteigen.
  */
 export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
+  const t = useTexte()
   const karten = useMemo(() => feedKarten(), [])
   const [sichtbar, setSichtbar] = useState(0)
   const [wort, setWort] = useState(null)
@@ -85,10 +87,10 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
   return (
     <div className="feed-seite">
       <header className="feed-kopf">
-        <button className="feed-zurueck" onClick={onZurueck} aria-label="Zurück">
+        <button className="feed-zurueck" onClick={onZurueck} aria-label={t('fd.zurueck')}>
           ←
         </button>
-        <span className="feed-titel">Für dich</span>
+        <span className="feed-titel">{t('fd.fuerDich')}</span>
         <span className="feed-zaehler">
           {sichtbar + 1}/{karten.length}
         </span>
@@ -114,7 +116,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
         {/* Letzte Seite: geschafft */}
         <div className="feed-karte feed-ende">
           <div className="feed-ende-inhalt">
-            <h2>Das war alles für heute</h2>
+            <h2>{t('fd.dasWarAlles')}</h2>
             <p>
               {gesehene().size} von {karten.length} Karten gesehen. Neue kommen
               laufend dazu.
@@ -132,7 +134,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
               className="wortkarte-schliessen"
-              aria-label="Schließen"
+              aria-label={t('fd.schliessen')}
               onClick={() => setWort(null)}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -142,11 +144,11 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[wortSchluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{t('fd.imTrainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? 'Übersetze …' : wort.de || t('fdm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button
@@ -188,6 +190,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
  * (`aktiv`) – sonst wäre sie vorbei, bevor man hinsieht.
  */
 function Haeppchen({ karte, aktiv }) {
+  const t = useTexte()
   const [laeuft, setLaeuft] = useState(null) // welcher Satz gerade klingt
 
   async function anhoeren(text, nr) {
@@ -203,7 +206,7 @@ function Haeppchen({ karte, aktiv }) {
 
   return (
     <article className={'haeppchen farbe-' + (karte.farbe ?? 0) + (aktiv ? ' ist-aktiv' : '')}>
-      <span className="haeppchen-marke">Grundlagen</span>
+      <span className="haeppchen-marke">{t('fd.grundlagen')}</span>
       <h2 className="haeppchen-titel">{karte.titel}</h2>
       <p className="haeppchen-kern">{karte.kern}</p>
 
@@ -226,7 +229,7 @@ function Haeppchen({ karte, aktiv }) {
 
       {karte.merke && (
         <p className="haeppchen-merke">
-          <b>Merke:</b> {karte.merke}
+          <b>{t('fd.merke')}</b> {karte.merke}
         </p>
       )}
     </article>
@@ -245,6 +248,7 @@ function Haeppchen({ karte, aktiv }) {
  * schaltet unten auf Deutsch um.
  */
 function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
+  const t = useTexte()
   const [sprache, setSprache] = useState('es')
   const [laeuft, setLaeuft] = useState(false)
   const [gelesen, setGelesen] = useState(false)
@@ -314,7 +318,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
 
   return (
     <article className={'feed-text farbe-' + (karte.farbe ?? 0) + (aktiv ? ' ist-aktiv' : '')}>
-      <span className="haeppchen-marke">Wissen</span>
+      <span className="haeppchen-marke">{t('fd.wissen')}</span>
       <h2 className="feed-text-titel">
         {sprache === 'es' ? karte.titelEs : karte.titelDe}
       </h2>
@@ -363,17 +367,18 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
 
 /** Der Einstiegsknopf, der von der Startseite in den Feed führt. */
 export function FeedTuer({ onOeffnen }) {
+  const t = useTexte()
   const anzahl = feedKarten().length
   const gesehen = gesehene().size
 
   return (
     <button className="feed-tuer" onClick={onOeffnen}>
       <span className="feed-tuer-text">
-        <b>Für dich</b>
+        <b>{t('fd.fuerDich')}</b>
         <span>
           {gesehen > 0
             ? `${anzahl - gesehen} neue Karten – Spanisch zum Durchwischen`
-            : 'Spanisch zum Durchwischen – Grundlagen und Wissen'}
+            : t('fdm.spanischZumDurchwischen')}
         </span>
       </span>
       <IconPfeil groesse={20} />

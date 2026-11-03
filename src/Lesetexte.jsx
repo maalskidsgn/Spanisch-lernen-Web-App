@@ -11,6 +11,7 @@ import { neuerText, textSchluessel } from './lesetexte.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken, IconListe, IconPfeil } from './icons.jsx'
+import { useTexte } from './sprache.js'
 
 // Dieselben Gebiete wie auf dem Server (server/lesetexte.js).
 const GEBIETE = [
@@ -44,6 +45,7 @@ const STUFEN = [
  * Karten (srs.js), wann der Text wieder dran ist.
  */
 export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vocab = {} }) {
+  const t = useTexte()
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [offenerText, setOffenerText] = useState(null) // Kennung des Textes im Leser
 
@@ -115,10 +117,10 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
       <div className="trainer wechsel" key="text-liste">
         {kopf}
         <button className="btn-zurueck" onClick={() => setAnsicht('start')}>
-          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{t('lt.zurueck')}
         </button>
         {neueste.length === 0 ? (
-          <p className="empty-hint">Noch keine Texte.</p>
+          <p className="empty-hint">{t('lt.nochKeineTexte')}</p>
         ) : (
           <div className="text-liste">
             {neueste.map((t) => (
@@ -131,7 +133,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
                     {t.gelesen ? ` · ${t.gelesen}× gelesen` : ''}
                   </span>
                 </button>
-                <button className="satz-weg" onClick={() => entfernen(t.id)} title="Text entfernen">
+                <button className="satz-weg" onClick={() => entfernen(t.id)} title={t('lt.textEntfernen')}>
                   ✕
                 </button>
               </div>
@@ -149,13 +151,8 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
 
       {entries.length === 0 ? (
         <div className="bereich satz-leer">
-          <h2>Noch keine Texte</h2>
-          <p>
-            Lass dir einen kurzen Text über etwas Wissenswertes schreiben – über
-            Oktopusse, das Weltall oder warum Brot aufgeht. Du liest ihn auf
-            Spanisch, schaltest bei Bedarf auf Deutsch um, und bekommst ihn
-            später automatisch wieder vorgelegt.
-          </p>
+          <h2>{t('lt.nochKeineTexte2')}</h2>
+          <p>{t('lesX.lassDirEinen')}</p>
         </div>
       ) : (
         <>
@@ -167,11 +164,11 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
               <span>{faellig.length === 1 ? 'Text wartet' : 'Texte warten'}</span>
             </div>
             <div className="wiederholen-text">
-              <h2>Heute wiederlesen</h2>
+              <h2>{t('lt.heuteWiederlesen')}</h2>
               <p>
                 {faellig.length > 0
-                  ? 'Diese Texte sind wieder dran – beim zweiten Lesen bleibt am meisten hängen.'
-                  : 'Alles gelesen. Der nächste Text wird von selbst wieder fällig.'}
+                  ? t('ltm.dieseTexteSind')
+                  : t('ltm.allesGelesenDer')}
               </p>
             </div>
             <button
@@ -202,7 +199,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
             <IconListe groesse={26} />
           </span>
           <span className="trainer-sprechen-text">
-            <h2>Alle Texte</h2>
+            <h2>{t('lt.alleTexte')}</h2>
             <p>{entries.length} gesammelt – noch einmal lesen oder aufräumen.</p>
           </span>
         </button>
@@ -223,6 +220,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
  * die beiden Sprachen auch absatzweise nebeneinander in den Daten.
  */
 function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
+  const t = useTexte()
   const [sprache, setSprache] = useState('es')
   const [fertig, setFertig] = useState(false)
   const [gesammelt, setGesammelt] = useState([])
@@ -290,7 +288,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
   return (
     <div className="leser">
       <div className="leser-leiste">
-        <button className="leser-pfeil" onClick={onZurueck} aria-label="Zurück">
+        <button className="leser-pfeil" onClick={onZurueck} aria-label={t('lt.zurueck')}>
           ←
         </button>
         <span className="leser-kopf-titel">{sprache === 'es' ? 'Español' : 'Deutsch'}</span>
@@ -309,8 +307,8 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
         {/* Die Wörter zum Mitnehmen – ein Tipp legt sie in den Trainer */}
         {text.woerter?.length > 0 && (
           <div className="leser-woerter">
-            <h2>Wörter aus dem Text</h2>
-            <p className="leser-woerter-hinweis">Antippen, um sie zu sammeln.</p>
+            <h2>{t('lt.woerterAusDem')}</h2>
+            <p className="leser-woerter-hinweis">{t('lt.antippenUmSie')}</p>
             <div className="leser-wortliste">
               {text.woerter.map((w) => {
                 const schonDa = gesammelt.includes(w.wort)
@@ -333,7 +331,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
 
         {text.merksatz && (
           <div className="leser-merksatz">
-            <span className="leser-merksatz-marke">Zum Weitererzählen</span>
+            <span className="leser-merksatz-marke">{t('lt.zumWeitererzaehlen')}</span>
             <p>{text.merksatz}</p>
           </div>
         )}
@@ -364,17 +362,17 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       {/* Am Ende: Wie gut kamst du zurecht? Daraus folgt der nächste Termin. */}
       {fertig ? (
         <div className="leser-bewertung">
-          <p className="leser-frage">Wie gut hast du den Text verstanden?</p>
+          <p className="leser-frage">{t('lt.wieGutHast')}</p>
           {/* Was es dafuer gibt, soll man vorher sehen - sonst klickt
               man auf gut Glueck und erfaehrt die Belohnung erst,
               wenn sie schon verbucht ist. */}
           <p className="leser-lohn">+{XP.TEXT_RICHTIG} XP für diesen Text</p>
           <div className="bewertungen">
             {[
-              { wert: 'nochmal', text: 'Kaum' },
-              { wert: 'schwer', text: 'Mit Mühe' },
+              { wert: 'nochmal', text: t('lt.kaum') },
+              { wert: 'schwer', text: t('lt.mitMuehe') },
               { wert: 'gut', text: 'Gut' },
-              { wert: 'einfach', text: 'Mühelos' },
+              { wert: 'einfach', text: t('lt.muehelos') },
             ].map((b) => (
               <button
                 key={b.wert}
@@ -399,7 +397,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
               className="wortkarte-schliessen"
-              aria-label="Schließen"
+              aria-label={t('lt.schliessen')}
               onClick={() => setWort(null)}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -409,11 +407,11 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[wortSchluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{t('lt.imTrainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? 'Übersetze …' : wort.de || t('ltm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button
@@ -444,6 +442,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
 // ===============================================================
 
 function TextGenerator({ texte, setTexte, onFertig }) {
+  const t = useTexte()
   const [gebiet, setGebiet] = useState('')
   const [thema, setThema] = useState('')
   const [stufe, setStufe] = useState('b1')
@@ -470,10 +469,10 @@ function TextGenerator({ texte, setTexte, onFertig }) {
       const res = await fetch(API_URL + '/api/lesetext', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ gebiet: g, thema: thema.trim(), stufe, bekannt }),
+        body: JSON.stringify({ sprache: sprache(), gebiet: g, thema: thema.trim(), stufe, bekannt }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Das hat nicht geklappt.')
+      if (!res.ok) throw new Error(daten.error || t('ltm.dasHatNicht'))
 
       const id = textSchluessel()
       setTexte((alt) => ({ ...alt, [id]: neuerText(daten) }))
@@ -504,8 +503,8 @@ function TextGenerator({ texte, setTexte, onFertig }) {
           <IconFunken groesse={24} />
         </span>
         <div className="gen-text">
-          <h2>Wissenstext erzeugen</h2>
-          <p>Ein kurzer Text zum Lesen – und später Wiederlesen.</p>
+          <h2>{t('lt.wissenstextErzeugen')}</h2>
+          <p>{t('lt.einKurzerText')}</p>
         </div>
         {uebrig <= 2 && (
           <span className="rest-zaehler">
@@ -516,7 +515,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
 
       <form className="wort-form" onSubmit={erzeugen}>
         {/* Schritt 1: Gebiet – nur auswählen, erzeugt wird unten */}
-        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <p className="sg-schritt"><span>1</span> {t('lt.themaWaehlen')}</p>
         <div className="sg-themen">
           {GEBIETE.map(([wert, name]) => (
             <button
@@ -532,7 +531,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
         </div>
 
         {/* Schritt 2: Schwierigkeit */}
-        <p className="sg-schritt"><span>2</span> Schwierigkeit</p>
+        <p className="sg-schritt"><span>2</span> {t('lt.schwierigkeit')}</p>
         <div className="sg-formen sg-drei">
           {STUFEN.map(([wert, name, hilfe]) => (
             <button
@@ -548,7 +547,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
         </div>
 
         {/* Eigener Wunsch: ein ganzer Absatz statt nur ein Stichwort */}
-        <p className="sg-schritt"><span>3</span> Oder eigener Wunsch <small>optional</small></p>
+        <p className="sg-schritt"><span>3</span> {t('lt.oderEigenerWunsch')} <small>optional</small></p>
         <textarea
           className="text-wunsch"
           value={thema}
@@ -556,7 +555,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
             setThema(e.target.value)
             if (e.target.value.trim()) setGebiet('')
           }}
-          placeholder="z. B. Ich möchte einen Text, der erklärt, wie man langfristig an einer Sache dranbleibt."
+          placeholder={t('lt.zBIch')}
           rows={3}
           maxLength={600}
           disabled={laden}
@@ -569,7 +568,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
             disabled={laden || (!thema.trim() && !gebiet)}
           >
             {laden ? (
-              <>Schreibt den Text<span className="studio-punkte" /></>
+              <>{t('lt.schreibtDenText')}<span className="studio-punkte" /></>
             ) : (
               'Text erzeugen'
             )}

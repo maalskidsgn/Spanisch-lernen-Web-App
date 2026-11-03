@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { API_URL, istApp } from './api.js'
 import { db } from './supabase.js'
+import { useTexte } from './sprache.js'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2']
 
@@ -28,6 +29,7 @@ function leseMinuten(buch) {
  * kostenlosen Zugang drei pro Monat.
  */
 export default function Ebooks({ onAddVocab, vocab = {} }) {
+  const t = useTexte()
   const [buecher, setBuecher] = useState(null)
   const [offenes, setOffenes] = useState(null)
   const [thema, setThema] = useState('')
@@ -78,7 +80,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data.session?.access_token}`,
         },
-        body: JSON.stringify({ thema: thema.trim(), niveau }),
+        body: JSON.stringify({ sprache: sprache(), thema: thema.trim(), niveau }),
       })
 
       const antwort = await res.json()
@@ -121,20 +123,17 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       <section className="bereich">
         <div className="bereich-kopf">
           <div className="kopf-zeile">
-            <h2>Buch schreiben lassen</h2>
+            <h2>{t('eb.buchSchreibenLassen')}</h2>
             {kontingent && (
               <span
                 className={'rest-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
-                title="Kostenlose Bücher diesen Monat"
+                title={t('eb.kostenloseBuecherDiesen')}
               >
                 {kontingent.frei}/{kontingent.gesamt}
               </span>
             )}
           </div>
-          <p>
-            Nenn ein Thema, und die KI schreibt eine kurze Zusammenfassung auf
-            Spanisch – mit deutscher Fassung zum Umschalten.
-          </p>
+          <p>{t('eb2.nennEinThema')}</p>
         </div>
 
         <form className="wort-form" onSubmit={erstellen}>
@@ -142,13 +141,13 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“"
+            placeholder={t('eb.themaOderBuchtitel')}
             disabled={aufgebraucht || laedt}
             required
           />
 
           <div className="niveau-zeile">
-            <span className="niveau-label">Niveau</span>
+            <span className="niveau-label">{t('eb.niveau')}</span>
             {NIVEAUS.map((n) => (
               <button
                 key={n}
@@ -163,7 +162,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
           <button type="submit" className="btn wort-los" disabled={laedt || aufgebraucht}>
             {laedt ? (
-              <>Schreibt dein Buch<span className="studio-punkte" /></>
+              <>{t('eb.schreibtDeinBuch')}<span className="studio-punkte" /></>
             ) : (
               'Buch erstellen'
             )}
@@ -172,8 +171,8 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
               {istApp
-                ? 'Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.'
-                : 'Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.'}
+                ? t('ebm.deinMonatskontingentIst')
+                : t('ebm.deinMonatskontingentIst2')}
             </p>
           )}
         </form>
@@ -182,12 +181,9 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       {aufgebraucht && !istApp && (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
-            Unbegrenzt lesen <span className="plan-badge badge-soon">Premium</span>
+            Unbegrenzt lesen <span className="plan-badge badge-soon">{t('eb.premium')}</span>
           </div>
-          <p className="row-hint">
-            Mit Premium erstellst du so viele E-Books, wie du möchtest – zu jedem
-            Thema und auf jedem Niveau.
-          </p>
+          <p className="row-hint">{t('eb2.mitPremiumErstellst')}</p>
         </div>
       )}
 
@@ -196,7 +192,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       {/* ============ 2. DEINE BÜCHER ============ */}
       <section className="bereich">
         <div className="bereich-kopf">
-          <h2>Deine Bücher</h2>
+          <h2>{t('eb.deineBuecher')}</h2>
           <p>
             {buecher
               ? `${buecher.length} zum Lesen – tippe eins an.`
@@ -212,7 +208,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
                 <span className="ebook-cover-niveau">{b.niveau}</span>
                 <span className="ebook-cover-titel">{b.titel}</span>
                 <span className="ebook-cover-autor">{b.autor}</span>
-                {b.ist_beispiel && <span className="ebook-marke">Beispiel</span>}
+                {b.ist_beispiel && <span className="ebook-marke">{t('eb.beispiel')}</span>}
               </div>
               <div className="ebook-info">
                 <div className="ebook-titel">{b.titel_de || b.titel}</div>
@@ -223,7 +219,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
               {!b.ist_beispiel && (
                 <button
                   className="btn-delete ebook-loeschen"
-                  title="Buch löschen"
+                  title={t('eb.buchLoeschen')}
                   onClick={(e) => { e.stopPropagation(); loeschen(b.id) }}
                 >
                   ✕
@@ -242,6 +238,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 //  Der Leser im Blinkist-Stil
 // ---------------------------------------------------------------
 function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
+  const t = useTexte()
   const [sprache, setSprache] = useState('es') // 'es' | 'de'
   const [kapitelNr, setKapitelNr] = useState(0) // -1 wäre Vokabel-Seite
   const [uebernommen, setUebernommen] = useState(false)
@@ -360,9 +357,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
               </p>
             ))}
           {sprache === 'es' && (
-            <p className="lese-tipp">
-              Tipp: Tippe ein Wort an, um es zu übersetzen und zu sammeln.
-            </p>
+            <p className="lese-tipp">{t('eb2.tippTippeEin')}</p>
           )}
         </div>
       )}
@@ -376,7 +371,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
           <h1 className="leser-titel">
             {sprache === 'es'
               ? 'Las palabras más importantes'
-              : 'Die wichtigsten Wörter'}
+              : t('ebm.dieWichtigstenWoerter')}
           </h1>
           <div className="buch-vokabeln">
             {(buch.vokabeln ?? []).map((v, i) => (
@@ -387,7 +382,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             ))}
           </div>
           <button className="btn" onClick={vokabelnUebernehmen} disabled={uebernommen}>
-            {uebernommen ? '✓ Im Trainer' : '＋ Alle in den Vokabeltrainer'}
+            {uebernommen ? '✓ Im Trainer' : t('ebm.alleInDen')}
           </button>
         </div>
       )}
@@ -399,11 +394,11 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[schluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{t('eb.imTrainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? 'Übersetze …' : wort.de || t('ebm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button className="btn-outline" onClick={() => setWort(null)}>

@@ -6,6 +6,7 @@ import {
 import { ladeFreunde } from './rangliste.js'
 import { Bildnis } from './Rangliste.jsx'
 import { useAnwesend } from './praesenz.js'
+import { useTexte } from './sprache.js'
 
 /**
  * Duelle gegen Freunde.
@@ -15,6 +16,7 @@ import { useAnwesend } from './praesenz.js'
  * Freunde hat.
  */
 export default function DuellKasten({ addXp }) {
+  const t = useTexte()
   const [liste, setListe] = useState(null) // null = lädt
   const [freunde, setFreunde] = useState([])
   const [waehlen, setWaehlen] = useState(false)
@@ -81,10 +83,7 @@ export default function DuellKasten({ addXp }) {
 
       {/* ---------- Herausfordern ---------- */}
       {freunde.length === 0 ? (
-        <p className="du-leer">
-          Für ein Duell brauchst du erst einen Freund. Such jemanden über den Namen –
-          oder schick deinen Einladungslink aus der Rangliste.
-        </p>
+        <p className="du-leer">{t('du2.fuerEinDuell')}</p>
       ) : !waehlen ? (
         <button className="du-neu" onClick={() => { setFehler(''); setWaehlen(true) }}>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -95,7 +94,7 @@ export default function DuellKasten({ addXp }) {
         </button>
       ) : (
         <div className="du-waehlen">
-          <p className="du-waehlen-titel">Gegen wen?</p>
+          <p className="du-waehlen-titel">{t('du.gegenWen')}</p>
           {/* Wer gerade da ist, steht oben – gegen den lohnt es sich
               am meisten, weil die Antwort schnell kommt. */}
           {[...freunde]
@@ -132,8 +131,7 @@ export default function DuellKasten({ addXp }) {
           Ganz oben: Das ist das Einzige, wo man etwas tun kann. */}
       {offen.length > 0 && (
         <section className="du-block">
-          <h3 className="du-titel">
-            Du bist dran <span className="du-zahl">{offen.length}</span>
+          <h3 className="du-titel">{t('dueX.duBistDran')}<span className="du-zahl">{offen.length}</span>
           </h3>
           {offen.map((d) => (
             <Zeile key={d.id} d={d} onSpielen={() => setSpiel(d)} onWeg={neuLaden} />
@@ -143,14 +141,14 @@ export default function DuellKasten({ addXp }) {
 
       {wartet.length > 0 && (
         <section className="du-block">
-          <h3 className="du-titel">Warten auf den Gegner</h3>
+          <h3 className="du-titel">{t('du.wartenAufGegner')}</h3>
           {wartet.map((d) => <Zeile key={d.id} d={d} onWeg={neuLaden} />)}
         </section>
       )}
 
       {fertig.length > 0 && (
         <section className="du-block">
-          <h3 className="du-titel">Gespielt</h3>
+          <h3 className="du-titel">{t('du.gespielt')}</h3>
           {fertig.map((d) => <Zeile key={d.id} d={d} onWeg={neuLaden} />)}
         </section>
       )}
@@ -160,6 +158,7 @@ export default function DuellKasten({ addXp }) {
 
 /** Ein Duell in der Liste. */
 function Zeile({ d, onSpielen, onWeg }) {
+  const t = useTexte()
   const s = stand(d)
   const da = useAnwesend()
   const [laeuft, setLaeuft] = useState(false)
@@ -175,7 +174,7 @@ function Zeile({ d, onSpielen, onWeg }) {
   }
 
   return (
-    <div className={'du-zeile du-ist-' + s}>
+    <div className={t('dum.duZeileDu') + s}>
       <span className="du-bildfeld">
         <Bildnis name={d.gegner} bild={d.gegner_bild} klasse="du-bild" />
         {da(d.gegner) && <span className="ist-da" title="gerade online" />}
@@ -193,7 +192,7 @@ function Zeile({ d, onSpielen, onWeg }) {
 
       <span className="du-tun">
         {s === 'ich_dran' && (
-          <button className="btn-small" onClick={onSpielen}>Spielen</button>
+          <button className="btn-small" onClick={onSpielen}>{t('du.spielen')}</button>
         )}
         {s === 'er_dran' && <span className="du-marke">wartet</span>}
         {s === 'gewonnen' && <span className="du-marke du-gewonnen">gewonnen</span>}
@@ -201,7 +200,7 @@ function Zeile({ d, onSpielen, onWeg }) {
         {s === 'unentschieden' && <span className="du-marke">unentschieden</span>}
         {s !== 'ich_dran' && (
           <button className="btn-plain du-weg" disabled={laeuft} onClick={weg}
-                  aria-label="Duell entfernen">
+                  aria-label={t('du.entfernen')}>
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.4"
                     strokeLinecap="round" />
@@ -221,6 +220,7 @@ function Zeile({ d, onSpielen, onWeg }) {
  * spannend ist: Ohne Zeitdruck hätten am Ende beide sieben Punkte.
  */
 function DuellSpiel({ duell, addXp, onFertig }) {
+  const t = useTexte()
   const fragen = duell.fragen || []
   const [nr, setNr] = useState(0)
   const [gewaehlt, setGewaehlt] = useState(null)
@@ -287,8 +287,8 @@ function DuellSpiel({ duell, addXp, onFertig }) {
     return (
       <div className="du-schicht" role="dialog" aria-modal="true">
         <div className="du-karte">
-          <p>Dieses Duell hat keine Fragen mehr.</p>
-          <button className="btn" onClick={onFertig}>Zurück</button>
+          <p>{t('du.keineFragen')}</p>
+          <button className="btn" onClick={onFertig}>{t('app.zurueck')}</button>
         </div>
       </div>
     )
@@ -298,7 +298,7 @@ function DuellSpiel({ duell, addXp, onFertig }) {
     return (
       <div className="du-schicht" role="dialog" aria-modal="true">
         <div className="du-karte du-ende">
-          <p className="du-ende-klein">Dein Ergebnis</p>
+          <p className="du-ende-klein">{t('du.deinErgebnis')}</p>
           <p className="du-ende-punkte">
             {fertig.punkte}<span>/{fragen.length}</span>
           </p>
@@ -317,7 +317,7 @@ function DuellSpiel({ duell, addXp, onFertig }) {
             </>
           )}
 
-          <button className="btn" onClick={onFertig}>Fertig</button>
+          <button className="btn" onClick={onFertig}>{t('app.fertig')}</button>
         </div>
       </div>
     )
@@ -365,7 +365,7 @@ function DuellSpiel({ duell, addXp, onFertig }) {
           })}
         </div>
 
-        {gewaehlt === '' && <p className="du-zuspaet">Zeit abgelaufen</p>}
+        {gewaehlt === '' && <p className="du-zuspaet">{t('du.zeitAbgelaufen')}</p>}
       </div>
     </div>
   )

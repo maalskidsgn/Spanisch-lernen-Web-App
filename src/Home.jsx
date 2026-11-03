@@ -15,6 +15,7 @@ import { IconLektion, IconKarten, IconMediathek } from './icons.jsx'
 import { ladeBenutzername } from './rangliste.js'
 import { FeedTuer } from './Feed.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
+import { useTexte, gebiet, text as inhaltsText } from './sprache.js'
 import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 
 // Die Startseite.
@@ -57,6 +58,7 @@ export default function Home({
   nutzerEmail,
   nutzerId,
 }) {
+  const t = useTexte()
   const faellig = counts.faellig ?? 0
 
   // Der Name für die Begrüßung: derselbe, unter dem man in der
@@ -115,29 +117,29 @@ export default function Home({
           <span className="accent">!</span>
         </h1>
         <p className="start-zurueck">
-          {progress.xp > 0 ? 'Schön, dass du wieder da bist.' : 'Schön, dass du da bist.'}
+          {progress.xp > 0 ? t('home.schoenWieder') : t('home.schoen')}
         </p>
 
         <div className="start-wege">
           <button className="start-weg" onClick={() => onNavigate('lektionen')}>
             <span className="sw-zeichen"><IconLektion groesse={22} /></span>
             <span className="sw-text">
-              <b>Lektion</b>
-              <small>{nextLesson ? nextLesson.titel : 'Alles geschafft'}</small>
+              <b>{t('home.lektion')}</b>
+              <small>{nextLesson ? inhaltsText(nextLesson.titel) : t('hm.allesGeschafft')}</small>
             </span>
           </button>
           <button className="start-weg" onClick={() => onNavigate('trainer')}>
             <span className="sw-zeichen"><IconKarten groesse={22} /></span>
             <span className="sw-text">
-              <b>Trainer</b>
-              <small>{faellig > 0 ? `${faellig} fällig` : 'Wörter üben'}</small>
+              <b>{t('home.trainer')}</b>
+              <small>{faellig > 0 ? t('home.faellig', { zahl: faellig }) : t('home.woerterUeben')}</small>
             </span>
           </button>
           <button className="start-weg" onClick={() => onNavigate('videos')}>
             <span className="sw-zeichen"><IconMediathek groesse={22} /></span>
             <span className="sw-text">
-              <b>YouTube</b>
-              <small>Videos ansehen</small>
+              <b>{t('home.youtube')}</b>
+              <small>{t('home.videosAnsehen')}</small>
             </span>
           </button>
         </div>
@@ -166,13 +168,13 @@ export default function Home({
         <MiniRoute fertig={!nextLesson} />
         <div className="start-lektion-text">
           <span className="start-marke">
-            {nextLesson ? 'Nächste aktive Lektion' : 'Alles geschafft'}
+            {nextLesson ? t('hm.naechsteAktive') : t('hm.allesGeschafft')}
           </span>
-          <h2>{nextLesson ? nextLesson.titel : 'Alle 150 Lektionen durch'}</h2>
+          <h2>{nextLesson ? inhaltsText(nextLesson.titel) : t('hm.alle150Lektionen')}</h2>
           <p>
             {nextLesson
               ? (nextLesson.grammatik?.[0] ?? nextLesson.beschreibung)
-              : 'Halte die Sprache mit dem Trainer und der Mediathek wach.'}
+              : t('hmm.halteDieSprache')}
           </p>
 
           {nextLesson && modul && (
@@ -231,16 +233,16 @@ export default function Home({
           <div className="streak-text">
             <b className="streak-zahl">{progress.streak}</b>
             <span className="streak-label">
-              {progress.streak === 1 ? 'Tag' : 'Tage'} in Folge
+              {progress.streak === 1 ? t('hm.tagInFolge') : t('hm.tageInFolge')}
             </span>
           </div>
-          <h2 className="start-abschnitt streak-titel">Deine Lernstreak</h2>
+          <h2 className="start-abschnitt streak-titel">{t('home.lernstreak')}</h2>
         </div>
 
-        <ol className="woche-reihe" aria-label={`${wochenSumme} Einheiten diese Woche`}>
+        <ol className="woche-reihe" aria-label={t('hm.einheitenDieseWoche', { zahl: wochenSumme })}>
           {woche.map((tag, i) => (
             <li key={i} className={'woche-punkt' + (tag.istHeute ? ' punkt-heute' : '')}>
-              <span className="woche-name">{tag.istHeute ? 'Heute' : tag.label}</span>
+              <span className="woche-name">{tag.istHeute ? t('hm.heute') : tag.label}</span>
               <span className={'woche-kreis' + stufe(tag.anzahl)}>
                 {tag.anzahl >= 2 && (
                   <svg viewBox="0 0 24 24" width="13" height="13">
@@ -289,10 +291,11 @@ export default function Home({
 
 /** Vier farbige Balken: Woerter, Lektionen, Songs, Videos. */
 function Sammelbalken({ werte }) {
+  const t = useTexte()
   const max = Math.max(1, ...werte.map((w) => w.wert))
   return (
     <div className="sammelbalken">
-      <p className="start-abschnitt-sub balken-titel">Gesammelt</p>
+      <p className="start-abschnitt-sub balken-titel">{t('hm.gesammelt')}</p>
       {werte.map((w) => (
         <div key={w.name} className="balken-zeile">
           <span className="balken-name">{w.name}</span>
@@ -314,6 +317,7 @@ function Sammelbalken({ werte }) {
  * zeigt die Aufschlüsselung in Lektionen und Wiederholungen.
  */
 function Kalender() {
+  const t = useTexte()
   const jetzt = new Date()
   const [ansicht, setAnsicht] = useState('monat') // 'monat' | 'jahr'
   const [gewaehlt, setGewaehlt] = useState(null)
@@ -323,7 +327,13 @@ function Kalender() {
 
   const monate = jahresRaster(jahr)
   const frueh = Math.min(erstesJahr(), jetzt.getFullYear())
-  const wochentage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+  // Die Kuerzel kommen vom Browser, nicht aus einer Liste: Auf
+  // Englisch heissen sie Mon..Sun, und eine zweite feste Liste
+  // waere eine zweite Stelle, die man beim Sprachwechsel vergisst.
+  // Der 4. Januar 2021 war ein Montag - von dort aus sieben Tage.
+  const wochentage = Array.from({ length: 7 }, (_, i) =>
+    new Date(2021, 0, 4 + i).toLocaleDateString(gebiet(), { weekday: 'short' }).replace('.', '')
+  )
 
   // Grenzen: nicht vor das erste Jahr mit Daten, nicht in die Zukunft
   const amAnfang = ansicht === 'monat' ? jahr <= frueh && monat === 0 : jahr <= frueh
@@ -375,22 +385,22 @@ function Kalender() {
     <div className="kalender">
       <div className="kal-kopf">
         <p className="start-abschnitt-sub kal-titel">
-          Kalender · {aktiveTage} {aktiveTage === 1 ? 'aktiver Tag' : 'aktive Tage'}
+          {t('hm.kalenderTage', { zahl: aktiveTage, einheit: aktiveTage === 1 ? t('hm.aktiverTag') : t('hm.aktiveTage') })}
         </p>
         <div className="kal-umschalter" role="tablist">
           <button type="button" className={ansicht === 'monat' ? 'ist-aktiv' : ''} onClick={() => wechsle('monat')}>
-            Monat
+            {t('home.monat')}
           </button>
           <button type="button" className={ansicht === 'jahr' ? 'ist-aktiv' : ''} onClick={() => wechsle('jahr')}>
-            Jahr
+            {t('home.jahr')}
           </button>
         </div>
       </div>
 
       <div className="kal-jahr-nav">
-        <button type="button" aria-label="Zurück" disabled={amAnfang} onClick={() => blaettern(-1)}>‹</button>
+        <button type="button" aria-label={t('hm.zurueck')} disabled={amAnfang} onClick={() => blaettern(-1)}>‹</button>
         <b>{titel}</b>
-        <button type="button" aria-label="Weiter" disabled={amEnde} onClick={() => blaettern(1)}>›</button>
+        <button type="button" aria-label={t('hm.weiter')} disabled={amEnde} onClick={() => blaettern(1)}>›</button>
       </div>
 
       <div className="kal-wischflaeche" onTouchStart={wischStart} onTouchEnd={wischEnde}>
@@ -474,7 +484,7 @@ function Kalender() {
         <div className={'kal-detail' + (gewaehlt.gesamt > 0 ? ' kal-detail-aktiv' : '')}>
           <p className="kal-detail-datum">{kalDatum(gewaehlt.schluessel)}</p>
           {gewaehlt.gesamt === 0 ? (
-            <p className="kal-detail-leer">An diesem Tag wurde nichts gelernt.</p>
+            <p className="kal-detail-leer">{t('hm.anDiesemTag')}</p>
           ) : (
             <div className="kal-detail-werte">
               {gewaehlt.wiederholungen > 0 && (
@@ -551,6 +561,7 @@ function MiniRoute({ fertig = false }) {
  * leeren Raum führt, wäre schlimmer als keiner.
  */
 function Gruppenstunde({ onNavigate }) {
+  const t = useTexte()
   const { premium } = usePremium()
   const [jetzt, setJetzt] = useState(() => new Date())
 
@@ -576,18 +587,18 @@ function Gruppenstunde({ onNavigate }) {
       </div>
 
       <h2 className="tutor-titel">
-        Lerne in der <span className="accent">Praxis!</span>
+        {t('hm2.lerneInDer')} <span className="accent">{t('hm.praxis')}</span>
       </h2>
 
       <p className="tutor-text">
         {s.zustand === 'laeuft' ? (
           <>
-            Die Gruppenstunde mit <b className="accent">{UNTERRICHT.lehrerin}</b> läuft
-            gerade – {restzeit(s.endetIn)} ist Schluss.
+            {t('hm2.gruppeLaeuft1')} <b className="accent">{UNTERRICHT.lehrerin}</b>{' '}
+            {t('hm2.gruppeLaeuft2', { rest: restzeit(s.endetIn) })}
           </>
         ) : (
           <>
-            Gruppenunterricht mit <b className="accent">{UNTERRICHT.lehrerin}</b>:{' '}
+            {t('hm2.gruppeTermin')} <b className="accent">{UNTERRICHT.lehrerin}</b>:{' '}
             {terminText(s.termin)}, {restzeit(s.beginntIn)}.
           </>
         )}
@@ -612,9 +623,7 @@ function Gruppenstunde({ onNavigate }) {
         )}
 
         {offen && premium && !raumDa && (
-          <button className="tutor-knopf" disabled>
-            Raum wird vorbereitet
-          </button>
+          <button className="tutor-knopf" disabled>{t('hm2.raumWirdVorbereitet')}</button>
         )}
 
         {!premium && !istApp && (
@@ -635,9 +644,7 @@ function Gruppenstunde({ onNavigate }) {
       </div>
 
       {offen && premium && !raumDa && (
-        <p className="tutor-hinweis">
-          Die Zugangsadresse fehlt noch (VITE_UNTERRICHT_URL).
-        </p>
+        <p className="tutor-hinweis">{t('hm2.dieZugangsadresseFehlt')}</p>
       )}
     </section>
   )
@@ -653,46 +660,46 @@ function Gruppenstunde({ onNavigate }) {
  */
 const STATIONEN = [
   {
-    titel: 'Jeden Tag eine Etappe',
-    text: 'Zwölf neue Wörter, ein Dialog, ein paar Übungen – acht bis zehn Minuten. Mehr braucht ein Tag nicht. Die Reiseroute zeigt dir immer genau die eine Lektion, die als Nächstes dran ist. Suchen musst du nichts.',
+    titel: 'hm.jedenTagEine',
+    text: 'hm.zwoelfNeueWoerter',
     ziel: 'lektionen',
-    link: 'Zur Reiseroute',
+    link: 'hm.zurReiseroute',
   },
   {
-    titel: 'Was du lernst, geht nicht wieder weg',
-    text: 'Jede Vokabel aus einer Lektion landet im Trainer. Der merkt sich, wann du sie zuletzt konntest, und legt sie dir genau dann wieder vor, wenn du sie zu vergessen drohst – nach einem Tag, nach dreien, nach einer Woche. Das ist der Unterschied zwischen „schon mal gesehen“ und „kann ich“.',
+    titel: 'hm.wasDuLernst',
+    text: 'hm.jedeVokabelAus',
     ziel: 'trainer',
-    link: 'Zum Vokabeltrainer',
+    link: 'hm.zumVokabeltrainer',
   },
   {
-    titel: 'Grammatik in kleinen Bausteinen',
-    text: 'Ser oder estar, Indefinido oder Imperfekt: 55 Regeln, jede mit fünf Aufgaben. Jeden Tag ist eine andere dran – im selben Karteikasten wie die Vokabeln. Zwei Minuten, und die Regel bleibt.',
+    titel: 'hm.grammatikInKleinen',
+    text: 'hm.serOderEstar',
     ziel: 'trainer',
-    link: 'Zu den Bausteinen',
+    link: 'hm.zuDenBausteinen',
   },
   {
-    titel: 'Lernen, ohne zu lernen',
-    text: 'In der Mediathek sagst du auf Deutsch, worüber du etwas schauen willst – Ernährung, Sport, Psychologie – und bekommst spanische Videos dazu. Dazu Songs mit mitlaufendem Text und Buchzusammenfassungen. Unbekannte Wörter tippst du an, sie wandern in den Trainer.',
+    titel: 'hm.lernenOhneZu',
+    text: 'hm.inDerMediathek',
     ziel: 'videos',
-    link: 'Zur Mediathek',
+    link: 'hm.zurMediathek',
   },
   {
-    titel: 'Und an den Tagen ohne Lust',
-    text: 'Sechs Spiele: Memory, Wortpaare, Wortsuche, Blitzrunde, Galgenmännchen und Buchstabensalat. Sie nehmen genau die Wörter, die als Nächstes fällig wären. Wer sie im Spiel wiedererkennt, schiebt sie eine Stufe weiter. Lernen, das sich nicht danach anfühlt.',
+    titel: 'hm.undAnDen',
+    text: 'hm.sechsSpieleMemory',
     ziel: 'trainer',
-    link: 'Zu den Spielen',
+    link: 'hm.zuDenSpielen',
   },
   {
-    titel: 'Was die KI dir abnimmt',
-    text: 'Sie stellt Wortlisten zu jedem Thema zusammen – ohne die Wörter, die du längst hast. Sie sucht Videos zu deinen Interessen. Sie schreibt dir eine Buchzusammenfassung auf Spanisch. Sie lernt nicht für dich, sie nimmt dir das Suchen ab.',
+    titel: 'hm.wasDieKi',
+    text: 'hm.sieStelltWortlisten',
     ziel: 'trainer',
-    link: 'Liste erstellen lassen',
+    link: 'hm.listeErstellenLassen',
   },
   {
-    titel: 'Warum es Level und Serien gibt',
-    text: 'Ehrlich gesagt: weil Lernen ohne sichtbaren Fortschritt aufhört. XP, Level, die Tage-Serie und die Prüfstation am Ende jedes Moduls sind kleine Beweise, dass etwas passiert – gerade an den Tagen, an denen es sich nicht so anfühlt.',
+    titel: 'hm.warumEsLevel',
+    text: 'hm.ehrlichGesagtWeil',
     ziel: 'mehr',
-    link: 'Zu deinen Zielen',
+    link: 'hm.zuDeinenZielen',
   },
 ]
 
@@ -704,12 +711,13 @@ const STATIONEN = [
  * sich aber genau hier, in den ersten Wochen, immer wieder.
  */
 export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
+  const t = useTexte()
   const [geteilt, setGeteilt] = useState(false)
 
   async function einladen() {
     const daten = {
       title: 'Habloo',
-      text: 'Ich lerne gerade Spanisch mit Habloo – Lektionen, echte Videos und ein Trainer, der sich merkt, wann du wiederholen musst. Kommst du mit?',
+      text: t('hm.ichLerneGerade'),
       url: 'https://habloo.de',
     }
     // Auf dem Handy oeffnet das die Teilen-Auswahl des Systems. Auf
@@ -727,22 +735,18 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
   return (
     <div className="trainer home leitfaden-seite">
       <button className="btn-zurueck" onClick={onZurueck}>
-        <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+        <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{t('hm.zurueck')}
       </button>
       <h1 className="trainer-titel">
-        So nutzt du <span className="accent">Habloo</span>
+        {t('hm2.soNutztDu')} <span className="accent">{t('hm.habloo')}</span>
       </h1>
-      <p className="intro">
-        Deine Reise durch die App – und was wir uns dabei gedacht haben.
-      </p>
+      <p className="intro">{t('hm2.deineReiseDurch')}</p>
 
       {/* Der geführte Rundgang: die App klickt selbst durch alle
           Bereiche und erklärt jeden kurz. Für alle, die lieber
           schauen als lesen. */}
       {onRundgang && (
-        <button className="btn rundgang-start" onClick={onRundgang}>
-          ✦ Rundgang starten – einmal durch die ganze App
-        </button>
+        <button className="btn rundgang-start" onClick={onRundgang}>{t('hm2.rundgangStartenEinmal')}</button>
       )}
 
       <ol className="reise-liste">
@@ -750,10 +754,10 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
           <li className="reise-station" key={s.titel}>
             <span className="reise-punkt" aria-hidden="true">{i + 1}</span>
             <div className="reise-inhalt">
-              <h3>{s.titel}</h3>
-              <p>{s.text}</p>
+              <h3>{t(s.titel)}</h3>
+              <p>{t(s.text)}</p>
               <button className="reise-link" onClick={() => onNavigate(s.ziel)}>
-                {s.link}
+                {t(s.link)}
                 <IconPfeil groesse={15} />
               </button>
             </div>
@@ -762,11 +766,8 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
       </ol>
 
       <div className="reise-ziel">
-        <h3>Zu zweit hält man länger durch</h3>
-        <p>
-          Die Serie reißt seltener, wenn noch jemand mitzählt. Schnapp dir jemanden,
-          der auch schon immer mal Spanisch lernen wollte.
-        </p>
+        <h3>{t('hm.zuZweitHaelt')}</h3>
+        <p>{t('hm2.dieSerieReisst')}</p>
         <button className="einladen" onClick={einladen}>
           {geteilt ? 'Link kopiert ✓' : 'Freunde einladen'}
         </button>
@@ -783,6 +784,7 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
  * geben ihre Adresse ein.
  */
 function TutorenTeaser({ nutzerEmail }) {
+  const t = useTexte()
   const [eingetragen, setEingetragen] = useState(
     () => localStorage.getItem('tutoren-interesse') === 'ja'
   )
@@ -805,7 +807,7 @@ function TutorenTeaser({ nutzerEmail }) {
       localStorage.setItem('tutoren-interesse', 'ja')
       setEingetragen(true)
     } catch (e) {
-      setFehler(e.message || 'Hat nicht geklappt.')
+      setFehler(e.message || t('hmm.hatNichtGeklappt'))
     } finally {
       setLaedt(false)
     }
@@ -813,12 +815,9 @@ function TutorenTeaser({ nutzerEmail }) {
 
   return (
     <section className="start-karte tutoren">
-      <span className="tutoren-marke">Bald neu · Live-Unterricht</span>
-      <h2 className="tutoren-titel">Unterricht mit echten Tutoren</h2>
-      <p className="tutoren-text">
-        Sprich live mit Muttersprachlern – in kleinen Gruppen oder 1:1, passend zu
-        deinem Niveau. Wir sagen dir Bescheid, sobald es losgeht.
-      </p>
+      <span className="tutoren-marke">{t('hm.baldNeuLive')}</span>
+      <h2 className="tutoren-titel">{t('hm.unterrichtMitEchten')}</h2>
+      <p className="tutoren-text">{t('hm2.sprichLiveMit')}</p>
 
       {TUTOREN.map((t) => (
         <TutorProfil key={t.id} t={t} />
@@ -826,7 +825,7 @@ function TutorenTeaser({ nutzerEmail }) {
 
       {eingetragen ? (
         <p className="tutoren-ok">
-          <span aria-hidden="true">✓</span> Du stehst auf der Liste – wir melden uns.
+          <span aria-hidden="true">✓</span> {t('hm2.aufDerListe')}
         </p>
       ) : !andere ? (
         <div className="tutoren-knoepfe">
@@ -865,6 +864,7 @@ function TutorenTeaser({ nutzerEmail }) {
 
 /** Profilkarte im Stil einer Tutorenplattform. Leere Felder fallen weg. */
 function TutorProfil({ t }) {
+  const txt = useTexte()
   const [mehr, setMehr] = useState(false)
   const kennzahlen = [
     t.bewertung != null && {
@@ -875,8 +875,8 @@ function TutorProfil({ t }) {
       ),
       text: t.bewertungen != null ? `${t.bewertungen} Bewertungen` : 'Bewertung',
     },
-    t.lektionen != null && { wert: t.lektionen.toLocaleString('de-DE'), text: 'Unterrichtsstunden' },
-    t.preis != null && { wert: `${t.preis} €`, text: '50-Min.-Stunde' },
+    t.lektionen != null && { wert: t.lektionen.toLocaleString('de-DE'), text: txt('hm.unterrichtsstunden') },
+    t.preis != null && { wert: `${t.preis} €`, text: txt('hm.50MinStunde') },
   ].filter(Boolean)
 
   return (
@@ -884,13 +884,13 @@ function TutorProfil({ t }) {
       <div className="tp-kopf">
         <div className="tp-foto">
           <img src={t.foto} alt={t.name} width="84" height="84" loading="lazy" />
-          <span className="tp-online" title="Bald verfügbar" />
+          <span className="tp-online" title={txt('hm.baldVerfuegbar')} />
         </div>
         <div className="tp-name-block">
           <h3 className="tp-name">
             {t.name} <span aria-hidden="true">{t.herkunft?.flagge}</span>
             {t.verifiziert && (
-              <span className="tp-verifiziert" title="Geprüfte Tutorin">
+              <span className="tp-verifiziert" title={txt('hm.gepruefteTutorin')}>
                 <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
                   <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -939,9 +939,9 @@ function TutorProfil({ t }) {
       )}
 
       <ul className="tp-vorteile">
-        <li>1:1 oder kleine Gruppe</li>
-        <li>Per Video, bequem von zu Hause</li>
-        <li>Passend zu deinem Niveau in Habloo</li>
+        <li>{txt('hm.11Oder')}</li>
+        <li>{txt('hm.perVideoBequem')}</li>
+        <li>{txt('hm.passendZuDeinem')}</li>
       </ul>
     </article>
   )

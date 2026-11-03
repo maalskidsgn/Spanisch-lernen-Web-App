@@ -33,6 +33,29 @@ const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
 /**
+ * In welche Sprache übersetzt wird.
+ *
+ * Seit die App auch auf Englisch läuft, ist "ins Deutsche" keine
+ * feste Größe mehr. Die Oberfläche schickt ihre Sprache mit; kommt
+ * nichts, bleibt es bei Deutsch - so verhalten sich ältere Clients
+ * weiter wie bisher.
+ *
+ * Die Beugung steht mit in der Tabelle: "aus dem Spanischen ins
+ * Deutsche" braucht andere Endungen als "ins Englische", und
+ * Endungen im Code zusammenzubasteln geht bei der dritten Sprache
+ * schief.
+ */
+const SPRACHEN = {
+  de: { name: 'Deutsch', insDie: 'Deutsche', ausDem: 'Deutschen', adjektiv: 'deutsch' },
+  en: { name: 'Englisch', insDie: 'Englische', ausDem: 'Englischen', adjektiv: 'englisch' },
+}
+
+/** Macht aus einem beliebigen Kürzel eine Sprache, die wir kennen. */
+export function zielsprache(kuerzel) {
+  return SPRACHEN[String(kuerzel || '').slice(0, 2).toLowerCase()] ?? SPRACHEN.de
+}
+
+/**
  * Ein kleiner Zwischenspeicher für einzelne Wörter.
  *
  * Beim Lesen tippt man dasselbe Wort immer wieder an – "la playa"
@@ -101,16 +124,21 @@ const WORT_SCHEMA = {
  * @param {string} text
  * @param {'es-de'|'de-es'} richtung
  */
-export async function uebersetzeWort(text, richtung = 'es-de', satz = '') {
+export async function uebersetzeWort(text, richtung = 'es-de', satz = '', sprache = 'de') {
   const sauber = text.trim()
   if (!sauber) return ''
 
-  const schluessel = richtung + '|' + sauber.toLowerCase() + (satz ? '|' + satz : '')
+  const ziel = zielsprache(sprache)
+  // Die Sprache gehoert in den Schluessel: Sonst bekaeme der
+  // englische Nutzer die deutsche Uebersetzung aus dem Speicher.
+  const schluessel = ziel.name + '|' + richtung + '|' + sauber.toLowerCase() + (satz ? '|' + satz : '')
   const gemerkt = ausSpeicher(schluessel)
   if (gemerkt !== undefined) return gemerkt
 
   const [von, nach] =
-    richtung === 'de-es' ? ['Deutschen', 'Spanische'] : ['Spanischen', 'Deutsche']
+    richtung === 'de-es'
+      ? [ziel.ausDem, 'Spanische']
+      : ['Spanischen', ziel.insDie]
 
   const { uebersetzung } = await frageModell(
     [
@@ -165,7 +193,8 @@ const ZEILEN_SCHEMA = {
  *
  * @param {string[]} zeilen
  */
-export async function uebersetzeZeilen(zeilen) {
+export async function uebersetzeZeilen(zeilen, sprache = 'de') {
+  const ziel = zielsprache(sprache)
   const ergebnis = []
   const PAKET = 40
 
@@ -176,10 +205,10 @@ export async function uebersetzeZeilen(zeilen) {
         {
           role: 'system',
           content:
-            'Du übersetzt spanische Untertitel ins Deutsche. Du bekommst ein ' +
+            `Du übersetzt spanische Untertitel ins ${ziel.insDie}. Du bekommst ein ` +
             'JSON-Array mit Zeilen und gibst GENAU so viele Zeilen in derselben ' +
             'Reihenfolge zurück. Übersetze jede Zeile einzeln, aber nutze die ' +
-            'anderen Zeilen als Zusammenhang. Natürliches gesprochenes Deutsch, ' +
+            `anderen Zeilen als Zusammenhang. Natürliches gesprochenes ${ziel.name}, ` +
             'keine Erklärungen, keine Zeilennummern. Eine leere Zeile bleibt leer.',
         },
         { role: 'user', content: JSON.stringify(teil) },

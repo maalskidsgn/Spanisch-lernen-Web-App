@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { istApp } from './api.js'
 import { registrieren, anmelden, passwortVergessen, mitAnbieter, aktiveAnbieter } from './auth.js'
 import Logo from './Logo.jsx'
+import { useTexte } from './sprache.js'
 
 /**
  * Anmelde-Dialog – erscheint als Overlay über der App.
@@ -10,6 +11,7 @@ import Logo from './Logo.jsx'
  * Schließen ist immer möglich, denn die App läuft auch ohne Konto.
  */
 export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' }) {
+  const t = useTexte()
   const [modus, setModus] = useState(startModus) // anmelden | registrieren | vergessen
   const [email, setEmail] = useState('')
   const [passwort, setPasswort] = useState('')
@@ -53,13 +55,13 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
           setModus('anmelden')
           setPasswort('')
           setHinweis(
-            'Für diese E-Mail gibt es schon ein Konto. Melde dich einfach an – ' +
-            'oder setze dein Passwort zurück, falls du es vergessen hast.'
+            t('logm.fuerDieseE') +
+            t('logm.oderSetzeDein')
           )
         } else if (mailBestaetigen) {
           setHinweis(
-            'Fast geschafft! Wir haben dir eine E-Mail geschickt – ' +
-            'klicke den Link darin, dann kannst du dich anmelden. ' +
+            t('logm.fastGeschafftWir') +
+            t('logm.klickeDenLink') +
             'Schau bitte auch im Spam-Ordner nach, falls nichts ankommt.'
           )
         } else {
@@ -69,7 +71,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
       } else {
         await passwortVergessen(email)
         setHinweis(
-          'Wir haben dir einen Link zum Zurücksetzen geschickt. ' +
+          t('logm.wirHabenDir') +
           'Schau bitte auch im Spam-Ordner nach, falls nichts ankommt.'
         )
       }
@@ -81,15 +83,15 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
   }
 
   const titel = {
-    anmelden: 'Willkommen zurück',
-    registrieren: 'Konto anlegen',
-    vergessen: 'Passwort zurücksetzen',
+    anmelden: t('login.willkommenZurueck'),
+    registrieren: t('login.kontoAnlegen'),
+    vergessen: t('login.passwortZuruecksetzen'),
   }[modus]
 
   const untertitel = {
-    anmelden: 'Melde dich an, um deinen Fortschritt überall zu haben.',
-    registrieren: 'Sichere deine Vokabeln und lerne auf allen Geräten weiter.',
-    vergessen: 'Wir schicken dir einen Link per E-Mail.',
+    anmelden: t('login.untertitel'),
+    registrieren: t('login.untertitelRegistrieren'),
+    vergessen: t('login.untertitelVergessen'),
   }[modus]
 
   return (
@@ -98,7 +100,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
         {/* Auf dem Handy ein Zurück-Pfeil oben links, am Rechner ein
             Kreuz oben rechts – beides dasselbe Zeichen, nur gedreht
             per CSS. Ein getipptes "×" sah auf jedem Gerät anders aus. */}
-        <button className="login-schliessen" onClick={onSchliessen} aria-label="Schließen">
+        <button className="login-schliessen" onClick={onSchliessen} aria-label={t('app.schliessen')}>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path className="ls-kreuz" d="M6 6l12 12M18 6L6 18" stroke="currentColor"
                   strokeWidth="2.4" strokeLinecap="round" />
@@ -120,7 +122,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                   <path fill="currentColor" d="M16.4 12.6c0-2.4 2-3.6 2.1-3.7-1.2-1.7-3-1.9-3.6-2-1.5-.2-3 .9-3.8.9-.8 0-2-.9-3.3-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.8-1.1-2.8-4.3zM14 5.3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.5-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.4z" />
                 </svg>
-                Weiter mit Apple
+                {t('login.weiterMitApple')}
               </button>
             )}
             {anbieter.includes('google') && (
@@ -131,34 +133,34 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
                   <path fill="#FBBC05" d="M5.7 14c-.2-.7-.4-1.4-.4-2s.1-1.4.4-2V7.2H2.1C1.4 8.6 1 10.3 1 12s.4 3.4 1.1 4.8L5.7 14z" />
                   <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.3 1.7l3.2-3.2C17.5 2 15 1 12 1 7.7 1 3.9 3.6 2.1 7.2L5.7 10c.9-2.7 3.4-4.6 6.3-4.6z" />
                 </svg>
-                Weiter mit Google
+                {t('login.weiterMitGoogle')}
               </button>
             )}
-            <div className="login-oder"><span>oder mit E-Mail</span></div>
+            <div className="login-oder"><span>{t('login.oderMitEmail')}</span></div>
           </div>
         )}
 
         <form onSubmit={absenden} className="login-form">
           {modus === 'registrieren' && (
             <label className="login-feld">
-              <span>Wie sollen wir dich nennen?</span>
+              <span>{t('login.wieNennen')}</span>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Dein Vorname"
+                placeholder={t('login.vorname')}
                 autoComplete="given-name"
               />
             </label>
           )}
 
           <label className="login-feld">
-            <span>E-Mail</span>
+            <span>{t('login.email')}</span>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="du@beispiel.de"
+              placeholder={t('login.emailPlatzhalter')}
               autoComplete="email"
               required
             />
@@ -166,12 +168,12 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
 
           {modus !== 'vergessen' && (
             <label className="login-feld">
-              <span>Passwort</span>
+              <span>{t('login.passwort')}</span>
               <input
                 type="password"
                 value={passwort}
                 onChange={(e) => setPasswort(e.target.value)}
-                placeholder={modus === 'registrieren' ? 'Mindestens 6 Zeichen' : '••••••••'}
+                placeholder={modus === 'registrieren' ? t('login.mindestens') : '••••••••'}
                 autoComplete={modus === 'registrieren' ? 'new-password' : 'current-password'}
                 minLength={6}
                 required
@@ -184,12 +186,12 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
 
           <button className="btn login-absenden" disabled={laedt}>
             {laedt
-              ? 'Einen Moment…'
+              ? t('login.einenMoment')
               : modus === 'anmelden'
-                ? 'Anmelden'
+                ? t('login.anmelden')
                 : modus === 'registrieren'
-                  ? 'Konto anlegen'
-                  : 'Link schicken'}
+                  ? t('login.kontoAnlegen')
+                  : t('login.linkSchicken')}
           </button>
         </form>
 
@@ -197,24 +199,21 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
           {modus === 'anmelden' && (
             <>
               <button className="btn-plain" onClick={() => setModus('registrieren')}>
-                Noch kein Konto? <b>Jetzt anlegen</b>
+                {t('login.keinKonto')} <b>{t('login.jetztAnlegen')}</b>
               </button>
               <button className="btn-plain login-klein" onClick={() => setModus('vergessen')}>
-                Passwort vergessen?
+                {t('login.passwortVergessen')}
               </button>
             </>
           )}
           {modus !== 'anmelden' && (
             <button className="btn-plain" onClick={() => setModus('anmelden')}>
-              ← Zurück zur Anmeldung
+              {t('login.zurueckZurAnmeldung')}
             </button>
           )}
         </div>
 
-        <p className="login-fuss">
-          Mit dem Anlegen eines Kontos wird dein Lernfortschritt gesichert und
-          steht dir auf allen Geräten zur Verfügung.
-        </p>
+        <p className="login-fuss">{t('logX.mitDemAnlegen')}</p>
       </div>
     </div>
   )

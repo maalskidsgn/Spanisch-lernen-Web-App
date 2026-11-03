@@ -3,6 +3,7 @@ import { istApp } from './api.js'
 import { bezahlungBereit } from './premium.js'
 import { LISTEN_PRO_TAG, naechsteAuffuellung } from './limits.js'
 
+import { useTexte } from './sprache.js'
 /**
  * Hinweis, wenn die kostenlosen Generierungen fuer heute aufgebraucht
  * sind – zugleich die Werbung fuer Premium.
@@ -13,6 +14,7 @@ import { LISTEN_PRO_TAG, naechsteAuffuellung } from './limits.js'
  * @param {string} was – z. B. "Vokabellisten", "Texte", "Sätze"
  */
 export default function PremiumWerbung({ was = 'Generierungen' }) {
+  const t = useTexte()
   const [bezahlbar, setBezahlbar] = useState(false)
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
             </svg>
           </span>
           <div>
-            <p className="pw-ueber">Für heute geschafft</p>
+            <p className="pw-ueber">{t('pw.fuerHeute')}</p>
             <h3 className="pw-titel">Morgen geht's weiter</h3>
           </div>
         </div>
@@ -73,7 +75,7 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
       </p>
 
       <ul className="pw-vorteile">
-        <li>Unbegrenzt Vokabellisten, Wörter und Texte</li>
+        <li>{t('pw.unbegrenzt')}</li>
         <li>Unbegrenzt eigene YouTube-Videos</li>
         <li>Zweisprachige E-Books ohne Limit</li>
       </ul>

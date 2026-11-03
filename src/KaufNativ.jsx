@@ -3,6 +3,7 @@ import Logo from './Logo.jsx'
 import {
   ladeAngebote, kaufe, stelleWiederHer, warteAufFreischaltung, plattform,
 } from './kauf.js'
+import { useTexte } from './sprache.js'
 
 /**
  * Die Kasse in der App – Apple App Store oder Google Play.
@@ -13,6 +14,7 @@ import {
  * auf den Knopf tippt. Was bleibt, ist die Auswahl.
  */
 export default function KaufNativ({ onFertig, onAbbrechen }) {
+  const t = useTexte()
   const [angebote, setAngebote] = useState(null) // null = lädt
   const [gewaehlt, setGewaehlt] = useState('')
   const [laeuft, setLaeuft] = useState('')       // '' | 'kauf' | 'wieder'
@@ -44,7 +46,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
     try {
       const ergebnis = await kaufe(a.paket)
       if (ergebnis === 'abgebrochen') return setLaeuft('')
-      setHinweis('Zahlung angenommen. Wird freigeschaltet …')
+      setHinweis(t('knm.zahlungAngenommenWird'))
       // Der Store hat bezahlt, aber unsere Datenbank weiss es erst,
       // wenn die Meldung durch ist. Kurz warten statt den Nutzer mit
       // der Premium-Werbung zurückzulassen.
@@ -67,7 +69,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
         setHinweis(`Auf diesem ${laden}-Konto ist kein Kauf hinterlegt.`)
         return
       }
-      setHinweis('Kauf gefunden. Wird freigeschaltet …')
+      setHinweis(t('knm.kaufGefundenWird'))
       await warteAufFreischaltung()
       onFertig?.()
     } catch (f) {
@@ -86,28 +88,22 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
                  strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
-          </span>
-          Zurück
-        </button>
+          </span>{t('kn2.zurueck')}</button>
         <Logo />
         <span className="kassen-sicher">über {laden}</span>
       </header>
 
       <div className="kn">
-        <h1 className="kn-titel">Habloo Premium</h1>
-        <p className="kn-unter">
-          Alle Lektionen, der KI-Trainer, eigene Texte und Sätze – ohne Begrenzung.
-        </p>
+        <h1 className="kn-titel">{t('kn.hablooPremium')}</h1>
+        <p className="kn-unter">{t('kn2.alleLektionenDer')}</p>
 
         {angebote === null ? (
-          <p className="kn-laedt">Angebote werden geladen …</p>
+          <p className="kn-laedt">{t('kn.angeboteWerdenGeladen')}</p>
         ) : angebote.length === 0 ? (
-          <p className="kn-laedt">
-            Gerade sind keine Angebote verfügbar. Versuch es später nochmal.
-          </p>
+          <p className="kn-laedt">{t('kn2.geradeSindKeine')}</p>
         ) : (
           <>
-            <div className="kn-tarife" role="radiogroup" aria-label="Tarif wählen">
+            <div className="kn-tarife" role="radiogroup" aria-label={t('kn.tarifWaehlen')}>
               {angebote.map((a) => (
                 <button
                   key={a.id}

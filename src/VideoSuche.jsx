@@ -1,32 +1,33 @@
 import { useState, useEffect, useRef } from 'react'
 import { API_URL } from './api.js'
+import { useTexte } from './sprache.js'
 
 // Ein paar Themen zum Antippen, damit man nicht vor einem leeren Feld sitzt
 // Die Längen zur Auswahl
 const LAENGEN = [
-  { wert: '', label: 'Egal' },
-  { wert: 'kurz', label: '5–10 Min' },
-  { wert: 'mittel', label: '10–15 Min' },
-  { wert: 'lang', label: 'Über 15 Min' },
+  { wert: '', label: 'vs.egal' },
+  { wert: 'kurz', label: 'vs.510Min' },
+  { wert: 'mittel', label: 'vs.1015Min' },
+  { wert: 'lang', label: 'vs.ueber15Min' },
 ]
 
 // Sprachniveaus. Die Beschreibung sagt, was einen erwartet –
 // YouTube kennt keine Niveaus, wir steuern über Suchwörter und Länge.
 const NIVEAUS = [
-  { wert: '', label: 'Egal', hilfe: 'Alles gemischt' },
+  { wert: '', label: 'vs.egal', hilfe: 'Alles gemischt' },
   { wert: 'A1', label: 'A1', hilfe: 'Kurze Erklärvideos, einfache Sprache' },
   { wert: 'A2', label: 'A2', hilfe: 'Einfach erklärt, überschaubare Länge' },
   { wert: 'B1', label: 'B1', hilfe: 'Normale Erklärvideos' },
   { wert: 'B2', label: 'B2', hilfe: 'Alltagssprache, längere Beiträge' },
-  { wert: 'C1', label: 'C1', hilfe: 'Podcasts und Interviews' },
-  { wert: 'C2', label: 'C2', hilfe: 'Debatten und Analysen, volles Tempo' },
+  { wert: 'C1', label: 'C1', hilfe: 'vsm.podcastsUndInterviews' },
+  { wert: 'C2', label: 'C2', hilfe: 'vsm.debattenUndAnalysen' },
 ]
 
 const IDEEN = [
   'Gesunde Ernährung',
   'Schlaf verbessern',
   'Stoizismus',
-  'Sport für Anfänger',
+  'vsm.sportFuerAnfaenger',
   'Produktivität',
   'Reisen in Spanien',
 ]
@@ -39,6 +40,7 @@ const IDEEN = [
  * nichts – erst das Öffnen eines Treffers holt das Transkript.
  */
 export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff = '' }) {
+  const t = useTexte()
   const [begriff, setBegriff] = useState(startBegriff)
   const [laenge, setLaenge] = useState('')
   const [niveau, setNiveau] = useState('')
@@ -112,10 +114,10 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
       <div className="suche-fenster" onClick={(e) => e.stopPropagation()}>
         <div className="suche-kopf">
           <div>
-            <b>Video finden</b>
-            <span>Thema auf Deutsch eingeben – wir suchen spanische Videos dazu</span>
+            <b>{t('vs.videoFinden')}</b>
+            <span>{t('vs.themaAufDeutsch')}</span>
           </div>
-          <button className="suche-schliessen" onClick={onSchliessen} aria-label="Schließen">
+          <button className="suche-schliessen" onClick={onSchliessen} aria-label={t('vs.schliessen')}>
             ×
           </button>
         </div>
@@ -132,7 +134,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
             type="text"
             value={begriff}
             onChange={(e) => setBegriff(e.target.value)}
-            placeholder="z.B. gesunde Ernährung, Schlaf …"
+            placeholder={t('vs.zBGesunde')}
           />
           <button type="submit" className="btn" disabled={laedt || !begriff.trim()}>
             {laedt ? 'Sucht …' : 'Suchen'}
@@ -142,7 +144,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
         {/* Länge und Niveau vor der Suche wählen */}
         <div className="suche-filter">
           <div className="filter-gruppe">
-            <span className="filter-label">Länge</span>
+            <span className="filter-label">{t('vs.laenge')}</span>
             <div className="filter-knoepfe">
               {LAENGEN.map((l) => (
                 <button
@@ -150,7 +152,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
                   className={'filter-knopf' + (laenge === l.wert ? ' filter-an' : '')}
                   onClick={() => setLaenge(l.wert)}
                 >
-                  {l.label}
+                  {t(l.label)}
                 </button>
               ))}
             </div>
@@ -161,7 +163,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
               Niveau
               {niveau && (
                 <em className="filter-hilfe">
-                  {NIVEAUS.find((n) => n.wert === niveau)?.hilfe}
+                  {t(NIVEAUS.find((n) => n.wert === niveau)?.hilfe ?? '')}
                 </em>
               )}
             </span>
@@ -171,9 +173,9 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
                   key={n.wert}
                   className={'filter-knopf' + (niveau === n.wert ? ' filter-an' : '')}
                   onClick={() => setNiveau(n.wert)}
-                  title={n.hilfe}
+                  title={t(n.hilfe)}
                 >
-                  {n.label}
+                  {t(n.label)}
                 </button>
               ))}
             </div>
@@ -185,7 +187,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
           <div className="suche-ideen">
             {IDEEN.map((idee) => (
               <button key={idee} className="chip" onClick={() => suchen(idee)}>
-                {idee}
+                {t(idee)}
               </button>
             ))}
           </div>

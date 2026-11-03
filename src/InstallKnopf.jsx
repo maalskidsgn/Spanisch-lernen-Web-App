@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { useTexte } from './sprache.js'
 // "Zum Startbildschirm hinzufuegen" als Knopf.
 //
 // Android/Chrome: Der Browser meldet mit "beforeinstallprompt", dass
@@ -29,6 +30,7 @@ function istIphone() {
 }
 
 export default function InstallKnopf({ app = 'App' }) {
+  const t = useTexte()
   const [aufruf, setAufruf] = useState(() => gemerkterAufruf)
   const [anleitung, setAnleitung] = useState(false)
   const [weg, setWeg] = useState(
@@ -86,7 +88,7 @@ export default function InstallKnopf({ app = 'App' }) {
         <img src="/apple-touch-icon.png" alt="" width="48" height="48" />
         <div>
           <b>{app} auf deinen Startbildschirm</b>
-          <span>Ein Tipp – und du lernst wie in einer echten App, ohne Browserleiste.</span>
+          <span>{t('insX.einTippUnd')}</span>
         </div>
       </div>
 
@@ -110,9 +112,7 @@ export default function InstallKnopf({ app = 'App' }) {
         </ol>
       ) : (
         <div className="install-knoepfe">
-          <button type="button" className="btn" onClick={installieren}>
-            Zum Startbildschirm hinzufügen
-          </button>
+          <button type="button" className="btn" onClick={installieren}>{t('ik.zumStartbildschirmHinzufuegen')}</button>
           <button type="button" className="btn-plain" onClick={spaeter}>
             Später
           </button>

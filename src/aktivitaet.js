@@ -8,6 +8,7 @@
 // lässt sich nicht mehr sagen, was Lektion und was Wiederholung war.
 
 import { heute, tagesSchluessel } from './datum.js'
+import { gebiet } from './sprache.js'
 
 const SCHLUESSEL = 'aktivitaet'
 
@@ -65,7 +66,7 @@ export function letzteWoche() {
     const d = new Date(Date.now() - i * 86400000)
     const schluessel = tagesSchluessel(d)
     tage.push({
-      label: d.toLocaleDateString('de-DE', { weekday: 'short' }),
+      label: d.toLocaleDateString(gebiet(), { weekday: 'short' }),
       anzahl: gesamtVon(daten[schluessel]),
       istHeute: i === 0,
     })
@@ -101,7 +102,7 @@ export function kalenderRaster(wochen = 6) {
       schluessel,
       tag: d.getDate(),
       // Am Monatsersten den Monatsnamen mitgeben – für die Beschriftung.
-      monatAnfang: d.getDate() === 1 ? d.toLocaleDateString('de-DE', { month: 'short' }) : null,
+      monatAnfang: d.getDate() === 1 ? d.toLocaleDateString(gebiet(), { month: 'short' }) : null,
       lektionen: typeof eintrag === 'number' ? 0 : eintrag?.l ?? 0,
       wiederholungen: typeof eintrag === 'number' ? eintrag : eintrag?.w ?? 0,
       gesamt: gesamtVon(eintrag),
@@ -139,7 +140,7 @@ export function jahresRaster(jahr) {
       })
     }
     return {
-      name: erster.toLocaleDateString('de-DE', { month: 'long' }),
+      name: erster.toLocaleDateString(gebiet(), { month: 'long' }),
       versatz: (erster.getDay() + 6) % 7,
       tage,
       aktiv: tage.filter((t) => t.gesamt > 0).length,

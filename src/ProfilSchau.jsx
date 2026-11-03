@@ -3,6 +3,7 @@ import { ladeProfil, blockiere } from './rangliste.js'
 import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
+import { useTexte } from './sprache.js'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
@@ -33,6 +34,7 @@ function dauer(datum) {
  * nicht zu einem weiteren Netzwerk werden.
  */
 export default function ProfilSchau({ benutzername, onSchliessen }) {
+  const t = useTexte()
   const [profil, setProfil] = useState(undefined) // undefined = lädt
   // Melden und Blockieren liegen hinter einem Klick: Sie gehören
   // nicht neben die XP-Zahlen, sondern dorthin, wo man sie sucht,
@@ -71,7 +73,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
   return (
     <div className="ps-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
       <div className="ps-karte" onClick={(e) => e.stopPropagation()}>
-        <button className="ps-zu" onClick={onSchliessen} aria-label="Schließen">
+        <button className="ps-zu" onClick={onSchliessen} aria-label={t('app.schliessen')}>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6"
                   strokeLinecap="round" />
@@ -79,9 +81,9 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
         </button>
 
         {profil === undefined ? (
-          <p className="ps-laedt">Lädt …</p>
+          <p className="ps-laedt">{t('app.laedt')}</p>
         ) : profil === null ? (
-          <p className="ps-laedt">Dieses Profil gibt es nicht mehr.</p>
+          <p className="ps-laedt">{t('ps.gibtsNicht')}</p>
         ) : (
           <>
             <span className="ps-rahmen">
@@ -101,15 +103,15 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
               </div>
               <div>
                 <dd>{profil.serie}</dd>
-                <dt>Tage am Stück</dt>
+                <dt>{t('ps.tageAmStueck')}</dt>
               </div>
               <div>
                 <dd>{profil.xp_woche.toLocaleString('de-DE')}</dd>
-                <dt>Diese Woche</dt>
+                <dt>{t('ps.dieseWoche')}</dt>
               </div>
               <div>
                 <dd>{profil.xp_monat.toLocaleString('de-DE')}</dd>
-                <dt>Dieser Monat</dt>
+                <dt>{t('ps.dieserMonat')}</dt>
               </div>
             </dl>
 
@@ -122,17 +124,17 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                 sobald Nutzer Inhalte anderer Nutzer sehen. */}
             {!mehr ? (
               <button className="ps-mehr" onClick={() => setMehr(true)}>
-                Problem mit diesem Profil?
+                {t('ps.problem')}
               </button>
             ) : (
               <div className="ps-schutz">
                 <button className="ps-schutz-knopf" onClick={() => setMeldet(true)}>
-                  Melden
+                  {t('pf.melden')}
                 </button>
                 <button
                   className="ps-schutz-knopf"
                   onClick={async () => {
-                    if (!confirm(`${benutzername} blockieren? Ihr seht euch dann nicht mehr in Rangliste, Suche und Duellen.`)) return
+                    if (!confirm(t('ps.blockierenFrage', { name: benutzername }))) return
                     try {
                       await blockiere(benutzername)
                       onSchliessen?.()
@@ -141,7 +143,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                     }
                   }}
                 >
-                  Blockieren
+                  {t('pf.blockieren')}
                 </button>
               </div>
             )}

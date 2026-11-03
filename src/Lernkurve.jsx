@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { verlauf, ARTEN } from './lernkurve.js'
+import { useTexte } from './sprache.js'
 
 /**
  * Lernkurve: wie viel man an welchem Tag wovon gelernt hat.
@@ -8,17 +9,17 @@ import { verlauf, ARTEN } from './lernkurve.js'
  */
 
 const SERIEN = {
-  woerter: { name: 'Wörter', farbe: '#ff6c00' },
-  saetze: { name: 'Sätze', farbe: '#7c5cff' },
-  lektionen: { name: 'Lektionen', farbe: '#1e9d85' },
-  texte: { name: 'Texte', farbe: '#2e8fe8' },
-  video: { name: 'Video-Min.', farbe: '#e5484d' },
+  woerter: { name: 'lk.woerter', farbe: '#ff6c00' },
+  saetze: { name: 'lk.saetze', farbe: '#7c5cff' },
+  lektionen: { name: 'lk.lektionen', farbe: '#1e9d85' },
+  texte: { name: 'lk.texte', farbe: '#2e8fe8' },
+  video: { name: 'lk.videoMin', farbe: '#e5484d' },
 }
 
 const ZEITRAEUME = [
-  ['woche', 'Woche'],
-  ['monat', 'Monat'],
-  ['jahr', 'Jahr'],
+  ['woche', 'home.woche'],
+  ['monat', 'home.monat'],
+  ['jahr', 'home.jahr'],
 ]
 
 // Zeichenfläche (SVG-Einheiten, skaliert mit der Breite)
@@ -30,6 +31,7 @@ const OBEN = 34
 const UNTEN = 26
 
 export default function Lernkurve() {
+  const t = useTexte()
   const [zeitraum, setZeitraum] = useState('woche')
   const [aktiv, setAktiv] = useState(() => new Set(ARTEN))
   const [stand, setStand] = useState(0) // zählt hoch, wenn neu gelernt wurde
@@ -101,7 +103,7 @@ export default function Lernkurve() {
   return (
     <div className="lernkurve">
       <div className="lk-kopf">
-        <p className="start-abschnitt-sub lk-titel">Lernkurve</p>
+        <p className="start-abschnitt-sub lk-titel">{t('lk.lernkurve')}</p>
         <div className="lk-zeitraum" role="tablist">
           {ZEITRAEUME.map(([id, name]) => (
             <button
@@ -112,7 +114,7 @@ export default function Lernkurve() {
               className={'lk-zeit' + (zeitraum === id ? ' lk-zeit-aktiv' : '')}
               onClick={() => setZeitraum(id)}
             >
-              {name}
+              {t(name)}
             </button>
           ))}
         </div>
@@ -129,7 +131,7 @@ export default function Lernkurve() {
             aria-pressed={aktiv.has(a)}
           >
             <span className="lk-chip-punkt" />
-            <span className="lk-chip-name">{SERIEN[a].name}</span>
+            <span className="lk-chip-name">{t(SERIEN[a].name)}</span>
             <b className="lk-chip-zahl">{summen[a]}</b>
           </button>
         ))}
@@ -139,14 +141,14 @@ export default function Lernkurve() {
         <div className="lk-tip" style={{ left: tipLinks + '%' }}>
           <span className="lk-tip-datum">{p.lang}</span>
           {gesamtGewaehlt === 0 ? (
-            <span className="lk-tip-leer">nichts gelernt</span>
+            <span className="lk-tip-leer">{t('lk.nichtsGelernt')}</span>
           ) : (
             <span className="lk-tip-werte">
               {sichtbar
                 .filter((a) => p.werte[a] > 0)
                 .map((a) => (
                   <span key={a} style={{ color: SERIEN[a].farbe }}>
-                    <b>{p.werte[a]}</b> {SERIEN[a].name}
+                    <b>{p.werte[a]}</b> {t(SERIEN[a].name)}
                   </span>
                 ))}
             </span>
@@ -159,7 +161,7 @@ export default function Lernkurve() {
           onPointerDown={zeigeAuf}
           onPointerMove={(e) => e.buttons && zeigeAuf(e)}
           role="img"
-          aria-label="Lernkurve"
+          aria-label={t('lk.lernkurve')}
         >
           <defs>
             {ARTEN.map((a) => (

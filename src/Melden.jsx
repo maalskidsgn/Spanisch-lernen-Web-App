@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MELDE_GRUENDE, melde } from './rangliste.js'
+import { useTexte } from './sprache.js'
 
 /**
  * Jemanden melden.
@@ -14,6 +15,7 @@ import { MELDE_GRUENDE, melde } from './rangliste.js'
  * Meldung bearbeitet hat.
  */
 export default function Melden({ benutzername, onSchliessen, onFertig }) {
+  const t = useTexte()
   const [grund, setGrund] = useState('')
   const [bemerkung, setBemerkung] = useState('')
   const [laeuft, setLaeuft] = useState(false)
@@ -21,7 +23,7 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
   const [fertig, setFertig] = useState(false)
 
   async function absenden() {
-    if (!grund) return setFehler('Bitte wähl einen Grund aus.')
+    if (!grund) return setFehler(t('md.grundAuswaehlen'))
     setFehler('')
     setLaeuft(true)
     try {
@@ -43,13 +45,12 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
                     strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <h2 className="md-titel">Danke für den Hinweis</h2>
+          <h2 className="md-titel">{t('md.dankeTitel')}</h2>
           <p className="md-text">
-            Wir schauen uns das an. <b>{benutzername}</b> ist für dich blockiert – ihr
-            seht euch gegenseitig nicht mehr in Rangliste, Suche und Duellen.
+{t('md.dankeText', { name: benutzername })}
           </p>
           <button className="btn md-knopf" onClick={() => { onFertig?.(); onSchliessen?.() }}>
-            Alles klar
+            {t('app.allesKlar')}
           </button>
         </div>
       </div>
@@ -59,12 +60,12 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
   return (
     <div className="md-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
       <div className="md-karte" onClick={(e) => e.stopPropagation()}>
-        <h2 className="md-titel">{benutzername} melden</h2>
+        <h2 className="md-titel">{t('md.titel', { name: benutzername })}</h2>
         <p className="md-text">
-          Was stimmt hier nicht? Wir sehen uns jede Meldung an.
+          {t('md.frage')}
         </p>
 
-        <div className="md-gruende" role="radiogroup" aria-label="Grund">
+        <div className="md-gruende" role="radiogroup" aria-label={t('md.grundLabel')}>
           {MELDE_GRUENDE.map(([wert, text]) => (
             <button
               key={wert}
@@ -74,7 +75,7 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
               onClick={() => setGrund(wert)}
               disabled={laeuft}
             >
-              {text}
+              {t(text)}
             </button>
           ))}
         </div>
@@ -83,7 +84,7 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
           className="md-feld"
           value={bemerkung}
           onChange={(e) => setBemerkung(e.target.value.slice(0, 500))}
-          placeholder="Magst du kurz sagen, was los ist? (freiwillig)"
+          placeholder={t('md.platzhalter')}
           rows={3}
           disabled={laeuft}
         />
@@ -91,16 +92,15 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
         {fehler && <p className="md-fehler">{fehler}</p>}
 
         <p className="md-hinweis">
-          Mit dem Melden blockierst du {benutzername} auch. Das lässt sich im Profil
-          wieder rückgängig machen.
+{t('md.hinweisLang', { name: benutzername })}
         </p>
 
         <div className="md-knoepfe">
           <button className="btn-plain" onClick={onSchliessen} disabled={laeuft}>
-            Abbrechen
+            {t('app.abbrechen')}
           </button>
           <button className="btn md-senden" onClick={absenden} disabled={laeuft || !grund}>
-            {laeuft ? 'Wird gesendet …' : 'Melden'}
+            {laeuft ? t('md.wirdGesendet') : t('md.senden')}
           </button>
         </div>
       </div>

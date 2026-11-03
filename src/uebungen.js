@@ -11,34 +11,10 @@ import { mischen } from './lektionen.js'
 export const LEKTION_GROESSE = 20
 
 export const ARTEN = [
-  {
-    id: 'karten',
-    titel: 'Karten',
-    icon: 'karten',
-    text: 'Wort ansehen, selbst einschätzen, umdrehen',
-    hinweis: 'Klassisch wie Karteikarten',
-  },
-  {
-    id: 'auswahl',
-    titel: 'Multiple Choice',
-    icon: 'auswahl',
-    text: 'Aus fünf Möglichkeiten die richtige finden',
-    hinweis: 'Geht schnell, gut zum Aufwärmen',
-  },
-  {
-    id: 'schreiben',
-    titel: 'Schreiben',
-    icon: 'schreiben',
-    text: 'Das Wort selbst eintippen',
-    hinweis: 'Am anstrengendsten – und am wirksamsten',
-  },
-  {
-    id: 'gemischt',
-    titel: 'Gemischt',
-    icon: 'gemischt',
-    text: 'Alle drei Arten bunt durcheinander',
-    hinweis: 'Wie eine echte Prüfung',
-  },
+  { id: 'karten',    icon: 'karten',    titel: 'tr.karten',         text: 'tr.kartenText',         hinweis: 'tr.kartenHinweis' },
+  { id: 'auswahl',   icon: 'auswahl',   titel: 'tr.multipleChoice', text: 'tr.multipleChoiceText', hinweis: 'tr.multipleChoiceHinweis' },
+  { id: 'schreiben', icon: 'schreiben', titel: 'tr.schreiben',      text: 'tr.schreibenText',      hinweis: 'tr.schreibenHinweis' },
+  { id: 'gemischt',  icon: 'gemischt',  titel: 'tr.gemischt',       text: 'tr.gemischtText',       hinweis: 'tr.gemischtHinweis' },
 ]
 
 /**

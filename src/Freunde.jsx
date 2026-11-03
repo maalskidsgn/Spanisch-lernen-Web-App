@@ -3,6 +3,7 @@ import { sucheNutzer, ladeFreunde, frageFreund, nimmAn, beende } from './ranglis
 import { Bildnis } from './Rangliste.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
 import { useAnwesend } from './praesenz.js'
+import { useTexte } from './sprache.js'
 
 /**
  * Leute finden und Freundschaften verwalten.
@@ -11,6 +12,7 @@ import { useAnwesend } from './praesenz.js'
  * eigenen Konto, und eine App mit fünf Reitern unten wird unübersichtlich.
  */
 export default function Freunde() {
+  const t = useTexte()
   const [was, setWas] = useState('')
   const [treffer, setTreffer] = useState([])
   const [liste, setListe] = useState([])
@@ -53,17 +55,17 @@ export default function Freunde() {
           type="search"
           value={was}
           onChange={(e) => setWas(e.target.value)}
-          placeholder="Benutzername suchen …"
-          aria-label="Leute suchen"
+          placeholder={t('frd.suchen')}
+          aria-label={t('frd.leuteSuchen')}
         />
       </div>
 
       {was.trim().length >= 2 && (
         <div className="fr-treffer">
           {laeuft && !treffer.length ? (
-            <p className="fr-leer">Sucht …</p>
+            <p className="fr-leer">{t('frd.sucht')}</p>
           ) : !treffer.length ? (
-            <p className="fr-leer">Niemanden gefunden.</p>
+            <p className="fr-leer">{t('frd.niemandGefunden')}</p>
           ) : (
             treffer.map((t) => (
               <Zeile key={t.benutzername} p={t} onSchau={setSchau} onFertig={neuLaden} />
@@ -94,17 +96,14 @@ export default function Freunde() {
             <Zeile key={f.anfrage_id} p={f} onSchau={setSchau} onFertig={neuLaden} />
           ))
         ) : (
-          <p className="fr-leer">
-            Noch niemand. Such jemanden über den Namen – oder schau in der Rangliste, wer
-            gerade fleißig ist.
-          </p>
+          <p className="fr-leer">{t('frd2.nochNiemandSuch')}</p>
         )}
       </section>
 
       {/* ---------- Gesendet ---------- */}
       {gesendet.length > 0 && (
         <section className="fr-block">
-          <h3 className="fr-titel">Gesendet</h3>
+          <h3 className="fr-titel">{t('frd.gesendet')}</h3>
           {gesendet.map((f) => (
             <Zeile key={f.anfrage_id} p={f} onSchau={setSchau} onFertig={neuLaden} />
           ))}
@@ -116,6 +115,7 @@ export default function Freunde() {
 
 /** Eine Person mit dem Knopf, der gerade passt. */
 function Zeile({ p, onSchau, onFertig }) {
+  const t = useTexte()
   const [laeuft, setLaeuft] = useState(false)
   const da = useAnwesend()
 
@@ -157,7 +157,7 @@ function Zeile({ p, onSchau, onFertig }) {
 
         {p.stand === 'fremd' && (
           <button className="btn-small" disabled={laeuft} onClick={() => tu('anfragen')}>
-            {laeuft ? '…' : 'Hinzufügen'}
+            {laeuft ? '…' : t('frd.hinzufuegen')}
           </button>
         )}
 
@@ -178,16 +178,14 @@ function Zeile({ p, onSchau, onFertig }) {
           <>
             <span className="fr-marke">gefragt</span>
             {p.anfrage_id && (
-              <button className="btn-plain fr-nein" disabled={laeuft} onClick={() => tu('beenden')}>
-                Zurück
-              </button>
+              <button className="btn-plain fr-nein" disabled={laeuft} onClick={() => tu('beenden')}>{t('frd2.zurueck')}</button>
             )}
           </>
         )}
 
         {p.stand === 'freund' && (
           <>
-            <span className="fr-marke fr-ist">Freund</span>
+            <span className="fr-marke fr-ist">{t('frd.freund')}</span>
             {p.anfrage_id && (
               <button className="btn-plain fr-nein" disabled={laeuft} onClick={() => tu('beenden')}>
                 Entfernen

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { einwilligungsStand, messungMoeglich, setzeEinwilligung, messungFortsetzen } from './messung.js'
 
+import { useTexte } from './sprache.js'
 /**
  * Der Einwilligungs-Hinweis für die Reichweitenmessung.
  *
@@ -28,6 +29,7 @@ import { einwilligungsStand, messungMoeglich, setzeEinwilligung, messungFortsetz
  * gehört dort hin, damit die Einwilligung informiert erfolgt.
  */
 export default function Einwilligung({ onRecht }) {
+  const t = useTexte()
   const [zeigen, setZeigen] = useState(false)
 
   useEffect(() => {
@@ -47,22 +49,22 @@ export default function Einwilligung({ onRecht }) {
   }
 
   return (
-    <div className="ew" role="dialog" aria-label="Hinweis zur Reichweitenmessung">
+    <div className="ew" role="dialog" aria-label={t('ew.hinweisLabel')}>
       <div className="ew-karte">
-        <p className="ew-titel">Wir verwenden Cookies</p>
+        <p className="ew-titel">{t('ew.titel')}</p>
         <p className="ew-text">
-          Diese Website verwendet Cookies und ähnliche Technologien, um die Nutzung
-          zu analysieren und unser Angebot zu verbessern. Einzelheiten stehen in
-          der <button className="ew-link" onClick={() => onRecht('datenschutz')}>
-          Datenschutzerklärung</button>. Du kannst deine Auswahl jederzeit unter
-          „Profil" ändern.
+          {t('ew.text1')}{' '}
+          <button className="ew-link" onClick={() => onRecht('datenschutz')}>
+            {t('ew.datenschutzerklaerung')}
+          </button>
+          {t('ew.text2')}
         </p>
         <div className="ew-knoepfe">
           <button className="ew-knopf" onClick={() => entscheide(false)}>
-            Ablehnen
+            {t('ew.ablehnen')}
           </button>
           <button className="ew-knopf" onClick={() => entscheide(true)}>
-            Akzeptieren
+            {t('ew.akzeptieren')}
           </button>
         </div>
       </div>

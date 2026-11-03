@@ -34,6 +34,7 @@ import Feed from './Feed.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
+import { useTexte, sprache } from './sprache.js'
 
 /** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
 function videoIdAusEingabe(eingabe) {
@@ -240,6 +241,7 @@ function loadYouTubeApi() {
 }
 
 export default function App() {
+  const t = useTexte()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [video, setVideo] = useState(null) // { videoId, title, lines }
@@ -599,7 +601,7 @@ export default function App() {
     if (!nutzer || syncStatus === 'laeuft') return
     const timer = setTimeout(() => {
       speichereVokabeln(nutzer.id, vocab).catch((f) =>
-        console.warn('Vokabeln konnten nicht gesichert werden:', f.message)
+        console.warn(t('apm.vokabelnKonntenNicht'), f.message)
       )
     }, 1500)
     return () => clearTimeout(timer)
@@ -688,7 +690,7 @@ export default function App() {
     if (!nutzer || !videosAbgeglichen) return
     const timer = setTimeout(() => {
       gleicheVideosAb(nutzer.id, { videos: savedVideos, geloescht: ladeGeloeschteLokal() }).catch((f) =>
-        console.warn('Videos konnten nicht gesichert werden:', f.message)
+        console.warn(t('apm.videosKonntenNicht'), f.message)
       )
     }, 1500)
     return () => clearTimeout(timer)
@@ -730,7 +732,7 @@ export default function App() {
         setSavedVideos(vereint.videos)
         setVideosAbgeglichen(true)
       })
-      .catch((f) => console.warn('Videos konnten nicht abgeglichen werden:', f.message))
+      .catch((f) => console.warn(t('apm.videosKonntenNicht2'), f.message))
     return () => {
       abgebrochen = true
     }
@@ -759,7 +761,7 @@ export default function App() {
         // letzten Lerntag beim nächsten Öffnen auf den neuen Tag.
         lastDay: progress.lastActive,
         xpToday: xpHeute(progress),
-      }).catch((f) => console.warn('Statistik nicht gesichert:', f.message))
+      }).catch((f) => console.warn(t('apm.statistikNichtGesichert'), f.message))
     }, 1500)
     return () => clearTimeout(timer)
   }, [progress, nutzer, syncStatus])
@@ -770,7 +772,7 @@ export default function App() {
     setLessonProgress((p) => ({ ...p, [lektion.id]: { fertig: true } }))
     if (nutzer) {
       speichereFortschritt(nutzer.id, lektion.id).catch((f) =>
-        console.warn('Lektion nicht gesichert:', f.message)
+        console.warn(t('apm.lektionNichtGesichert'), f.message)
       )
     }
     setVocab((v) => {
@@ -1030,8 +1032,8 @@ export default function App() {
         data = JSON.parse(text)
       } catch {
         throw new Error(
-          'Dieses Video ist noch nicht in der Habloo-Mediathek und der ' +
-          'Transkript-Dienst ist gerade nicht erreichbar.'
+          t('apm.diesesVideoIst') +
+          t('apm.transkriptDienstIst')
         )
       }
       if (!res.ok) throw new Error(data.error)
@@ -1101,7 +1103,7 @@ export default function App() {
       const res = await fetch(API_URL + '/api/translate-batch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lines: video.lines.map((l) => l.text) }),
+        body: JSON.stringify({ lines: video.lines.map((l) => l.text), sprache: sprache() }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || `Server antwortet mit ${res.status}`)
@@ -1170,7 +1172,7 @@ export default function App() {
       // in Manuels Wortschatz standen deshalb mit einer Fehlermeldung
       // als Uebersetzung im Trainer.
       if (!res.ok || !data.translation) {
-        throw new Error(data.error || 'Der Übersetzungsdienst antwortet nicht.')
+        throw new Error(data.error || t('apm.derUebersetzungsdienstAntwortet'))
       }
       const translation = data.translation
       setSelected({ word, translation, fehler: '', loading: false })
@@ -1413,14 +1415,14 @@ export default function App() {
             onClick={() => setView('start')}
           >
             <span className="tab-icon">{ICONS.start}</span>
-            <span className="tab-label">Start</span>
+            <span className="tab-label">{t('nav.start')}</span>
           </button>
           <button
             className={'tab ' + (view === 'lektionen' ? 'tab-active' : '')}
             onClick={() => setView('lektionen')}
           >
             <span className="tab-icon">{ICONS.lektionen}</span>
-            <span className="tab-label">Lektionen</span>
+            <span className="tab-label">{t('nav.lektionen')}</span>
           </button>
           <button
             className={'tab ' + (view === 'trainer' ? 'tab-active' : '')}
@@ -1430,26 +1432,26 @@ export default function App() {
               {ICONS.trainer}
               {faellig > 0 && <span className="due-badge">{faellig}</span>}
             </span>
-            <span className="tab-label">Trainer</span>
+            <span className="tab-label">{t('nav.trainer')}</span>
           </button>
           <button
             className={'tab ' + (view === 'videos' || view === 'lesen' ? 'tab-active' : '')}
             onClick={() => setView('videos')}
           >
             <span className="tab-icon">{ICONS.bibliothek}</span>
-            <span className="tab-label">YouTube</span>
+            <span className="tab-label">{t('nav.youtube')}</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}
             onClick={() => setView('mehr')}
           >
             <span className="tab-icon">{ICONS.mehr}</span>
-            <span className="tab-label">Profil</span>
+            <span className="tab-label">{t('nav.profil')}</span>
           </button>
         </nav>
         <div className="stats">
           {progress.streak > 0 && (
-            <span className="streak" title={`${progress.streak} Tage in Folge gelernt`}>
+            <span className="streak" title={t('hm.tageGelernt', { zahl: progress.streak })}>
               🔥 {progress.streak}
             </span>
           )}
@@ -1641,10 +1643,7 @@ export default function App() {
             <h1>
               Kein Video <span className="accent">geladen</span>
             </h1>
-            <p className="intro">
-              Such dir im Videobereich ein Video aus oder füge dort einen
-              YouTube-Link ein.
-            </p>
+            <p className="intro">{t('ap.suchDirIm')}</p>
             <button onClick={() => setView('videos')}>Zu den Videos</button>
           </div>
         )}
@@ -1667,12 +1666,7 @@ export default function App() {
                   Bei Musik zerfallen die in Bruchstuecke – dann ist
                   ein anderes Video die bessere Wahl. */}
               {video.qualitaet?.stufe === 'schlecht' && (
-                <p className="text-warnung">
-                  ⚠️ Dieser Text stammt aus YouTubes automatischer
-                  Spracherkennung und ist bei Musik oft zerstückelt.
-                  Such lieber eine Fassung mit „Letra" im Titel – die
-                  hat meist einen sauber getippten Text.
-                </p>
+                <p className="text-warnung">{t('ap.dieserTextStammt')}</p>
               )}
 
               {/* Kurz einblenden, damit klar ist, warum das Video
@@ -1681,9 +1675,7 @@ export default function App() {
                 <p className="weiter-hinweis">
                   ⏱ Weiter bei {Math.floor(weiterAb / 60)}:
                   {String(Math.round(weiterAb % 60)).padStart(2, '0')}
-                  <button className="weiter-neu" onClick={() => { playerRef.current?.seekTo?.(0, true); setWeiterAb(null) }}>
-                    Von vorn
-                  </button>
+                  <button className="weiter-neu" onClick={() => { playerRef.current?.seekTo?.(0, true); setWeiterAb(null) }}>{t('ap.vonVorn')}</button>
                 </p>
               )}
               <div className="video-kopf">
@@ -1753,7 +1745,7 @@ export default function App() {
                       <div>
                         <div className="success-text">
                           {cardExit.status === 'gewusst'
-                            ? 'Stark, das kannst du schon!'
+                            ? t('apm.starkDasKannst')
                             : 'Gespeichert – ab in den Trainer!'}
                         </div>
                         {cardExit.earned > 0 && (
@@ -1767,7 +1759,7 @@ export default function App() {
                       {selected.fehler ? (
                         <div className="word-fehler">
                           {selected.fehler}
-                          <small>Das Wort ist gemerkt – die Bedeutung kannst du im Trainer nachtragen.</small>
+                          <small>{t('appX.dasWortIst')}</small>
                         </div>
                       ) : (
                         <div className="word-de">{selected.translation}</div>

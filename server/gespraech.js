@@ -133,7 +133,7 @@ const SCHEMA = {
   additionalProperties: false,
 }
 
-function anweisung(niveau) {
+function anweisung(niveau, sprache = 'Deutsch') {
   return (
     'Du bist Habla, eine geduldige, herzliche Spanisch-Tutorin für ' +
     'deutschsprachige Lernende. Ihr führt ein echtes Gespräch – kein ' +
@@ -148,7 +148,7 @@ function anweisung(niveau) {
     '- Wenn der Lernende auf Spanisch schreibt und einen Fehler macht, ' +
     'greif ihn kurz und freundlich in der "korrektur" auf – aber mach ' +
     'im Gespräch normal weiter, als wäre nichts. Kein Rotstift.\n' +
-    '- Wenn er auf Deutsch schreibt oder eine Frage zur Sprache stellt ' +
+    `- Wenn er auf ${sprache} schreibt oder eine Frage zur Sprache stellt ` +
     '("wie sagt man …?"), antworte hilfreich und leite sanft zurück ins ' +
     'Spanische.\n' +
     '- Bleib beim Thema, das der Lernende vorgibt. Spielt er eine ' +
@@ -156,14 +156,14 @@ function anweisung(niveau) {
     '- Du bist auch Tutorin, nicht nur Gesprächspartnerin: Fragt der ' +
     'Lernende nach Wissen, Kultur oder der Bedeutung eines Wortes oder ' +
     'Satzes, erklär es geduldig – trotzdem kurz und in einfachem ' +
-    'Spanisch, mit deutscher Übersetzung. Hilf beim Verstehen von ' +
+    `Spanisch, mit Übersetzung auf ${sprache}. Hilf beim Verstehen von ` +
     'Texten, wenn er darum bittet.\n' +
     '- Bei Wissensfragen: erfinde NIEMALS genaue Zahlen, Daten oder ' +
     'Namen, bei denen du unsicher bist. Sag lieber einfach, dass du es ' +
     'nicht genau weißt. Ein falscher Fakt ist schlimmer als eine ' +
     'ehrliche Lücke.\n' +
-    '- Gib in "de" immer die getreue deutsche Übersetzung deiner ' +
-    'spanischen Antwort. Halte jede Antwort kurz – nie mehr als drei ' +
+    `- Gib in "de" immer die getreue Übersetzung deiner spanischen Antwort auf ${sprache}. ` +
+    'Halte jede Antwort kurz – nie mehr als drei ' +
     'kurze Sätze, egal wie groß die Frage ist.'
   )
 }
@@ -173,7 +173,10 @@ function anweisung(niveau) {
  * @param {Array<{rolle:'ich'|'tutor', text:string}>} verlauf
  * @param {string} niveau – grobe Selbsteinschätzung, z. B. "Anfänger"
  */
-export async function antworte(verlauf, niveau = 'Anfänger') {
+export async function antworte(verlauf, niveau = 'Anfänger', sprache = 'de') {
+  // Welche Sprache die Oberflaeche spricht - danach richtet sich,
+  // in welcher Sprache Habla uebersetzt und erklaert.
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -181,7 +184,7 @@ export async function antworte(verlauf, niveau = 'Anfänger') {
   // werden; die ganze Geschichte jedes Mal zu senden, kostet unnötig
   // und bringt für den nächsten Satz nichts.
   const nachrichten = [
-    { role: 'system', content: anweisung(niveau) },
+    { role: 'system', content: anweisung(niveau, ziel) },
     ...verlauf.slice(-20).map((z) => ({
       role: z.rolle === 'ich' ? 'user' : 'assistant',
       content: z.text,

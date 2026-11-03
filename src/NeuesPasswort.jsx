@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { neuesPasswortSetzen } from './auth.js'
 import Logo from './Logo.jsx'
 
+import { useTexte } from './sprache.js'
 /**
  * Das Formular nach dem Klick in der "Passwort vergessen"-Mail.
  *
@@ -11,6 +12,7 @@ import Logo from './Logo.jsx'
  * abbricht, steht beim naechsten Anmelden wieder vor derselben Tuer.
  */
 export default function NeuesPasswort({ onFertig }) {
+  const t = useTexte()
   const [passwort, setPasswort] = useState('')
   const [nochmal, setNochmal] = useState('')
   const [fehler, setFehler] = useState('')
@@ -20,7 +22,7 @@ export default function NeuesPasswort({ onFertig }) {
     e.preventDefault()
     setFehler('')
     if (passwort.length < 6) return setFehler('Mindestens 6 Zeichen.')
-    if (passwort !== nochmal) return setFehler('Die beiden Passwörter sind nicht gleich.')
+    if (passwort !== nochmal) return setFehler(t('npm.dieBeidenPasswoerter'))
     setLaeuft(true)
     try {
       await neuesPasswortSetzen(passwort)
@@ -40,7 +42,7 @@ export default function NeuesPasswort({ onFertig }) {
         <div className="login-kopf">
           <Logo klasse="login-badge" />
           <h2>Neues Passwort</h2>
-          <p>Du bist über den Link aus der E-Mail hier. Gib jetzt ein neues Passwort ein – das alte gilt danach nicht mehr.</p>
+          <p>{t('neuX.duBistUeber')}</p>
         </div>
 
         <form onSubmit={absenden} className="login-form">

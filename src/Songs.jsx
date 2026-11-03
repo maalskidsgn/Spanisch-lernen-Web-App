@@ -23,6 +23,7 @@ import {
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 import InfoKnopf from './InfoKnopf.jsx'
 import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
+import { useTexte } from './sprache.js'
 
 // Vier Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt.
 //
@@ -63,6 +64,7 @@ const SPOTIFY_ZEIGEN = false
  * Text als PDF zum Mitlesen ausdrucken.
  */
 export default function Songs({ onOpenVideo, vocab = {} }) {
+  const t = useTexte()
   const [songs, setSongs] = useState(null)
   const [suche, setSuche] = useState('')
   const [treffer, setTreffer] = useState(null)
@@ -142,7 +144,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
 
     setSpotifyFehler('')
     try {
-      setAnalyse('Deine Musik wird gelesen …')
+      setAnalyse(t('sgm.deineMusikWird'))
       const kuenstler = await sammleKuenstler(token)
 
       setAnalyse(`${kuenstler.length} Künstler gefunden – die KI prüft die Sprache …`)
@@ -226,7 +228,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         setHinweis(
           abgelehnt.join(', ') +
             (abgelehnt.length === 1 ? ' singt' : ' singen') +
-            ' überwiegend nicht auf Spanisch – zum Mitlesen bringt das leider nichts.'
+            t('sgm.ueberwiegendNichtAuf')
         )
       }
     } catch (f) {
@@ -279,7 +281,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     setLaeuft(schluessel)
     const status = (text) => setSongMeldung({ name: kuenstler, text })
     try {
-      status('Suche das Video …')
+      status(t('sgm.sucheDasVideo'))
       const res = await fetch(
         API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(`${kuenstler} ${titel}`)
       )
@@ -297,7 +299,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       // in einer Sackgasse zu enden.
       for (const [i, kandidat] of treffer.slice(0, 3).entries()) {
         try {
-          status('Songtext wird geholt – das kann eine halbe Minute dauern …')
+          status(t('sgm.songtextWirdGeholt'))
           const pruefung = await fetch(
             API_URL + '/api/transcript?url=' + kandidat.videoId + '&art=musik',
             await mitLogin()
@@ -313,12 +315,12 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           const antwort = await pruefung.json().catch(() => ({}))
           if (antwort.stoerung) {
             throw new Error(
-              'Der Songtext-Dienst hat gerade eine Störung. Deine ' +
+              t('sgm.derSongtextDienst') +
                 'gespeicherten Songs oben funktionieren weiter – neue ' +
-                'bitte später noch einmal versuchen.'
+                t('sgm.bitteSpaeterNoch')
             )
           }
-          if (i < 2) status('Der Treffer hatte keinen Text – prüfe den nächsten …')
+          if (i < 2) status(t('sgm.derTrefferHatte'))
         } catch (f) {
           if (f.message.includes('Störung')) throw f
           // sonst: naechsten Treffer versuchen
@@ -326,7 +328,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       }
       throw new Error(
         `Zu „${titel}" habe ich keine Fassung mit Songtext gefunden. ` +
-          'Versuch es über die Suche oben mit „Letra" im Suchbegriff.'
+          t('sgm.versuchEsUeber')
       )
     } catch (f) {
       setSongMeldung({ name: kuenstler, text: f.message, fehler: true })
@@ -341,7 +343,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     try {
       const daten = await holeVideoMitTranskript(song.youtube_id)
       if (!daten?.transkript?.length) {
-        throw new Error('Für diesen Song ist kein Text gespeichert.')
+        throw new Error(t('sgm.fuerDiesenSong'))
       }
       songAlsPdf({
         titel: song.titel,
@@ -387,8 +389,8 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     }
     setPrueft(null)
     setFehler(
-      'Zu diesem Treffer habe ich keine Fassung mit spanischem Text gefunden – ' +
-        'probier einen anderen oder such mit „Letra" im Namen.'
+      t('sgm.zuDiesemTreffer') +
+        t('sgm.probierEinenAnderen')
     )
   }
 
@@ -435,7 +437,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         {fehler && <p className="error">{fehler}</p>}
 
         {treffer?.length === 0 && (
-          <p className="empty-hint">Nichts gefunden. Versuch einen anderen Namen.</p>
+          <p className="empty-hint">{t('sg.nichtsGefundenVersuch')}</p>
         )}
 
         {treffer?.length > 0 && (
@@ -452,7 +454,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                   <span className="treffer-titel">{s.title}</span>
                   <span className="treffer-meta">
                     {prueft === s.videoId
-                      ? 'Songtext wird geprüft …'
+                      ? t('sgm.songtextWirdGeprueft')
                       : s.channel + (s.duration ? ' · ' + dauerText(s.duration) : '')}
                   </span>
                 </span>
@@ -472,7 +474,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           text={
             songs?.length
               ? `${songs.length} gespeichert – zum Anhören antippen oder den Text als PDF sichern.`
-              : 'Noch keine Songs. Such dir oben einen aus und öffne ihn.'
+              : t('sgm.nochKeineSongs')
           }
           zahl={songs?.length || null}
         />
@@ -504,7 +506,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                     className="song-pdf"
                     onClick={() => pdfErzeugen(s)}
                     disabled={pdfLaeuft === s.youtube_id}
-                    title="Songtext als PDF sichern"
+                    title={t('sg.songtextAlsPdf')}
                   >
                     {pdfLaeuft === s.youtube_id ? '…' : 'PDF'}
                   </button>
@@ -522,11 +524,8 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           titel="Deine spanischen Interpreten"
         />
         <div className="bereich-kopf bereich-kopf-rest">
-          <h2 hidden>Deine spanischen Interpreten</h2>
-          <p>
-            Sag uns, wen du gern hörst – die KI prüft, wer auf Spanisch
-            singt, und schlägt Songs zum Mitlesen vor.
-          </p>
+          <h2 hidden>{t('sg.deineSpanischenInterpreten')}</h2>
+          <p>{t('sg2.sagUnsWen')}</p>
         </div>
 
         <form
@@ -541,7 +540,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
             type="text"
             value={eingabe}
             onChange={(e) => setEingabe(e.target.value)}
-            placeholder="Künstler eintippen, z. B. Shakira"
+            placeholder={t('sg.kuenstlerEintippenZ')}
             disabled={Boolean(analyse)}
           />
           <button className="btn" disabled={Boolean(analyse) || !eingabe.trim()}>
@@ -598,12 +597,12 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                         {k.herkunft} · {k.stil}
                       </span>
                       {!k.sicher && (
-                        <span className="interpret-hinweis">singt gemischt</span>
+                        <span className="interpret-hinweis">{t('sg.singtGemischt')}</span>
                       )}
                       <span className="interpret-anzahl">
                         {k.songs?.length
                           ? `${k.songs.length} Songs ${offen ? '▴' : '▾'}`
-                          : 'keine Songs gefunden'}
+                          : t('sgm.keineSongsGefunden')}
                       </span>
                     </button>
 
@@ -662,15 +661,13 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
               Künstler automatisch aus.
             </p>
             <InfoKnopf thema="spotify" />
-            <button className="btn spotify-los" onClick={starteAnmeldung}>
-              Mit Spotify verbinden
-            </button>
+            <button className="btn spotify-los" onClick={starteAnmeldung}>{t('sg2.mitSpotifyVerbinden')}</button>
           </div>
         )}
 
         {SPOTIFY_ZEIGEN && spotifyBereit && verbunden && (
           <div className="spotify-leiste">
-            <span className="spotify-status">Spotify verbunden</span>
+            <span className="spotify-status">{t('sg.spotifyVerbunden')}</span>
             <div className="spotify-aktionen">
               <button
                 className="filter-knopf"

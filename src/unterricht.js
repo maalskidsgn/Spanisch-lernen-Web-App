@@ -1,3 +1,5 @@
+import { gebiet } from './sprache.js'
+
 // Der wöchentliche Gruppenunterricht.
 //
 // Der Videoanbieter steht bewusst NUR hier – als eine Adresse. Ob
@@ -72,7 +74,7 @@ export function restzeit(millisekunden) {
 
 /** "Donnerstag, 19:00 Uhr" */
 export function terminText(termin) {
-  return termin.toLocaleDateString('de-DE', {
+  return termin.toLocaleDateString(gebiet(), {
     weekday: 'long', hour: '2-digit', minute: '2-digit',
   }) + ' Uhr'
 }

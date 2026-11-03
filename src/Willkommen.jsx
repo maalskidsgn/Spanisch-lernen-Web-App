@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
+import { useTexte } from './sprache.js'
 
 /**
  * Startseite für alle, die noch nicht angemeldet sind.
@@ -10,6 +11,7 @@ import Logo from './Logo.jsx'
  * Seite, was die App kann – Schritte, Funktionen, Fortschritt, Preise.
  */
 export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
+  const t = useTexte()
   const seite = useRef(null)
 
   // Alles mit der Klasse "zeigt-sich" gleitet herein, sobald es
@@ -45,40 +47,38 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           </div>
 
           <h1 className="wk-titel">
-            Spanisch lernen mit dem,<br />
-            was du <span className="accent">sowieso schaust</span>
+            {t('wk.titel1')}<br />
+            {t('wk.titel2')} <span className="accent">{t('wk.titelAkzent')}</span>
           </h1>
 
           <p className="wk-text">
-            Echte Videos mit mitlaufenden Untertiteln, ein Vokabeltrainer, der
-            sich merkt, wann du wiederholen musst – und Lektionen vom ersten
-            „Hola" an.
+{t('wk.text')}
           </p>
 
           <div className="wk-punkte">
-            <span className="wk-punkt">🎬 Videos mit Karaoke-Text</span>
-            <span className="wk-punkt">🃏 Vokabeltrainer</span>
-            <span className="wk-punkt">🎓 Geführte Lektionen</span>
-            <span className="wk-punkt">🎮 Mini-Spiele</span>
+            <span className="wk-punkt">{t('wk.punkt1')}</span>
+            <span className="wk-punkt">{t('wk.punkt2')}</span>
+            <span className="wk-punkt">{t('wk.punkt3')}</span>
+            <span className="wk-punkt">{t('wk.punkt4')}</span>
           </div>
 
           <div className="wk-knoepfe">
             <button className="btn wk-start" onClick={onStarten}>
-              Jetzt starten – kostenlos
+              {t('wk.starten')}
             </button>
             <button className="btn-outline wk-anmelden" onClick={onAnmelden}>
-              Ich habe schon ein Konto
+              {t('wk.anmelden')}
             </button>
           </div>
 
           <p className="wk-fuss">
-            Dein Fortschritt wird gesichert und steht auf allen Geräten bereit.
+            {t('wk.fuss')}
           </p>
         </div>
 
         {/* In der App gibt es nichts zum Entdecken - da endet die
             Seite hier. */}
-        {!istApp && <span className="wk-scroll-hinweis">Mehr entdecken ↓</span>}
+        {!istApp && <span className="wk-scroll-hinweis">{t('wk.mehr')}</span>}
       </header>
 
       {/* Der Rest ist Werbung fuer Leute, die Habloo noch nicht
@@ -92,11 +92,10 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       <section className="wk-sektion">
         <div className="wk-breite">
           <div className="wk-kopf zeigt-sich">
-            <span className="wk-label">In 3 Schritten</span>
-            <h2>Vom Video zur Vokabel – ganz nebenbei</h2>
+            <span className="wk-label">{t('wk.schritteLabel')}</span>
+            <h2>{t('wk.schritteTitel')}</h2>
             <p>
-              Kein Vokabelheft, kein Abtippen. Du schaust, tippst an, und der
-              Rest passiert automatisch.
+{t('wk.schritteText')}
             </p>
           </div>
 
@@ -104,18 +103,18 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
             {[
               {
                 nr: '1',
-                titel: 'Video aussuchen',
-                text: 'Wähle aus unserer Mediathek oder füge einen Link ein – Musik, Podcasts, Kochvideos. Alles, was dich wirklich interessiert.',
+                titel: t('wk.schritt1Titel'),
+                text: t('wk.schritt1Text'),
               },
               {
                 nr: '2',
-                titel: 'Mitlesen & antippen',
-                text: 'Die Untertitel laufen automatisch mit. Unbekanntes Wort? Einmal tippen – Übersetzung erscheint, Wort ist gespeichert.',
+                titel: t('wk.schritt2Titel'),
+                text: t('wk.schritt2Text'),
               },
               {
                 nr: '3',
-                titel: 'Behalten statt vergessen',
-                text: 'Dein Trainer fragt jede Vokabel genau dann ab, wenn du sie zu vergessen drohst. Spielerisch verpackt.',
+                titel: t('wk.schritt3Titel'),
+                text: t('wk.schritt3Text'),
               },
             ].map((s, i) => (
               <div key={s.nr} className={`wk-schritt zeigt-sich v${i}`}>
@@ -133,22 +132,19 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         <span className="wk-wolke wk-wolke-3" />
         <div className="wk-breite">
           <div className="wk-kopf zeigt-sich">
-            <span className="wk-label">Alles drin</span>
-            <h2>Eine App, dein kompletter Sprachkurs</h2>
+            <span className="wk-label">{t('wk.allesLabel')}</span>
+            <h2>{t('wk.allesTitel')}</h2>
             <p>
-              Vom ersten „Hola" bis zum Podcast ohne Untertitel – {APP_NAME}{' '}
-              begleitet dich auf jeder Stufe.
+{t('wk.allesText', { app: APP_NAME })}
             </p>
           </div>
 
           <div className="wk-bento">
             <div className="wk-kachel wk-kachel-breit zeigt-sich">
               <span className="wk-kachel-icon">🎬</span>
-              <h3>Videos, die mitlesen</h3>
+              <h3>{t('wk.videoTitel')}</h3>
               <p>
-                Die Untertitel laufen synchron zum Video, die aktuelle Zeile
-                leuchtet auf. Ein Klick übersetzt den ganzen Text – oder nur das
-                eine Wort, das dir fehlt.
+{t('wk.videoText')}
               </p>
               <div className="wk-demo">
                 <span className="wk-demo-zeile">Hola, ¿qué tal?</span>
@@ -161,22 +157,20 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
 
             <div className="wk-kachel zeigt-sich v1">
               <span className="wk-kachel-icon">🎓</span>
-              <h3>Geführte Lektionen</h3>
+              <h3>{t('wk.lektionenTitel')}</h3>
               <p>
-                Module vom Begrüßen bis Reisen: neue Wörter mit Ton, kurze
-                Erklärungen, animierte Dialoge und Übungen.
+{t('wk.lektionenText')}
               </p>
             </div>
 
             <div className="wk-kachel zeigt-sich">
               <span className="wk-kachel-icon">🃏</span>
-              <h3>Trainer mit Gedächtnis</h3>
+              <h3>{t('wk.trainerTitel')}</h3>
               <p>
-                Wiederhole im richtigen Moment – von „neu" bis „sitzt für
-                immer".
+{t('wk.trainerText')}
               </p>
               <div className="wk-stufen">
-                {['Neu', '1 Tag', '3 Tage', '1 Woche', '1 Monat'].map((s, i) => (
+                {[t('wk.stufeNeu'), t('wk.stufe1Tag'), t('wk.stufe3Tage'), t('wk.stufe1Woche'), t('wk.stufe1Monat')].map((s, i) => (
                   <span key={s} className={'wk-stufe' + (i === 0 ? ' wk-stufe-an' : '')}>
                     {s}
                   </span>
@@ -186,11 +180,9 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
 
             <div className="wk-kachel wk-kachel-dunkel wk-kachel-breit zeigt-sich v1">
               <span className="wk-kachel-icon">📖</span>
-              <h3>Zweisprachige E-Books</h3>
+              <h3>{t('wk.ebooksTitel')}</h3>
               <p>
-                Kurze Sachbuch-Zusammenfassungen auf Spanisch – mit deutscher
-                Fassung zum Umschalten. Oder lass dir per KI eins zu deinem
-                Wunschthema schreiben.
+{t('wk.ebooksText')}
               </p>
             </div>
 
@@ -203,20 +195,18 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         <div className="wk-breite">
           <div className="wk-band zeigt-sich">
             <div className="wk-band-text">
-              <span className="wk-label wk-label-hell">🔥 Dranbleiben leicht gemacht</span>
-              <h2>Der Trick: Du willst weitermachen</h2>
+              <span className="wk-label wk-label-hell">{t('wk.dranLabel')}</span>
+              <h2>{t('wk.dranTitel')}</h2>
               <p>
-                Punkte für jedes gelernte Wort, Level mit Titeln, ein Tagesziel
-                und eine Serie, die wächst. Kleine Erfolge, die aus Vorsätzen
-                Gewohnheiten machen.
+{t('wk.dranText')}
               </p>
             </div>
             <div className="wk-zahlen">
               {[
-                { wert: '10', text: 'XP pro gewusster Vokabel' },
-                { wert: '9', text: 'Level bis zur Legende' },
-                { wert: '6', text: 'Stufen im Karteikasten' },
-                { wert: '3', text: 'Mini-Spiele zum Üben' },
+                { wert: '10', text: t('wk.zahl1') },
+                { wert: '9', text: t('wk.zahl2') },
+                { wert: '6', text: t('wk.zahl3') },
+                { wert: '3', text: t('wk.zahl4') },
               ].map((z) => (
                 <div key={z.text} className="wk-zahl">
                   <b>{z.wert}</b>
@@ -234,63 +224,62 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         <span className="wk-wolke wk-wolke-4" />
         <div className="wk-breite">
           <div className="wk-kopf zeigt-sich">
-            <span className="wk-label">Fair &amp; flexibel</span>
-            <h2>Starte kostenlos. Bleib, wenn's dir gefällt.</h2>
+            <span className="wk-label">{t('wk.preiseLabel')}</span>
+            <h2>{t('wk.preiseTitel')}</h2>
             <p>
-              Alle Lernfunktionen sind gratis. Premium schaltet die
-              KI-Werkzeuge frei.
+{t('wk.preiseText')}
             </p>
           </div>
 
           <div className="wk-tarife">
             <div className="wk-tarif zeigt-sich">
-              <span className="wk-tarif-name">Kostenlos</span>
+              <span className="wk-tarif-name">{t('wk.tarifFrei')}</span>
               <span className="wk-tarif-preis">0 €</span>
-              <span className="wk-tarif-hinweis">Für immer</span>
+              <span className="wk-tarif-hinweis">{t('wk.tarifFreiHinweis')}</span>
               <ul>
-                <li>Unbegrenzt Videos lernen</li>
-                <li>Alle Lektionen &amp; Mini-Spiele</li>
-                <li>Vokabeltrainer mit XP &amp; Level</li>
-                <li>3 KI-E-Books pro Monat</li>
+                <li>{t('wk.tarifFrei1')}</li>
+                <li>{t('wk.tarifFrei2')}</li>
+                <li>{t('wk.tarifFrei3')}</li>
+                <li>{t('wk.tarifFrei4')}</li>
               </ul>
               <button className="btn-outline" onClick={onStarten}>
-                Loslegen
+                {t('wk.tarifFreiKnopf')}
               </button>
             </div>
 
             <div className="wk-tarif wk-tarif-beste zeigt-sich v1">
-              <span className="wk-tarif-fahne">Beliebteste Wahl · 30 % sparen</span>
-              <span className="wk-tarif-name">Premium Jahr</span>
+              <span className="wk-tarif-fahne">{t('wk.tarifFahne')}</span>
+              <span className="wk-tarif-name">{t('wk.tarifJahr')}</span>
               <span className="wk-tarif-preis">
-                50 €<small> / Jahr</small>
+                50 €<small>{t('wk.proJahr')}</small>
               </span>
-              <span className="wk-tarif-hinweis">entspricht 4,17 € pro Monat</span>
+              <span className="wk-tarif-hinweis">{t('wk.tarifJahrHinweis')}</span>
               <ul>
-                <li>Alles aus Kostenlos</li>
-                <li>Unbegrenzte KI-Vokabellisten</li>
-                <li>Unbegrenzte E-Books</li>
-                <li>Sync auf allen Geräten</li>
+                <li>{t('wk.tarifJahr1')}</li>
+                <li>{t('wk.tarifJahr2')}</li>
+                <li>{t('wk.tarifJahr3')}</li>
+                <li>{t('wk.tarifJahr4')}</li>
               </ul>
               <button className="btn" onClick={onStarten}>
-                Premium holen
+                {t('wk.tarifJahrKnopf')}
               </button>
             </div>
 
             <div className="wk-tarif zeigt-sich v2">
-              <span className="wk-tarif-name">Premium Monat</span>
+              <span className="wk-tarif-name">{t('wk.tarifMonat')}</span>
               <span className="wk-tarif-preis">
-                5,99 €<small> / Monat</small>
+                5,99 €<small>{t('wk.proMonat')}</small>
               </span>
               <span className="wk-tarif-hinweis">
-                Monatlich kündbar · oder 89 € einmalig
+{t('wk.tarifMonatHinweis')}
               </span>
               <ul>
-                <li>Alle Premium-Funktionen</li>
-                <li>Jederzeit kündbar</li>
-                <li>Lifetime-Option verfügbar</li>
+                <li>{t('wk.tarifMonat1')}</li>
+                <li>{t('wk.tarifMonat2')}</li>
+                <li>{t('wk.tarifMonat3')}</li>
               </ul>
               <button className="btn-outline" onClick={onStarten}>
-                Monatlich starten
+                {t('wk.tarifMonatKnopf')}
               </button>
             </div>
           </div>
@@ -305,11 +294,10 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
             <span className="wk-wolke wk-wolke-5" />
             <h2>¿Empezamos?</h2>
             <p>
-              Such dir ein Video aus, das dich interessiert – den Rest übernimmt{' '}
-              {APP_NAME}.
+{t('wk.schlussText', { app: APP_NAME })}
             </p>
             <button className="btn wk-start" onClick={onStarten}>
-              Kostenlos loslegen
+              {t('wk.schlussKnopf')}
             </button>
           </div>
         </div>
@@ -325,22 +313,22 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           App, die man gerade geladen hat. */}
       {istApp ? (
         <footer className="wk-footer wk-footer-app">
-          <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
-          <button onClick={() => onRecht('agb')}>AGB</button>
-          <button onClick={() => onRecht('impressum')}>Impressum</button>
+          <button onClick={() => onRecht('datenschutz')}>{t('wk.datenschutz')}</button>
+          <button onClick={() => onRecht('agb')}>{t('wk.agb')}</button>
+          <button onClick={() => onRecht('impressum')}>{t('wk.impressum')}</button>
         </footer>
       ) : (
         <footer className="wk-footer">
           <Logo klasse="wk-footer-badge" />
           <span>{APP_NAME}</span>
           <span className="wk-footer-klein">
-            Mit Herz entwickelt von Klarwerk Digital
+{t('wk.footerKlein')}
           </span>
           <span className="wk-footer-recht">
-            <a href="/blog/">Ratgeber</a>
-            <button onClick={() => onRecht('impressum')}>Impressum</button>
-            <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
-            <button onClick={() => onRecht('agb')}>AGB</button>
+            <a href="/blog/">{t('wk.ratgeber')}</a>
+            <button onClick={() => onRecht('impressum')}>{t('wk.impressum')}</button>
+            <button onClick={() => onRecht('datenschutz')}>{t('wk.datenschutz')}</button>
+            <button onClick={() => onRecht('agb')}>{t('wk.agb')}</button>
           </span>
         </footer>
       )}

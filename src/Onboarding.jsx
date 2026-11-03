@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { paketFuer } from './startpakete.js'
 import Logo from './Logo.jsx'
+import { useTexte } from './sprache.js'
 
 /**
  * Das Onboarding – die ersten neunzig Sekunden mit Habloo.
@@ -28,34 +29,34 @@ import Logo from './Logo.jsx'
 const SCHRITTE = [
   {
     id: 'grund',
-    frage: 'Warum lernst du Spanisch?',
+    frage: 'ob.warumLernstDu',
     optionen: [
-      { wert: 'reisen', emoji: '✈️', text: 'Reisen' },
-      { wert: 'familie', emoji: '❤️', text: 'Familie & Partner' },
-      { wert: 'kultur', emoji: '🎵', text: 'Musik & Kultur' },
-      { wert: 'beruf', emoji: '💼', text: 'Beruf & Karriere' },
-      { wert: 'auswandern', emoji: '🏝️', text: 'Auswandern' },
-      { wert: 'lust', emoji: '✨', text: 'Einfach Lust drauf' },
+      { wert: 'reisen', emoji: '✈️', text: 'ob.reisen' },
+      { wert: 'familie', emoji: '❤️', text: 'ob.familiePartner' },
+      { wert: 'kultur', emoji: '🎵', text: 'ob.musikKultur' },
+      { wert: 'beruf', emoji: '💼', text: 'ob.berufKarriere' },
+      { wert: 'auswandern', emoji: '🏝️', text: 'ob.auswandern' },
+      { wert: 'lust', emoji: '✨', text: 'ob.einfachLustDrauf' },
     ],
   },
   {
     id: 'niveau',
-    frage: 'Wie viel Spanisch kannst du schon?',
+    frage: 'ob.wieVielSpanisch',
     optionen: [
-      { wert: 'neu', emoji: '🌱', text: 'Ich fange ganz neu an' },
-      { wert: 'woerter', emoji: '🔤', text: 'Ich kenne ein paar Wörter' },
-      { wert: 'saetze', emoji: '💬', text: 'Ich führe einfache Gespräche' },
-      { wert: 'viel', emoji: '🚀', text: 'Ich verstehe schon einiges' },
+      { wert: 'neu', emoji: '🌱', text: 'ob.ichFangeGanz' },
+      { wert: 'woerter', emoji: '🔤', text: 'ob.ichKenneEin' },
+      { wert: 'saetze', emoji: '💬', text: 'ob.ichFuehreEinfache' },
+      { wert: 'viel', emoji: '🚀', text: 'ob.ichVersteheSchon' },
     ],
   },
   {
     id: 'ziel',
-    frage: 'Wie viel Zeit hast du am Tag?',
+    frage: 'ob.wieVielZeit',
     optionen: [
-      { wert: 10, emoji: '☕', text: '5 Minuten', hinweis: 'Entspannt' },
-      { wert: 20, emoji: '🙂', text: '10 Minuten', hinweis: 'Normal' },
-      { wert: 30, emoji: '💪', text: '15 Minuten', hinweis: 'Ernsthaft' },
-      { wert: 50, emoji: '🔥', text: '30 Minuten', hinweis: 'Intensiv' },
+      { wert: 10, emoji: '☕', text: 'ob.5Minuten', hinweis: 'ob.entspannt' },
+      { wert: 20, emoji: '🙂', text: 'ob.10Minuten', hinweis: 'ob.normal' },
+      { wert: 30, emoji: '💪', text: 'ob.15Minuten', hinweis: 'ob.ernsthaft' },
+      { wert: 50, emoji: '🔥', text: 'ob.30Minuten', hinweis: 'ob.intensiv' },
     ],
   },
 ]
@@ -70,33 +71,33 @@ const SCHRITTE = [
 const TOUR = [
   {
     emoji: '🎓',
-    titel: '150 Lektionen',
-    text: 'Von der ersten Begrüßung bis zum Vorstellungsgespräch – jedes Wort und jeder Dialog mit echten spanischen Stimmen.',
+    titel: 'ob.150Lektionen',
+    text: 'ob.vonDerErsten',
   },
   {
     emoji: '🃏',
-    titel: 'Der Vokabeltrainer',
-    text: 'Merkt sich, was du zu vergessen drohst, und fragt genau dann – erst nach Tagen, dann nach Wochen, dann nach Monaten.',
+    titel: 'ob.derVokabeltrainer',
+    text: 'ob.merktSichWas',
   },
   {
     emoji: '🧩',
-    titel: 'Grammatik in Bausteinen',
-    text: 'Kein Regelwerk am Stück: kleine Übungsrunden, die wiederkommen, bis eine Regel von allein sitzt.',
+    titel: 'ob.grammatikInBausteinen',
+    text: 'ob.keinRegelwerkAm',
   },
   {
     emoji: '☕',
-    titel: 'Mitgehört',
-    text: 'Echten Gesprächen folgen, ohne mitzulesen – erst hören, dann Fragen zum Inhalt, zum Schluss die Abschrift.',
+    titel: 'ob.mitgehoert',
+    text: 'ob.echtenGespraechenFolgen',
   },
   {
     emoji: '🎬',
-    titel: 'Deine Mediathek',
-    text: 'Videos, Songs und Ebooks auf deinem Niveau – und aus jedem Inhalt wandern neue Wörter in deinen Trainer.',
+    titel: 'ob.deineMediathek',
+    text: 'ob.videosSongsUnd',
   },
   {
     emoji: '✨',
-    titel: 'KI, die mitdenkt',
-    text: 'Wortlisten, Übungsvarianten und Lesetexte entstehen aus dem, was du wählst – so wie gerade dein Startpaket.',
+    titel: 'ob.kiDieMitdenkt',
+    text: 'ob.wortlistenUebungsvariantenUnd',
   },
 ]
 
@@ -116,6 +117,7 @@ function Maskottchen() {
  *   ändert den Schluss-Knopf und den Hinweis darunter
  */
 export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = false }) {
+  const t = useTexte()
   const [index, setIndex] = useState(0)
   const [antworten, setAntworten] = useState({})
   const [gewaehlt, setGewaehlt] = useState(null) // leuchtet kurz auf
@@ -190,7 +192,7 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
       <div className="ob">
         <div className="ob-kopf">
           {index > 0 && (
-            <button className="ob-zurueck" onClick={() => setIndex((i) => i - 1)} aria-label="Zurück">
+            <button className="ob-zurueck" onClick={() => setIndex((i) => i - 1)} aria-label={t('ob.zurueck')}>
               ←
             </button>
           )}
@@ -207,7 +209,7 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
 
         <div className="ob-frage-zeile">
           <Maskottchen />
-          <div className="ob-blase">{schritt.frage}</div>
+          <div className="ob-blase">{t(schritt.frage)}</div>
         </div>
 
         {/* key: Bei jedem Schritt neu aufgebaut, damit die
@@ -222,7 +224,7 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
             >
               <span className="ob-option-emoji">{o.emoji}</span>
               <span className="ob-option-text">
-                {o.text}
+                {t(o.text)}
                 {o.hinweis && <small>{o.hinweis}</small>}
               </span>
             </button>
@@ -240,9 +242,9 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
       <div className="ob">
         <div className="ob-karte ob-laden">
           <span className="ob-schwebt"><Maskottchen /></span>
-          <h1>Dein Startpaket wird zusammengestellt.</h1>
+          <h1>{t('ob.deinStartpaketWird')}</h1>
           <p className="ob-text">
-            Passend zu <b>{paket.label}</b> – und währenddessen: was dich erwartet.
+            {t('ob2.passendZu')} <b>{t(paket.label)}</b> {t('ob2.undWaehrenddessen')}
           </p>
 
           <div className="ob-ladebalken">
@@ -253,7 +255,7 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
           <div className="ob-tour" key={tourIndex}>
             <span className="ob-tour-emoji">{karte.emoji}</span>
             <h2>{karte.titel}</h2>
-            <p>{karte.text}</p>
+            <p>{t(karte.text)}</p>
           </div>
           <div className="ob-tour-punkte" aria-hidden="true">
             {TOUR.map((_, i) => (
@@ -265,9 +267,7 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
               erst nach ein paar Karten, sonst klickt man reflexhaft
               weiter und hat nichts mitbekommen. */}
           {tourIndex >= KARTEN_BIS_WEITER && (
-            <button className="ob-skip ob-skip-tour" onClick={() => setDurch(true)}>
-              Weiter zum Startpaket →
-            </button>
+            <button className="ob-skip ob-skip-tour" onClick={() => setDurch(true)}>{t('ob2.weiterZumStartpaket')}</button>
           )}
         </div>
       </div>
@@ -283,12 +283,12 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
       <div className="ob-karte ob-schluss">
         <Maskottchen />
         <h1>
-          ¡Listo! <span className="ob-akzent">Dein Startpaket ist da.</span>
+          ¡Listo! <span className="ob-akzent">{t('ob.deinStartpaketIst')}</span>
         </h1>
         <p className="ob-text">
-          Dein Plan: <b>{zielOption?.text ?? '10 Minuten'} am Tag</b> ·{' '}
-          <b>{anzahl} Wörter</b> zum Thema {paket.label}
-          {kontoNoetig ? ' warten auf dich' : ' warten im Trainer'}.
+          {t('ob2.deinPlan')} <b>{t('ob2.proTag', { zeit: zielOption?.text ?? t('ob.zehnMinuten') })}</b> ·{' '}
+          <b>{t('ob2.woerterZahl', { zahl: anzahl })}</b> {t('ob2.zumThema')} {t(paket.label)}
+          {kontoNoetig ? t('ob2.wartenAufDich') : t('ob2.wartenImTrainer')}.
         </p>
 
         {/* Warum genau diese Wörter – die Begründung stammt aus
@@ -310,26 +310,25 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
         <div className="ob-medien">
           <div className="ob-medium">
             <img src={paket.video.thumbnail} alt="" loading="lazy" />
-            <span className="ob-medium-art">🎬 Dein erstes Video</span>
+            <span className="ob-medium-art">{t('ob.deinErstesVideo')}</span>
             <span className="ob-medium-titel">{paket.video.title}</span>
           </div>
           <div className="ob-medium">
             <img src={paket.song.thumbnail} alt="" loading="lazy" />
-            <span className="ob-medium-art">🎵 Dein erster Song</span>
+            <span className="ob-medium-art">{t('ob.deinErsterSong')}</span>
             <span className="ob-medium-titel">{paket.song.title}</span>
           </div>
         </div>
 
         <button className="ob-los" onClick={() => onFertig(antworten, paket)}>
-          {kontoNoetig ? 'Konto anlegen und Paket sichern' : '¡Vamos! Los geht’s'}
+          {kontoNoetig ? t('obm.kontoAnlegenUnd') : t('obm.vamosLosGeht')}
         </button>
         <p className="ob-hinweis">
           {kontoNoetig ? (
-            <>Kostenlos. Dein Startpaket liegt danach im Trainer und in der Mediathek.</>
+            <>{t('ob.kostenlosDeinStartpaket')}</>
           ) : (
             <>
-              Am besten startest du mit <b>Lektion 1</b> – dein Startpaket wartet derweil im
-              Trainer und in der Mediathek.
+              {t('ob2.amBestenStartest')} <b>{t('ob.lektion1')}</b> {t('ob2.startpaketWartet')}
             </>
           )}
         </p>

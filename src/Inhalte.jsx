@@ -4,6 +4,7 @@ import { spiele } from './audio.js'
 import { API_URL } from './api.js'
 import { IconSuche, IconPfeil, IconMediathek, IconBuch, IconLesezeichen } from './icons.jsx'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import { sprache, useTexte } from './sprache.js'
 
 // Hörtexte und Lesetexte – zwei Bereiche, eine Anzeige.
 //
@@ -13,6 +14,7 @@ import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 // Das rechtfertigt keine zwei Komponenten.
 
 export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, ohneHero = false }) {
+  const t = useTexte()
   const [verzeichnis, setVerzeichnis] = useState(null)
   const [fehler, setFehler] = useState('')
   const [offen, setOffen] = useState(null) // der gerade gelesene Text
@@ -48,7 +50,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
       </p>
     )
   }
-  if (!verzeichnis) return <p className="inhalt-hinweis">Wird geladen …</p>
+  if (!verzeichnis) return <p className="inhalt-hinweis">{t('ih.wirdGeladen')}</p>
 
   const begriff = suche.trim().toLowerCase()
   const gefiltert = begriff
@@ -65,11 +67,11 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
       {!ohneHero && (
         <Hero
           symbol={hoeren ? <IconMediathek groesse={26} /> : <IconBuch groesse={26} />}
-          titel={hoeren ? 'Hör dich durch echte Themen' : 'Ebook finden'}
+          titel={hoeren ? t('ihm.hoerDichDurch') : 'Ebook finden'}
           text={
             hoeren
-              ? 'Jede Folge mit Tonspur, spanischem Text und deutscher Fassung daneben.'
-              : 'Jedes Kapitel auf Spanisch – die Übersetzung holst du dir mit einem Tipp.'
+              ? t('ihm.jedeFolgeMit')
+              : t('ihm.jedesKapitelAuf')
           }
         >
           <SuchFeld
@@ -102,7 +104,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
         text={
           begriff
             ? `${gefiltert.length} von ${verzeichnis.length}`
-            : 'Zum Lesen antippen – dein Fortschritt bleibt erhalten.'
+            : t('ihm.zumLesenAntippen')
         }
         zahl={gefiltert.length}
       />
@@ -126,7 +128,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
       </ul>
 
       {gefiltert.length === 0 && (
-        <p className="inhalt-hinweis">Dazu haben wir noch nichts.</p>
+        <p className="inhalt-hinweis">{t('ih.dazuHabenWir')}</p>
       )}
       </section>
     </>
@@ -135,6 +137,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
 
 /** Der Lesebereich: spanischer Text, deutsche Fassung auf Tippen. */
 function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
+  const t = useTexte()
   // Welches Wort wird gerade uebersetzt? Ohne Rueckmeldung wirkt der
   // Tipp folgenlos, waehrend im Hintergrund die Uebersetzung laeuft.
   const [holt, setHolt] = useState(null)
@@ -153,9 +156,9 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
     setHolt(wort)
     setWortFehler('')
     try {
-      const r = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(wort))
+      const r = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(wort) + '&sprache=' + sprache())
       const d = await r.json()
-      if (!r.ok || !d.translation) throw new Error(d.error || 'Keine Übersetzung gefunden.')
+      if (!r.ok || !d.translation) throw new Error(d.error || t('ihm.keineUebersetzungGefunden'))
       onAddVocab?.([{
         wort,
         uebersetzung: d.translation,
@@ -186,7 +189,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
   useEffect(() => setUebersetzt([]), [kapitel])
 
   if (fehler) return <p className="inhalt-hinweis">{fehler}</p>
-  if (!daten) return <p className="inhalt-hinweis">Wird geladen …</p>
+  if (!daten) return <p className="inhalt-hinweis">{t('ih.wirdGeladen')}</p>
 
   const hatKapitel = Array.isArray(daten.kapitel) && daten.kapitel.length > 0
   const teil = hatKapitel ? daten.kapitel[kapitel] : daten
@@ -205,9 +208,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
       <h2 className="lesetext-titel">{daten.titelOriginal}</h2>
 
       {daten.audio && (
-        <audio className="lesetext-ton" controls preload="none" src={daten.audio}>
-          Dein Browser kann diese Aufnahme nicht abspielen.
-        </audio>
+        <audio className="lesetext-ton" controls preload="none" src={daten.audio}>{t('ih2.deinBrowserKann')}</audio>
       )}
 
       {hatKapitel && (
@@ -216,7 +217,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
             className="btn-plain"
             disabled={kapitel === 0}
             onClick={() => setKapitel((k) => k - 1)}
-            aria-label="Vorheriges Kapitel"
+            aria-label={t('ih.vorherigesKapitel')}
           >
             ←
           </button>
@@ -227,7 +228,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
             className="btn-plain"
             disabled={kapitel >= daten.kapitel.length - 1}
             onClick={() => setKapitel((k) => k + 1)}
-            aria-label="Nächstes Kapitel"
+            aria-label={t('ih.naechstesKapitel')}
           >
             →
           </button>
@@ -254,7 +255,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
                       spiele(stueck.text)
                       wortUebernehmen(stueck.text)
                     }}
-                    title="Anhören und in den Trainer legen"
+                    title={t('ih.anhoerenUndIn')}
                   >
                     {stueck.text}
                   </button>
@@ -272,9 +273,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
 
       {wortFehler && <p className="lesetext-wortfehler">{wortFehler}</p>}
 
-      <p className="lesetext-hinweis">
-        Tippe einen Absatz an für die Übersetzung, ein markiertes Wort für den Trainer.
-      </p>
+      <p className="lesetext-hinweis">{t('ih2.tippeEinenAbsatz')}</p>
     </section>
   )
 }

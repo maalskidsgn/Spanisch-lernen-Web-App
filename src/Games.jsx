@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
+import { useTexte } from './sprache.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare, Wortsuche,
 // Blitzrunde, Galgenmännchen und Buchstabensalat.
@@ -60,6 +61,7 @@ export function spielbareVokabeln(vocab) {
 }
 
 export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   // Die Auswahl EINMAL beim Öffnen festlegen. Vorher wurde sie bei
   // jedem Neuzeichnen neu gemischt – dadurch zeigte die linke Spalte
   // plötzlich andere Wörter als die rechte, und kein Paar passte mehr.
@@ -70,14 +72,9 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       <div className="trainer">
         <div className="spiel-leer">
           <span className="spiel-leer-icon" aria-hidden="true">🃏</span>
-          <h2>Noch zu wenige Wörter</h2>
-          <p>
-            Ab vier gesammelten Wörtern mit Übersetzung geht es los. Wörter
-            kommen aus den Lektionen, aus Videos oder von der KI-Wortliste.
-          </p>
-          <button className="btn" onClick={onClose}>
-            Zurück zum Trainer
-          </button>
+          <h2>{t('sp.zuWenige')}</h2>
+          <p>{t('sp2.abVierGesammelten')}</p>
+          <button className="btn" onClick={onClose}>{t('sp2.zurueckZumTrainer')}</button>
         </div>
       </div>
     )
@@ -88,7 +85,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       <div className="player-top">
         <button className="btn-plain" onClick={onClose}>✕</button>
         <h2 className="game-title">
-          {{ memory: 'Memory', paare: 'Wortpaare', suche: 'Wortsuche', blitz: 'Blitzrunde', galgen: 'Galgenmännchen', salat: 'Buchstabensalat' }[spiel]}
+          {{ memory: t('sp.memory'), paare: t('sp.wortpaare'), suche: t('sp.wortsuche'), blitz: t('sp.blitzrunde'), galgen: t('sp.galgenmaennchen'), salat: t('sp.buchstabensalat') }[spiel]}
         </h2>
       </div>
       {spiel === 'memory' && (
@@ -119,10 +116,11 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
  * kommen aus dem Listengenerator und den Lektionen mit.
  */
 function RundenWoerter({ woerter, gefunden }) {
+  const t = useTexte()
   if (!woerter?.length) return null
   return (
     <div className="runden-woerter">
-      <p className="runden-woerter-titel">Die Wörter dieser Runde</p>
+      <p className="runden-woerter-titel">{t('sp.woerterDieserRunde')}</p>
       <ul>
         {woerter.map((w) => (
           <li
@@ -146,6 +144,7 @@ function RundenWoerter({ woerter, gefunden }) {
 // Hier rücken die gespielten Wörter im Karteikasten eine Stufe vor –
 // wer sie im Spiel wiedererkannt hat, kann sie eben.
 function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
+  const t = useTexte()
   const [gemeldet, setGemeldet] = useState(false)
 
   useEffect(() => {
@@ -161,13 +160,13 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
           <span key={i} className="confetti" style={{ '--i': i }} />
         ))}
       </div>
-      <h2>Geschafft! 🎉</h2>
+      <h2>{t('sp.geschafftFeier')}</h2>
       <p>{text}</p>
       <p className="bonus-note">
         +{XP.SPIEL} Bonus-XP
         {woerter.length > 0 && ` · ${woerter.length} Wörter eine Stufe weiter`}
       </p>
-      <button onClick={onClose}>Zurück zum Trainer</button>
+      <button onClick={onClose}>{t('sp.zurueckZumTrainer')}</button>
     </div>
   )
 }
@@ -176,6 +175,7 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
 function Memory({ paare, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Karten und Wortliste zusammen einfrieren: Beides muss vom selben
   // Stand stammen, sonst würden am Ende andere Wörter hochgestuft als
@@ -209,10 +209,10 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       const alle = [...gefunden, a.pairId]
       setGefunden(alle)
       setOffen([])
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, t('sp.treffer'))
       // Das letzte Paar NICHT sofort wegblenden: Erst soll man es in
       // Ruhe lesen können – weiter geht es über den Knopf unten.
-      if (alle.length === paare.length) belohne(XP.SPIEL, 'Geschafft!')
+      if (alle.length === paare.length) belohne(XP.SPIEL, t('sp.geschafft'))
     } else {
       // kein Paar: kurz zeigen, dann wieder zudecken
       setSperre(true)
@@ -262,9 +262,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
         })}
       </div>
       {gefunden.length === anzahl && (
-        <button className="btn memory-weiter" onClick={() => setFertig(true)}>
-          Alle gefunden – weiter
-        </button>
+        <button className="btn memory-weiter" onClick={() => setFertig(true)}>{t('sp2.alleGefundenWeiter')}</button>
       )}
       <RundenWoerter woerter={paare} gefunden={gefunden.map((i) => paare[i].es)} />
     </>
@@ -275,6 +273,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
 // Links Spanisch, rechts Deutsch (gemischt). Tippe die zusammen-
 // gehörenden Wörter an, bis alle Paare verbunden sind.
 function WortPaare({ paare, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Die rechte Spalte wird NICHT zufällig gemischt und eingefroren.
   // Grund: Wenn sich die Vokabeln während des Spiels ändern – etwa
@@ -297,9 +296,9 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
       const alle = [...geloest, p.es]
       setGeloest(alle)
       setWahlLinks(null)
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, t('sp.treffer'))
       if (alle.length === paare.length) {
-        belohne(XP.SPIEL, 'Geschafft!')
+        belohne(XP.SPIEL, t('sp.geschafft'))
         setFertig(true)
       }
     } else {
@@ -445,6 +444,7 @@ function baueGitter(woerter) {
 }
 
 function Wortsuche({ paare, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Gitter EINMAL bauen – sonst springen die Buchstaben bei jedem
   // Neuzeichnen.
@@ -514,7 +514,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
 
     if (treffer) {
       setGefunden((g) => [...g, treffer.es])
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, t('sp.treffer'))
     }
   }
 
@@ -546,7 +546,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <div className="such-auftrag">
-        <span className="such-label">Diese Wörter sind versteckt</span>
+        <span className="such-label">{t('sp.versteckteWoerter')}</span>
         <div className="such-liste">
           {platziert.map((w) => {
             const fertig = gefunden.includes(w.es)
@@ -560,10 +560,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
         </div>
       </div>
 
-      <p className="spiel-hinweis">
-        Zieh mit dem Finger über die Buchstaben – waagerecht, senkrecht oder
-        diagonal.
-      </p>
+      <p className="spiel-hinweis">{t('sp2.ziehMitDem')}</p>
 
       <div
         className="gitter"
@@ -629,6 +626,7 @@ function neueBlitzFrage(paare, letzte) {
 }
 
 function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   const [laeuft, setLaeuft] = useState(false)
   const [rest, setRest] = useState(BLITZ_SEKUNDEN)
@@ -652,7 +650,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
   useEffect(() => {
     if (!vorbei) return
     if (punkte > rekordVorher) localStorage.setItem(BLITZ_REKORD, String(punkte))
-    if (richtig > 0) belohne(XP.SPIEL, 'Zeit um!')
+    if (richtig > 0) belohne(XP.SPIEL, t('sp.zeitUm'))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vorbei])
 
@@ -715,10 +713,10 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
         <span className="blitz-gleich" aria-hidden="true">=</span>
         <span className="blitz-de">{frage.de}</span>
       </div>
-      {!laeuft && <p className="training-progress">Die Zeit läuft ab der ersten Antwort. Ab 3 richtigen in Folge zählt jede doppelt.</p>}
+      {!laeuft && <p className="training-progress">{t('sp.zeitLaeuft')}</p>}
       <div className="blitz-knoepfe">
-        <button className="blitz-knopf nein" onClick={() => antworte(false)}>Passt nicht</button>
-        <button className="blitz-knopf ja" onClick={() => antworte(true)}>Passt</button>
+        <button className="blitz-knopf nein" onClick={() => antworte(false)}>{t('sp.passtNicht')}</button>
+        <button className="blitz-knopf ja" onClick={() => antworte(true)}>{t('sp.passt')}</button>
       </div>
     </>
   )
@@ -733,6 +731,7 @@ const GALGEN_LEBEN = 6
 const TASTATUR = 'abcdefghijklmnñopqrstuvwxyz'.split('')
 
 function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   const [runde] = useState(() =>
     paare.filter((p) => [...p.es].filter(istBuchstabe).length >= 3).slice(0, GALGEN_WOERTER)
@@ -767,14 +766,14 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
     if (alleOffen) {
       setEnde('geloest')
       setGeloest((g) => [...g, wort.es])
-      belohne(XP.QUIZ_RICHTIG * 5, 'Erraten!')
+      belohne(XP.QUIZ_RICHTIG * 5, t('sp.erraten'))
     } else if (neueFehler >= GALGEN_LEBEN) {
       setEnde('verloren')
     }
   }
 
   function weiter() {
-    if (nr + 1 >= runde.length && geloest.length > 0) belohne(XP.SPIEL, 'Geschafft!')
+    if (nr + 1 >= runde.length && geloest.length > 0) belohne(XP.SPIEL, t('sp.geschafft'))
     setNr((n) => n + 1)
     setGeraten([])
     setEnde(null)
@@ -803,9 +802,9 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
       </div>
       {ende ? (
         <div className="galgen-ende">
-          <p>{ende === 'geloest' ? 'Richtig!' : 'Leider nicht – so heißt es richtig.'}</p>
+          <p>{ende === 'geloest' ? t('sp.richtig') : t('sp.leiderNicht')}</p>
           <button className="btn" onClick={weiter}>
-            {nr + 1 >= runde.length ? 'Auswertung' : 'Nächstes Wort'}
+            {nr + 1 >= runde.length ? t('sp.auswertung') : t('sp.naechstesWort')}
           </button>
         </div>
       ) : (
@@ -837,6 +836,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
 const SALAT_WOERTER = 5
 
 function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
+  const t = useTexte()
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   const [runde] = useState(() =>
     paare
@@ -874,10 +874,10 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
         key={wort.es}
         wort={wort}
         onFertig={(ohneFehler) => {
-          belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? 'Fehlerfrei!' : 'Richtig!')
+          belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? t('sp.fehlerfrei') : t('sp.richtig'))
           if (ohneFehler) setFertigWoerter((f) => [...f, wort.es])
           setTimeout(() => {
-            if (nr + 1 >= runde.length) belohne(XP.SPIEL, 'Geschafft!')
+            if (nr + 1 >= runde.length) belohne(XP.SPIEL, t('sp.geschafft'))
             setNr((n) => n + 1)
           }, 900)
         }}
@@ -887,6 +887,7 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
 }
 
 function SalatWort({ wort, onFertig }) {
+  const t = useTexte()
   const zeichen = [...wort.es]
   // Nur Buchstaben werden gemischt; Leerzeichen & Co. stehen fest
   const [kacheln] = useState(() => {
@@ -950,7 +951,7 @@ function SalatWort({ wort, onFertig }) {
           </button>
         ))}
       </div>
-      {fehler > 0 && !fertig && <p className="training-progress">{fehler} {fehler === 1 ? 'Fehler' : 'Fehler'}</p>}
+      {fehler > 0 && !fertig && <p className="training-progress">{fehler} {fehler === 1 ? t('sp.fehler') : t('sp.fehler')}</p>}
     </div>
   )
 }

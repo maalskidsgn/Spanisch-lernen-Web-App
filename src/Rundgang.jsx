@@ -20,6 +20,7 @@ import { useEffect } from 'react'
 import {
   IconLektion, IconKarten, IconMediathek, IconMehr, IconSprache, IconLandkarte,
 } from './icons.jsx'
+import { t } from './sprache.js'
 
 const SPEICHER = 'bereichGesehen'
 
@@ -46,54 +47,12 @@ export function merkeGesehen(bereich) {
  * weitere Box zu viel.
  */
 export const BEREICHE = {
-  start: {
-    icon: IconLandkarte,
-    titel: 'Dein Start',
-    text:
-      'Hier beginnt jeder Tag: die nächste Lektion, dein tägliches ' +
-      '„Entdecken“-Stück, der Sprech-Tutor und der Kalender mit deinen ' +
-      'Lerntagen. Einmal am Tag reinschauen reicht, um dranzubleiben.',
-  },
-  lektionen: {
-    icon: IconLektion,
-    titel: 'Die Lektionen',
-    text:
-      '150 Lektionen in sieben Modulen, vom ersten „Hola" bis zum freien ' +
-      'Erzählen – alle vertont, mit Prüfstationen zwischendurch. Jede ist ' +
-      'in wenigen Minuten geschafft.',
-  },
-  trainer: {
-    icon: IconKarten,
-    titel: 'Der Trainer',
-    text:
-      'Dein Karteikasten: Er zeigt dir jedes Wort genau dann wieder, wenn ' +
-      'du es zu vergessen drohst. Dazu vier Spiele, Grammatik-Bausteine – ' +
-      'und der KI-Trainer, mit dem du auf Spanisch redest.',
-  },
-  videos: {
-    icon: IconMediathek,
-    titel: 'Die Mediathek',
-    text:
-      'Echte Videos und Songs auf Spanisch. Tippe unbekannte ' +
-      'Wörter einfach an – sie wandern mit Übersetzung in deinen ' +
-      'Trainer.',
-  },
-  gespraech: {
-    icon: IconSprache,
-    titel: 'Sprechen mit Habla',
-    text:
-      'Rede auf Spanisch über das, was dich interessiert – Habla ' +
-      'antwortet einfach, übersetzt und korrigiert dich sanft. Auch ' +
-      'hier: Wörter antippen und sammeln.',
-  },
-  mehr: {
-    icon: IconMehr,
-    titel: 'Profil',
-    text:
-      'Dein Konto, dein Benutzername für die Rangliste, Tagesziel ' +
-      'und Backups. Und falls du mal etwas suchst: Der Leitfaden ' +
-      '„So nutzt du Habloo" erklärt die ganze App in Ruhe.',
-  },
+  start:     { icon: IconLandkarte, titel: 'rund.startTitel',     text: 'rund.startText' },
+  lektionen: { icon: IconLektion,   titel: 'rund.lektionenTitel', text: 'rund.lektionenText' },
+  trainer:   { icon: IconKarten,    titel: 'rund.trainerTitel',   text: 'rund.trainerText' },
+  videos:    { icon: IconMediathek, titel: 'rund.mediathekTitel', text: 'rund.mediathekText' },
+  gespraech: { icon: IconSprache,   titel: 'rund.gespraechTitel', text: 'rund.gespraechText' },
+  mehr:      { icon: IconMehr,      titel: 'rund.mehrTitel',      text: 'rund.mehrText' },
 }
 
 /** Die Stationen des Rundgangs, in Lauf-Reihenfolge. */
@@ -136,8 +95,8 @@ export default function BereichsIntro({ bereich, rundgang, onWeiter, onFertig })
           </span>
         )}
 
-        <h2>{info.titel}</h2>
-        <p>{info.text}</p>
+        <h2>{t(info.titel)}</h2>
+        <p>{t(info.text)}</p>
 
         <div className="intro-knoepfe">
           {rundgang ? (
@@ -146,7 +105,7 @@ export default function BereichsIntro({ bereich, rundgang, onWeiter, onFertig })
                 Rundgang beenden
               </button>
               <button className="btn" onClick={letzte ? onFertig : onWeiter}>
-                {letzte ? 'Fertig – los geht’s!' : 'Weiter →'}
+                {letzte ? t('rum.fertigLosGeht') : 'Weiter →'}
               </button>
             </>
           ) : (

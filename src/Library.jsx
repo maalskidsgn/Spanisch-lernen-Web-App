@@ -26,6 +26,7 @@ import { holeVerzeichnis } from './inhalte.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 import { XP } from './gamification.js'
 import { erfolgston } from './erfolgston.js'
+import { sprache, useTexte } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Spanisch nebenbei,
@@ -99,7 +100,7 @@ function ladeEmpfehlungsCache() {
 // Fertige Suchvorschläge zum Entdecken neuer Spanisch-Videos
 const VORSCHLAEGE = [
   { label: '🎵 Musik', query: 'canciones en español con letra' },
-  { label: '🐣 Für Anfänger', query: 'spanish for beginners comprehensible input' },
+  { label: 'ytm.fuerAnfaenger', query: 'spanish for beginners comprehensible input' },
   { label: '🎙️ Podcasts', query: 'podcast en español para estudiantes' },
   { label: '📰 Langsame Nachrichten', query: 'noticias en español lento para estudiantes' },
   { label: '🍳 Kochen', query: 'receta cocina española fácil' },
@@ -125,6 +126,7 @@ function ladeBuecher() {
 // Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
 export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {}, addXp }) {
+  const t = useTexte()
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
   const savedVideos = alleGemerkten.filter((v) => v.art !== 'musik')
@@ -331,14 +333,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   return (
     <div className="library">
       <h1 className="lib-kopf">
-        Lernen mit <span className="accent">YouTube</span>
+        {t('yt.titel1')} <span className="accent">{t('yt.titel2')}</span>
       </h1>
       <p className="lib-unter">
         {{
-          videos: 'Finde spanische Videos, die zu deinem Niveau passen.',
-          songs: 'Spanische Songs mit mitlaufendem Text.',
-          hoertexte: 'Hörtexte mit Tonspur und Übersetzung daneben.',
-          ebooks: 'Buchzusammenfassungen auf Spanisch – oder lass dir selbst eine schreiben.',
+          videos: t('yt.untertitel'),
+          songs: t('yt.songs'),
+          hoertexte: t('yt.hoertexte'),
+          ebooks: t('yt.ebooks'),
         }[bereich]}
       </p>
 
@@ -412,9 +414,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
           {buchFehler && <p className="error">{buchFehler}</p>}
           {buchLaden && (
-            <p className="inhalt-hinweis">
-              Das dauert einen Moment – die KI schreibt gerade beide Fassungen.
-            </p>
+            <p className="inhalt-hinweis">{t('yt2.dasDauertEinen')}</p>
           )}
 
           {buecher.length > 0 && (
@@ -534,7 +534,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         <section className="bereich">
           <Kopf
             symbol={<IconGesundheit groesse={19} />}
-            titel="Für dich"
+            titel={t('yt.fuerDich')}
             aktion={
               kategorie !== 'alle' ? (
                 <button
@@ -544,7 +544,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     setSichtbareVideos(SCHRITT)
                   }}
                 >
-                  Alle ansehen <IconPfeil groesse={15} />
+                  {t('yt3.alleAnsehen')} <IconPfeil groesse={15} />
                 </button>
               ) : null
             }
@@ -579,7 +579,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                 : bibliothek.filter((v) => v.kategorie === kategorie)
 
             if (gefiltert.length === 0) {
-              return <p className="intro">Zu diesem Thema ist noch nichts dabei.</p>
+              return <p className="intro">{t('yt3.nichtsDabei')}</p>
             }
 
             const sichtbar = gefiltert.slice(0, sichtbareVideos)
@@ -608,7 +608,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                          strokeLinejoin="round" aria-hidden="true">
                       <path d="m5 9 7 7 7-7" />
                     </svg>
-                    Mehr anzeigen ({rest} weitere)
+                    {t('yt.mehrAnzeigen', { zahl: rest })}
                   </button>
                 )}
               </>
@@ -681,6 +681,7 @@ function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
  * kleiner Aufsteige-Animation und dem Erfolgston.
  */
 function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
+  const t = useTexte()
   const [seite, setSeite] = useState(0)
   const [sprache, setSprache] = useState('es') // 'es' | 'de'
   const [wort, setWort] = useState(null) // { text, de, laedt }
@@ -706,7 +707,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber) + '&sprache=' + sprache())
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -821,7 +822,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
       {/* Letzte Seite: die Vokabeln */}
       {vokabelSeite && (
         <article className="leser-seite">
-          <h2 className="leser-vokabel-titel">Die wichtigsten Wörter</h2>
+          <h2 className="leser-vokabel-titel">{t('yt3.wichtigsteWoerter')}</h2>
           <ul className="spielwort-liste">
             {buch.vokabeln.map((v) => (
               <li key={v.wort} className="spielwort">
@@ -877,7 +878,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? 'Übersetze …' : wort.de || t('ytm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button className="btn-outline" onClick={() => wortSammeln('gewusst')} disabled={wort.laedt}>
@@ -980,6 +981,7 @@ const ENGINE_THEMEN = ['Fußball', 'Kochen', 'Reisen', 'Musik', 'Vlogs', 'Psycho
  * Bühne mit Glühen, großem Suchfeld und Themen zum Antippen.
  */
 function VideoEngine({ wert, onWert, onSuche }) {
+  const t = useTexte()
   function absenden(e) {
     e.preventDefault()
     if (wert.trim()) onSuche(wert)
@@ -997,22 +999,21 @@ function VideoEngine({ wert, onWert, onSuche }) {
           </svg>
         </span>
         <span className="engine-marke">
-          <span className="engine-punkt" /> Video-Engine
+          <span className="engine-punkt" /> {t('yt.engine')}
         </span>
       </div>
 
       <h2 className="engine-titel">
-        Lerne Spanisch mit <span>echten YouTube-Videos</span>
+        {t('yt.heroTitel1')} <span>{t('yt.heroTitel2')}</span>
       </h2>
       <p className="engine-text">
-        Such dir ein Thema – Habloo findet spanische Videos auf deinem Niveau
-        und macht sie lernbar.
+{t('yt.heroText', { app: 'Habloo' })}
       </p>
 
       <ul className="engine-features">
-        <li><b>ES</b> Untertitel mitlesen</li>
-        <li><b>↻</b> Wort antippen = übersetzt</li>
-        <li><b>✦</b> Vokabeln per KI</li>
+        <li><b>ES</b> {t('yt.merkmal1')}</li>
+        <li><b>↻</b> {t('yt.merkmal2')}</li>
+        <li><b>✦</b> {t('yt.merkmal3')}</li>
       </ul>
 
       <form className="engine-suche" onSubmit={absenden}>
@@ -1023,11 +1024,11 @@ function VideoEngine({ wert, onWert, onSuche }) {
         <input
           value={wert}
           onChange={(e) => onWert(e.target.value)}
-          placeholder="Worüber willst du ein Video sehen?"
+          placeholder={t('yt.suchePlatzhalter')}
           enterKeyHint="search"
         />
-        <button type="submit" disabled={!wert.trim()} aria-label="Videos suchen">
-          Suchen
+        <button type="submit" disabled={!wert.trim()} aria-label={t('yt.videosSuchen')}>
+          {t('yt.suchen')}
         </button>
       </form>
 

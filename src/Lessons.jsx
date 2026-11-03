@@ -36,6 +36,7 @@ import {
   nochBisSzene,
 } from './mitgehoert.js'
 
+import { useTexte, vokabel, satz, text as uebersetzt } from './sprache.js'
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
 function mitChips(text) {
@@ -182,6 +183,7 @@ function suchStelle(satz, ziel) {
 // Eine Übersicht mit freischaltbaren Lektionen und ein Player, der durch
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
 export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
+  const t = useTexte()
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
   // Sonst baut "Noch einmal" am Ende den Lektions-Ablauf ueber das
@@ -309,23 +311,23 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
     const titel = sitzt
       ? lektion.istStation
-        ? 'Prüfstation bestanden!'
+        ? t('ls3.stationBestanden')
         : lektion.istSzene
           ? '¡Muy bien!'
           : '¡Excelente!'
-      : 'Fast geschafft'
+      : t('ls3.fastGeschafft')
 
     const untertitel = lektion.istSzene
       ? sitzt
-        ? 'Ein ganzes Gespräch verstanden – ohne ein Wort mitzulesen. Genau das ist der Punkt.'
-        : 'Hörverstehen kommt langsamer als Vokabeln, bei jedem. Hör die Szene ruhig noch einmal – jetzt kennst du die Abschrift.'
+        ? t('ls3.szeneGut')
+        : t('ls3.szeneNochmal')
       : lektion.istStation
         ? sitzt
-          ? 'Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.'
-          : 'Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.'
+          ? t('ls3.stationGut')
+          : t('ls3.stationNochmal')
         : sitzt
-          ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
-          : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'
+          ? t('ls.neueWoerterWarten')
+          : t('ls3.lektionNochmal')
 
     return (
       <div className="lessons abschluss-seite">
@@ -351,7 +353,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           </div>
 
           <h1 className="abschluss-titel">{titel}</h1>
-          <p className="abschluss-lektion">{lektion.emoji} {lektion.titel}</p>
+          <p className="abschluss-lektion">{lektion.emoji} {uebersetzt(lektion.titel)}</p>
         </div>
 
         {/* Der untere, ruhige Teil: Zahlen, Notiz, Knoepfe */}
@@ -359,17 +361,17 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           <div className="abschluss-chips">
             <div className="abschluss-chip">
               <b>{richtige}/{uebungen}</b>
-              <span>Aufgaben richtig</span>
+              <span>{t('ls.aufgabenRichtig')}</span>
             </div>
             <div className="abschluss-chip chip-xp">
               <b>+{XP.LEKTION}</b>
-              <span>Bonus-XP</span>
+              <span>{t('ls.bonusXp')}</span>
             </div>
           </div>
 
           {lektion.kulturnotiz && (
             <div className="abschluss-notiz">
-              <span className="start-marke">Gut zu wissen</span>
+              <span className="start-marke">{t('ls.gutZuWissen')}</span>
               <p>{lektion.kulturnotiz}</p>
             </div>
           )}
@@ -378,9 +380,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
           <div className="abschluss-knoepfe">
             {!sitzt && (
-              <button className="btn" onClick={() => starten(lektion, laufendeStation)}>
-                Noch einmal
-              </button>
+              <button className="btn" onClick={() => starten(lektion, laufendeStation)}>{t('ls2.nochEinmal')}</button>
             )}
             <button
               className={sitzt ? 'btn abschluss-weiter' : 'btn-outline'}
@@ -417,25 +417,25 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'intro' && (
           <div className="flashcard" key={'s' + index}>
             <div className="lesson-done-emoji">{lektion.emoji}</div>
-            <div className="flash-word">{lektion.titel}</div>
+            <div className="flash-word">{uebersetzt(lektion.titel)}</div>
             <p className="lesson-hint">
               {lektion.istStation || lektion.istSzene
-                ? 'Was hier auf dich zukommt'
-                : 'Das lernst du in dieser Lektion'}
+                ? t('lsm.wasHierAuf')
+                : t('lsm.dasLernstDu')}
             </p>
             <ul className="intro-goals">
               {lektion.ziele.map((z) => (
                 <li key={z}>✓ {z}</li>
               ))}
             </ul>
-            <button onClick={weiter}>¡Vamos! Los geht’s</button>
+            <button onClick={weiter}>{t('ls.vamosLosGeht')}</button>
           </div>
         )}
 
         {/* --- Neues Wort mit Ton und hervorgehobenem Beispielsatz --- */}
         {schritt.typ === 'lernen' && (
           <div className="flashcard word-step" key={'s' + index}>
-            <p className="lesson-hint">📖 Neues Wort</p>
+            <p className="lesson-hint">{t('ls.neuesWort')}</p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
               {/* vonSelbst: Das Wort erklingt, sobald die Karte da
@@ -445,7 +445,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                   Aufnahmen hintereinander wuerden sich abwuergen. */}
               <HoerKnopf text={schritt.item.es} titel="Anhören" vonSelbst />
             </div>
-            <div className="flash-translation">{schritt.item.de}</div>
+            <div className="flash-translation">{vokabel(schritt.item)}</div>
             {schritt.item.beispielEs && (
               <div className="example-box">
                 <div className="example-es">
@@ -456,10 +456,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                     klein
                   />
                 </div>
-                <div className="example-de">{schritt.item.beispielDe}</div>
+                <div className="example-de">{satz(schritt.item)}</div>
               </div>
             )}
-            <button onClick={weiter}>Weiter</button>
+            <button onClick={weiter}>{t('ls.weiter')}</button>
           </div>
         )}
 
@@ -486,7 +486,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               ✏️ {schritt.richtung === 'es-de' ? 'Was heißt…' : 'Wie sagt man…'}
             </p>
             <div className="flash-word">
-              {schritt.richtung === 'es-de' ? schritt.item.es : schritt.item.de}
+              {schritt.richtung === 'es-de' ? schritt.item.es : vokabel(schritt.item)}
             </div>
             <QuizOptionen
               runde={index}
@@ -501,15 +501,13 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Wiederholung aus früheren Lektionen --- */}
         {schritt.typ === 'rueckblick' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint rueckblick-hinweis">
-              Kurze Wiederholung – kennst du das noch?
-            </p>
+            <p className="lesson-hint rueckblick-hinweis">{t('ls2.kurzeWiederholungKennst')}</p>
             <div className="flash-word">{schritt.item.es}</div>
             <QuizOptionen
               runde={index}
               optionen={optionen}
               feedback={feedback}
-              richtig={schritt.item.de}
+              richtig={vokabel(schritt.item)}
               onAntwort={antworten}
             />
           </div>
@@ -518,7 +516,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Hörverstehen: erst hören, dann Bedeutung wählen --- */}
         {schritt.typ === 'hoeren' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">Hör zu – was bedeutet der Satz?</p>
+            <p className="lesson-hint">{t('ls.hoerZuWas')}</p>
             <VonSelbst
               text={schritt.zeile.es}
               stimme={stimmeImDialog(schritt.dialog, schritt.zeile.sprecher)}
@@ -537,7 +535,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               runde={index}
               optionen={optionen}
               feedback={feedback}
-              richtig={schritt.zeile.de}
+              richtig={satz(schritt.zeile, 'es', 'de')}
               onAntwort={antworten}
             />
           </div>
@@ -591,13 +589,13 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Abschlussfrage: einen ganzen Satz verstehen --- */}
         {schritt.typ === 'dialogquiz' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">🎓 Vertiefung: Was bedeutet dieser Satz?</p>
+            <p className="lesson-hint">{t('ls.vertiefungWasBedeutet')}</p>
             <div className="gap-sentence">{schritt.zeile.es}</div>
             <QuizOptionen
               runde={index}
               optionen={optionen}
               feedback={feedback}
-              richtig={schritt.zeile.de}
+              richtig={satz(schritt.zeile, 'es', 'de')}
               onAntwort={antworten}
             />
           </div>
@@ -606,7 +604,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Übung: Lückentext aus dem Beispielsatz --- */}
         {schritt.typ === 'luecke' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">✏️ Setze das fehlende Wort ein</p>
+            <p className="lesson-hint">{t('ls.setzeDasFehlende')}</p>
             <div className="gap-sentence">
               {schritt.luecke.satz.split(LUECKE_MARKE).map((teil, i, alle) => (
                 <span key={i}>
@@ -615,7 +613,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                 </span>
               ))}
             </div>
-            <p className="gap-help">{schritt.item.beispielDe}</p>
+            <p className="gap-help">{satz(schritt.item)}</p>
             <QuizOptionen
               runde={index}
               optionen={optionen}
@@ -642,15 +640,15 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     return (
       <div className="lessons">
         <button className="btn-plain back-link" onClick={() => setModul(null)}>
-          ← Alle Module
+          ← {t('lek.alleModule')}
         </button>
         <div className="modul-kopf">
           <span className="modul-kopf-ring" aria-hidden="true">
             {modul.emoji}
           </span>
           <div className="modul-kopf-text">
-            <h1>{modul.titel}</h1>
-            <p>{modul.beschreibung}</p>
+            <h1>{uebersetzt(modul.titel)}</h1>
+            <p>{uebersetzt(modul.beschreibung)}</p>
           </div>
         </div>
 
@@ -662,7 +660,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             />
           </span>
           <span className="modul-stand-text">
-            {modulFertig} / {gesamt} Lektionen
+            {t('lek.lektionenZahl', { fertig: modulFertig, gesamt })}
           </span>
           <span className={'modul-stand-chip' + (modulFertig === gesamt ? ' chip-fertig' : '')}>
             {modulFertig === gesamt ? 'Alles geschafft' : `${modulFertig} geschafft`}
@@ -738,9 +736,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                     {String(l.kursNr ?? '').padStart(2, '0')}
                   </span>
                   <span className="plan-text">
-                    <span className="plan-titel">{l.titel}</span>
+                    <span className="plan-titel">{uebersetzt(l.titel)}</span>
                     <span className="plan-lernst">
-                      {l.grammatik?.[0] ?? l.beschreibung} · {l.items.length} Wörter
+                      {uebersetzt(l.grammatik?.[0] ?? l.beschreibung)} · {t('ls.woerterZahl', { zahl: l.items.length })}
                     </span>
                   </span>
                   {geschafft ? (
@@ -751,9 +749,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                       </svg>
                     </span>
                   ) : dran ? (
-                    <span className="plan-knopf">Start</span>
+                    <span className="plan-knopf">{t('ls.start')}</span>
                   ) : (
-                    <span className="plan-schloss" aria-label="noch zu" />
+                    <span className="plan-schloss" aria-label={t('ls.nochZu')} />
                   )}
                 </button>
               </li>
@@ -810,11 +808,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   return (
     <div className="lessons">
       <h1 className="reise-titel">
-        Deine <span className="accent accent-strich">Sprach-Reise</span>
+        {t('lek.titel1')} <span className="accent accent-strich">{t('ls.sprachReise')}</span>
       </h1>
       <p className="intro">
-        Lerne Schritt für Schritt Spanisch –<br />
-        mit kurzen Videos, Übungen und echten Erfolgserlebnissen.
+{t('ls.lerneSchrittFuer')}
       </p>
 
       {laufendesModul && (
@@ -827,7 +824,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       )}
 
       <h2 className="reise-abschnitt">
-        <span aria-hidden="true">📖</span> Alle Module
+        <span aria-hidden="true">📖</span> {t('lek.alleModule')}
       </h2>
 
       <div className="modul-liste">
@@ -854,9 +851,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
               <span className="modul-text">
                 <span className="modul-titel">
-                  Modul {i + 1}: {m.titel}
+                  {t('ls.modulNr', { nr: i + 1 })}: {uebersetzt(m.titel)}
                 </span>
-                <span className="modul-sub">{bald ? 'Kommt bald!' : m.beschreibung}</span>
+                <span className="modul-sub">{bald ? t('ls.kommtBald') : uebersetzt(m.beschreibung)}</span>
                 {!bald && (
                   <span className="modul-bar">
                     <span className="xp-bar goal-bar">
@@ -866,7 +863,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                       />
                     </span>
                     <span className="modul-count">
-                      {f} / {gesamt} Lektionen
+                      {t('lek.lektionenZahl', { fertig: f, gesamt })}
                     </span>
                   </span>
                 )}
@@ -876,7 +873,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                 <span className={'modul-zahl' + (komplett ? ' modul-zahl-fertig' : '')}>
                   <b>{f}</b>
                   <i>/{gesamt}</i>
-                  <em>Lektionen</em>
+                  <em>{t('ls.lektionen')}</em>
                 </span>
               )}
             </button>
@@ -891,6 +888,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 // wie in einer Messenger-App – mit "tippt gerade…"-Punkten dazwischen.
 // Tippe auf eine Blase, um ihre deutsche Übersetzung zu sehen.
 function DialogChat({ dialog, onWeiter }) {
+  const t = useTexte()
   const [anzahl, setAnzahl] = useState(0) // wie viele Blasen schon sichtbar sind
   const [laeuft, setLaeuft] = useState(null) // laufende Gespraechs-Wiedergabe
   const [uebersetzt, setUebersetzt] = useState([]) // welche Blasen Deutsch zeigen
@@ -939,7 +937,7 @@ function DialogChat({ dialog, onWeiter }) {
 
   return (
     <div className="flashcard chat-card">
-      <p className="lesson-hint">🗣️ Dialog – tippe auf eine Blase für die Übersetzung</p>
+      <p className="lesson-hint">{t('ls.dialogTippeAuf')}</p>
       <div className="chat">
         {dialog.slice(0, anzahl).map((zeile, i) => {
           const rechts = zeile.sprecher !== ersterSprecher
@@ -951,12 +949,12 @@ function DialogChat({ dialog, onWeiter }) {
                 <span className="chat-name">{zeile.sprecher}</span>
                 {zeile.es}
                 {(alleDe || uebersetzt.includes(i)) && (
-                  <span className="chat-de">{zeile.de}</span>
+                  <span className="chat-de">{satz(zeile, 'es', 'de')}</span>
                 )}
               </button>
               <button
                 className="chat-ton"
-                title="Diese Zeile anhören"
+                title={t('ls.dieseZeileAnhoeren')}
                 onClick={() => spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher) })}
               >
                 🔊
@@ -984,7 +982,7 @@ function DialogChat({ dialog, onWeiter }) {
           <button className="btn-plain" onClick={() => setAlleDe(!alleDe)}>
             {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung zeigen'}
           </button>
-          <button onClick={onWeiter}>Weiter</button>
+          <button onClick={onWeiter}>{t('ls.weiter')}</button>
         </div>
       )}
     </div>
@@ -1029,6 +1027,7 @@ function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0 }) {
  * geprüft.
  */
 function LektionsPaare({ paare, onWeiter }) {
+  const t = useTexte()
   const [links, setLinks] = useState(null)
   const [geloest, setGeloest] = useState([])
   // Rechte Spalte deterministisch sortiert – nicht zufällig, damit
@@ -1044,7 +1043,7 @@ function LektionsPaare({ paare, onWeiter }) {
 
   return (
     <div className="flashcard">
-      <p className="lesson-hint">🔗 Verbinde die Paare</p>
+      <p className="lesson-hint">{t('ls.verbindeDiePaare')}</p>
       <div className="pairs-grid">
         <div className="pairs-col">
           {paare.map((p) => (
@@ -1077,7 +1076,7 @@ function LektionsPaare({ paare, onWeiter }) {
       </div>
       {fertig && (
         <div className="flash-actions">
-          <button onClick={onWeiter}>Weiter</button>
+          <button onClick={onWeiter}>{t('ls.weiter')}</button>
         </div>
       )}
     </div>
@@ -1090,6 +1089,7 @@ function LektionsPaare({ paare, onWeiter }) {
  * durch erneutes Antippen wieder zurücklegen.
  */
 function SatzbauUebung({ satzbau, onErgebnis }) {
+  const t = useTexte()
   const [gewaehlt, setGewaehlt] = useState([]) // Indizes in Reihenfolge
   const [geprueft, setGeprueft] = useState(null) // true/false nach Pruefen
   const fertig = gewaehlt.length === satzbau.woerter.length
@@ -1108,12 +1108,12 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
 
   return (
     <div className="flashcard">
-      <p className="lesson-hint">Baue den Satz</p>
+      <p className="lesson-hint">{t('ls.baueDenSatz')}</p>
       <p className="satzbau-deutsch">{satzbau.uebersetzung}</p>
 
       {/* Der entstehende Satz */}
       <div className={'satzbau-ablage' + (geprueft === true ? ' ablage-richtig' : geprueft === false ? ' ablage-falsch' : '')}>
-        {gewaehlt.length === 0 && <span className="ablage-leer">Tippe die Wörter unten an</span>}
+        {gewaehlt.length === 0 && <span className="ablage-leer">{t('ls.tippeDieWoerter')}</span>}
         {gewaehlt.map((i) => (
           <button key={i} className="satz-baustein baustein-gesetzt" onClick={() => tippe(i)}>
             {satzbau.woerter[i]}
@@ -1121,7 +1121,7 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
         ))}
       </div>
       {geprueft === false && (
-        <p className="satzbau-loesung">Richtig wäre: <b>{satzbau.loesung}</b></p>
+        <p className="satzbau-loesung">{t('ls.richtigWaere')} <b>{satzbau.loesung}</b></p>
       )}
 
       {/* Der Vorrat */}
@@ -1155,12 +1155,13 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
  * anklickbar – Wiederholen ist der ganze Zweck.
  */
 function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
+  const t = useTexte()
   if (!offen) {
     return (
       <div className="station station-zu">
         <span className="station-emoji" aria-hidden="true">🔒</span>
         <div className="station-text">
-          <span className="station-marke">Prüfstation</span>
+          <span className="station-marke">{t('ls.pruefstation')}</span>
           <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
           <p>
             Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann kannst du das
@@ -1179,9 +1180,7 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
       <div className="station-text">
         <span className="station-marke">{geschafft ? 'Bestanden' : 'Prüfstation'}</span>
         <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
-        <p>
-          Rückblick und rund 25 Aufgaben aus dem ganzen Modul – ohne neue Wörter.
-        </p>
+        <p>{t('ls2.rueckblickUndRund')}</p>
       </div>
       <span className="station-knopf">{geschafft ? 'Nochmal' : 'Start'}</span>
     </button>
@@ -1196,6 +1195,7 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
  * Eine dritte Kartenform waere eine dritte Sache zum Lernen.
  */
 function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
+  const t = useTexte()
   const name = szene.titel.replace('Mitgehört: ', '')
 
   if (!offen) {
@@ -1203,7 +1203,7 @@ function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
       <div className="station szene-karte station-zu">
         <span className="station-emoji" aria-hidden="true">🔒</span>
         <div className="station-text">
-          <span className="station-marke">Mitgehört</span>
+          <span className="station-marke">{t('ls.mitgehoert')}</span>
           <h3>{name}</h3>
           <p>
             Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann hörst du hier
@@ -1257,7 +1257,7 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
       <p className="lesson-hint">{istStation ? 'Rückblick' : 'Gut zu wissen'}</p>
 
       <div className="info-einzeln">
-        <h3 className="info-title">{tipp.titel}</h3>
+        <h3 className="info-title">{uebersetzt(tipp.titel)}</h3>
         <p className="info-text">{mitChips(tipp.text)}</p>
       </div>
 
@@ -1282,6 +1282,7 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
  * darin – und deshalb faellt sie in der Liste darunter weg.
  */
 function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
+  const t = useTexte()
   const { fertig, gesamt } = fortschritt
   return (
     <button className="weiterlernen" onClick={onOeffnen}>
@@ -1289,11 +1290,11 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
         {modul.emoji}
       </span>
       <span className="weiterlernen-text">
-        <span className="weiterlernen-marke">Weiterlernen</span>
+        <span className="weiterlernen-marke">{t('ls.weiterlernen')}</span>
         <span className="weiterlernen-titel">
-          Modul {nummer}: {modul.titel}
+          {t('ls.modulNr', { nr: nummer })}: {uebersetzt(modul.titel)}
         </span>
-        <span className="weiterlernen-sub">{modul.beschreibung}</span>
+        <span className="weiterlernen-sub">{uebersetzt(modul.beschreibung)}</span>
         <span className="modul-bar">
           <span className="xp-bar goal-bar">
             <span
@@ -1302,7 +1303,7 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
             />
           </span>
           <span className="modul-count">
-            {fertig} / {gesamt} Lektionen
+            {t('lek.lektionenZahl', { fertig: fertig, gesamt })}
           </span>
         </span>
       </span>
@@ -1341,6 +1342,7 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
  * nicht gehoert hat – und haelt die Uebung fuer kaputt.
  */
 function HoerSzene({ szene, onWeiter }) {
+  const t = useTexte()
   const [laeuft, setLaeuft] = useState(null)
   const [zeile, setZeile] = useState(-1)
   // Wie weit ist das Gespraech schon gelaufen – ueber alle Anlaeufe
@@ -1393,7 +1395,7 @@ function HoerSzene({ szene, onWeiter }) {
 
   return (
     <div className="flashcard hoerszene">
-      <p className="lesson-hint">🎧 Hör zu – der Text kommt später</p>
+      <p className="lesson-hint">{t('ls.hoerZuDer')}</p>
       <p className="hoerszene-ort">{szene.ort}</p>
 
       <div className="hoerszene-buehne">
@@ -1402,7 +1404,7 @@ function HoerSzene({ szene, onWeiter }) {
           <span />
         </div>
         <div className="hoerszene-sprecher">
-          {spricht ? <><b>{spricht}</b> spricht</> : genugGehoert ? 'Gespräch zu Ende' : 'Gleich geht es los'}
+          {spricht ? <><b>{spricht}</b> spricht</> : genugGehoert ? 'Gespräch zu Ende' : t('lsm.gleichGehtEs')}
         </div>
       </div>
 
@@ -1431,6 +1433,7 @@ function HoerSzene({ szene, onWeiter }) {
  * unter Druck nichts dazu.
  */
 function NochmalHoeren({ dialog }) {
+  const t = useTexte()
   const [laeuft, setLaeuft] = useState(null)
 
   useEffect(() => () => laeuft?.stop(), [laeuft])
@@ -1449,7 +1452,7 @@ function NochmalHoeren({ dialog }) {
   return (
     <button className="nochmal-hoeren" onClick={schalten}>
       <IconLautsprecher groesse={16} />
-      {laeuft ? 'Anhalten' : 'Noch einmal hören'}
+      {laeuft ? 'Anhalten' : t('lsm.nochEinmalHoeren')}
     </button>
   )
 }
@@ -1463,11 +1466,12 @@ function NochmalHoeren({ dialog }) {
  * mitnimmt.
  */
 function Abschrift({ szene, onWeiter }) {
+  const t = useTexte()
   const [alleDe, setAlleDe] = useState(false)
 
   return (
     <div className="flashcard abschrift">
-      <p className="lesson-hint">📄 Die Abschrift – jetzt zum Nachlesen</p>
+      <p className="lesson-hint">{t('ls.dieAbschriftJetzt')}</p>
       <button className="abschrift-schalter" onClick={() => setAlleDe((a) => !a)}>
         {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung einblenden'}
       </button>
@@ -1486,13 +1490,13 @@ function Abschrift({ szene, onWeiter }) {
                   klein
                 />
               </p>
-              {alleDe && <p className="abschrift-de">{z.de}</p>}
+              {alleDe && <p className="abschrift-de">{satz(z, 'es', 'de')}</p>}
             </div>
           </li>
         ))}
       </ol>
 
-      <button onClick={onWeiter}>Fertig</button>
+      <button onClick={onWeiter}>{t('ls.fertig')}</button>
     </div>
   )
 }

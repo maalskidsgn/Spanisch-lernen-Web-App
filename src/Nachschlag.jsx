@@ -15,6 +15,7 @@
 
 import { useState } from 'react'
 import { IconListe } from './icons.jsx'
+import { useTexte } from './sprache.js'
 
 const PERSONEN = ['yo', 'tú', 'él/ella', 'nosotros', 'vosotros', 'ellos/ellas']
 
@@ -26,7 +27,7 @@ const PERSONEN = ['yo', 'tú', 'él/ella', 'nosotros', 'vosotros', 'ellos/ellas'
 const ZEITFORMEN = [
   {
     id: 'presente',
-    name: 'Presente',
+    name: 'ns.presente',
     deutsch: 'Gegenwart',
     merken: 'Was jetzt passiert oder immer gilt: hablo – ich spreche.',
     signal: 'ahora, hoy, normalmente, siempre',
@@ -42,7 +43,7 @@ const ZEITFORMEN = [
   },
   {
     id: 'perfecto',
-    name: 'Pretérito perfecto',
+    name: 'ns.pretRitoPerfecto',
     deutsch: 'Perfekt',
     merken: 'haber im Presente + Partizip (-ado / -ido): he hablado – ich habe gesprochen.',
     signal: 'hoy, esta semana, ya, todavía no, alguna vez',
@@ -58,9 +59,9 @@ const ZEITFORMEN = [
   },
   {
     id: 'indefinido',
-    name: 'Pretérito indefinido',
+    name: 'ns.pretRitoIndefinido',
     deutsch: 'Einfache Vergangenheit',
-    merken: 'Abgeschlossen und mit klarem Zeitpunkt: ayer hablé – gestern sprach ich.',
+    merken: 'nsm.abgeschlossenUndMit',
     signal: 'ayer, anoche, el año pasado, en 2020, de repente',
     spalten: ['hablar', 'comer', 'vivir'],
     formen: [
@@ -74,9 +75,9 @@ const ZEITFORMEN = [
   },
   {
     id: 'imperfecto',
-    name: 'Imperfecto',
+    name: 'ns.imperfecto',
     deutsch: 'Verlaufs-Vergangenheit',
-    merken: 'Gewohnheiten und Hintergrund: hablaba – ich sprach (damals immer).',
+    merken: 'nsm.gewohnheitenUndHintergrund',
     signal: 'antes, siempre, todos los días, mientras, de niño',
     spalten: ['hablar', 'comer', 'vivir'],
     formen: [
@@ -90,7 +91,7 @@ const ZEITFORMEN = [
   },
   {
     id: 'futuro',
-    name: 'Futuro simple',
+    name: 'ns.futuroSimple',
     deutsch: 'Zukunft',
     merken: 'Ganzer Infinitiv + Endung: hablaré – ich werde sprechen. (Im Alltag oft: voy a hablar.)',
     signal: 'mañana, el año que viene, pronto, algún día',
@@ -106,7 +107,7 @@ const ZEITFORMEN = [
   },
   {
     id: 'condicional',
-    name: 'Condicional',
+    name: 'ns.condicional',
     deutsch: 'Würde-Form',
     merken: 'Ganzer Infinitiv + ía: hablaría – ich würde sprechen. Höflich: ¿Podrías…?',
     signal: 'me gustaría, en tu lugar, si pudiera',
@@ -126,7 +127,7 @@ const ZEITFORMEN = [
 const UNREGELMAESSIG = [
   {
     id: 'unreg-presente',
-    name: 'Unregelmäßige Verben',
+    name: 'ns.unregelmaessigeVerben',
     deutsch: 'im Presente',
     merken: 'Diese acht decken den halben Alltag ab – am besten als Ganzes merken.',
     signal: null,
@@ -153,9 +154,9 @@ const UNREGELMAESSIG = [
   },
   {
     id: 'unreg-indefinido',
-    name: 'Unregelmäßige Verben',
+    name: 'ns.unregelmaessigeVerben',
     deutsch: 'im Indefinido',
-    merken: 'ser und ir teilen sich hier dieselben Formen – fui heißt beides.',
+    merken: 'nsm.serUndIr',
     signal: null,
     spalten: ['ser/ir', 'tener', 'estar', 'hacer'],
     formen: [
@@ -197,6 +198,7 @@ function Tabelle({ spalten, formen }) {
 }
 
 export default function Nachschlag({ onZurueck }) {
+  const t = useTexte()
   // Die erste Karte startet offen – man sieht sofort, wie der
   // Bereich funktioniert. Der Rest ist zugeklappt.
   const [offen, setOffen] = useState('presente')
@@ -204,15 +206,14 @@ export default function Nachschlag({ onZurueck }) {
 
   return (
     <div className="trainer nachschlag">
-      <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück</button>
+      <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{t('ns.zurueck')}</button>
 
       <div className="gespr-kopf">
         <IconListe groesse={22} />
         <div>
-          <h1 className="trainer-titel">Zeitformen</h1>
+          <h1 className="trainer-titel">{t('ns.zeitformen')}</h1>
           <p className="gespr-unter">
-            Zum Nachschlagen, nicht zum Auswendiglernen – geübt wird in den
-            Bausteinen.
+{t('ns3.zumNachschlagen')}
           </p>
         </div>
       </div>
@@ -227,20 +228,20 @@ export default function Nachschlag({ onZurueck }) {
               aria-expanded={istOffen}
             >
               <span className="ns-kopf-text">
-                <b>{z.name}</b>
-                <span>{z.deutsch}</span>
+                <b>{t(z.name)}</b>
+                <span>{t(z.deutsch)}</span>
               </span>
               <span className={'liste-pfeil' + (istOffen ? ' liste-pfeil-auf' : '')}>▾</span>
             </button>
 
             {istOffen && (
               <div className="ns-inhalt">
-                <p className="ns-merken">{z.merken}</p>
+                <p className="ns-merken">{t(z.merken)}</p>
                 <Tabelle spalten={z.spalten} formen={z.formen} />
                 {z.zusatz && <Tabelle spalten={z.zusatz.spalten} formen={z.zusatz.formen} />}
                 {z.signal && (
                   <p className="ns-signal">
-                    <b>Signalwörter:</b> {z.signal}
+                    <b>{t('ns.signalwoerter')}</b> {z.signal}
                   </p>
                 )}
               </div>

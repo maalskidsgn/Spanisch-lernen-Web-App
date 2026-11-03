@@ -14385,3 +14385,46 @@ body.liest-video::before { background: var(--primary); }
     gap: 3px;
   }
 }
+
+/* ================================================================
+   Sprachwahl in den Einstellungen
+   ================================================================
+   Zwei Knoepfe nebeneinander statt einer Auswahlliste: Bei genau
+   zwei Moeglichkeiten sieht man so beide auf einen Blick und
+   braucht keinen Klick, um herauszufinden, was es ueberhaupt
+   gibt. */
+.sp-wahl {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sp-knopf {
+  padding: 7px 14px;
+  border: 1.5px solid var(--rand, #e5e0d8);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text, #2a2a3a);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.sp-knopf:hover { border-color: var(--primary, #ff6c00); }
+
+.sp-an,
+.sp-an:hover {
+  background: var(--primary, #ff6c00);
+  border-color: var(--primary, #ff6c00);
+  color: #fff;
+}
+
+/* Auf schmalen Handys rutscht die Wahl unter den Text, sonst
+   quetscht sie die Beschreibung auf zwei Woerter pro Zeile. */
+@media (max-width: 420px) {
+  .settings-row:has(.sp-wahl) { flex-wrap: wrap; }
+  .sp-wahl { width: 100%; }
+  .sp-knopf { flex: 1; }
+}

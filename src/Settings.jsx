@@ -19,6 +19,7 @@ import {
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
+import { useTexte, SPRACHEN, sprache, setzeSprache } from './sprache.js'
 
 // Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
 // Einstellungen. Hier kommen später die sozialen Sachen dazu –
@@ -65,6 +66,7 @@ export default function Settings({
   onKasse,
   addXp,
 }) {
+  const t = useTexte()
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   // Der Ton-Schalter liegt nicht in settings: Er soll auch ohne
   // Konto und ohne Abgleich gelten – wer im Buero sitzt, will ihn
@@ -148,11 +150,11 @@ export default function Settings({
 
   // Abmelden – die lokalen Daten bleiben erhalten
   async function abmeldenKlick() {
-    if (!confirm('Wirklich abmelden? Deine Daten bleiben gesichert.')) return
+    if (!confirm(t('stm.wirklichAbmeldenDeine'))) return
     try {
       await abmelden()
     } catch (f) {
-      alert('Abmelden hat nicht geklappt: ' + f.message)
+      alert(t('stm.abmeldenHatNicht') + f.message)
     }
   }
 
@@ -230,7 +232,7 @@ export default function Settings({
         }
         window.location.reload() // App mit den importierten Daten neu laden
       } catch {
-        alert('Das ist leider keine gültige Backup-Datei.')
+        alert(t('stm.dasIstLeider'))
       }
     }
     reader.readAsText(file)
@@ -253,8 +255,8 @@ export default function Settings({
    *    schon einmal für Lektionen und Videos beschrieben hat.
    */
   async function resetData() {
-    if (!confirm('Wirklich ALLE Vokabeln, Videos und deinen Fortschritt löschen?')) return
-    if (!confirm('Ganz sicher? Das kann nicht rückgängig gemacht werden!')) return
+    if (!confirm(t('stm.wirklichAlleVokabeln'))) return
+    if (!confirm(t('stm.ganzSicherDas'))) return
 
     setResetLaeuft(true)
 
@@ -266,8 +268,8 @@ export default function Settings({
       } catch (f) {
         setResetLaeuft(false)
         alert(
-          'Das Zurücksetzen hat nicht geklappt: ' + f.message +
-            '\n\nAuf diesem Gerät wurde nichts gelöscht. Bitte später noch einmal versuchen.'
+          t('stm.dasZuruecksetzenHat') + f.message +
+            t('stm.nNaufDiesem')
         )
         return
       }
@@ -309,7 +311,7 @@ export default function Settings({
   // Konto endgueltig loeschen – Pflicht fuer App Store und Play Store.
   // Zweimal nachfragen, beim zweiten Mal muss der Nutzer tippen.
   async function kontoLoeschen() {
-    if (!confirm('Dein Konto und ALLE Daten werden unwiderruflich gelöscht. Ein laufendes Abo wird gekündigt. Fortfahren?')) return
+    if (!confirm(t('stm.deinKontoUnd'))) return
     const bestaetigung = prompt('Zum Bestätigen bitte LÖSCHEN eintippen:')
     if (bestaetigung !== 'LÖSCHEN') return
 
@@ -399,9 +401,9 @@ export default function Settings({
 
         <dl className="pf-zahlen">
           <div><dt>XP</dt><dd>{progress.xp.toLocaleString('de-DE')}</dd></div>
-          <div><dt>Tage am Stück</dt><dd>{progress.streak}</dd></div>
-          <div><dt>Wörter</dt><dd>{counts.woerter}</dd></div>
-          <div><dt>Videos</dt><dd>{counts.videos}</dd></div>
+          <div><dt>{t('st2.tageAmStueck')}</dt><dd>{progress.streak}</dd></div>
+          <div><dt>{t('st2.woerter')}</dt><dd>{counts.woerter}</dd></div>
+          <div><dt>{t('st2.videos')}</dt><dd>{counts.videos}</dd></div>
         </dl>
       </header>
 
@@ -410,7 +412,7 @@ export default function Settings({
           öffnet, sucht eher Leute als Einstellungen. */}
       {supabaseBereit && nutzer && (
         <section className="pf-kasten pf-freunde">
-          <h2 className="pf-kasten-titel">Freunde</h2>
+          <h2 className="pf-kasten-titel">{t('st2.freunde')}</h2>
           <Freunde />
         </section>
       )}
@@ -420,7 +422,7 @@ export default function Settings({
           eine Kachel weiter oben. */}
       {supabaseBereit && nutzer && (
         <section className="pf-kasten pf-duelle">
-          <h2 className="pf-kasten-titel">Duell</h2>
+          <h2 className="pf-kasten-titel">{t('st2.duell')}</h2>
           <p className="pf-kasten-text">
             Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr
             trifft, gewinnt.
@@ -439,8 +441,8 @@ export default function Settings({
       <section className="pf-kasten">
       <button className="leitfaden-zeile" onClick={() => onNavigate('leitfaden')}>
         <span className="leitfaden-zeile-text">
-          <b>So nutzt du Habloo</b>
-          <span>Deine Reise durch die App – und was wir uns dabei gedacht haben.</span>
+          <b>{t('st2.soNutztDu')}</b>
+          <span>{t('st2.deineReiseDurch')}</span>
         </span>
         <IconPfeil groesse={17} />
       </button>
@@ -461,10 +463,7 @@ export default function Settings({
                   {syncStatus === 'laeuft' ? '⏳ Gleicht ab…' : '✓ Gesichert'}
                 </span>
               </div>
-              <p className="settings-hint">
-                Dein Fortschritt wird automatisch gesichert und steht auf allen
-                Geräten zur Verfügung.
-              </p>
+              <p className="settings-hint">{t('st3.deinFortschrittWird')}</p>
               <BenutzernameEinstellung nutzerId={nutzer.id} />
               <button className="btn-outline" onClick={abmeldenKlick}>
                 Abmelden
@@ -472,11 +471,7 @@ export default function Settings({
             </>
           ) : (
             <>
-              <p className="settings-hint">
-                Ohne Konto liegen deine Vokabeln nur auf diesem Gerät. Mit Konto
-                sind sie gesichert und du lernst auf Handy und Rechner am
-                gleichen Stand weiter.
-              </p>
+              <p className="settings-hint">{t('st3.ohneKontoLiegen')}</p>
               <button className="btn" onClick={onLoginOeffnen}>
                 Anmelden oder Konto anlegen
               </button>
@@ -490,33 +485,33 @@ export default function Settings({
       {/* In der Store-App nur zeigen, wenn schon Premium besteht – kein Angebot */}
       {(!istApp || premium) && (
       <>
-      <h2 className="settings-heading">Dein Abo</h2>
+      <h2 className="settings-heading">{t('st2.deinAbo')}</h2>
       <div className="plan-grid">
         <div className="plan-card plan-active">
           <div className="plan-name">
             Kostenlos{' '}
-            {!premium && <span className="plan-badge">Aktueller Plan</span>}
+            {!premium && <span className="plan-badge">{t('st2.aktuellerPlan')}</span>}
           </div>
           <ul className="plan-features">
-            <li>Unbegrenzt Videos lesen</li>
-            <li>Vokabeltrainer mit Spaced Repetition</li>
-            <li>XP, Level & Tagesserie</li>
+            <li>{t('st2.unbegrenztVideosLesen')}</li>
+            <li>{t('st2.vokabeltrainerMitSpaced')}</li>
+            <li>{t('st2.xpLevelTagesserie')}</li>
           </ul>
         </div>
         <div className="plan-card plan-premium">
           <div className="plan-name">
             Premium{' '}
             {premium ? (
-              <span className="plan-badge">Dein Plan</span>
+              <span className="plan-badge">{t('st2.deinPlan')}</span>
             ) : !bezahlbar ? (
-              <span className="plan-badge badge-soon">Bald verfügbar</span>
+              <span className="plan-badge badge-soon">{t('st2.baldVerfuegbar')}</span>
             ) : null}
           </div>
           <ul className="plan-features">
-            <li>Unbegrenzte KI-Vokabellisten</li>
-            <li>Unbegrenzte zweisprachige E-Books</li>
-            <li>Eigene Videos ohne Begrenzung</li>
-            <li>Offline-Modus & Erinnerungen</li>
+            <li>{t('st2.unbegrenzteKiVokabellisten')}</li>
+            <li>{t('st2.unbegrenzteZweisprachigeE')}</li>
+            <li>{t('st2.eigeneVideosOhne')}</li>
+            <li>{t('st2.offlineModusErinnerungen')}</li>
           </ul>
 
           {preis && !premium && !istApp && (
@@ -537,12 +532,12 @@ export default function Settings({
             <>
               <p className="abo-status">
                 {TESTPHASE_ALLES_FREI
-                  ? 'Testphase – alle Funktionen frei'
+                  ? t('st4.testphase')
                   : !gueltigBis
-                    ? 'Aktiv – unbegrenzt'
+                    ? t('st4.aktivUnbegrenzt')
                     : aboStatus === 'gekuendigt'
-                      ? `Gekündigt – läuft noch bis ${gueltigBis}`
-                      : `Aktiv – verlängert sich am ${gueltigBis}`}
+                      ? t('st4.gekuendigtBis', { datum: gueltigBis })
+                      : t('st4.aktivBis', { datum: gueltigBis })}
               </p>
               {/* In der Testphase gibt es nichts zu verwalten: Premium
                   kommt vom Schalter, nicht von einem bezahlten Abo. Der
@@ -574,16 +569,13 @@ export default function Settings({
           ) : istApp ? (
             /* Kein Kauf und kein Link nach draussen – nur der neutrale
                Hinweis, dass ein bestehendes Abo hier ankommt. */
-            <p className="abo-status">
-              Ein bestehendes Premium-Abo wird nach der Anmeldung
-              automatisch erkannt.
-            </p>
+            <p className="abo-status">{t('st3.einBestehendesPremium')}</p>
           ) : bezahlbar ? (
             <button onClick={kaufen} disabled={laedt}>
               {laedt ? 'Weiterleitung …' : 'Premium holen'}
             </button>
           ) : (
-            <button disabled title="Bezahlung wird gerade eingerichtet">
+            <button disabled title={t('st2.bezahlungWirdGerade')}>
               Demnächst
             </button>
           )}
@@ -597,9 +589,7 @@ export default function Settings({
               <button
                 className="btn-plain"
                 onClick={() => { testkaufAus(); neuLaden() }}
-              >
-                Zurück zur Testphase
-              </button>
+              >{t('st3.zurueckZurTestphase')}</button>
             </p>
           )}
 
@@ -610,7 +600,35 @@ export default function Settings({
       )}
 
       {/* ---------- Lernziel ---------- */}
-      <Klapper titel="Tagesziel" hinweis="Wie viel du dir am Tag vornimmst">
+      {/* ---------- Sprache ----------
+           Beim ersten Start richtet sich die App nach dem Geraet. Wer
+           ein englisches Handy hat, aber lieber auf Deutsch lernt,
+           braucht trotzdem einen Weg zurueck - und zwar einen, den man
+           auch findet, wenn man die Oberflaeche gerade nicht versteht.
+           Deshalb stehen die Sprachnamen hier in ihrer eigenen
+           Sprache: "Deutsch" und "English". */}
+      <h3 className="pf-unter">{t('pf.sprache')}</h3>
+      <div className="settings-card">
+        <div className="settings-row">
+          <div>
+            <div className="row-title">{t('pf.sprache')}</div>
+            <div className="row-hint">{t('pf.spracheText')}</div>
+          </div>
+          <div className="sp-wahl">
+            {SPRACHEN.map(([kuerzel, name]) => (
+              <button
+                key={kuerzel}
+                className={'sp-knopf' + (sprache() === kuerzel ? ' sp-an' : '')}
+                onClick={() => setzeSprache(kuerzel)}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <Klapper titel={t('st4.tagesziel')} hinweis={t('st4.tageszielHinweis')}>
       <div className="settings-card">
         <div className="goal-row">
           {[10, 20, 30, 50].map((ziel) => (
@@ -636,15 +654,12 @@ export default function Settings({
       {/* ---------- Ton ---------- */}
       </Klapper>
 
-      <Klapper titel="Ton" hinweis="Aussprache und Erfolgstöne">
+      <Klapper titel={t('st4.ton')} hinweis={t('st4.tonHinweis')}>
       <div className="settings-card">
         <label className="settings-row">
           <div>
-            <div className="row-title">Wörter von selbst vorlesen</div>
-            <div className="row-hint">
-              Spielt die Aufnahme, sobald ein neues Wort erscheint – ohne
-              tippen. Aus, wenn du unterwegs oder im Büro lernst.
-            </div>
+            <div className="row-title">{t('st2.woerterVonSelbst')}</div>
+            <div className="row-hint">{t('st3.spieltDieAufnahme')}</div>
           </div>
           <span className="switch">
             <input
@@ -662,11 +677,8 @@ export default function Settings({
         {erfolgstoeneVerfuegbar() && (
         <label className="settings-row">
           <div>
-            <div className="row-title">Erfolgstöne</div>
-            <div className="row-hint">
-              Ein kurzer Klang, wenn du etwas richtig hast oder ein Wort
-              sammelst.
-            </div>
+            <div className="row-title">{t('st2.erfolgstoene')}</div>
+            <div className="row-hint">{t('st3.einKurzerKlang')}</div>
           </div>
           <span className="switch">
             <input
@@ -689,7 +701,7 @@ export default function Settings({
       {/* ---------- Rechtliches ---------- */}
       </Klapper>
 
-      <Klapper titel="Rechtliches" hinweis="Impressum, Datenschutz, AGB">
+      <Klapper titel={t('st4.rechtliches')} hinweis={t('st4.rechtlichesHinweis')}>
       <div className="settings-card">
         {[
           ['impressum', 'Impressum'],
@@ -712,15 +724,12 @@ export default function Settings({
            und auf localhost gaebe es nichts zu schalten. */}
       {messungMoeglich() && (
         <>
-          <h3 className="pf-unter">Messung</h3>
+          <h3 className="pf-unter">{t('st2.messung')}</h3>
           <div className="settings-card">
             <label className="settings-row">
               <div>
-                <div className="row-title">Anonyme Reichweitenmessung</div>
-                <div className="row-hint">
-                  Zählt mit Google Analytics, wie viele Menschen Habloo benutzen. Aus
-                  heißt: kein Skript, keine Cookies. Habloo funktioniert genauso.
-                </div>
+                <div className="row-title">{t('st2.anonymeReichweitenmessung')}</div>
+                <div className="row-hint">{t('st3.zaehltMitGoogle')}</div>
               </div>
               <span className="switch">
                 <input
@@ -741,14 +750,12 @@ export default function Settings({
       </Klapper>
 
       {/* ---------- Benachrichtigungen ---------- */}
-      <Klapper titel="Erinnerungen" hinweis="Wenn du ans Lernen erinnert werden willst">
+      <Klapper titel={t('st4.erinnerungen')} hinweis={t('st4.erinnerungenHinweis')}>
       <div className="settings-card">
         <label className="settings-row">
           <div>
-            <div className="row-title">Lern-Erinnerungen</div>
-            <div className="row-hint">
-              Erinnert dich an fällige Vokabeln (als Push-Nachricht ab der App-Version)
-            </div>
+            <div className="row-title">{t('st2.lernErinnerungen')}</div>
+            <div className="row-hint">{t('st3.erinnertDichAn')}</div>
           </div>
           <span className="switch">
             <input
@@ -766,12 +773,12 @@ export default function Settings({
       {/* ---------- Daten ---------- */}
       </Klapper>
 
-      <Klapper titel="Deine Daten" hinweis="Sichern, einspielen, Konto löschen">
+      <Klapper titel={t('st4.deineDaten')} hinweis={t('st4.deineDatenHinweis')}>
       <div className="settings-card">
         <div className="settings-row">
           <div>
-            <div className="row-title">Backup erstellen</div>
-            <div className="row-hint">Lädt alle Vokabeln & Fortschritte als Datei herunter</div>
+            <div className="row-title">{t('st2.backupErstellen')}</div>
+            <div className="row-hint">{t('st2.laedtAlleVokabeln')}</div>
           </div>
           <button className="btn-small" onClick={exportData}>
             Exportieren
@@ -779,8 +786,8 @@ export default function Settings({
         </div>
         <div className="settings-row">
           <div>
-            <div className="row-title">Backup einspielen</div>
-            <div className="row-hint">Stellt Daten aus einer Backup-Datei wieder her</div>
+            <div className="row-title">{t('st2.backupEinspielen')}</div>
+            <div className="row-hint">{t('st2.stelltDatenAus')}</div>
           </div>
           <button className="btn-small" onClick={() => fileInputRef.current.click()}>
             Importieren
@@ -795,11 +802,8 @@ export default function Settings({
         </div>
         <div className="settings-row">
           <div>
-            <div className="row-title">Alles zurücksetzen</div>
-            <div className="row-hint">
-              Löscht Vokabeln, Fortschritt und Statistik – auch auf dem Server.
-              Dein Konto bleibt bestehen.
-            </div>
+            <div className="row-title">{t('st2.allesZuruecksetzen')}</div>
+            <div className="row-hint">{t('st3.loeschtVokabelnFortschritt')}</div>
           </div>
           <button className="btn-small btn-danger" onClick={resetData} disabled={resetLaeuft}>
             {resetLaeuft ? 'Läuft …' : 'Zurücksetzen'}
@@ -811,11 +815,8 @@ export default function Settings({
         {nutzer && (
         <div className="settings-row">
           <div>
-            <div className="row-title">Konto löschen</div>
-            <div className="row-hint">
-              Entfernt dein Konto und alle Daten endgültig. Ein laufendes Abo
-              wird dabei gekündigt.
-            </div>
+            <div className="row-title">{t('st2.kontoLoeschen')}</div>
+            <div className="row-hint">{t('st3.entferntDeinKonto')}</div>
           </div>
           <button
             className="btn-small btn-danger"
@@ -830,13 +831,14 @@ export default function Settings({
       </Klapper>
 
       {/* ---------- Über ---------- */}
-      <p className="about-note">Mit Herz entwickelt von Klarwerk Digital</p>
+      <p className="about-note">{t('st2.mitHerzEntwickelt')}</p>
     </div>
   )
 }
 
 /** Benutzername für die Rangliste ansehen und ändern. */
 function BenutzernameEinstellung({ nutzerId }) {
+  const t = useTexte()
   const [name, setName] = useState(undefined)
   useEffect(() => {
     ladeBenutzername(nutzerId).then(setName)
@@ -844,10 +846,8 @@ function BenutzernameEinstellung({ nutzerId }) {
   if (name === undefined) return null // Rangliste noch nicht verfügbar
   return (
     <div className="name-einstellung">
-      <h3>Benutzername</h3>
-      <p className="settings-hint">
-        So erscheinst du in der Rangliste auf der Startseite. Jeden Namen gibt es nur einmal.
-      </p>
+      <h3>{t('st2.benutzername')}</h3>
+      <p className="settings-hint">{t('st3.soErscheinstDu')}</p>
       <BenutzernameFeld
         key={name ?? ''}
         nutzerId={nutzerId}

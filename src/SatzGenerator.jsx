@@ -5,6 +5,7 @@ import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
+import { useTexte } from './sprache.js'
 
 // Themen wie beim Vokabelgenerator – dieselbe Sprache, dieselbe
 // Bedienung. Ein Tipp erzeugt sofort, ohne erst ein Feld zu füllen.
@@ -32,6 +33,7 @@ const ZEITFORMEN = [
  * für eine höfliche Anfrage im Hotel braucht.
  */
 export default function SatzGenerator({ saetze, setSaetze }) {
+  const t = useTexte()
   const [thema, setThema] = useState('')
   const [zeitform, setZeitform] = useState('')
   const [liste, setListe] = useState(null)
@@ -66,7 +68,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         body: JSON.stringify({ thema: gefragt, zeitform, bekannt }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Das hat nicht geklappt.')
+      if (!res.ok) throw new Error(daten.error || t('sgnm.dasHatNicht'))
 
       setListe(daten.saetze.map((s) => ({ ...s, checked: true })))
       setFertig({
@@ -121,11 +123,11 @@ export default function SatzGenerator({ saetze, setSaetze }) {
           <IconFunken groesse={24} />
         </span>
         <div className="gen-text">
-          <h2>Sätze erzeugen</h2>
-          <p>Wähle ein Thema, eine Zeitform – oder beides.</p>
+          <h2>{t('sgn.saetzeErzeugen')}</h2>
+          <p>{t('sgn.waehleEinThema')}</p>
         </div>
         {uebrig <= 2 && (
-          <span className="rest-zaehler" title="Kostenlose Generierungen heute">
+          <span className="rest-zaehler" title={t('sgn.kostenloseGenerierungenHeute')}>
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
         )}
@@ -133,7 +135,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
 
       <form className="wort-form" onSubmit={generieren}>
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
-        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <p className="sg-schritt"><span>1</span> {t('sgn.themaWaehlen')}</p>
         <div className="sg-themen">
           {THEMEN.map((t) => (
             <button
@@ -149,7 +151,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         </div>
 
         {/* Schritt 2: Zeitform – bleibt gewählt */}
-        <p className="sg-schritt"><span>2</span> Zeitform <small>optional</small></p>
+        <p className="sg-schritt"><span>2</span> {t('sgn.zeitform')} <small>optional</small></p>
         <div className="sg-formen">
           {ZEITFORMEN.map(([wert, name, hilfe]) => (
             <button
@@ -169,14 +171,14 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="Eigenes Thema …"
+            placeholder={t('sgn.eigenesThema')}
             disabled={laden}
           />
           <button
             type="submit"
             className="gen-pfeil"
             disabled={laden || (!thema.trim() && !zeitform)}
-            aria-label="Sätze erzeugen"
+            aria-label={t('sgn.saetzeErzeugen')}
           >
             <svg viewBox="0 0 24 24" width="18" height="18">
               <path
@@ -198,7 +200,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             disabled={laden || (!thema.trim() && !zeitform)}
           >
             {laden ? (
-              <>Schreibt Sätze<span className="studio-punkte" /></>
+              <>{t('sgn.schreibtSaetze')}<span className="studio-punkte" /></>
             ) : zeitform && !thema.trim() ? (
               `Sätze zum ${ZEITFORMEN.find(([w]) => w === zeitform)?.[1]}`
             ) : (
@@ -220,7 +222,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         <div className="gen-list">
           {fertig.hinweis && (
             <div className="gen-begruendung">
-              <span className="gen-begruendung-marke">Worauf du achten kannst</span>
+              <span className="gen-begruendung-marke">{t('sgn.woraufDuAchten')}</span>
               <p>{fertig.hinweis}</p>
             </div>
           )}

@@ -24,6 +24,7 @@ import { gemerkteVarianten, brauchtNachschub, holeVarianten } from './kiAufgaben
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import InfoKnopf from './InfoKnopf.jsx'
+import { useTexte } from './sprache.js'
 
 // Der Grammatik-Trainer.
 //
@@ -32,6 +33,7 @@ import InfoKnopf from './InfoKnopf.jsx'
 // Nur der Inhalt einer Karte ist ein anderer – eine Regel statt eines
 // Wortes, fünf Aufgaben statt einer Übersetzung.
 export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp }) {
+  const t = useTexte()
   const [runde, setRunde] = useState(null) // { baustein, aufgaben }
   const [schritt, setSchritt] = useState(0)
   const [ergebnis, setErgebnis] = useState({ richtig: 0, falsch: 0 })
@@ -120,11 +122,11 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
           </p>
           <p className="gram-naechster">
             {bewertung === 'nochmal'
-              ? 'Der Baustein kommt gleich noch einmal.'
+              ? t('bsm.derBausteinKommt')
               : `Nächste Wiederholung: ${formatDue(eintrag)}`}
           </p>
           <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
-          <button onClick={() => setRunde(null)}>Zurück zur Übersicht</button>
+          <button onClick={() => setRunde(null)}>{t('bs.zurueckZurUebersicht')}</button>
         </div>
       </div>
     )
@@ -182,14 +184,14 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
           <span>{faellig.length === 1 ? 'Baustein wartet' : 'Bausteine warten'}</span>
         </div>
         <div className="wiederholen-text">
-          <h2>{heute ? 'Baustein des Tages' : 'Noch nichts freigeschaltet'}</h2>
+          <h2>{heute ? 'Baustein des Tages' : t('bsm.nochNichtsFreigeschaltet')}</h2>
           {heute ? (
             <>
               <p className="gram-heute-titel">{heute.titel}</p>
               <p>{heute.regel}</p>
             </>
           ) : (
-            <p>Schließe eine Lektion ab – dann wird die passende Regel hier zum Üben frei.</p>
+            <p>{t('bs.schliesseEineLektion')}</p>
           )}
         </div>
         <button className="btn wiederholen-los" onClick={() => starte(heute)} disabled={!heute}>
@@ -295,13 +297,14 @@ function Aufloesung({ aufgabe, rueckmeldung }) {
 }
 
 function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
+  const t = useTexte()
   const [eingabe, setEingabe] = useState('')
   const [vorn, hinten] = anDerLuecke(aufgabe.satz)
   const gesperrt = rueckmeldung !== null
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Ergänze</p>
+      <p className="lesson-hint">{t('bs.ergaenze')}</p>
       <p className="gram-deutsch">{aufgabe.de}</p>
       <p className="gram-satz">
         {vorn}
@@ -319,7 +322,7 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
           value={eingabe}
           onChange={(e) => setEingabe(e.target.value)}
           disabled={gesperrt}
-          placeholder="Deine Antwort"
+          placeholder={t('bs.deineAntwort')}
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"
@@ -338,13 +341,14 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
 }
 
 function AuswahlAufgabe({ aufgabe, rueckmeldung, onAntwort }) {
+  const t = useTexte()
   const [gewaehlt, setGewaehlt] = useState(null)
   const [vorn, hinten] = anDerLuecke(aufgabe.satz)
   const gesperrt = rueckmeldung !== null
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Was passt?</p>
+      <p className="lesson-hint">{t('bs.wasPasst')}</p>
       <p className="gram-deutsch">{aufgabe.de}</p>
       <p className="gram-satz">
         {vorn}
@@ -375,13 +379,14 @@ function AuswahlAufgabe({ aufgabe, rueckmeldung, onAntwort }) {
 }
 
 function FehlerSuchen({ aufgabe, rueckmeldung, onAntwort }) {
+  const t = useTexte()
   const [getippt, setGetippt] = useState(null)
   const gesperrt = rueckmeldung !== null
   const woerter = satzWoerter(aufgabe.satz)
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Ein Wort ist falsch – tippe es an</p>
+      <p className="lesson-hint">{t('bs.einWortIst')}</p>
       <p className="gram-deutsch">{aufgabe.de}</p>
       <div className="gram-woerter">
         {woerter.map((w, i) => (
@@ -412,6 +417,7 @@ function FehlerSuchen({ aufgabe, rueckmeldung, onAntwort }) {
 }
 
 function SatzBauen({ aufgabe, rueckmeldung, onAntwort }) {
+  const t = useTexte()
   // Einmal würfeln und liegen lassen – sonst springt die Reihenfolge
   // bei jedem Neuzeichnen.
   const [woerter] = useState(() => bauWoerter(aufgabe.loesung))
@@ -426,11 +432,11 @@ function SatzBauen({ aufgabe, rueckmeldung, onAntwort }) {
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Baue den Satz</p>
+      <p className="lesson-hint">{t('bs.baueDenSatz')}</p>
       <p className="satzbau-deutsch">{aufgabe.de}</p>
 
       <div className="satzbau-ablage">
-        {gewaehlt.length === 0 && <span className="ablage-leer">Tippe die Wörter unten an</span>}
+        {gewaehlt.length === 0 && <span className="ablage-leer">{t('bs.tippeDieWoerter')}</span>}
         {gewaehlt.map((i) => (
           <button key={i} className="satz-baustein baustein-gesetzt" onClick={() => tippe(i)}>
             {woerter[i]}

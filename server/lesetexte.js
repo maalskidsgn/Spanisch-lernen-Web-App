@@ -49,11 +49,11 @@ const STUFEN = {
   b2: 'Stufe B2: natürliches Spanisch mit Subjuntivo und abwechslungsreichem Satzbau, aber ohne Fachjargon.',
 }
 
-const TEXT_SCHEMA = {
+const schemaFuer = (ziel = 'Deutsch') => ({
   type: 'object',
   properties: {
     titel_es: { type: 'string', description: 'Spanischer Titel, höchstens sechs Wörter' },
-    titel_de: { type: 'string', description: 'Derselbe Titel auf Deutsch' },
+    titel_de: { type: 'string', description: `Derselbe Titel auf ${ziel}` },
     absaetze: {
       type: 'array',
       description: `Genau ${ABSAETZE} Absätze, jeder in beiden Sprachen`,
@@ -67,7 +67,7 @@ const TEXT_SCHEMA = {
           de: {
             type: 'string',
             description:
-              'Derselbe Absatz auf Deutsch – natürliches Deutsch, keine ' +
+              `Derselbe Absatz auf ${ziel} – natürliches ${ziel}, keine ` + +
               'Wort-für-Wort-Übertragung, aber inhaltlich deckungsgleich.',
           },
         },
@@ -82,7 +82,7 @@ const TEXT_SCHEMA = {
         type: 'object',
         properties: {
           wort: { type: 'string', description: 'Das spanische Wort, bei Nomen mit Artikel' },
-          uebersetzung: { type: 'string', description: 'Die deutsche Übersetzung' },
+          uebersetzung: { type: 'string', description: `Die Übersetzung auf ${ziel}` },
         },
         required: ['wort', 'uebersetzung'],
         additionalProperties: false,
@@ -91,13 +91,13 @@ const TEXT_SCHEMA = {
     merksatz: {
       type: 'string',
       description:
-        'Die überraschendste Tatsache aus dem Text, auf Deutsch, in einem Satz. ' +
+        `Die überraschendste Tatsache aus dem Text, auf ${ziel}, in einem Satz. ` +
         'Das, was man weitererzählen würde.',
     },
   },
   required: ['titel_es', 'titel_de', 'absaetze', 'woerter', 'merksatz'],
   additionalProperties: false,
-}
+})
 
 /** Schon vorhandene Titel – damit nichts zweimal kommt. */
 function bekanntesAlsHinweis(bekannt) {
@@ -117,7 +117,9 @@ function bekanntesAlsHinweis(bekannt) {
  * @param {string}   stufe   – 'a2' | 'b1' | 'b2'
  * @param {string[]} bekannt – Titel schon vorhandener Texte
  */
-export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bekannt = []) {
+export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bekannt = [], sprache = 'de') {
+  // In welcher Sprache die Uebersetzungsspalte steht.
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -126,7 +128,7 @@ export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bek
 
   const auftrag =
     (thema?.trim()
-      ? `Wunsch der lernenden Person (eigene Beschreibung, meist auf Deutsch): "${thema.trim()}"\n` +
+      ? `Wunsch der lernenden Person (eigene Beschreibung, meist in der Sprache der Oberfläche): "${thema.trim()}"\n` +
         'Schreibe den Text genau zu diesem Wunsch – Inhalt, Blickwinkel und Zweck übernehmen, ' +
         'auch wenn es kein klassisches Wissensthema ist (z. B. Ratgeber, Erklärung, Geschichte).'
       : gebietName
@@ -188,7 +190,7 @@ async function frageModell(schluessel, auftrag) {
       ],
       response_format: {
         type: 'json_schema',
-        json_schema: { name: 'lesetext', schema: TEXT_SCHEMA, strict: true },
+        json_schema: { name: 'lesetext', schema: schemaFuer(ziel), strict: true },
       },
     }),
   })

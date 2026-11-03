@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ladeBlockierteListe, gibFrei } from './rangliste.js'
 import { Bildnis } from './Rangliste.jsx'
+import { useTexte } from './sprache.js'
 
 /**
  * Wen habe ich blockiert?
@@ -11,6 +12,7 @@ import { Bildnis } from './Rangliste.jsx'
  * Blockierung ohne Rückweg wäre eine Falle.
  */
 export default function Blockierte() {
+  const t = useTexte()
   const [liste, setListe] = useState([])
   const [laeuft, setLaeuft] = useState('')
 
@@ -29,9 +31,9 @@ export default function Blockierte() {
 
   return (
     <section className="pf-kasten">
-      <h2 className="pf-kasten-titel">Blockiert</h2>
+      <h2 className="pf-kasten-titel">{t('pf.blockiert')}</h2>
       <p className="pf-kasten-text">
-        Diese Leute siehst du nicht in Rangliste, Suche und Duellen – und sie dich nicht.
+{t('pf.blockiertText')}
       </p>
 
       <div className="bl-liste">
@@ -54,7 +56,7 @@ export default function Blockierte() {
                 }
               }}
             >
-              {laeuft === b.benutzername ? '…' : 'Freigeben'}
+              {laeuft === b.benutzername ? '…' : t('pf.freigeben')}
             </button>
           </div>
         ))}

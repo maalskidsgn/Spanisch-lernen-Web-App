@@ -1,3 +1,5 @@
+import { sprache } from './sprache.js'
+
 /**
  * Baut die Adresse für eine Wort-Übersetzung – mit dem Satz, in dem
  * das Wort steht. Ohne Satz rät die KI bei mehrdeutigen Wörtern
@@ -8,6 +10,9 @@ export function uebersetzungsAdresse(apiUrl, wort, umfeld) {
   let adresse = apiUrl + '/api/translate?q=' + encodeURIComponent(wort)
   const satz = satzUm(umfeld, wort)
   if (satz) adresse += '&satz=' + encodeURIComponent(satz)
+  // In welche Sprache uebersetzt werden soll. Ohne die Angabe
+  // bekaeme ein englischer Nutzer deutsche Uebersetzungen.
+  adresse += '&sprache=' + sprache()
   return adresse
 }
 

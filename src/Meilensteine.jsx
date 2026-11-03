@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTexte, t, gebiet } from './sprache.js'
 
 // Meilensteine: Abzeichen für gesammelte Wörter, gelesene Texte usw.
 // Jede Kategorie hat Stufen – Bronze bis Diamant. Ein erreichtes
@@ -6,12 +7,12 @@ import { useState } from 'react'
 
 // Stufen in der Markenfarbe: von zart bis kräftig, die letzte mit Gold.
 const STUFEN = [
-  { name: 'Bronze' },
-  { name: 'Silber' },
-  { name: 'Gold' },
-  { name: 'Platin' },
-  { name: 'Diamant' },
-  { name: 'Legende' },
+  { name: 'ms.bronze' },
+  { name: 'ms.silber' },
+  { name: 'ms.gold' },
+  { name: 'ms.platin' },
+  { name: 'ms.diamant' },
+  { name: 'ms.legende' },
 ]
 
 /** Linien-Symbol der Kategorie – gleiche Strichstärke wie die App-Icons. */
@@ -33,12 +34,12 @@ function markenFarben() {
 }
 
 export const KATEGORIEN = [
-  { id: 'woerter', pfad: 'M4 19.5V6a2 2 0 0 1 2-2h11v13H6a2 2 0 0 0-2 2.5zM6 17h13v3H6M9 8h5', symbol: '📚', titel: 'Wortschatz', einheit: ['Wort', 'Wörter'], ziele: [10, 50, 100, 250, 500, 1000] },
-  { id: 'texte', pfad: 'M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5V19', symbol: '📖', titel: 'Leseratte', einheit: ['Text gelesen', 'Texte gelesen'], ziele: [1, 10, 25, 50, 100, 250] },
-  { id: 'saetze', pfad: 'M4 5h16v11H9l-5 4V5zM8 9h8M8 12h5', symbol: '💬', titel: 'Satzbauer', einheit: ['Satz', 'Sätze'], ziele: [10, 50, 100, 250, 500, 1000] },
-  { id: 'lektionen', pfad: 'M2 9l10-5 10 5-10 5L2 9zM6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6', symbol: '🎓', titel: 'Lernweg', einheit: ['Lektion', 'Lektionen'], ziele: [1, 10, 25, 50, 100, 150] },
-  { id: 'streak', pfad: 'M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1 2.5 2 3 0-3 0-5.5 1-8.5z', symbol: '🔥', titel: 'Dranbleiben', einheit: ['Tag in Folge', 'Tage in Folge'], ziele: [3, 7, 14, 30, 100, 365] },
-  { id: 'wiederholungen', pfad: 'M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4', symbol: '🧠', titel: 'Gedächtnis', einheit: ['Wiederholung', 'Wiederholungen'], ziele: [10, 100, 250, 500, 1000, 5000] },
+  { id: 'woerter', pfad: 'M4 19.5V6a2 2 0 0 1 2-2h11v13H6a2 2 0 0 0-2 2.5zM6 17h13v3H6M9 8h5', symbol: '📚', titel: 'ms.wortschatz', einheit: ['ms.wort', 'ms.woerter'], ziele: [10, 50, 100, 250, 500, 1000] },
+  { id: 'texte', pfad: 'M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5V19', symbol: '📖', titel: 'ms.leseratte', einheit: ['ms.textGelesen', 'ms.texteGelesen'], ziele: [1, 10, 25, 50, 100, 250] },
+  { id: 'saetze', pfad: 'M4 5h16v11H9l-5 4V5zM8 9h8M8 12h5', symbol: '💬', titel: 'ms.satzbauer', einheit: ['ms.satz', 'ms.saetze'], ziele: [10, 50, 100, 250, 500, 1000] },
+  { id: 'lektionen', pfad: 'M2 9l10-5 10 5-10 5L2 9zM6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6', symbol: '🎓', titel: 'ms.lernweg', einheit: ['ms.lektion', 'ms.lektionen'], ziele: [1, 10, 25, 50, 100, 150] },
+  { id: 'streak', pfad: 'M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1 2.5 2 3 0-3 0-5.5 1-8.5z', symbol: '🔥', titel: 'ms.dranbleiben', einheit: ['ms.tagInFolge', 'ms.tageInFolge'], ziele: [3, 7, 14, 30, 100, 365] },
+  { id: 'wiederholungen', pfad: 'M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4', symbol: '🧠', titel: 'ms.gedaechtnis', einheit: ['ms.wiederholung', 'ms.wiederholungen'], ziele: [10, 100, 250, 500, 1000, 5000] },
 ]
 
 function einheit(k, n) {
@@ -109,12 +110,12 @@ async function baueBild({ k, stufe, ziel, app, adresse }) {
   // Texte
   g.fillStyle = marke
   g.font = '800 44px system-ui, sans-serif'
-  g.fillText(STUFEN[stufe].name.toUpperCase() + ' · ' + k.titel.toUpperCase(), 540, 900)
+  g.fillText(t(STUFEN[stufe].name).toUpperCase() + ' · ' + t(k.titel).toUpperCase(), 540, 900)
   g.fillStyle = schrift
   g.font = '900 120px system-ui, sans-serif'
-  g.fillText(ziel.toLocaleString('de-DE'), 540, 1020)
+  g.fillText(ziel.toLocaleString(gebiet()), 540, 1020)
   g.font = '700 54px system-ui, sans-serif'
-  g.fillText(einheit(k, ziel), 540, 1110)
+  g.fillText(t(einheit(k, ziel)), 540, 1110)
   g.fillStyle = '#8a7f99'
   g.font = '600 40px system-ui, sans-serif'
   g.fillText(`Gelernt mit ${app} · ${adresse}`, 540, 1250)
@@ -123,7 +124,7 @@ async function baueBild({ k, stufe, ziel, app, adresse }) {
 }
 
 async function teilen(daten) {
-  const text = `${STUFEN[daten.stufe].name}-Meilenstein: ${daten.ziel.toLocaleString('de-DE')} ${einheit(daten.k, daten.ziel)} mit ${daten.app}! ${daten.adresse}`
+  const text = `${t(STUFEN[daten.stufe].name)}-Meilenstein: ${daten.ziel.toLocaleString(gebiet())} ${t(einheit(daten.k, daten.ziel))} mit ${daten.app}! ${daten.adresse}`
   try {
     const blob = await baueBild(daten)
     const datei = new File([blob], `meilenstein-${daten.k.id}-${daten.ziel}.png`, { type: 'image/png' })
@@ -154,6 +155,7 @@ async function teilen(daten) {
  * @param {string} adresse – "habloo.de"
  */
 export default function Meilensteine({ werte, app, adresse }) {
+  const t = useTexte()
   const [offen, setOffen] = useState(null) // { k, stufe, ziel }
   const [meldung, setMeldung] = useState('')
 
@@ -163,14 +165,14 @@ export default function Meilensteine({ werte, app, adresse }) {
   async function los() {
     setMeldung('')
     const r = await teilen({ ...offen, app, adresse })
-    if (r === 'kopiert') setMeldung('Text kopiert – füg ihn ein, wo du willst.')
+    if (r === 'kopiert') setMeldung(t('msm.textKopiertFueg'))
     if (r === 'geladen') setMeldung('Bild gespeichert.')
   }
 
   return (
     <section className="start-karte meilensteine">
       <div className="ms-kopf">
-        <h2 className="start-abschnitt">Meilensteine</h2>
+        <h2 className="start-abschnitt">{t('ms.meilensteine')}</h2>
         <span className="ms-zaehler">
           {gesamt}/{moeglich}
         </span>
@@ -185,10 +187,10 @@ export default function Meilensteine({ werte, app, adresse }) {
               <div className="ms-zeile">
                 <span className="ms-symbol"><Symbol k={k} /></span>
                 <div className="ms-info">
-                  <b>{k.titel}</b>
+                  <b>{t(k.titel)}</b>
                   <span>
-                    {wert.toLocaleString('de-DE')} {einheit(k, wert)}
-                    {st.naechstes && <> · nächstes Ziel {st.naechstes.toLocaleString('de-DE')}</>}
+                    {wert.toLocaleString(gebiet())} {t(einheit(k, wert))}
+                    {st.naechstes && <> · {t('ms.naechstesZiel', { ziel: st.naechstes.toLocaleString(gebiet()) })}</>}
                   </span>
                   <span className="ms-balken">
                     <span style={{ width: st.anteil * 100 + '%' }} />
@@ -203,10 +205,10 @@ export default function Meilensteine({ werte, app, adresse }) {
                     <button
                       key={ziel}
                       type="button"
-                      className={'ms-medaille' + (da ? ' ist-da ms-stufe-' + i : '')}
+                      className={'ms-medaille' + (da ? t('msm.istDaMs') + i : '')}
                       disabled={!da}
                       onClick={() => { setMeldung(''); setOffen({ k, stufe: i, ziel }) }}
-                      aria-label={`${STUFEN[i].name}: ${ziel} ${einheit(k, ziel)}${da ? '' : ' (noch gesperrt)'}`}
+                      aria-label={`${t(STUFEN[i].name)}: ${ziel} ${t(einheit(k, ziel))}${da ? '' : t('msm.nochGesperrt')}`}
                     >
                       <span className="ms-medaille-symbol">
                         {da ? (
@@ -233,11 +235,11 @@ export default function Meilensteine({ werte, app, adresse }) {
             <div className={'ms-gross ms-stufe-' + offen.stufe}>
               <Symbol k={offen.k} groesse={60} />
             </div>
-            <p className="ms-stufe">{STUFEN[offen.stufe].name} · {offen.k.titel}</p>
+            <p className="ms-stufe">{t(STUFEN[offen.stufe].name)} · {t(offen.k.titel)}</p>
             <h3 className="ms-ziel">
-              {offen.ziel.toLocaleString('de-DE')} {einheit(offen.k, offen.ziel)}
+              {offen.ziel.toLocaleString(gebiet())} {t(einheit(offen.k, offen.ziel))}
             </h3>
-            <p className="ms-lob">Stark! Diesen Meilenstein hast du dir verdient.</p>
+            <p className="ms-lob">{t('ms.starkDiesenMeilenstein')}</p>
             <button type="button" className="btn ms-teilen" onClick={los}>
               Teilen
             </button>

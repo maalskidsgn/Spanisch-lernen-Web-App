@@ -19,14 +19,18 @@ export const FREI_PRO_MONAT = 3
 // ---------------------------------------------------------------
 //  Aufbau der Antwort, den wir von OpenAI erwarten
 // ---------------------------------------------------------------
-const SCHEMA = {
+//
+// Das Schema haengt von der Zweitsprache ab: Die Beschreibungen
+// sagen dem Modell, in welcher Sprache die rechte Spalte steht.
+// Als Konstante waere das fuer immer Deutsch.
+const schemaFuer = (ziel = 'Deutsch') => ({
   type: 'object',
   properties: {
     titel_es: { type: 'string', description: 'Spanischer Titel' },
-    titel_de: { type: 'string', description: 'Deutscher Titel' },
+    titel_de: { type: 'string', description: `Titel auf ${ziel}` },
     autor: { type: 'string', description: 'Name der Autorin oder des Autors' },
     untertitel_es: { type: 'string', description: 'Kurzer spanischer Untertitel, ein Satz' },
-    untertitel_de: { type: 'string', description: 'Derselbe Untertitel auf Deutsch' },
+    untertitel_de: { type: 'string', description: `Derselbe Untertitel auf ${ziel}` },
     kapitel: {
       type: 'array',
       description: 'Die Kapitel – jedes kurz und in sich abgeschlossen',
@@ -37,20 +41,20 @@ const SCHEMA = {
             type: 'string',
             description: 'Kurze Einordnung, z. B. "Introducción", "Capítulo 1", "Conclusión"',
           },
-          label_de: { type: 'string', description: 'Dieselbe Einordnung auf Deutsch' },
+          label_de: { type: 'string', description: `Dieselbe Einordnung auf ${ziel}` },
           titel_es: {
             type: 'string',
             description:
               'Die Kernaussage des Kapitels als Überschrift auf Spanisch – eine Aussage, kein Etikett',
           },
-          titel_de: { type: 'string', description: 'Dieselbe Überschrift auf Deutsch' },
+          titel_de: { type: 'string', description: `Dieselbe Überschrift auf ${ziel}` },
           text_es: {
             type: 'string',
             description: 'Der Kapiteltext auf Spanisch, 100–150 Wörter, 2–3 Absätze mit \\n\\n getrennt',
           },
           text_de: {
             type: 'string',
-            description: 'Derselbe Text auf Deutsch, natürlich formuliert, gleiche Absatzaufteilung',
+            description: `Derselbe Text auf ${ziel}, natürlich formuliert, gleiche Absatzaufteilung`,
           },
         },
         required: ['label_es', 'label_de', 'titel_es', 'titel_de', 'text_es', 'text_de'],
@@ -75,7 +79,7 @@ const SCHEMA = {
     'titel_es', 'titel_de', 'autor', 'untertitel_es', 'untertitel_de', 'kapitel', 'vokabeln',
   ],
   additionalProperties: false,
-}
+})
 
 // ---------------------------------------------------------------
 //  Erzeugen
@@ -86,7 +90,11 @@ const SCHEMA = {
  * @param {string} thema  – worum es gehen soll, z. B. "Ein Tag in Barcelona"
  * @param {string} niveau – A1 | A2 | B1 | B2
  */
-export async function erzeugeEbook(thema, niveau = 'A2') {
+export async function erzeugeEbook(thema, niveau = 'A2', sprache = 'de') {
+  // Die Zweitsprache des Buches: links Spanisch, rechts die Sprache
+  // der Oberflaeche. Die Feldnamen im Schema heissen weiterhin
+  // "_de" - sie sind ein interner Schluessel, keine Anzeige.
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -113,8 +121,8 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
             'deutschsprachige Spanischlernende – Lesedauer insgesamt etwa 10 Minuten. ' +
             'Aufbau: eine Einführung ("Introducción"), dann Kapitel, zum Schluss eine ' +
             'knappe Schlussfolgerung ("Conclusión"). Jede Kapitelüberschrift ist eine ' +
-            'Kernaussage, kein Etikett. Alles liegt vollständig auf Spanisch UND ' +
-            'Deutsch vor; die deutsche Fassung ist natürlich formuliert, nicht Wort ' +
+            `Kernaussage, kein Etikett. Alles liegt vollständig auf Spanisch UND ` +
+            `${ziel} vor; die Fassung auf ${ziel} ist natürlich formuliert, nicht Wort ` +
             'für Wort übersetzt.',
         },
         {
@@ -130,7 +138,7 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
       ],
       response_format: {
         type: 'json_schema',
-        json_schema: { name: 'ebook', schema: SCHEMA, strict: true },
+        json_schema: { name: 'ebook', schema: schemaFuer(ziel), strict: true },
       },
     }),
   })
@@ -155,13 +163,13 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
 //  Themen-Vokabellisten (für den Trainer)
 // ---------------------------------------------------------------
 
-const LISTEN_SCHEMA = {
+const listenSchemaFuer = (ziel = 'Deutsch') => ({
   type: 'object',
   properties: {
     begruendung: {
       type: 'string',
       description:
-        'Ein bis zwei Sätze auf Deutsch: Was fiel am bisherigen Wortschatz auf, ' +
+        `Ein bis zwei Sätze auf ${ziel}: Was fiel am bisherigen Wortschatz auf, ` +
         'und warum passen genau diese Wörter als nächster Schritt? ' +
         'Persönlich formuliert, direkte Anrede.',
     },
@@ -176,7 +184,7 @@ const LISTEN_SCHEMA = {
         type: 'object',
         properties: {
           wort: { type: 'string', description: 'Das spanische Wort, bei Nomen mit Artikel' },
-          uebersetzung: { type: 'string', description: 'Die deutsche Übersetzung' },
+          uebersetzung: { type: 'string', description: `Die ${ziel}e Übersetzung` },
           beispiel: { type: 'string', description: 'Ein kurzer spanischer Beispielsatz' },
         },
         required: ['wort', 'uebersetzung', 'beispiel'],
@@ -186,7 +194,7 @@ const LISTEN_SCHEMA = {
   },
   required: ['begruendung', 'thema', 'vokabeln'],
   additionalProperties: false,
-}
+})
 
 /**
  * Vergleichbare Form eines Wortes: klein geschrieben, ohne Artikel
@@ -247,7 +255,8 @@ const WORTART_REGEL = {
   alle: 'Mische sinnvoll Nomen (mit Artikel el/la), Verben und Adjektive.',
 }
 
-export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle') {
+export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle', sprache = 'de') {
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -335,7 +344,7 @@ async function frageListe(schluessel, auftrag, anzahl) {
       ],
       response_format: {
         type: 'json_schema',
-        json_schema: { name: 'vokabelliste', schema: LISTEN_SCHEMA, strict: true },
+        json_schema: { name: 'vokabelliste', schema: listenSchemaFuer(ziel), strict: true },
       },
     }),
   })
@@ -354,7 +363,8 @@ async function frageListe(schluessel, auftrag, anzahl) {
  * @param {string}   text    – das Transkript
  * @param {string[]} bekannt – schon gesammelte Wörter
  */
-export async function erzeugeVideoVokabeln(text, bekannt = []) {
+export async function erzeugeVideoVokabeln(text, bekannt = [], sprache = 'de') {
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -383,7 +393,7 @@ export async function erzeugeVideoVokabeln(text, bekannt = []) {
       ],
       response_format: {
         type: 'json_schema',
-        json_schema: { name: 'vokabelliste', schema: LISTEN_SCHEMA, strict: true },
+        json_schema: { name: 'vokabelliste', schema: listenSchemaFuer(ziel), strict: true },
       },
     }),
   })
