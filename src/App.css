@@ -14428,3 +14428,10 @@ body.liest-video::before { background: var(--primary); }
   .sp-wahl { width: 100%; }
   .sp-knopf { flex: 1; }
 }
+
+/* Hinweis unter den uebersetzten Rechtstexten: welche Fassung gilt */
+.recht-hinweis {
+  margin-top: -6px;
+  font-style: italic;
+  opacity: .75;
+}
