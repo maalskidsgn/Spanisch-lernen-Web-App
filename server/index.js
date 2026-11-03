@@ -423,11 +423,17 @@ app.post('/api/freunde/melden', async (req, res) => {
 
     // Adresse des Empfängers – nur hier, nie im Browser
     const u = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users/${anfrage.an}`, { headers: kopf })
-    const ziel = (await u.json())?.email
+    const empfaenger = await u.json()
+    const ziel = empfaenger?.email
     if (!ziel) return res.json({ gesendet: false, grund: 'keine-adresse' })
 
+    // In welcher Sprache liest der EMPFAENGER die App? Die legt sie
+    // beim Anmelden selbst hier ab (auth.js, merkeSprache). Steht da
+    // nichts - altes Konto, nie umgeschaltet -, bleibt es bei Deutsch.
+    const sprache = empfaenger?.user_metadata?.sprache === 'en' ? 'en' : 'de'
+
     const adresse = (req.body?.herkunft || 'https://habloo.de').replace(/\/$/, '')
-    const ok = await schicke({ an: ziel, ...freundschaftsanfrage({ von, adresse }) })
+    const ok = await schicke({ an: ziel, ...freundschaftsanfrage({ von, adresse, sprache }) })
     res.json({ gesendet: ok })
   } catch (fehler) {
     console.error('Freundesmail:', fehler.message)

@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
-import { t } from './sprache.js'
+import { t, sprache } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Fehlermeldungen in der Sprache des Nutzers
@@ -59,12 +59,38 @@ function uebersetzeFehler(fehler) {
 // zurück.
 const MAIL_RUECKKEHR = 'https://habloo.de'
 
+/**
+ * Die eingestellte Sprache beim Konto hinterlegen.
+ *
+ * Der Server verschickt Mails an ANDERE Leute - er kann die Sprache
+ * also nicht aus dem Browser des Absenders nehmen. Sie muss beim
+ * Empfaenger stehen, und das einzige Feld, das ohne neue Tabelle
+ * dafuer taugt, sind die user_metadata.
+ */
+export async function merkeSprache() {
+  if (!supabaseBereit) return
+  try {
+    const { data } = await db.auth.getUser()
+    if (!data?.user) return
+    if (data.user.user_metadata?.sprache === sprache()) return
+    await db.auth.updateUser({ data: { sprache: sprache() } })
+  } catch {
+    /* Nicht schlimm: dann geht die Mail eben auf Deutsch raus. */
+  }
+}
+
+// Beim Umschalten gleich nachziehen - sonst stuende dort die
+// Sprache von der Anmeldung, nicht die, die jemand gerade liest.
+if (typeof window !== 'undefined') {
+  window.addEventListener('sprache', () => { merkeSprache() })
+}
+
 export async function registrieren(email, passwort, name) {
   const { data, error } = await db.auth.signUp({
     email: email.trim(),
     password: passwort,
     options: {
-      data: { name: name?.trim() || undefined },
+      data: { name: name?.trim() || undefined, sprache: sprache() },
       emailRedirectTo: MAIL_RUECKKEHR,
     },
   })
@@ -156,12 +182,14 @@ export function useNutzer() {
     db.auth.getSession().then(({ data }) => {
       setNutzer(data.session?.user ?? null)
       setLaedt(false)
+      if (data.session?.user) merkeSprache()
     })
 
     // Danach: auf An- und Abmelden reagieren
     const { data: beobachter } = db.auth.onAuthStateChange((ereignis, sitzung) => {
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
+      if (sitzung?.user) merkeSprache()
       // Der Klick in der "Passwort vergessen"-Mail fuehrt hierher.
       // Supabase meldet den Nutzer dabei schon an – aber mit dem ALTEN
       // Passwort im Kopf. Ohne dieses Signal stuende er einfach in der

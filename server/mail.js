@@ -60,9 +60,9 @@ export async function schicke({ an, betreff, text, html }) {
  * Gmail werfen `<style>`-Blöcke und moderne CSS-Eigenschaften raus,
  * und eine Mail, die nur in einem Postfach gut aussieht, ist keine.
  */
-function rahmen({ inhalt, fusszeile }) {
+function rahmen({ inhalt, fusszeile, sprache = 'de' }) {
   return `<!doctype html>
-<html lang="de"><head><meta charset="utf-8">
+<html lang="${sprache}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"></head>
 <body style="margin:0;padding:0;background:#fdf7f1;
@@ -117,17 +117,17 @@ function knopf(text, adresse) {
  * Link mit Token, und ein Klick aus dem Postfach heraus soll keine
  * Freundschaft schließen können.
  */
-export function freundschaftsanfrage({ von, adresse }) {
+export function freundschaftsanfrage({ von, adresse, sprache = 'de' }) {
   const name = String(von).slice(0, 40)
   const initiale = name.charAt(0).toUpperCase()
+  const w = sprache === 'en' ? WORTE.en : WORTE.de
 
   return {
-    betreff: `${name} möchte mit dir Spanisch lernen`,
-    text:
-      `${name} hat dir bei Habloo eine Freundschaftsanfrage geschickt.\n\n` +
-      `Öffne die App und schau unter Profil → Freunde nach.\n\n${adresse}\n`,
+    betreff: w.betreff(name),
+    text: `${w.textOben(name)}\n\n${w.textUnten}\n\n${adresse}\n`,
     html: rahmen({
-      fusszeile: 'Du bekommst diese Nachricht, weil jemand bei Habloo mit dir lernen möchte.',
+      sprache,
+      fusszeile: w.fusszeile,
       inhalt: `
         <!-- Kreis mit dem Anfangsbuchstaben: ein Gesicht statt nur Text -->
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"
@@ -140,24 +140,58 @@ export function freundschaftsanfrage({ von, adresse }) {
 
         <p style="margin:0 0 10px;font-size:21px;line-height:1.35;font-weight:800;
           color:#000041;text-align:center;letter-spacing:-.3px">
-          ${name} möchte mit dir<br>Spanisch lernen
+          ${w.ueberschrift(name)}
         </p>
 
         <p style="margin:0 0 26px;font-size:15px;line-height:1.65;color:#7b7064;
           text-align:center">
-          Nimm die Anfrage an – dann seht ihr euch gegenseitig in der Rangliste
-          und könnt schauen, wer fleißiger ist.
+          ${w.absatz}
         </p>
 
         <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"
           style="margin:0 auto">
-          <tr><td align="center">${knopf('Anfrage ansehen', adresse)}</td></tr>
+          <tr><td align="center">${knopf(w.knopf, adresse)}</td></tr>
         </table>
 
         <p style="margin:26px 0 0;padding-top:20px;border-top:1px solid #f4ede5;
           font-size:13px;line-height:1.6;color:#a2988c;text-align:center">
-          Oder öffne die App und geh auf <b style="color:#7b7064">Profil → Freunde</b>.
+          ${w.hinweis}
         </p>`,
     }),
   }
+}
+
+/**
+ * Dieselbe Mail in zwei Sprachen.
+ *
+ * Welche es wird, entscheidet der EMPFAENGER, nicht der Absender:
+ * Die App legt die eingestellte Sprache bei jedem Anmelden in den
+ * user_metadata ab, und index.js liest sie dort aus, bevor es diese
+ * Funktion aufruft. Steht dort nichts, bleibt es bei Deutsch.
+ */
+const WORTE = {
+  de: {
+    betreff: (name) => `${name} möchte mit dir Spanisch lernen`,
+    textOben: (name) => `${name} hat dir bei Habloo eine Freundschaftsanfrage geschickt.`,
+    textUnten: 'Öffne die App und schau unter Profil → Freunde nach.',
+    ueberschrift: (name) => `${name} möchte mit dir<br>Spanisch lernen`,
+    absatz:
+      'Nimm die Anfrage an – dann seht ihr euch gegenseitig in der Rangliste ' +
+      'und könnt schauen, wer fleißiger ist.',
+    knopf: 'Anfrage ansehen',
+    hinweis: 'Oder öffne die App und geh auf <b style="color:#7b7064">Profil → Freunde</b>.',
+    fusszeile: 'Du bekommst diese Nachricht, weil jemand bei Habloo mit dir lernen möchte.',
+  },
+  en: {
+    betreff: (name) => `${name} wants to learn Spanish with you`,
+    textOben: (name) => `${name} sent you a friend request on Habloo.`,
+    textUnten: 'Open the app and look under Profile → Friends.',
+    ueberschrift: (name) => `${name} wants to learn<br>Spanish with you`,
+    absatz:
+      'Accept the request and you will see each other in the leaderboard – ' +
+      'then you can find out who puts in more work.',
+    knopf: 'View request',
+    hinweis: 'Or open the app and go to <b style="color:#7b7064">Profile → Friends</b>.',
+    fusszeile: 'You are getting this because someone on Habloo wants to learn with you.',
+  },
 }
