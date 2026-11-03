@@ -1896,4 +1896,6 @@ export default {
   "sg9.gegenwart": "Gegenwart",
   "sg9.saetzeZum": "Sätze zum {zeitform}",
   "sg9.saetzeZuWaehle": "Sätze zu „{thema}“{zeitform} – wähle aus, was in den Trainer soll:",
+  "tr9.grammatik": "Grammatik",
+  "tr9.kiTrainer": "KI-Trainer",
 }

@@ -1896,4 +1896,6 @@ export default {
   "sg9.gegenwart": "present",
   "sg9.saetzeZum": "Sentences in the {zeitform}",
   "sg9.saetzeZuWaehle": "Sentences about “{thema}”{zeitform} – pick what goes into the trainer:",
+  "tr9.grammatik": "Grammar",
+  "tr9.kiTrainer": "AI trainer",
 }

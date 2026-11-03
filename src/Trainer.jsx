@@ -327,7 +327,7 @@ export default function Trainer({
             className={deck === 'grammatik' ? 'deck-aktiv' : ''}
             onClick={() => setDeck('grammatik')}
           >
-            Grammatik
+            {t('tr9.grammatik')}
             {faelligeGrammatik.length > 0 && (
               <span className="deck-zahl">{faelligeGrammatik.length}</span>
             )}
@@ -340,7 +340,7 @@ export default function Trainer({
             className={deck === 'ki' ? 'deck-aktiv' : ''}
             onClick={() => setDeck('ki')}
           >
-            KI-Trainer
+            {t('tr9.kiTrainer')}
           </button>
         )}
       </div>

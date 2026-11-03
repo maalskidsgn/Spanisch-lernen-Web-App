@@ -138,3 +138,23 @@ unter `/private/tmp/…/scratchpad`. Der wird aufgeräumt – mit ihm
 wären alle 8.000 Übersetzungen weg gewesen, und der nächste Lauf
 hätte sie neu bezahlt. Alle Skripte lesen und schreiben jetzt
 neben sich selbst in `scripts/sprache/`.
+
+## Drei Muster, die der zweite Durchgang nachgetragen hat
+
+```jsx
+{n} von {m} geschafft          Text, der an Variablen klebt
+<dt>XP gesamt</dt>             kein Umlaut, kein Fuellwort
+['', 'wortart.gemischt', …]    Schluessel in einer Liste – aber
+<b>{name}</b>                  das Rendering ohne t()
+```
+
+Das dritte ist das tueckischste: `pruefe-schluessel.mjs` sagt, der
+Schluessel existiert – stimmt ja. Nur kommt er nie bei t() an und
+steht woertlich auf dem Bildschirm. Finden laesst sich das nur im
+Browser: der TreeWalker-Pruefer meldet jeden sichtbaren Text, der
+wie ein Schluessel aussieht (`/^[a-z][a-z0-9]*\.[a-zA-Z]/`).
+
+Und eine Falle fuer die Werkzeuge: Heisst die Schleifenvariable `t`
+(`liste.map((t) => …)`), verdeckt sie die Uebersetzungsfunktion.
+`t('…')` darin ruft das Element auf – Absturz beim Rendern. Vor dem
+Einsetzen von t() pruefen, ob der Name frei ist.
