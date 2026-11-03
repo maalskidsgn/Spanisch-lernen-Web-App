@@ -125,17 +125,17 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
           <p className="empty-hint">{t('lt.nochKeineTexte')}</p>
         ) : (
           <div className="text-liste">
-            {neueste.map((t) => (
-              <div key={t.id} className="text-zeile">
-                <button className="text-zeile-text" onClick={() => setOffenerText(t.id)}>
-                  <span className="text-titel">{t.titelEs}</span>
-                  <span className="text-untertitel">{t.titelDe}</span>
+            {neueste.map((eintrag) => (
+              <div key={eintrag.id} className="text-zeile">
+                <button className="text-zeile-text" onClick={() => setOffenerText(eintrag.id)}>
+                  <span className="text-titel">{eintrag.titelEs}</span>
+                  <span className="text-untertitel">{eintrag.titelDe}</span>
                   <span className="text-meta">
-                    {LEVEL_LABELS[t.level] ?? 'Neu'} · {formatDue(t)}
-                    {t.gelesen ? ` · ${t.gelesen}× gelesen` : ''}
+                    {t(LEVEL_LABELS[eintrag.level] ?? 'srs.neu')} · {formatDue(eintrag)}
+                    {eintrag.gelesen ? ' · ' + t('lt9.malGelesen', { zahl: eintrag.gelesen }) : ''}
                   </span>
                 </button>
-                <button className="satz-weg" onClick={() => entfernen(t.id)} title={t('lt.textEntfernen')}>
+                <button className="satz-weg" onClick={() => entfernen(eintrag.id)} title={t('lt.textEntfernen')}>
                   ✕
                 </button>
               </div>
@@ -202,7 +202,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
           </span>
           <span className="trainer-sprechen-text">
             <h2>{t('lt.alleTexte')}</h2>
-            <p>{entries.length} gesammelt – noch einmal lesen oder aufräumen.</p>
+            <p>{t('lt9.gesammelt', { zahl: entries.length })}</p>
           </span>
         </button>
       )}
@@ -373,7 +373,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
             {[
               { wert: 'nochmal', text: t('lt.kaum') },
               { wert: 'schwer', text: t('lt.mitMuehe') },
-              { wert: 'gut', text: 'Gut' },
+              { wert: 'gut', text: t('bw.gut') },
               { wert: 'einfach', text: t('lt.muehelos') },
             ].map((b) => (
               <button

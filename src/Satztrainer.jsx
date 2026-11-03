@@ -222,7 +222,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                   <span className="satz-es">{e.satz}</span>
                   <span className="satz-de">{e.translation}</span>
                   <span className="satz-meta">
-                    {LEVEL_LABELS[e.level] ?? 'Neu'} · {formatDue(e)}
+                    {t(LEVEL_LABELS[e.level] ?? 'srs.neu')} · {formatDue(e)}
                     {e.thema ? ' · ' + e.thema : ''}
                   </span>
                 </div>
@@ -275,7 +275,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             </div>
             <h2>{t('st.rundeGeschafft')}</h2>
             <p>
-              {result.richtig}× gewusst · {result.falsch}× nicht gewusst
+              {t('st9.gewusstBilanz', { richtig: result.richtig, falsch: result.falsch })}
             </p>
             <button onClick={() => setQueue(null)}>{t('app.fertig')}</button>
           </div>
@@ -303,7 +303,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             />
           </div>
           <p className="training-progress">
-            {result.richtig} von {RUNDE} geschafft
+            {t('st9.vonGeschafft', { richtig: result.richtig, gesamt: RUNDE })}
           </p>
         </div>
 
@@ -326,7 +326,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                   {[
                     { wert: 'nochmal', text: t('st.nochmal') },
                     { wert: 'schwer', text: t('st.schwer') },
-                    { wert: 'gut', text: 'Gut' },
+                    { wert: 'gut', text: t('bw.gut') },
                     { wert: 'einfach', text: t('st.einfach') },
                   ].map((b) => (
                     <button
@@ -515,7 +515,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           </span>
           <span className="trainer-sprechen-text">
             <h2>{t('st.deineSaetze')}</h2>
-            <p>{entries.length} gesammelt – ansehen und aufräumen.</p>
+            <p>{t('st9.gesammeltAufraeumen', { zahl: entries.length })}</p>
           </span>
         </button>
       )}
@@ -597,9 +597,9 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
             <span key={i} className="confetti" style={{ '--i': i }} />
           ))}
         </div>
-        <h2>Alle {paare.length} Satzpaare verbunden! 🎉</h2>
+        <h2>{t('st9.alleSatzpaare', { zahl: paare.length })}</h2>
         <p>
-          {paare.length - daneben.length}× auf Anhieb · {daneben.length}× mit zweitem Versuch
+          {t('st9.aufAnhieb', { erste: paare.length - daneben.length, zweite: daneben.length })}
         </p>
         <button onClick={onClose}>{t('app.fertig')}</button>
       </div>

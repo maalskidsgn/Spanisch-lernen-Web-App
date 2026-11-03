@@ -118,7 +118,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
           </div>
           <h2>{ergebnis.falsch === 0 ? t('bs9.allesRichtig') : t('bs9.rundeGeschafft')}</h2>
           <p>
-            {ergebnis.richtig} von {runde.aufgaben.length} bei „{runde.baustein.titel}“
+            {t('bs9.vonBei', { richtig: ergebnis.richtig, gesamt: runde.aufgaben.length, titel: uebersetzt(runde.baustein.titel) })}
           </p>
           <p className="gram-naechster">
             {bewertung === 'nochmal'

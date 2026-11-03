@@ -87,7 +87,7 @@ export default function InstallKnopf({ app = 'App' }) {
       <div className="install-kopf">
         <img src="/apple-touch-icon.png" alt="" width="48" height="48" />
         <div>
-          <b>{app} auf deinen Startbildschirm</b>
+          <b>{t('ik.aufStartbildschirm', { app })}</b>
           <span>{t('insX.einTippUnd')}</span>
         </div>
       </div>

@@ -182,7 +182,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
       <section className="start-karte">
         <h2 className="start-abschnitt">{t('llk.alleStuecke')}</h2>
         <p className="start-abschnitt-sub">
-          {gelesen.size} von {STUECKE.length} gelesen
+          {t('ll9.vonGelesen', { zahl: gelesen.size, gesamt: STUECKE.length })}
         </p>
 
         <div className="lul-liste">

@@ -23,7 +23,7 @@ const THEMEN = [
 // Anfängern wenig, "würde …" sofort etwas.
 const ZEITFORMEN = [
   ['', 'wortart.gemischt', 'sg2.alleZeiten'],
-  ['presente', 'Presente', 'Gegenwart'],
+  ['presente', 'Presente', 'sg9.gegenwart'],
   ['perfecto', 'Perfecto', 'he hablado'],
   ['indefinido', 'Indefinido', 'hablé'],
   ['imperfecto', 'Imperfecto', 'hablaba'],
@@ -110,7 +110,9 @@ export default function SatzGenerator({ saetze, setSaetze }) {
     setThema('')
   }
 
-  const zeitformName = ZEITFORMEN.find(([w]) => w === fertig.zeitform)?.[1]
+  // Durch t(): Der erste Eintrag ist ein Schluessel, die anderen bleiben
+  // unveraendert - unbekannte Texte gibt t() so zurueck, wie sie sind.
+  const zeitformName = t(ZEITFORMEN.find(([w]) => w === fertig.zeitform)?.[1] ?? '')
 
   // Kontingent aufgebraucht
   if (uebrig <= 0 && !liste) {
@@ -158,7 +160,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         </div>
 
         {/* Schritt 2: Zeitform – bleibt gewählt */}
-        <p className="sg-schritt"><span>2</span> {t('sgn.zeitform')} <small>optional</small></p>
+        <p className="sg-schritt"><span>2</span> {t('sgn.zeitform')} <small>{t('lt.optional')}</small></p>
         <div className="sg-formen">
           {ZEITFORMEN.map(([wert, name, hilfe]) => (
             <button
@@ -167,8 +169,8 @@ export default function SatzGenerator({ saetze, setSaetze }) {
               className={'sg-form' + (zeitform === wert ? ' ist-aktiv' : '')}
               onClick={() => setZeitform(wert)}
             >
-              <b>{name}</b>
-              <span>{hilfe}</span>
+              <b>{t(name)}</b>
+              <span>{t(hilfe)}</span>
             </button>
           ))}
         </div>
@@ -209,7 +211,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             {laden ? (
               <>{t('sgn.schreibtSaetze')}<span className="studio-punkte" /></>
             ) : zeitform && !thema.trim() ? (
-              `Sätze zum ${ZEITFORMEN.find(([w]) => w === zeitform)?.[1]}`
+              t('sg9.saetzeZum', { zeitform: t(ZEITFORMEN.find(([w]) => w === zeitform)?.[1] ?? '') })
             ) : (
               t('sg9.saetzeErzeugen')
             )}
@@ -234,8 +236,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             </div>
           )}
           <p className="gen-hint">
-            Sätze zu „{fertig.thema}“{zeitformName ? ` · ${zeitformName}` : ''} – wähle
-            aus, was in den Trainer soll:
+            {t('sg9.saetzeZuWaehle', { thema: fertig.thema, zeitform: zeitformName ? ` · ${zeitformName}` : '' })}
           </p>
           {liste.map((s, i) => (
             <label key={i} className="gen-item satz-item">

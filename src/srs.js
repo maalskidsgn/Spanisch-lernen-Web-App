@@ -9,7 +9,8 @@ import { t, gebiet } from './sprache.js'
 export const INTERVALS_DAYS = [0, 1, 3, 7, 14, 30, 90]
 
 // Lesbare Namen für die Stufen (gleiche Reihenfolge wie oben)
-export const LEVEL_LABELS = ['Neu', '1 Tag', '3 Tage', '1 Woche', '2 Wochen', '1 Monat', '3 Monate']
+// Schluessel, nicht Texte - angezeigt wird mit t(), sonst friert die Sprache ein
+export const LEVEL_LABELS = ['srs.neu', 'srs.1tag', 'srs.3tage', 'srs.1woche', 'srs.2wochen', 'srs.1monat', 'srs.3monate']
 
 export const MAX_LEVEL = INTERVALS_DAYS.length - 1
 

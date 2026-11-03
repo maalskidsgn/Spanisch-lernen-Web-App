@@ -153,7 +153,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
         </div>
 
         {/* Schritt 2: Wortart – gemischt oder gezielt */}
-        <p className="sg-schritt"><span>2</span> {t('lg.wortart')} <small>optional</small></p>
+        <p className="sg-schritt"><span>2</span> {t('lg.wortart')} <small>{t('lt.optional')}</small></p>
         <div className="sg-themen sg-vier">
           {[
             ['alle', 'wortart.gemischt'],

@@ -446,7 +446,7 @@ export default function Trainer({
             </div>
             <h2>{t('trk.rundeGeschafft')}</h2>
             <p>
-              {result.richtig}× gewusst · {result.falsch}× nicht gewusst
+              {t('st9.gewusstBilanz', { richtig: result.richtig, falsch: result.falsch })}
             </p>
             <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
             <button onClick={() => setQueue(null)}>{t('trk.zurueckZurUebersicht')}</button>
@@ -481,7 +481,7 @@ export default function Trainer({
             />
           </div>
           <p className="training-progress">
-            {result.richtig} von {LEKTION_GROESSE} geschafft
+            {t('st9.vonGeschafft', { richtig: result.richtig, gesamt: LEKTION_GROESSE })}
           </p>
         </div>
 
@@ -502,10 +502,10 @@ export default function Trainer({
                 <div className="flash-translation">{rueckseite}</div>
                 <div className="bewertungen">
                   {[
-                    { wert: 'nochmal', text: 'Nochmal' },
-                    { wert: 'schwer', text: 'Schwer' },
-                    { wert: 'gut', text: 'Gut' },
-                    { wert: 'einfach', text: 'Einfach' },
+                    { wert: 'nochmal', text: t('bw.nochmal') },
+                    { wert: 'schwer', text: t('bw.schwer') },
+                    { wert: 'gut', text: t('bw.gut') },
+                    { wert: 'einfach', text: t('bw.einfach') },
                   ].map((b) => (
                     <button
                       key={b.wert}
@@ -599,7 +599,7 @@ export default function Trainer({
                   }}
                   disabled={tippStufe >= 2}
                 >
-                  {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? '💡 Ganzes Wort' : '💡 Aufgedeckt'}
+                  {tippStufe === 0 ? t('tr9.tipp') : tippStufe === 1 ? t('tr9.ganzesWort') : t('tr9.aufgedeckt')}
                 </button>
                 <button type="submit" disabled={!eingabe.trim()}>
                   {t('tr9.pruefen')}
@@ -629,7 +629,7 @@ export default function Trainer({
             {t('tr.wieUeben1')} <span className="accent">{t('tr.wieUeben2')}</span>
           </h1>
           <p className="art-unterzeile">
-            {anzahl} Wörter · {trainable.length > 0 && t('tr9.davonFaellig', { zahl: Math.min(trainable.length, anzahl) })}
+            {t('tr9.woerterPunkt', { zahl: anzahl })} {trainable.length > 0 && t('tr9.davonFaellig', { zahl: Math.min(trainable.length, anzahl) })}
           </p>
         </div>
 
@@ -805,7 +805,7 @@ export default function Trainer({
                 <option value="">{t('trk.nachStufeFiltern')}</option>
                 {LEVEL_LABELS.map((label, lvl) => (
                   <option key={lvl} value={lvl}>
-                    {label} ({levelCounts[lvl]})
+                    {t(label)} ({levelCounts[lvl]})
                   </option>
                 ))}
               </select>
@@ -831,12 +831,12 @@ export default function Trainer({
                   </thead>
                   <tbody>
                     {gefiltert.slice(0, sichtbar).map((e) => (
-                      <tr key={e.word} title={e.source ? 'Aus: ' + e.source : undefined}>
+                      <tr key={e.word} title={e.source ? t('tr9.aus', { quelle: e.source }) : undefined}>
                         <td className="cell-word">{e.word}</td>
                         <td>{e.translation || '–'}</td>
                         <td>
                           <span className={'level-badge lvl-' + e.level}>
-                            {e.status === 'gewusst' ? t('tr9.gewusst') : LEVEL_LABELS[e.level]}
+                            {e.status === 'gewusst' ? t('tr9.gewusst') : t(LEVEL_LABELS[e.level])}
                           </span>
                         </td>
                         <td>{formatDue(e)}</td>

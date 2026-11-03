@@ -1398,7 +1398,7 @@ export default function App() {
           <div className="levelup-card">
             <div className="levelup-emoji">🎉</div>
             <h2>Level {levelUp} erreicht!</h2>
-            <p>Du bist jetzt: {levelName(levelUp)}</p>
+            <p>{t('ap9.duBistJetzt', { level: levelName(levelUp) })}</p>
           </div>
         </div>
       )}

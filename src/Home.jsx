@@ -15,7 +15,7 @@ import { IconLektion, IconKarten, IconMediathek } from './icons.jsx'
 import { ladeBenutzername } from './rangliste.js'
 import { FeedTuer } from './Feed.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
-import { useTexte, gebiet, text as inhaltsText } from './sprache.js'
+import { useTexte, gebiet, text as inhaltsText, t } from './sprache.js'
 import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 
 // Die Startseite.
@@ -496,7 +496,7 @@ function Kalender() {
               {gewaehlt.lektionen > 0 && (
                 <div className="kal-wert kal-wert-lek">
                   <b>{gewaehlt.lektionen}</b>
-                  <span>{gewaehlt.lektionen === 1 ? 'Lektion' : 'Lektionen'}</span>
+                  <span>{gewaehlt.lektionen === 1 ? t('hm9.lektion') : t('hm9.lektionen')}</span>
                 </div>
               )}
             </div>
@@ -517,7 +517,7 @@ function kalDatum(schluessel) {
 /** Aufschlüsselung eines Tages als Text, z. B. "1 Lektion, 2 Wiederholungen". */
 function kalTeile(z) {
   const teile = []
-  if (z.lektionen > 0) teile.push(z.lektionen + (z.lektionen === 1 ? ' Lektion' : ' Lektionen'))
+  if (z.lektionen > 0) teile.push(z.lektionen + ' ' + (z.lektionen === 1 ? t('hm9.lektion') : t('hm9.lektionen')))
   if (z.wiederholungen > 0)
     teile.push(z.wiederholungen + (z.wiederholungen === 1 ? ' Wiederholung' : ' Wiederholungen'))
   return teile.join(', ')

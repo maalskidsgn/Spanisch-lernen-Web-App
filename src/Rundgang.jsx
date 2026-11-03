@@ -91,7 +91,7 @@ export default function BereichsIntro({ bereich, rundgang, onWeiter, onFertig })
 
         {rundgang && (
           <span className="intro-schritt">
-            {rundgang.nr} von {rundgang.von}
+            {t('ih9.nrVon', { nr: rundgang.nr, gesamt: rundgang.von })}
           </span>
         )}
 

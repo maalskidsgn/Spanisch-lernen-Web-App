@@ -239,8 +239,7 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
       {name === null && (
         <div className="rang-mitmachen">
           <p>
-            <b>{t('rang.duFehlst')}</b> Such dir einen Benutzernamen aus, dann stehst du mit deinen{' '}
-            {eigeneXp} XP in der Liste.
+            <b>{t('rang.duFehlst')}</b> {t('rl9.suchDirNamen', { xp: eigeneXp })}
           </p>
           <BenutzernameFeld nutzerId={nutzerId} knopf={t('rang.mitmachen')} />
         </div>

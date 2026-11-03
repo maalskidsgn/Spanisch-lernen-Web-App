@@ -312,8 +312,9 @@ export default function Settings({
   // Zweimal nachfragen, beim zweiten Mal muss der Nutzer tippen.
   async function kontoLoeschen() {
     if (!confirm(t('stm.deinKontoUnd'))) return
-    const bestaetigung = prompt('Zum Bestätigen bitte LÖSCHEN eintippen:')
-    if (bestaetigung !== 'LÖSCHEN') return
+    // Das Bestaetigungswort haengt an der Sprache: LÖSCHEN / DELETE
+    const bestaetigung = prompt(t('se9.loeschenEintippen', { wort: t('se9.loeschWort') }))
+    if (bestaetigung !== t('se9.loeschWort')) return
 
     setLoeschLaeuft(true)
     try {
@@ -645,7 +646,7 @@ export default function Settings({
             <div className="xp-bar-fill" style={{ width: zielProzent + '%' }} />
           </div>
           <span className="goal-text">
-            {heutigeXp}/{settings.tagesziel} XP heute {zielProzent >= 100 && '– geschafft! 🎉'}
+            {t('se9.xpHeute', { xp: heutigeXp, ziel: settings.tagesziel })} {zielProzent >= 100 && t('se9.geschafftFeier')}
           </span>
         </div>
       </div>
@@ -851,7 +852,7 @@ function BenutzernameEinstellung({ nutzerId }) {
         key={name ?? ''}
         nutzerId={nutzerId}
         start={name ?? ''}
-        knopf={name ? t('se9.aendern') : 'Speichern'}
+        knopf={name ? t('se9.aendern') : t('se9.speichern')}
         onGespeichert={setName}
       />
     </div>

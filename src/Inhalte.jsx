@@ -222,7 +222,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
             ←
           </button>
           <span>
-            {teil.label || t('ih9.kapitelNr', { zahl: kapitel + 1 })} · {kapitel + 1} von {daten.kapitel.length}
+            {teil.label || t('ih9.kapitelNr', { zahl: kapitel + 1 })} · {t('ih9.nrVon', { nr: kapitel + 1, gesamt: daten.kapitel.length })}
           </span>
           <button
             className="btn-plain"

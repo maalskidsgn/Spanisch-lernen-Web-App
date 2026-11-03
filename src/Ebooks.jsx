@@ -460,7 +460,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             disabled={fertig}
             onClick={() => setKapitelNr((n) => n + 1)}
           >
-            {kapitelNr === kapitel.length - 1 ? 'Fertig' : '→'}
+            {kapitelNr === kapitel.length - 1 ? t('eb9.fertig') : '→'}
           </button>
         </div>
       </div>
