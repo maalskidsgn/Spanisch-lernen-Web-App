@@ -1,4 +1,4 @@
-import { vokabel, satz, text } from './sprache.js'
+import { vokabel, satz as satz_, text } from './sprache.js'
 
 // ============================================================
 //  Das Lektions-Schema
@@ -9001,7 +9001,7 @@ export function baueSchritte(lektion) {
   if (lektion.items.length >= 5) {
     schritte.push({
       typ: 'paare',
-      paare: mischen(lektion.items).slice(0, 5).map((i) => ({ es: i.es, de: i.de })),
+      paare: mischen(lektion.items).slice(0, 5).map((i) => ({ es: i.es, de: vokabel(i) })),
     })
   }
 
@@ -9040,7 +9040,7 @@ export function baueSatzbau(item) {
     gemischt = mischen(woerter)
   }
   if (gemischt.join(' ') === satz) return null
-  return { woerter: gemischt, loesung: satz, uebersetzung: item.beispielDe }
+  return { woerter: gemischt, loesung: satz, uebersetzung: satz_(item) }
 }
 
 // Baut die vier Antwort-Möglichkeiten für eine Übung (richtige + drei falsche)
@@ -9063,9 +9063,9 @@ export function baueOptionen(schritt, lektion) {
     // Die falschen Antworten sind die deutschen Saetze der ANDEREN
     // Dialogzeilen – nah genug am Thema, um zum Nachdenken zu zwingen
     const falsche = mischen(
-      schritt.dialog.filter((z) => z !== schritt.zeile).map((z) => satz(z, 'es', 'de'))
+      schritt.dialog.filter((z) => z !== schritt.zeile).map((z) => satz_(z, 'es', 'de'))
     ).slice(0, 3)
-    return mischen([satz(schritt.zeile, 'es', 'de'), ...falsche])
+    return mischen([satz_(schritt.zeile, 'es', 'de'), ...falsche])
   }
   if (schritt.typ === 'luecke') {
     const falsche = mischen(

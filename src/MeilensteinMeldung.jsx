@@ -36,13 +36,13 @@ export default function MeilensteinMeldung({ liste, onFertig }) {
         </div>
 
         <span className="msm-abzeichen" aria-hidden="true">
-          <b>{STUFEN_NAMEN[m.stufe]?.charAt(0)}</b>
+          <b>{t(STUFEN_NAMEN[m.stufe] ?? "")?.charAt(0)}</b>
         </span>
 
-        <p className="msm-stufe">{STUFEN_NAMEN[m.stufe]}</p>
-        <h2 className="msm-titel">{m.titel}</h2>
+        <p className="msm-stufe">{t(STUFEN_NAMEN[m.stufe] ?? "")}</p>
+        <h2 className="msm-titel">{t(m.titel)}</h2>
         <p className="msm-text">
-          {m.ziel.toLocaleString(gebiet())} {m.einheit} geschafft
+          {t('mm.geschafft', { zahl: m.ziel.toLocaleString(gebiet()), einheit: t(m.einheit) })}
         </p>
 
         <div className="msm-xp">+{MEILENSTEIN_XP} XP</div>

@@ -1819,4 +1819,13 @@ export default {
   "ka.proWoche": "per week",
   "ih9.nichtErreichbar": "Content unavailable ({status})",
   "sp9.spotifyAntwortetNicht": "Spotify is not responding",
+
+  /* ---------------- Meilenstein-Meldung ---------------- */
+  "ms.bronze": "Bronze",
+  "ms.silber": "Silver",
+  "ms.gold": "Gold",
+  "ms.platin": "Platinum",
+  "ms.diamant": "Diamond",
+  "ms.legende": "Legend",
+  "mm.geschafft": "{zahl} {einheit} done",
 }

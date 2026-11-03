@@ -92,4 +92,5 @@ export function meilensteineGleichsetzen(werte) {
 }
 
 /** Name der Stufe (Bronze … Legende) – für die Meldung. */
-export const STUFEN_NAMEN = ['Bronze', 'Silber', 'Gold', 'Platin', 'Diamant', 'Legende']
+// Schluessel, nicht Namen - angezeigt wird in MeilensteinMeldung.jsx
+export const STUFEN_NAMEN = ['ms.bronze', 'ms.silber', 'ms.gold', 'ms.platin', 'ms.diamant', 'ms.legende']
