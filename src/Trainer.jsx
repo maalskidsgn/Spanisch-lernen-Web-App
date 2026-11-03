@@ -456,6 +456,13 @@ export default function Trainer({
     const current = withSrsDefaults(vocab[wort] ?? {})
     const loesung = current.translation || '(keine Übersetzung gespeichert)'
     const dieseArt = artFuer(art, position)
+    // Karteikarten fragen in beide Richtungen: jede zweite Karte zeigt
+    // Deutsch vorne und will das spanische Wort wissen (Manuels Wunsch
+    // vom 03.11.). Ohne gespeicherte Übersetzung bleibt es bei
+    // Spanisch vorne, sonst stünde der Platzhalter auf der Karte.
+    const umgekehrt = dieseArt === 'karten' && position % 2 === 1 && !!current.translation
+    const vorderseite = umgekehrt ? loesung : wort
+    const rueckseite = umgekehrt ? wort : loesung
 
     return (
       <div className="trainer training-stage">
@@ -486,11 +493,11 @@ export default function Trainer({
                 vertont, gesammelte nicht – mal Ton, mal keiner wirkte
                 im Trainer uneinheitlich (Manuels Punkt vom 24.08.). */}
             <div className="word-row">
-              <div className="flash-word">{wort}</div>
+              <div className="flash-word">{vorderseite}</div>
             </div>
             {revealed ? (
               <div className="flash-back">
-                <div className="flash-translation">{loesung}</div>
+                <div className="flash-translation">{rueckseite}</div>
                 <div className="bewertungen">
                   {[
                     { wert: 'nochmal', text: 'Nochmal' },
