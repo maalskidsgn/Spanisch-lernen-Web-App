@@ -101,7 +101,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
       neueWoerter.map((w) => ({
         wort: w.es,
         uebersetzung: w.de,
-        quelle: `Entdecken – ${stueck.titel}`,
+        quelle: t('ll9.entdeckenQuelle', { titel: stueck.titel }),
       }))
     )
   }
@@ -173,7 +173,7 @@ export default function LandUndLeute({ onZurueck, onAddVocab, addXp, vocab = {} 
         >
           {neueWoerter.length === 0
             ? t('llm.alleSechsSind')
-            : `${neueWoerter.length} ${neueWoerter.length === 1 ? 'Wort' : 'Wörter'} in den Trainer`}
+            : t('ll9.inDenTrainer', { zahl: neueWoerter.length, einheit: neueWoerter.length === 1 ? t('ll9.wort') : t('ll9.woerter') })}
           {neueWoerter.length > 0 && <IconPfeil groesse={18} />}
         </button>
       </section>

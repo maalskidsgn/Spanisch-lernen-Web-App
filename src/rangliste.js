@@ -1,3 +1,4 @@
+import { t } from './sprache.js'
 /**
  * Rangliste + Benutzernamen.
  *
@@ -20,10 +21,10 @@ const RESERVIERT = ['habloo', 'admin', 'support', 'team', 'moderator', 'mod', 's
 /** Prüft die Form, ohne die Datenbank zu fragen. Liefert Fehlertext oder ''. */
 export function nameFehler(name) {
   const n = name.trim()
-  if (n.length < 3) return 'Mindestens 3 Zeichen.'
-  if (n.length > 20) return 'Höchstens 20 Zeichen.'
-  if (!NAME_MUSTER.test(n)) return 'Nur Buchstaben, Ziffern, Punkt und Unterstrich – ohne Leerzeichen und Umlaute.'
-  if (RESERVIERT.some((r) => n.toLowerCase().includes(r))) return 'Dieser Name ist reserviert.'
+  if (n.length < 3) return t('rl9.minDrei')
+  if (n.length > 20) return t('rl9.maxZwanzig')
+  if (!NAME_MUSTER.test(n)) return t('rl9.nurErlaubte')
+  if (RESERVIERT.some((r) => n.toLowerCase().includes(r))) return t('rl9.reserviert')
   return ''
 }
 
@@ -73,10 +74,10 @@ export async function setzeBenutzername(nutzerId, name) {
     window.dispatchEvent(new CustomEvent('benutzername', { detail: n }))
     return n
   }
-  if (error.code === '23505') throw new Error('Den Namen gibt es schon – nimm einen anderen.')
-  if (error.code === '23514') throw new Error('Nur Buchstaben, Ziffern, Punkt und Unterstrich (3–20 Zeichen).')
-  if (fehltMigration(error)) throw new Error('Benutzernamen sind gleich verfügbar – bitte später nochmal.')
-  throw new Error('Hat nicht geklappt: ' + error.message)
+  if (error.code === '23505') throw new Error(t('rl9.nameVergeben'))
+  if (error.code === '23514') throw new Error(t('rl9.nameForm'))
+  if (fehltMigration(error)) throw new Error(t('rl9.gleichVerfuegbar'))
+  throw new Error(t('rl9.nichtGeklappt', { fehler: error.message }))
 }
 
 /** Die drei Zeiträume, in denen man sich vergleichen kann. */
@@ -182,12 +183,12 @@ function verkleinern(datei, kante = 400) {
       c.width = c.height = kante
       const g = c.getContext('2d')
       g.drawImage(bild, x, y, seite, seite, 0, 0, kante, kante)
-      c.toBlob((b) => (b ? fertig(b) : fehler(new Error('Bild ließ sich nicht umwandeln.'))),
+      c.toBlob((b) => (b ? fertig(b) : fehler(new Error(t('rl9.bildUmwandeln')))),
         'image/jpeg', 0.86)
     }
     bild.onerror = () => {
       URL.revokeObjectURL(adresse)
-      fehler(new Error('Das ist kein Bild, das wir lesen können.'))
+      fehler(new Error(t('rl9.keinBild')))
     }
     bild.src = adresse
   })
@@ -198,8 +199,8 @@ function verkleinern(datei, kante = 400) {
  * @returns {Promise<string>} die öffentliche Adresse
  */
 export async function setzeProfilbild(nutzerId, datei) {
-  if (!supabaseBereit || !nutzerId) throw new Error('Bitte zuerst anmelden.')
-  if (!datei.type.startsWith('image/')) throw new Error('Bitte ein Bild auswählen.')
+  if (!supabaseBereit || !nutzerId) throw new Error(t('al.bitteAnmelden'))
+  if (!datei.type.startsWith('image/')) throw new Error(t('rl9.bildWaehlen'))
 
   const klein = await verkleinern(datei)
   // Der Name wechselt bei jedem Mal, sonst zeigt der Browser noch
@@ -272,7 +273,7 @@ export async function ladeFreunde() {
  *   ist die Freundschaft sofort geschlossen.
  */
 export async function frageFreund(benutzername) {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(t('al.bitteAnmelden'))
   const { data, error } = await db.rpc('freund_anfragen', { name: benutzername })
   if (error) throw new Error(error.message)
   window.dispatchEvent(new CustomEvent('freunde'))

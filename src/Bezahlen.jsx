@@ -26,7 +26,7 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, gebiet } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Habloo-Aussehen für die Stripe-Felder
@@ -85,11 +85,13 @@ const AUSSEHEN = {
 }
 
 // Was Premium kann – dieselbe Liste wie in den Einstellungen.
+// Nur die Schlüssel, nicht die Texte: t() auf Modulebene würde die
+// Sprache einfrieren, die beim Laden gerade eingestellt war.
 const LEISTUNGEN = [
-  'Unbegrenzte KI-Vokabellisten',
+  'bz9.unbegrenzteKiVokabellisten',
   'bzm.unbegrenzteSaetzeUnd',
-  'Eigene Videos ohne Begrenzung',
-  'KI-Trainer ohne Tageslimit',
+  'bz9.eigeneVideosOhne',
+  'bz9.kiTrainerOhne',
 ]
 
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der
@@ -131,10 +133,10 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       setClientSecret(null)
       setFehler('')
       try {
-        if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+        if (!supabaseBereit) throw new Error(t('bz9.bitteZuerstAnmelden'))
         const { data } = await db.auth.getSession()
         const token = data?.session?.access_token
-        if (!token) throw new Error('Bitte zuerst anmelden.')
+        if (!token) throw new Error(t('bz9.bitteZuerstAnmelden'))
 
         // Preis, Schlüssel und Bezahlvorgang parallel holen –
         // nacheinander dauerte es dreimal so lang.
@@ -173,13 +175,13 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
   }, [tarif]) // anderer Tarif = neuer Bezahlvorgang
 
   const geld = (p) =>
-    p ? p.betrag.toLocaleString('de-DE', { style: 'currency', currency: p.waehrung }) : null
+    p ? p.betrag.toLocaleString(gebiet(), { style: 'currency', currency: p.waehrung }) : null
   const preis = preise?.[tarif] ?? null
   const preisText = geld(preis)
-  const zeitraum = { monat: 'pro Monat', jahr: 'pro Jahr', lifetime: 'einmalig' }[tarif]
+  const zeitraum = { monat: t('bz9.proMonat'), jahr: t('bz9.proJahr'), lifetime: t('bz9.einmalig') }[tarif]
   const abrechnung = {
-    monat: 'monatlich, jederzeit kündbar',
-    jahr: 'jährlich, jederzeit kündbar',
+    monat: t('bz9.monatlichJederzeitKuendbar'),
+    jahr: t('bz9.jaehrlichJederzeitKuendbar'),
     lifetime: t('bzm.einmalZahlenFuer'),
   }[tarif]
   // Ersparnis des Jahrestarifs gegenueber 12 Monaten
@@ -188,11 +190,11 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       ? Math.round((1 - preise.jahr.betrag / (preise.monat.betrag * 12)) * 100)
       : null
   const TARIF_KARTEN = [
-    { id: 'monat', name: t('bz.monatlich'), unter: 'pro Monat' },
+    { id: 'monat', name: t('bz.monatlich'), unter: t('bz9.proMonat') },
     {
       id: 'jahr',
       name: t('bz.jaehrlich'),
-      unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : 'pro Jahr',
+      unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : t('bz9.proJahr'),
       marke: ersparnis > 0 ? `−${ersparnis} %` : 'Beliebt',
     },
     { id: 'lifetime', name: t('bz.lifetime'), unter: t('bzm.einmaligFuerImmer') },
@@ -215,7 +217,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       <div className="kassen-raster">
         {/* ---------- Links: was man kauft ---------- */}
         <aside className="kassen-bestellung">
-          <p className="kassen-label">{tarif === 'lifetime' ? 'Dein Zugang' : 'Dein Abo'}</p>
+          <p className="kassen-label">{tarif === 'lifetime' ? t('bz9.deinZugang') : t('bz9.deinAbo')}</p>
           <h1 className="kassen-titel">{t('bz.hablooPremium')}</h1>
           {TARIF_KARTEN.length > 1 && (
             <div className="kassen-tarife" role="radiogroup" aria-label={t('bz.tarifWaehlen')}>
@@ -296,7 +298,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           sehen.{' '}
           {tarif === 'lifetime'
             ? t('bzm.einmaligeZahlungKein')
-            : 'Jederzeit kündbar in den Einstellungen.'}
+            : t('bz9.jederzeitKuendbarIn')}
         </p>
       </footer>
     </div>
@@ -357,7 +359,7 @@ function KassenFormular({ onFertig, onAbbrechen }) {
         ) : summe ? (
           `${summe} zahlungspflichtig abonnieren`
         ) : (
-          'Zahlungspflichtig abonnieren'
+          t('bz9.zahlungspflichtigAbonnieren')
         )}
       </button>
 

@@ -8,7 +8,9 @@
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 
-const ORDNER = '/private/tmp/claude-501/-Users-manuelkillert/b4100586-ee84-4775-9f8d-4efb903b3423/scratchpad'
+// Die Zwischenstaende liegen im Projekt, nicht im Sitzungsordner:
+// der wird aufgeraeumt, und mit ihm waeren alle Uebersetzungen weg.
+const ORDNER = new URL('.', import.meta.url).pathname.replace(/\/$/, '')
 const QUELLE = `${ORDNER}/zu-uebersetzen.json`
 const STAND = `${ORDNER}/uebersetzt.json`
 

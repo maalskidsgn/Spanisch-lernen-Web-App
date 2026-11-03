@@ -114,7 +114,7 @@ export default function InstallKnopf({ app = 'App' }) {
         <div className="install-knoepfe">
           <button type="button" className="btn" onClick={installieren}>{t('ik.zumStartbildschirmHinzufuegen')}</button>
           <button type="button" className="btn-plain" onClick={spaeter}>
-            Später
+            {t('ik9.spaeter')}
           </button>
         </div>
       )}

@@ -1,3 +1,4 @@
+import { t } from './sprache.js'
 /**
  * Kaufen in der App (Apple App Store, Google Play).
  *
@@ -125,25 +126,27 @@ export async function ladeAngebote() {
 }
 
 function nameVon(art) {
-  return {
-    MONTHLY: 'Monatlich',
-    ANNUAL: 'Jährlich',
-    LIFETIME: 'Lifetime',
-    SIX_MONTH: 'Halbjährlich',
-    THREE_MONTH: 'Vierteljährlich',
-    WEEKLY: 'Wöchentlich',
-  }[art] || 'Premium'
+  const schluessel = {
+    MONTHLY: 'ka.monatlich',
+    ANNUAL: 'ka.jaehrlich',
+    SIX_MONTH: 'ka.halbjaehrlich',
+    THREE_MONTH: 'ka.vierteljaehrlich',
+    WEEKLY: 'ka.woechentlich',
+  }[art]
+  if (schluessel) return t(schluessel)
+  return art === 'LIFETIME' ? 'Lifetime' : 'Premium'
 }
 
 function zeitraumVon(art) {
-  return {
-    MONTHLY: 'pro Monat',
-    ANNUAL: 'pro Jahr',
-    LIFETIME: 'einmalig, für immer',
-    SIX_MONTH: 'pro Halbjahr',
-    THREE_MONTH: 'pro Quartal',
-    WEEKLY: 'pro Woche',
-  }[art] || ''
+  const schluessel = {
+    MONTHLY: 'ka.proMonat',
+    ANNUAL: 'ka.proJahr',
+    LIFETIME: 'ka.einmalig',
+    SIX_MONTH: 'ka.proHalbjahr',
+    THREE_MONTH: 'ka.proQuartal',
+    WEEKLY: 'ka.proWoche',
+  }[art]
+  return schluessel ? t(schluessel) : ''
 }
 
 /* ---------------------------------------------------------------- *
@@ -207,16 +210,10 @@ export async function kaufStand() {
 /** Technische Meldungen in etwas übersetzen, das man lesen kann. */
 function lesbar(fehler) {
   const text = String(fehler?.message || '')
-  if (/network|connection|internet/i.test(text)) {
-    return 'Keine Verbindung zum Store. Versuch es gleich nochmal.'
-  }
-  if (/already|owned/i.test(text)) {
-    return 'Dieser Kauf besteht schon. Tipp auf „Käufe wiederherstellen“.'
-  }
-  if (/not allowed|restricted/i.test(text)) {
-    return 'Käufe sind auf diesem Gerät gesperrt (Bildschirmzeit oder Familienfreigabe).'
-  }
-  return text || 'Der Kauf hat nicht geklappt.'
+  if (/network|connection|internet/i.test(text)) return t('ka.keineVerbindung')
+  if (/already|owned/i.test(text)) return t('ka.schonGekauft')
+  if (/not allowed|restricted/i.test(text)) return t('ka.gesperrt')
+  return text || t('ka.nichtGeklappt')
 }
 
 /* ---------------------------------------------------------------- *

@@ -118,13 +118,19 @@ async function baueBild({ k, stufe, ziel, app, adresse }) {
   g.fillText(t(einheit(k, ziel)), 540, 1110)
   g.fillStyle = '#8a7f99'
   g.font = '600 40px system-ui, sans-serif'
-  g.fillText(`Gelernt mit ${app} · ${adresse}`, 540, 1250)
+  g.fillText(t('ml9.gelerntMit', { app, adresse }), 540, 1250)
 
   return new Promise((ok) => c.toBlob(ok, 'image/png'))
 }
 
 async function teilen(daten) {
-  const text = `${t(STUFEN[daten.stufe].name)}-Meilenstein: ${daten.ziel.toLocaleString(gebiet())} ${t(einheit(daten.k, daten.ziel))} mit ${daten.app}! ${daten.adresse}`
+  const text = t('ml9.teilenText', {
+    stufe: t(STUFEN[daten.stufe].name),
+    ziel: daten.ziel.toLocaleString(gebiet()),
+    einheit: t(einheit(daten.k, daten.ziel)),
+    app: daten.app,
+    adresse: daten.adresse,
+  })
   try {
     const blob = await baueBild(daten)
     const datei = new File([blob], `meilenstein-${daten.k.id}-${daten.ziel}.png`, { type: 'image/png' })
@@ -166,7 +172,7 @@ export default function Meilensteine({ werte, app, adresse }) {
     setMeldung('')
     const r = await teilen({ ...offen, app, adresse })
     if (r === 'kopiert') setMeldung(t('msm.textKopiertFueg'))
-    if (r === 'geladen') setMeldung('Bild gespeichert.')
+    if (r === 'geladen') setMeldung(t('ml9.bildGespeichert'))
   }
 
   return (
@@ -244,7 +250,7 @@ export default function Meilensteine({ werte, app, adresse }) {
               Teilen
             </button>
             <button type="button" className="btn-plain ms-zu" onClick={() => setOffen(null)}>
-              Schließen
+              {t('ml9.schliessen')}
             </button>
             {meldung && <p className="ms-meldung">{meldung}</p>}
           </div>

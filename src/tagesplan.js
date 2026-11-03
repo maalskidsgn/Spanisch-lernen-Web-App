@@ -1,3 +1,4 @@
+import { t, text as inhaltsText } from './sprache.js'
 import { heute } from './datum.js'
 // Der Tagesplan: aus allem, was ansteht, eine überschaubare Session bauen.
 //
@@ -37,8 +38,8 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
     schritte.push({
       art: 'wiederholen',
       anzahl: zuUeben,
-      titel: `${zuUeben} Vokabeln wiederholen`,
-      hinweis: faellig > zuUeben ? `von ${faellig} fälligen` : 'alle fälligen',
+      titel: t('tp9.vokabelnWiederholen', { zahl: zuUeben }),
+      hinweis: faellig > zuUeben ? t('tp9.vonFaelligen', { zahl: faellig }) : t('tp9.alleFaelligen'),
       ziel: 'trainer',
       sekunden: zuUeben * SEK_PRO_WORT,
     })
@@ -48,8 +49,8 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
   if (lektion) {
     schritte.push({
       art: 'lektion',
-      titel: `Lektion „${lektion.titel}“`,
-      hinweis: 'weitermachen',
+      titel: t('tp9.lektionTitel', { titel: inhaltsText(lektion.titel) }),
+      hinweis: t('tp9.weitermachen'),
       ziel: 'lektionen',
       sekunden: SEK_PRO_LEKTION,
     })
@@ -59,8 +60,8 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
   //    Habloo statt einer reinen Karteikarten-App nimmt.
   schritte.push({
     art: 'video',
-    titel: videoOffen ? 'Video weiterschauen' : 'Ein kurzes Video ansehen',
-    hinweis: woerter > 0 ? 'neue Wörter sammeln' : 'mit echten Inhalten lernen',
+    titel: videoOffen ? t('tp9.videoWeiter') : t('tp9.videoKurz'),
+    hinweis: woerter > 0 ? t('tp9.neueWoerter') : t('tp9.echteInhalte'),
     ziel: 'videos',
     sekunden: SEK_PRO_VIDEO,
   })

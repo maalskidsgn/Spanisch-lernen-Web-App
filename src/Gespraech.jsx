@@ -113,7 +113,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
   function wortSammeln(status) {
     if (!wort?.text || !onAddVocab) return setWort(null)
     onAddVocab(
-      [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Gespräch mit Habla' }],
+      [{ wort: wort.text, uebersetzung: wort.de, quelle: t('gs9.gespraechMitHabla') }],
       status
     )
     erfolgston()
@@ -218,7 +218,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
 
       {!leer && (
         <button className="lul-schalter gespr-schalter" onClick={schalteDeutsch}>
-          {deutschAn ? 'Deutsch ausblenden' : 'Deutsch einblenden'}
+          {deutschAn ? t('gs9.deutschAusblenden') : t('gs9.deutschEinblenden')}
         </button>
       )}
 
@@ -277,7 +277,8 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             nur vom Gespräch ab. */}
         {frei !== null && frei <= 5 && !fehler && (
           <p className="gespr-rest">
-            Noch {frei} {frei === 1 ? 'Nachricht' : 'Nachrichten'} heute{!istApp && ' · unbegrenzt mit Premium'}
+            {t('gs9.nochNachrichten', { zahl: frei, einheit: frei === 1 ? t('gs9.nachricht') : t('gs9.nachrichten') })}
+            {!istApp && ' · ' + t('gs9.unbegrenztPremium')}
           </p>
         )}
         <div ref={endeRef} />
@@ -325,7 +326,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || t('gsm.keineUebersetzungGefunden')}
+              {wort.laedt ? t('gs9.uebersetze') : wort.de || t('gsm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button

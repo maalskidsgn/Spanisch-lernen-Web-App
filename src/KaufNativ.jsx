@@ -66,7 +66,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
     try {
       const hat = await stelleWiederHer()
       if (!hat) {
-        setHinweis(`Auf diesem ${laden}-Konto ist kein Kauf hinterlegt.`)
+        setHinweis(t('kn.keinKauf', { laden }))
         return
       }
       setHinweis(t('knm.kaufGefundenWird'))
@@ -121,14 +121,14 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
             </div>
 
             <button className="kn-kaufen" onClick={kaufen} disabled={Boolean(laeuft) || !gewaehlt}>
-              {laeuft === 'kauf' ? 'Einen Moment …' : 'Jetzt holen'}
+              {laeuft === 'kauf' ? t('kn.einenMoment') : t('kn.jetztHolen')}
             </button>
 
             {/* Apple verlangt diesen Knopf in jeder App mit Käufen:
                 Wer das Handy wechselt, muss ohne Support an seinen
                 bezahlten Zugang kommen. */}
             <button className="kn-wieder" onClick={wiederherstellen} disabled={Boolean(laeuft)}>
-              {laeuft === 'wieder' ? 'Wird gesucht …' : 'Käufe wiederherstellen'}
+              {laeuft === 'wieder' ? t('kn.wirdGesucht') : t('kn.kaeufeWiederherstellen')}
             </button>
           </>
         )}

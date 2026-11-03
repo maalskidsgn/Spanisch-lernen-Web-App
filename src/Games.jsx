@@ -164,7 +164,7 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
       <p>{text}</p>
       <p className="bonus-note">
         +{XP.SPIEL} Bonus-XP
-        {woerter.length > 0 && ` · ${woerter.length} Wörter eine Stufe weiter`}
+        {woerter.length > 0 && ' · ' + t('sp.stufeWeiter', { zahl: woerter.length })}
       </p>
       <button onClick={onClose}>{t('sp.zurueckZumTrainer')}</button>
     </div>
@@ -226,7 +226,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
   if (fertig) {
     return (
       <SpielFertig
-        text={`Alle ${anzahl} Paare in ${versuche} Versuchen gefunden!`}
+        text={t('sp.allePaareGefunden', { zahl: anzahl, versuche })}
         woerter={woerter}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -313,7 +313,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
   if (fertig) {
     return (
       <SpielFertig
-        text={`Alle ${paare.length} Wortpaare verbunden!`}
+        text={t('sp.alleWortpaareVerbunden', { zahl: paare.length })}
         woerter={paare.map((p) => p.es)}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -527,7 +527,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
   if (alleGefunden) {
     return (
       <SpielFertig
-        text={`Alle ${platziert.length} Wörter im Gitter gefunden!`}
+        text={t('sp.alleWoerterGefunden', { zahl: platziert.length })}
         woerter={platziert.map((w) => w.es)}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -683,8 +683,12 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
       <>
         {xpAnzeige}
         <SpielFertig
-          text={`${punkte} Punkte · ${richtig} richtig, ${falsch} falsch` +
-            (neuerRekord ? ' · Neuer Rekord!' : rekordVorher ? ` · Rekord ${rekordVorher}` : '')}
+          text={t('sp.punkteBilanz', { punkte, richtig, falsch }) +
+            (neuerRekord
+              ? t('sp.neuerRekord')
+              : rekordVorher
+                ? t('sp.rekord', { zahl: rekordVorher })
+                : '')}
           woerter={woerter}
           onGespielt={onGespielt}
           onClose={onClose}
@@ -704,7 +708,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
           <span><b>{rest}</b> s</span>
           <span><b>{punkte}</b> {t('spk.punkte')}</span>
           <span className={serie >= 3 ? 'blitz-serie heiss' : 'blitz-serie'}>
-            {serie >= 3 ? `${serie}er-Serie · ×2` : `Serie ${serie}`}
+            {serie >= 3 ? t('sp.serieHeiss', { zahl: serie }) : t('sp.serie', { zahl: serie })}
           </span>
         </div>
       </div>
@@ -745,7 +749,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
   if (!wort) {
     return (
       <SpielFertig
-        text={`${geloest.length} von ${runde.length} Wörtern erraten`}
+        text={t('sp.woerterErraten', { zahl: geloest.length, gesamt: runde.length })}
         woerter={geloest}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -783,7 +787,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
     <>
       {xpAnzeige}
       <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
-      <div className="galgen-leben" aria-label={`${GALGEN_LEBEN - fehler} Versuche übrig`}>
+      <div className="galgen-leben" aria-label={t('sp.versucheUebrig', { zahl: GALGEN_LEBEN - fehler })}>
         {Array.from({ length: GALGEN_LEBEN }, (_, i) => (
           <span key={i} className={'galgen-herz' + (i < GALGEN_LEBEN - fehler ? '' : ' weg')}>♥</span>
         ))}
@@ -853,7 +857,7 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
   if (!wort) {
     return (
       <SpielFertig
-        text={`${runde.length} Wörter richtig zusammengesetzt`}
+        text={t('sp.richtigZusammengesetzt', { zahl: runde.length })}
         woerter={fertigWoerter}
         onGespielt={onGespielt}
         onClose={onClose}

@@ -73,6 +73,9 @@ export function setzeSprache(neu) {
     /* dann gilt die Wahl eben nur für diese Sitzung */
   }
   setzeLangAttribut(neu)
+  // Die Pruefskripte laufen in Node und schalten hier ebenfalls um.
+  // Dort gibt es kein window - und ohne Zuhoerer auch nichts zu melden.
+  if (typeof window === 'undefined') return
   window.dispatchEvent(new CustomEvent('sprache'))
 }
 
@@ -145,11 +148,20 @@ export function vokabel(objekt) {
   return VOKABELN[objekt.es] ?? objekt.de ?? ''
 }
 
-/** Dasselbe für Beispielsätze und Dialogzeilen. */
+/**
+ * Dasselbe für Beispielsätze und Dialogzeilen.
+ *
+ * Nachschlagen zuerst über das spanische Wort - das ist eindeutig,
+ * waehrend derselbe deutsche Satz an zwei Stellen stehen kann. Wo
+ * es dort nichts gibt, zaehlt der deutsche Text als Schluessel:
+ * Die Feed-Karten zum Beispiel wurden als Texte gesammelt, nicht
+ * als Saetze, und standen deshalb auf Englisch deutsch da.
+ */
 export function satz(objekt, spanischFeld = 'beispielEs', deutschFeld = 'beispielDe') {
   if (!objekt) return ''
-  if (aktuell === 'de') return objekt[deutschFeld] ?? ''
-  return SAETZE[objekt[spanischFeld]] ?? objekt[deutschFeld] ?? ''
+  const deutsch = objekt[deutschFeld] ?? ''
+  if (aktuell === 'de') return deutsch
+  return SAETZE[objekt[spanischFeld]] ?? TEXTE[deutsch] ?? deutsch
 }
 
 /**

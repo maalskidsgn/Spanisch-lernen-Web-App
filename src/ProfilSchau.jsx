@@ -3,13 +3,13 @@ import { ladeProfil, blockiere } from './rangliste.js'
 import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
-import { useTexte } from './sprache.js'
+import { useTexte, gebiet } from './sprache.js'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
   if (!datum) return ''
   const d = new Date(datum + 'T12:00:00')
-  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+  return d.toLocaleDateString(gebiet(), { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 /** Wie lange ist jemand schon dabei? Für die Zeile unter dem Datum. */
@@ -98,7 +98,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
 
             <dl className="ps-zahlen">
               <div>
-                <dd>{profil.xp.toLocaleString('de-DE')}</dd>
+                <dd>{profil.xp.toLocaleString(gebiet())}</dd>
                 <dt>XP gesamt</dt>
               </div>
               <div>
@@ -106,11 +106,11 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                 <dt>{t('ps.tageAmStueck')}</dt>
               </div>
               <div>
-                <dd>{profil.xp_woche.toLocaleString('de-DE')}</dd>
+                <dd>{profil.xp_woche.toLocaleString(gebiet())}</dd>
                 <dt>{t('ps.dieseWoche')}</dt>
               </div>
               <div>
-                <dd>{profil.xp_monat.toLocaleString('de-DE')}</dd>
+                <dd>{profil.xp_monat.toLocaleString(gebiet())}</dd>
                 <dt>{t('ps.dieserMonat')}</dt>
               </div>
             </dl>

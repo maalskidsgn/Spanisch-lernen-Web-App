@@ -1,3 +1,5 @@
+import { vokabel, satz, text } from './sprache.js'
+
 // ============================================================
 //  Das Lektions-Schema
 // ============================================================
@@ -9047,23 +9049,23 @@ export function baueOptionen(schritt, lektion) {
   // sich nicht aus Wortlisten ziehen. Gemischt wird trotzdem: Sonst
   // steht die richtige beim zweiten Anlauf wieder an derselben
   // Stelle, und man merkt sich die Position statt des Inhalts.
-  if (schritt.typ === 'verstehen') return mischen(schritt.frage.optionen)
+  if (schritt.typ === 'verstehen') return mischen(schritt.frage.optionen.map(text))
 
   if (schritt.typ === 'rueckblick') {
     // Falsche Antworten aus der AKTUELLEN Lektion – so muss man
     // Altes und Neues auseinanderhalten
     const falsche = mischen(
-      lektion.items.map((i) => i.de).filter((d) => d !== schritt.item.de)
+      lektion.items.map(vokabel).filter((d) => d !== vokabel(schritt.item))
     ).slice(0, 3)
-    return mischen([schritt.item.de, ...falsche])
+    return mischen([vokabel(schritt.item), ...falsche])
   }
   if (schritt.typ === 'hoeren' || schritt.typ === 'dialogquiz') {
     // Die falschen Antworten sind die deutschen Saetze der ANDEREN
     // Dialogzeilen – nah genug am Thema, um zum Nachdenken zu zwingen
     const falsche = mischen(
-      schritt.dialog.filter((z) => z !== schritt.zeile).map((z) => z.de)
+      schritt.dialog.filter((z) => z !== schritt.zeile).map((z) => satz(z, 'es', 'de'))
     ).slice(0, 3)
-    return mischen([schritt.zeile.de, ...falsche])
+    return mischen([satz(schritt.zeile, 'es', 'de'), ...falsche])
   }
   if (schritt.typ === 'luecke') {
     const falsche = mischen(
@@ -9071,10 +9073,13 @@ export function baueOptionen(schritt, lektion) {
     ).slice(0, 3)
     return mischen([schritt.luecke.loesung, ...falsche])
   }
-  const feld = schritt.richtung === 'es-de' ? 'de' : 'es'
-  const richtig = schritt.item[feld]
+  // Die deutsche Seite muss durch vokabel() laufen: In Lessons.jsx
+  // steht die richtige Antwort uebersetzt da. Roh deutsche Optionen
+  // hiessen, dass die richtige Antwort gar nicht in der Liste steht.
+  const aufDeutsch = schritt.richtung === 'es-de'
+  const wert = (i) => (aufDeutsch ? vokabel(i) : i.es)
   const falsche = mischen(
-    lektion.items.filter((i) => i !== schritt.item).map((i) => i[feld])
+    lektion.items.filter((i) => i !== schritt.item).map(wert)
   ).slice(0, 3)
-  return mischen([richtig, ...falsche])
+  return mischen([wert(schritt.item), ...falsche])
 }

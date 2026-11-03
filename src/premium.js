@@ -1,3 +1,4 @@
+import { t } from './sprache.js'
 // Die eine Wahrheit darüber, ob jemand Premium hat.
 //
 // Alles im Programm fragt hier – nie irgendwo selbst nach. Sobald
@@ -155,10 +156,10 @@ export function usePremium() {
  * einmal klemmt: Ein Aufruf von hier führt wieder zu Stripe.
  */
 export async function zurKasse() {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(t('al.bitteAnmelden'))
   const { data: sitzung } = await db.auth.getSession()
   const token = sitzung?.session?.access_token
-  if (!token) throw new Error('Bitte zuerst anmelden.')
+  if (!token) throw new Error(t('al.bitteAnmelden'))
 
   const res = await fetch(API_URL + '/api/bezahlung/start', {
     method: 'POST',
@@ -166,16 +167,16 @@ export async function zurKasse() {
     body: JSON.stringify({ herkunft: window.location.origin, art: 'hosted' }),
   })
   const daten = await res.json()
-  if (!res.ok) throw new Error(daten.error || 'Bezahlung konnte nicht gestartet werden.')
+  if (!res.ok) throw new Error(daten.error || t('pr9.bezahlungNichtGestartet'))
   window.location.href = daten.url
 }
 
 /** Öffnet Stripes Verwaltungsseite zum Kündigen oder Kartenwechsel. */
 export async function aboVerwalten() {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(t('al.bitteAnmelden'))
   const { data: sitzung } = await db.auth.getSession()
   const token = sitzung?.session?.access_token
-  if (!token) throw new Error('Bitte zuerst anmelden.')
+  if (!token) throw new Error(t('al.bitteAnmelden'))
 
   const res = await fetch(API_URL + '/api/bezahlung/verwalten', {
     method: 'POST',
@@ -183,7 +184,7 @@ export async function aboVerwalten() {
     body: JSON.stringify({ herkunft: window.location.origin }),
   })
   const daten = await res.json()
-  if (!res.ok) throw new Error(daten.error || 'Verwaltung konnte nicht geöffnet werden.')
+  if (!res.ok) throw new Error(daten.error || t('pr9.verwaltungNichtGeoeffnet'))
   window.location.href = daten.url
 }
 

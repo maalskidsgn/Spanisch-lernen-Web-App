@@ -12,12 +12,12 @@ export const TUTOREN = [
     foto: '/tutoren/yulibeth.jpg',
     herkunft: { flagge: '🇪🇸', land: null }, // TODO Land aus Preply
     verifiziert: true,
-    ueberschrift: 'Spanisch mit einer Muttersprachlerin – locker sprechen, sicher werden',
+    ueberschrift: 'tu9.yulibethUeberschrift',
     sprachen: [
-      { name: 'Spanisch', stufe: 'Muttersprache' },
-      { name: 'Englisch', stufe: null }, // TODO Niveau aus Preply
+      { name: 'tu9.spanisch', stufe: 'tu9.muttersprache' },
+      { name: 'tu9.englisch', stufe: null }, // TODO Niveau aus Preply
     ],
-    schwerpunkte: ['Konversation', 'Anfänger', 'Alltagsspanisch'],
+    schwerpunkte: ['tu9.konversation', 'tu9.anfaenger', 'tu9.alltagsspanisch'],
     bewertung: null, // z. B. 4.9
     bewertungen: null, // Anzahl
     lektionen: null, // Unterrichtsstunden gesamt

@@ -1,4 +1,4 @@
-import { gebiet } from './sprache.js'
+import { t, gebiet } from './sprache.js'
 
 // Spaced Repetition = "verteiltes Wiederholen".
 // Jede Vokabel steckt in einer Stufe (wie Fächer in einem Karteikasten).
@@ -168,10 +168,10 @@ export function isDue(entry) {
 export function formatDue(entry) {
   if (entry.status === 'gewusst') return '—'
   const diff = (entry.due ?? 0) - Date.now()
-  if (diff <= 0) return 'jetzt fällig'
-  if (diff < DAY_MS) return 'heute'
+  if (diff <= 0) return t('srs.jetztFaellig')
+  if (diff < DAY_MS) return t('srs.heute')
   const days = Math.round(diff / DAY_MS)
-  if (days === 1) return 'morgen'
-  if (days < 31) return `in ${days} Tagen`
+  if (days === 1) return t('srs.morgen')
+  if (days < 31) return t('srs.inTagen', { zahl: days })
   return new Date(entry.due).toLocaleDateString(gebiet())
 }

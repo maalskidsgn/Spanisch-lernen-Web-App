@@ -14,22 +14,24 @@ const LAENGEN = [
 // Sprachniveaus. Die Beschreibung sagt, was einen erwartet –
 // YouTube kennt keine Niveaus, wir steuern über Suchwörter und Länge.
 const NIVEAUS = [
-  { wert: '', label: 'vs.egal', hilfe: 'Alles gemischt' },
-  { wert: 'A1', label: 'A1', hilfe: 'Kurze Erklärvideos, einfache Sprache' },
-  { wert: 'A2', label: 'A2', hilfe: 'Einfach erklärt, überschaubare Länge' },
-  { wert: 'B1', label: 'B1', hilfe: 'Normale Erklärvideos' },
-  { wert: 'B2', label: 'B2', hilfe: 'Alltagssprache, längere Beiträge' },
+  { wert: '', label: 'vs.egal', hilfe: 'vs9.allesGemischt' },
+  { wert: 'A1', label: 'A1', hilfe: 'vs9.hilfeA1' },
+  { wert: 'A2', label: 'A2', hilfe: 'vs9.hilfeA2' },
+  { wert: 'B1', label: 'B1', hilfe: 'vs9.hilfeB1' },
+  { wert: 'B2', label: 'B2', hilfe: 'vs9.hilfeB2' },
   { wert: 'C1', label: 'C1', hilfe: 'vsm.podcastsUndInterviews' },
   { wert: 'C2', label: 'C2', hilfe: 'vsm.debattenUndAnalysen' },
 ]
 
+// Schlüssel, nicht Texte: gesucht wird mit dem übersetzten Begriff,
+// damit Englischsprachige keine deutschen Suchwörter abschicken.
 const IDEEN = [
-  'Gesunde Ernährung',
-  'Schlaf verbessern',
-  'Stoizismus',
+  'vs9.ideeErnaehrung',
+  'vs9.ideeSchlaf',
+  'vs9.ideeStoizismus',
   'vsm.sportFuerAnfaenger',
-  'Produktivität',
-  'Reisen in Spanien',
+  'vs9.ideeProduktivitaet',
+  'vs9.ideeReisen',
 ]
 
 /**
@@ -88,7 +90,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
         (niveau ? '&niveau=' + niveau : '')
       const res = await fetch(adresse)
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || t('vs9.sucheFehlgeschlagen'))
       setTreffer((daten.results ?? []).slice(0, 6))
       // Der Server sagt Bescheid, wenn er den Suchbegriff nicht ins
       // Spanische uebersetzen konnte. Dann stehen dort womoeglich
@@ -137,7 +139,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
             placeholder={t('vs.zBGesunde')}
           />
           <button type="submit" className="btn" disabled={laedt || !begriff.trim()}>
-            {laedt ? 'Sucht …' : 'Suchen'}
+            {laedt ? t('vs9.sucht') : 'Suchen'}
           </button>
         </form>
 
@@ -186,7 +188,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
         {!treffer && !laedt && !fehler && (
           <div className="suche-ideen">
             {IDEEN.map((idee) => (
-              <button key={idee} className="chip" onClick={() => suchen(idee)}>
+              <button key={idee} className="chip" onClick={() => suchen(t(idee))}>
                 {t(idee)}
               </button>
             ))}
@@ -197,7 +199,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
         {fehler && <p className="error">{fehler}</p>}
         {treffer?.length === 0 && (
           <p className="suche-hinweis">
-            Nichts gefunden. Versuch es mit einem anderen Wort.
+            {t('vs9.nichtsGefunden')}
           </p>
         )}
 

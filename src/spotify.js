@@ -1,3 +1,4 @@
+import { t } from './sprache.js'
 // Anmeldung bei Spotify – nach dem PKCE-Verfahren.
 //
 // Warum PKCE? Der übliche Weg verlangt ein "Client Secret". Das
@@ -166,9 +167,9 @@ async function hole(pfad, token) {
   })
   if (res.status === 401) {
     trenneSpotify()
-    throw new Error('Die Verbindung zu Spotify ist abgelaufen. Bitte neu verbinden.')
+    throw new Error(t('sp9.spotifyAbgelaufen'))
   }
-  if (!res.ok) throw new Error('Spotify antwortet nicht (' + res.status + ')')
+  if (!res.ok) throw new Error(t('sp9.spotifyAntwortetNicht') + ' (' + res.status + ')')
   return res.json()
 }
 

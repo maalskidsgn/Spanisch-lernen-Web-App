@@ -386,7 +386,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               className={sitzt ? 'btn abschluss-weiter' : 'btn-outline'}
               onClick={() => setLektion(null)}
             >
-              {sitzt ? 'Weiter geht’s' : 'Zurück zur Übersicht'}
+              {sitzt ? t('ls9.weiterGehtS') : t('ls9.zurueckZurUebersicht')}
             </button>
           </div>
         </div>
@@ -443,7 +443,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                   und merkt sich eine Aussprache, die er sich selbst
                   ausgedacht hat. Der Satz bleibt auf Tipp: Zwei
                   Aufnahmen hintereinander wuerden sich abwuergen. */}
-              <HoerKnopf text={schritt.item.es} titel="Anhören" vonSelbst />
+              <HoerKnopf text={schritt.item.es} titel={t('ls9.anhoeren')} vonSelbst />
             </div>
             <div className="flash-translation">{vokabel(schritt.item)}</div>
             {schritt.item.beispielEs && (
@@ -452,7 +452,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                   {hebeHervor(schritt.item.beispielEs, schritt.item.es)}
                   <HoerKnopf
                     text={schritt.item.beispielEs}
-                    titel="Satz anhören"
+                    titel={t('ls9.satzAnhoeren')}
                     klein
                   />
                 </div>
@@ -483,7 +483,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'quiz' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">
-              ✏️ {schritt.richtung === 'es-de' ? 'Was heißt…' : 'Wie sagt man…'}
+              ✏️ {schritt.richtung === 'es-de' ? t('ls9.wasHeisst') : t('ls9.wieSagtMan')}
             </p>
             <div className="flash-word">
               {schritt.richtung === 'es-de' ? schritt.item.es : vokabel(schritt.item)}
@@ -492,7 +492,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               runde={index}
               optionen={optionen}
               feedback={feedback}
-              richtig={schritt.richtung === 'es-de' ? schritt.item.de : schritt.item.es}
+              richtig={schritt.richtung === 'es-de' ? vokabel(schritt.item) : schritt.item.es}
               onAntwort={antworten}
             />
           </div>
@@ -529,7 +529,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                 <path d="M11 5 6 9H3v6h3l5 4z" />
                 <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" />
               </svg>
-              Anhören
+              {t('ls9.anhoeren')}
             </button>
             <QuizOptionen
               runde={index}
@@ -561,7 +561,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               runde={index}
               optionen={optionen}
               feedback={feedback}
-              richtig={schritt.frage.loesung}
+              richtig={uebersetzt(schritt.frage.loesung)}
               onAntwort={antworten}
             />
           </div>
@@ -977,10 +977,10 @@ function DialogChat({ dialog, onWeiter }) {
       {alleDa && (
         <div className="flash-actions dialog-actions">
           <button className="btn-plain" onClick={gespraech}>
-            {laeuft ? '⏹ Stopp' : '▶ Gespräch anhören'}
+            {laeuft ? t('ls9.stopp') : t('ls9.gespraechAnhoeren')}
           </button>
           <button className="btn-plain" onClick={() => setAlleDe(!alleDe)}>
-            {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung zeigen'}
+            {alleDe ? t('ls9.uebersetzungAusblenden') : t('ls9.uebersetzungZeigen')}
           </button>
           <button onClick={onWeiter}>{t('ls.weiter')}</button>
         </div>
@@ -1140,7 +1140,7 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
 
       <div className="flash-actions">
         <button onClick={pruefen} disabled={!fertig || geprueft !== null}>
-          Prüfen
+          {t('ls9.pruefen')}
         </button>
       </div>
     </div>
@@ -1245,28 +1245,29 @@ function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
  * ob nach dieser Karte noch zwei kommen oder ob es weitergeht.
  */
 function WissensKarte({ karten, nummer, istStation, onWeiter }) {
+  const t = useTexte()
   const tipp = karten[nummer]
   const letzte = nummer === karten.length - 1
 
   return (
     <div className="flashcard info-card">
       <span className="info-icon">{tipp.emoji}</span>
-      <p className="lesson-hint">{istStation ? 'Rückblick' : 'Gut zu wissen'}</p>
+      <p className="lesson-hint">{istStation ? t('ls5.rueckblick') : t('ls.gutZuWissen')}</p>
 
       <div className="info-einzeln">
         <h3 className="info-title">{uebersetzt(tipp.titel)}</h3>
-        <p className="info-text">{mitChips(tipp.text)}</p>
+        <p className="info-text">{mitChips(uebersetzt(tipp.text))}</p>
       </div>
 
       {karten.length > 1 && (
-        <div className="info-punkte" aria-label={`Karte ${nummer + 1} von ${karten.length}`}>
+        <div className="info-punkte" aria-label={t('ls5.karteVon', { nr: nummer + 1, gesamt: karten.length })}>
           {karten.map((_, i) => (
             <i key={i} className={i === nummer ? 'punkt-aktiv' : ''} />
           ))}
         </div>
       )}
 
-      <button onClick={onWeiter}>{letzte ? 'Verstanden' : 'Weiter'}</button>
+      <button onClick={onWeiter}>{letzte ? t('ls5.verstanden') : t('app.weiter')}</button>
     </div>
   )
 }
@@ -1401,7 +1402,7 @@ function HoerSzene({ szene, onWeiter }) {
           <span />
         </div>
         <div className="hoerszene-sprecher">
-          {spricht ? <><b>{spricht}</b> spricht</> : genugGehoert ? 'Gespräch zu Ende' : t('lsm.gleichGehtEs')}
+          {spricht ? <><b>{spricht}</b> spricht</> : genugGehoert ? t('ls9.gespraechZuEnde') : t('lsm.gleichGehtEs')}
         </div>
       </div>
 
@@ -1412,10 +1413,10 @@ function HoerSzene({ szene, onWeiter }) {
       <div className="hoerszene-knoepfe">
         <button className="hoeren-knopf" onClick={starten}>
           <IconLautsprecher groesse={22} />
-          {laeuft ? 'Anhalten' : weiteste >= 0 ? 'Noch einmal' : 'Anhören'}
+          {laeuft ? t('ls9.anhalten') : weiteste >= 0 ? t('ls9.nochEinmal') : t('ls9.anhoeren')}
         </button>
         <button onClick={onWeiter} disabled={!genugGehoert}>
-          {genugGehoert ? 'Zu den Fragen' : 'Erst zuhören …'}
+          {genugGehoert ? t('ls9.zuDenFragen') : t('ls9.erstZuhoeren')}
         </button>
       </div>
     </div>
@@ -1449,7 +1450,7 @@ function NochmalHoeren({ dialog }) {
   return (
     <button className="nochmal-hoeren" onClick={schalten}>
       <IconLautsprecher groesse={16} />
-      {laeuft ? 'Anhalten' : t('lsm.nochEinmalHoeren')}
+      {laeuft ? t('ls9.anhalten') : t('lsm.nochEinmalHoeren')}
     </button>
   )
 }
@@ -1470,7 +1471,7 @@ function Abschrift({ szene, onWeiter }) {
     <div className="flashcard abschrift">
       <p className="lesson-hint">{t('ls.dieAbschriftJetzt')}</p>
       <button className="abschrift-schalter" onClick={() => setAlleDe((a) => !a)}>
-        {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung einblenden'}
+        {alleDe ? t('ls9.uebersetzungAusblenden') : t('ls9.uebersetzungEinblenden')}
       </button>
 
       <ol className="abschrift-liste">
@@ -1483,7 +1484,7 @@ function Abschrift({ szene, onWeiter }) {
                 <HoerKnopf
                   text={z.es}
                   stimme={stimmeImDialog(szene.dialog, z.sprecher)}
-                  titel="Diese Zeile anhören"
+                  titel={t('ls9.zeileAnhoeren')}
                   klein
                 />
               </p>

@@ -19,7 +19,7 @@ import {
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
-import { useTexte, SPRACHEN, sprache, setzeSprache } from './sprache.js'
+import { useTexte, SPRACHEN, sprache, setzeSprache, gebiet } from './sprache.js'
 
 // Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
 // Einstellungen. Hier kommen später die sozialen Sachen dazu –
@@ -123,7 +123,7 @@ export default function Settings({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const gueltigBis = bis ? bis.toLocaleDateString('de-DE') : ''
+  const gueltigBis = bis ? bis.toLocaleDateString(gebiet()) : ''
 
   // Das Bezahlformular läuft jetzt IN der App (Bezahlen.jsx) statt
   // auf einer Stripe-Seite. Fehlt dem Server der öffentliche
@@ -213,7 +213,7 @@ export default function Settings({
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result)
-        if (data.app !== 'spanisch-lernen') throw new Error('Falsche Datei')
+        if (data.app !== 'spanisch-lernen') throw new Error(t('se9.falscheDatei'))
 
         if (data.daten) {
           // Neues Format (Version 2): fertige Werte je Schluessel
@@ -319,14 +319,14 @@ export default function Settings({
     try {
       const { data: sitzung } = await db.auth.getSession()
       const token = sitzung?.session?.access_token
-      if (!token) throw new Error('Bitte zuerst anmelden.')
+      if (!token) throw new Error(t('se9.bitteZuerstAnmelden'))
 
       const res = await fetch(API_URL + '/api/konto/loeschen', {
         method: 'POST',
         headers: { Authorization: 'Bearer ' + token },
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Löschen fehlgeschlagen.')
+      if (!res.ok) throw new Error(daten.error || t('se9.loeschenFehlgeschlagen'))
 
       localStorage.clear()
       await db.auth.signOut()
@@ -350,7 +350,7 @@ export default function Settings({
             className="pf-bild"
             onClick={() => bildFeld.current?.click()}
             disabled={bildLaeuft || !nutzer}
-            aria-label={bild ? 'Profilbild ändern' : 'Profilbild hinzufügen'}
+            aria-label={bild ? t('se9.profilbildAendern') : t('se9.profilbildHinzufuegen')}
           >
             {bild ? (
               <img src={bildAdresse(bild)} alt="" />
@@ -363,7 +363,7 @@ export default function Settings({
               {bildLaeuft ? '…' : '✎'}
             </span>
           </button>
-          <span className="pf-level" title={`Level ${level}`}>{level}</span>
+          <span className="pf-level" title={t('se9.levelNr', { zahl: level })}>{level}</span>
           <input
             ref={bildFeld}
             type="file"
@@ -400,7 +400,7 @@ export default function Settings({
         )}
 
         <dl className="pf-zahlen">
-          <div><dt>XP</dt><dd>{progress.xp.toLocaleString('de-DE')}</dd></div>
+          <div><dt>XP</dt><dd>{progress.xp.toLocaleString(gebiet())}</dd></div>
           <div><dt>{t('st2.tageAmStueck')}</dt><dd>{progress.streak}</dd></div>
           <div><dt>{t('st2.woerter')}</dt><dd>{counts.woerter}</dd></div>
           <div><dt>{t('st2.videos')}</dt><dd>{counts.videos}</dd></div>
@@ -424,8 +424,7 @@ export default function Settings({
         <section className="pf-kasten pf-duelle">
           <h2 className="pf-kasten-titel">{t('st2.duell')}</h2>
           <p className="pf-kasten-text">
-            Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr
-            trifft, gewinnt.
+            {t('se9.duellErklaerung2')}
           </p>
           <DuellKasten addXp={addXp} />
         </section>
@@ -473,7 +472,7 @@ export default function Settings({
             <>
               <p className="settings-hint">{t('st3.ohneKontoLiegen')}</p>
               <button className="btn" onClick={onLoginOeffnen}>
-                Anmelden oder Konto anlegen
+                {t('se9.anmeldenOderKonto')}
               </button>
             </>
           )}
@@ -517,9 +516,9 @@ export default function Settings({
           {preis && !premium && !istApp && (
             <div className="price-options">
               <div className="price-row price-best">
-                <span>{preis.zeitraum === 'year' ? 'Jährlich' : 'Monatlich'}</span>
+                <span>{preis.zeitraum === 'year' ? t('se9.jaehrlich') : 'Monatlich'}</span>
                 <b>
-                  {preis.betrag.toLocaleString('de-DE', {
+                  {preis.betrag.toLocaleString(gebiet(), {
                     style: 'currency',
                     currency: preis.waehrung,
                   })}
@@ -545,7 +544,7 @@ export default function Settings({
                   nicht gibt – und eine Fehlermeldung zeigen. */}
               {!istApp && !TESTPHASE_ALLES_FREI && (
                 <button onClick={verwalten} disabled={laedt}>
-                  {laedt ? 'Öffnet …' : 'Abo verwalten'}
+                  {laedt ? t('se9.oeffnet') : t('se9.aboVerwalten')}
                 </button>
               )}
               {/* Nur während der Testphase: den Bezahlweg ausprobieren,
@@ -562,7 +561,7 @@ export default function Settings({
                     neuLaden()
                   }}
                 >
-                  Bezahlung testen
+                  {t('se9.bezahlungTesten')}
                 </button>
               )}
             </>
@@ -572,11 +571,11 @@ export default function Settings({
             <p className="abo-status">{t('st3.einBestehendesPremium')}</p>
           ) : bezahlbar ? (
             <button onClick={kaufen} disabled={laedt}>
-              {laedt ? 'Weiterleitung …' : 'Premium holen'}
+              {laedt ? t('se9.weiterleitung') : t('se9.premiumHolen')}
             </button>
           ) : (
             <button disabled title={t('st2.bezahlungWirdGerade')}>
-              Demnächst
+              {t('se9.demnaechst')}
             </button>
           )}
 
@@ -704,9 +703,9 @@ export default function Settings({
       <Klapper titel={t('st4.rechtliches')} hinweis={t('st4.rechtlichesHinweis')}>
       <div className="settings-card">
         {[
-          ['impressum', 'Impressum'],
-          ['datenschutz', 'Datenschutzerklärung'],
-          ['agb', 'AGB & Widerrufsrecht'],
+          ['impressum', t('se9.impressum')],
+          ['datenschutz', t('se9.datenschutz')],
+          ['agb', t('se9.agb')],
         ].map(([kennung, text]) => (
           <button key={kennung} className="leitfaden-zeile" onClick={() => onRecht(kennung)}>
             {/* Die Klasse gibt dem Text flex:1 – ohne sie klebt der
@@ -806,7 +805,7 @@ export default function Settings({
             <div className="row-hint">{t('st3.loeschtVokabelnFortschritt')}</div>
           </div>
           <button className="btn-small btn-danger" onClick={resetData} disabled={resetLaeuft}>
-            {resetLaeuft ? 'Läuft …' : 'Zurücksetzen'}
+            {resetLaeuft ? t('se9.laeuft') : t('se9.zuruecksetzen')}
           </button>
         </div>
 
@@ -823,7 +822,7 @@ export default function Settings({
             onClick={kontoLoeschen}
             disabled={loeschLaeuft}
           >
-            {loeschLaeuft ? 'Löscht …' : 'Konto löschen'}
+            {loeschLaeuft ? t('se9.loescht') : t('se9.kontoLoeschen')}
           </button>
         </div>
         )}
@@ -852,7 +851,7 @@ function BenutzernameEinstellung({ nutzerId }) {
         key={name ?? ''}
         nutzerId={nutzerId}
         start={name ?? ''}
-        knopf={name ? 'Ändern' : 'Speichern'}
+        knopf={name ? t('se9.aendern') : 'Speichern'}
         onGespeichert={setName}
       />
     </div>

@@ -105,7 +105,7 @@ export default function BereichsIntro({ bereich, rundgang, onWeiter, onFertig })
                 Rundgang beenden
               </button>
               <button className="btn" onClick={letzte ? onFertig : onWeiter}>
-                {letzte ? t('rum.fertigLosGeht') : 'Weiter →'}
+                {letzte ? t('rum.fertigLosGeht') : t('rg9.weiter')}
               </button>
             </>
           ) : (

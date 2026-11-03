@@ -11,18 +11,20 @@ import { neuerText, textSchluessel } from './lesetexte.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken, IconListe, IconPfeil } from './icons.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, sprache } from './sprache.js'
 
 // Dieselben Gebiete wie auf dem Server (server/lesetexte.js).
+// Die Beschriftungen stehen als Schlüssel hier, nicht als Text: t()
+// darf auf Modulebene nicht laufen, sonst friert die Sprache ein.
 const GEBIETE = [
-  ['natur', 'Natur & Tiere'],
-  ['wissenschaft', 'Wissenschaft'],
-  ['geschichte', 'Geschichte'],
-  ['koerper', 'Körper & Gesundheit'],
-  ['weltall', 'Weltall'],
-  ['kultur', 'Kunst & Kultur'],
-  ['laender', 'Länder & Leute'],
-  ['alltag', 'Erstaunliches'],
+  ['natur', 'ltg.natur'],
+  ['wissenschaft', 'ltg.wissenschaft'],
+  ['geschichte', 'ltg.geschichte'],
+  ['koerper', 'ltg.koerper'],
+  ['weltall', 'ltg.weltall'],
+  ['kultur', 'ltg.kultur'],
+  ['laender', 'ltg.laender'],
+  ['alltag', 'ltg.alltag'],
 ]
 
 /** Ein Wort auf seinen Nachschlag-Schlüssel bringen (ohne Satzzeichen). */
@@ -31,9 +33,9 @@ function wortSchluessel(wort) {
 }
 
 const STUFEN = [
-  ['a2', 'A2', 'kurze Sätze'],
-  ['b1', 'B1', 'Alltagssprache'],
-  ['b2', 'B2', 'anspruchsvoll'],
+  ['a2', 'A2', 'lts.a2'],
+  ['b1', 'B1', 'lts.b1'],
+  ['b2', 'B2', 'lts.b2'],
 ]
 
 /**
@@ -161,7 +163,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
           <section className="bereich bereich-wiederholen">
             <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
-              <span>{faellig.length === 1 ? 'Text wartet' : 'Texte warten'}</span>
+              <span>{faellig.length === 1 ? t('lt9.textWartet') : t('lt9.texteWarten')}</span>
             </div>
             <div className="wiederholen-text">
               <h2>{t('lt.heuteWiederlesen')}</h2>
@@ -176,7 +178,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
               onClick={() => setOffenerText(faellig[0].id)}
               disabled={faellig.length === 0}
             >
-              {faellig.length > 0 ? 'Lesen' : 'Nichts fällig'}
+              {faellig.length > 0 ? t('lt9.lesen') : t('lt9.nichtsFaellig')}
             </button>
           </section>
         </>
@@ -291,7 +293,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
         <button className="leser-pfeil" onClick={onZurueck} aria-label={t('lt.zurueck')}>
           ←
         </button>
-        <span className="leser-kopf-titel">{sprache === 'es' ? 'Español' : 'Deutsch'}</span>
+        <span className="leser-kopf-titel">{sprache === 'es' ? 'Español' : t('leser.muttersprache')}</span>
         <span className="leser-stufe">{(text.stufe ?? 'b1').toUpperCase()}</span>
       </div>
 
@@ -344,7 +346,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
         <div className="leser-sprachen" role="tablist">
           {[
             ['es', 'Español'],
-            ['de', 'Deutsch'],
+            ['de', t('leser.muttersprache')],
           ].map(([wert, name]) => (
             <button
               key={wert}
@@ -411,7 +413,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || t('ltm.keineUebersetzungGefunden')}
+              {wort.laedt ? t('lt.uebersetzeLaedt') : wort.de || t('ltm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button
@@ -419,14 +421,14 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
                 onClick={() => wortInTrainer('gewusst')}
                 disabled={wort.laedt || !wort.de}
               >
-                Kenne ich
+                {t('lt.kenneIch')}
               </button>
               <button
                 className="btn"
                 onClick={() => wortInTrainer('lernen')}
                 disabled={wort.laedt || !wort.de}
               >
-                ＋ Lernen
+                {t('lt.lernenPlus')}
               </button>
             </div>
           </div>
@@ -491,7 +493,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
     if (premiumLaedt && !premium) return null
     return (
       <div className="list-gen">
-        <PremiumWerbung was="Texte" />
+        <PremiumWerbung was={t('lt9.wasTexte')} />
       </div>
     )
   }
@@ -525,7 +527,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
               disabled={laden}
               onClick={() => setGebiet(gebiet === wert ? '' : wert)}
             >
-              {name}
+              {t(name)}
             </button>
           ))}
         </div>
@@ -541,13 +543,13 @@ function TextGenerator({ texte, setTexte, onFertig }) {
               onClick={() => setStufe(wert)}
             >
               <b>{name}</b>
-              <span>{hilfe}</span>
+              <span>{t(hilfe)}</span>
             </button>
           ))}
         </div>
 
         {/* Eigener Wunsch: ein ganzer Absatz statt nur ein Stichwort */}
-        <p className="sg-schritt"><span>3</span> {t('lt.oderEigenerWunsch')} <small>optional</small></p>
+        <p className="sg-schritt"><span>3</span> {t('lt.oderEigenerWunsch')} <small>{t('lt.optional')}</small></p>
         <textarea
           className="text-wunsch"
           value={thema}
@@ -570,7 +572,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
             {laden ? (
               <>{t('lt.schreibtDenText')}<span className="studio-punkte" /></>
             ) : (
-              'Text erzeugen'
+              t('lt.textErzeugen')
             )}
           </button>
         </div>

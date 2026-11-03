@@ -8,40 +8,35 @@
 
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
+import { t } from './sprache.js'
 
 // ---------------------------------------------------------------
-//  Fehlermeldungen auf Deutsch
+//  Fehlermeldungen in der Sprache des Nutzers
 // ---------------------------------------------------------------
-// Supabase antwortet auf Englisch; hier die häufigsten Fälle übersetzt.
+// Supabase antwortet immer auf Englisch, und zwar technisch. Hier
+// stehen die haeufigsten Faelle als Schluessel - uebersetzt wird
+// erst beim Anzeigen, sonst friert die Sprache beim Laden ein.
 const MELDUNGEN = {
-  'Invalid login credentials': 'E-Mail oder Passwort stimmt nicht.',
-  'User already registered': 'Für diese E-Mail gibt es schon ein Konto. Melde dich einfach an.',
-  'Email not confirmed': 'Bitte bestätige zuerst den Link in deiner E-Mail.',
-  'Password should be at least 6 characters':
-    'Das Passwort braucht mindestens 6 Zeichen.',
-  'Unable to validate email address: invalid format':
-    'Diese E-Mail-Adresse sieht nicht richtig aus.',
-  'For security purposes, you can only request this after 60 seconds.':
-    'Kurz warten – aus Sicherheitsgründen geht das nur einmal pro Minute.',
-  'Signup requires a valid password': 'Bitte gib ein Passwort ein.',
-  'Email rate limit exceeded':
-    'Gerade wurden zu viele E-Mails verschickt. Bitte später noch einmal versuchen.',
+  'Invalid login credentials': 'au.falscheDaten',
+  'User already registered': 'au.schonRegistriert',
+  'Email not confirmed': 'au.nichtBestaetigt',
+  'Password should be at least 6 characters': 'au.passwortZuKurz',
+  'Unable to validate email address: invalid format': 'au.emailUngueltig',
+  'For security purposes, you can only request this after 60 seconds.': 'au.kurzWarten',
+  'Signup requires a valid password': 'au.passwortFehlt',
+  'Email rate limit exceeded': 'au.zuVieleMails',
 }
 
 function uebersetzeFehler(fehler) {
   if (!fehler) return ''
-  const text = fehler.message ?? ''
+  const meldung = fehler.message ?? ''
 
-  if (MELDUNGEN[text]) return MELDUNGEN[text]
+  if (MELDUNGEN[meldung]) return t(MELDUNGEN[meldung])
 
   // Meldungen mit wechselndem Inhalt (z. B. die genannte Adresse)
-  if (/is invalid/.test(text) && /email/i.test(text)) {
-    return 'Diese E-Mail-Adresse wird nicht akzeptiert. Bitte nimm deine richtige Adresse.'
-  }
-  if (/password/i.test(text) && /least/i.test(text)) {
-    return 'Das Passwort braucht mindestens 6 Zeichen.'
-  }
-  return text
+  if (/is invalid/.test(meldung) && /email/i.test(meldung)) return t('au.emailAbgelehnt')
+  if (/password/i.test(meldung) && /least/i.test(meldung)) return t('au.passwortZuKurz')
+  return meldung
 }
 
 // ---------------------------------------------------------------

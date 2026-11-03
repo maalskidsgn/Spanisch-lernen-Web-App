@@ -62,7 +62,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
           setHinweis(
             t('logm.fastGeschafftWir') +
             t('logm.klickeDenLink') +
-            'Schau bitte auch im Spam-Ordner nach, falls nichts ankommt.'
+            t('lg9.schauBitteAuch')
           )
         } else {
           onFertig?.()
@@ -72,7 +72,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
         await passwortVergessen(email)
         setHinweis(
           t('logm.wirHabenDir') +
-          'Schau bitte auch im Spam-Ordner nach, falls nichts ankommt.'
+          t('lg9.schauBitteAuch')
         )
       }
     } catch (f) {

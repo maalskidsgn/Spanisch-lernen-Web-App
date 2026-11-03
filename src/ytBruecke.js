@@ -1,3 +1,4 @@
+import { t } from './sprache.js'
 /**
  * Der YouTube-Player für die App – über eine Seite auf habloo.de.
  *
@@ -31,7 +32,7 @@ const SEITE = 'https://habloo.de/ytplayer.html'
  */
 export function baueBrueckenPlayer(kennung, { videoId, events = {} }) {
   const platz = document.getElementById(kennung)
-  if (!platz) throw new Error('Kein Platz für den Player gefunden.')
+  if (!platz) throw new Error(t('yt9.keinPlatz'))
 
   const rahmen = document.createElement('iframe')
   rahmen.src = SEITE + '?v=' + encodeURIComponent(videoId)

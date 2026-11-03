@@ -5,6 +5,18 @@
 // würde den Lernenden nach Wörtern fragen, die er nie gesehen hat.
 
 import { LEKTIONEN, MODULE, baueSchritte, baueOptionen } from './src/lektionen.js'
+import { setzeSprache, vokabel, satz } from './src/sprache.js'
+
+/**
+ * In welcher Sprache geprueft wird.
+ *
+ * Beides, nacheinander. Die Optionen beim Multiple Choice laufen
+ * durch dieselbe Uebersetzungsschicht wie die richtige Antwort -
+ * fehlt dort ein Eintrag, steht die Loesung nicht mehr in der
+ * Liste und jede Antwort gilt als falsch. Das faellt nur auf, wenn
+ * auch auf Englisch geprueft wird.
+ */
+const SPRACHEN = ['de', 'en']
 
 const fehler = []
 const ids = LEKTIONEN.map((l) => l.id)
@@ -28,16 +40,25 @@ for (const l of LEKTIONEN) {
   for (const i of l.items)
     if (!i.es || !i.de || !i.beispielEs || !i.beispielDe) melde(`unvollständiges Wort "${i.es}"`)
 
-  // Jede bewertete Aufgabe braucht lösbare Optionen
-  for (const s of baueSchritte(l)) {
-    if (!['quiz', 'hoeren', 'dialogquiz', 'rueckblick'].includes(s.typ)) continue
-    const o = baueOptionen(s, l) ?? []
-    const feld = s.richtung === 'de-es' ? 'es' : 'de'
-    const loesung = s.item?.[feld] ?? s.zeile?.de
-    if (o.length < 2) melde(`Schritt "${s.typ}" hat zu wenige Optionen`)
-    if (loesung && !o.includes(loesung)) melde(`Schritt "${s.typ}": Lösung fehlt in den Optionen`)
-    if (new Set(o).size !== o.length) melde(`Schritt "${s.typ}": doppelte Optionen`)
+  // Jede bewertete Aufgabe braucht lösbare Optionen – in jeder Sprache
+  for (const spr of SPRACHEN) {
+    setzeSprache(spr)
+    for (const s of baueSchritte(l)) {
+      if (!['quiz', 'hoeren', 'dialogquiz', 'rueckblick'].includes(s.typ)) continue
+      const o = baueOptionen(s, l) ?? []
+      // Genau die Werte, die Lessons.jsx als richtige Antwort anzeigt.
+      const loesung = s.zeile
+        ? satz(s.zeile, 'es', 'de')
+        : s.richtung === 'de-es'
+          ? s.item?.es
+          : s.item && vokabel(s.item)
+      if (o.length < 2) melde(`[${spr}] Schritt "${s.typ}" hat zu wenige Optionen`)
+      if (loesung && !o.includes(loesung))
+        melde(`[${spr}] Schritt "${s.typ}": Lösung fehlt in den Optionen`)
+      if (new Set(o).size !== o.length) melde(`[${spr}] Schritt "${s.typ}": doppelte Optionen`)
+    }
   }
+  setzeSprache('de')
 }
 
 // Doppelte Kennungen zuerst: Sie fuehren zu Fehlern, die ganz

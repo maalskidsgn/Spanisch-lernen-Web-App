@@ -140,21 +140,21 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
    */
   async function interpretenPruefen() {
     const token = await zugang()
-    if (!token) return setSpotifyFehler('Bitte zuerst mit Spotify verbinden.')
+    if (!token) return setSpotifyFehler(t('so9.bitteZuerstMit'))
 
     setSpotifyFehler('')
     try {
       setAnalyse(t('sgm.deineMusikWird'))
       const kuenstler = await sammleKuenstler(token)
 
-      setAnalyse(`${kuenstler.length} Künstler gefunden – die KI prüft die Sprache …`)
+      setAnalyse(t('so9.kuenstlerGefunden', { zahl: kuenstler.length }))
       const res = await fetch(API_URL + '/api/spotify/interpreten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kuenstler }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Auswertung fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || t('so9.auswertungFehlgeschlagen'))
 
       // Die Songs kommen schon mit: aus deiner Bibliothek, wo
       // vorhanden, sonst von der KI ergaenzt.
@@ -199,8 +199,8 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     setHinweis('')
     setAnalyse(
       namen.length === 1
-        ? `${namen[0]} wird geprüft …`
-        : `${namen.length} Künstler werden geprüft …`
+        ? t('so9.einerWirdGeprueft', { name: namen[0] })
+        : t('so9.mehrereWerdenGeprueft', { zahl: namen.length })
     )
     try {
       const res = await fetch(API_URL + '/api/spotify/interpreten', {
@@ -211,7 +211,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Prüfung fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || t('so9.pruefungFehlgeschlagen'))
 
       const gefunden = daten.interpreten ?? []
       const abgelehnt = namen.filter(
@@ -260,7 +260,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(frage)
       )
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || t('so9.sucheFehlgeschlagen'))
       setTreffer((daten.results ?? []).slice(0, 6))
     } catch (f) {
       setFehler(f.message)
@@ -286,11 +286,11 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(`${kuenstler} ${titel}`)
       )
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || t('so9.sucheFehlgeschlagen'))
 
       const treffer = daten.results ?? []
       if (!treffer.length) {
-        throw new Error(`Zu „${titel}" gibt es leider kein Video mit Text.`)
+        throw new Error(t('so9.keinVideoMitText', { titel }))
       }
 
       // Der Server siebt Songs ohne Untertitel bereits aus. Falls
@@ -316,18 +316,18 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
           if (antwort.stoerung) {
             throw new Error(
               t('sgm.derSongtextDienst') +
-                'gespeicherten Songs oben funktionieren weiter – neue ' +
+                t('so9.gespeicherteFunktionieren') +
                 t('sgm.bitteSpaeterNoch')
             )
           }
           if (i < 2) status(t('sgm.derTrefferHatte'))
         } catch (f) {
-          if (f.message.includes('Störung')) throw f
+          if (f.message.includes(t('so9.stoerung'))) throw f
           // sonst: naechsten Treffer versuchen
         }
       }
       throw new Error(
-        `Zu „${titel}" habe ich keine Fassung mit Songtext gefunden. ` +
+        t('so9.keineFassungGefunden', { titel }) + ' ' +
           t('sgm.versuchEsUeber')
       )
     } catch (f) {
@@ -404,15 +404,15 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       {/* ============ 1. SONG SUCHEN ============ */}
       <Hero
         symbol={<IconMusik groesse={26} />}
-        titel="Spanische Songs finden"
-        text="Der Text läuft mit – unbekannte Wörter tippst du an."
+        titel={t('so9.songsFinden')}
+        text={t('so9.textLaeuftMit')}
       >
         <SuchFeld
           wert={suche}
           onWert={setSuche}
           onAbsenden={() => songSuchen()}
-          platzhalter="Künstler, Songtitel oder Stilrichtung…"
-          knopf="Songs suchen"
+          platzhalter={t('so9.songPlatzhalter')}
+          knopf={t('so9.songsSuchen')}
           laedt={laedt}
         />
 
@@ -470,10 +470,10 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       <section className="bereich">
         <Kopf
           symbol={<IconLesezeichen groesse={19} />}
-          titel="Deine Songs"
+          titel={t('so9.deineSongs')}
           text={
             songs?.length
-              ? `${songs.length} gespeichert – zum Anhören antippen oder den Text als PDF sichern.`
+              ? t('so9.gespeichertAnhoeren', { zahl: songs.length })
               : t('sgm.nochKeineSongs')
           }
           zahl={songs?.length || null}
@@ -486,7 +486,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                 <button
                   className="song-bild"
                   onClick={() => onOpenVideo(s.youtube_id, 'musik')}
-                  aria-label={'Song öffnen: ' + s.titel}
+                  aria-label={t('so9.songOeffnen') + ' ' + s.titel}
                 >
                   <img src={s.thumbnail} alt="" loading="lazy" />
                   <span className="song-play-overlay" aria-hidden="true">▶</span>
@@ -521,7 +521,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       <section className="bereich">
         <Kopf
           symbol={<IconStern groesse={19} />}
-          titel="Deine spanischen Interpreten"
+          titel={t('so9.deineInterpreten')}
         />
         <div className="bereich-kopf bereich-kopf-rest">
           <h2 hidden>{t('sg.deineSpanischenInterpreten')}</h2>
@@ -544,7 +544,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
             disabled={Boolean(analyse)}
           />
           <button className="btn" disabled={Boolean(analyse) || !eingabe.trim()}>
-            Prüfen
+            {t('so9.pruefen')}
           </button>
         </form>
 
@@ -626,7 +626,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                             <span className="song-vorschlag-titel">{s.titel}</span>
                             <span className="song-vorschlag-dauer">
                               {laeuft === k.name + '|' + s.titel
-                                ? 'Öffnet …'
+                                ? t('so9.oeffnet')
                                 : 'Mitlesen'}
                             </span>
                           </button>
@@ -674,7 +674,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                 onClick={interpretenPruefen}
                 disabled={Boolean(analyse)}
               >
-                {analyse ? 'Läuft …' : 'Neu auswerten'}
+                {analyse ? t('so9.laeuft') : t('so9.neuAuswerten')}
               </button>
               <button className="filter-knopf" onClick={spotifyTrennen}>
                 Trennen

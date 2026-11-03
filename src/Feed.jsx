@@ -7,7 +7,7 @@ import { spiele, dialogAbspielen } from './audio.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { IconPfeil } from './icons.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, text as inhalt, satz } from './sprache.js'
 
 /** Ein Wort auf seinen Nachschlag-Schlüssel bringen. */
 function wortSchluessel(wort) {
@@ -122,7 +122,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
               laufend dazu.
             </p>
             <button className="btn" onClick={onZurueck}>
-              Zurück zur App
+              {t('fe9.zurueckZurApp')}
             </button>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || t('fdm.keineUebersetzungGefunden')}
+              {wort.laedt ? t('fe9.uebersetze') : wort.de || t('fdm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button
@@ -207,8 +207,8 @@ function Haeppchen({ karte, aktiv }) {
   return (
     <article className={'haeppchen farbe-' + (karte.farbe ?? 0) + (aktiv ? ' ist-aktiv' : '')}>
       <span className="haeppchen-marke">{t('fd.grundlagen')}</span>
-      <h2 className="haeppchen-titel">{karte.titel}</h2>
-      <p className="haeppchen-kern">{karte.kern}</p>
+      <h2 className="haeppchen-titel">{inhalt(karte.titel)}</h2>
+      <p className="haeppchen-kern">{inhalt(karte.kern)}</p>
 
       <div className="haeppchen-zeilen">
         {karte.zeilen.map((z, i) => (
@@ -219,7 +219,7 @@ function Haeppchen({ karte, aktiv }) {
             onClick={() => anhoeren(z.es, i)}
           >
             <span className="zeile-es">{z.es}</span>
-            <span className="zeile-de">{z.de}</span>
+            <span className="zeile-de">{satz(z, 'es', 'de')}</span>
             <span className="zeile-ton" aria-hidden="true">
               {laeuft === i ? '♪' : '▶'}
             </span>
@@ -229,7 +229,7 @@ function Haeppchen({ karte, aktiv }) {
 
       {karte.merke && (
         <p className="haeppchen-merke">
-          <b>{t('fd.merke')}</b> {karte.merke}
+          <b>{t('fd.merke')}</b> {inhalt(karte.merke)}
         </p>
       )}
     </article>
@@ -320,7 +320,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
     <article className={'feed-text farbe-' + (karte.farbe ?? 0) + (aktiv ? ' ist-aktiv' : '')}>
       <span className="haeppchen-marke">{t('fd.wissen')}</span>
       <h2 className="feed-text-titel">
-        {sprache === 'es' ? karte.titelEs : karte.titelDe}
+        {sprache === 'es' ? karte.titelEs : inhalt(karte.titelDe)}
       </h2>
 
       <button
@@ -336,19 +336,19 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
       <div className="feed-text-inhalt">
         {karte.absaetze.map((a, i) => (
           <p key={i} className="feed-absatz">
-            {sprache === 'es' ? alsWoerter(a.es) : a.de}
+            {sprache === 'es' ? alsWoerter(a.es) : satz(a, 'es', 'de')}
           </p>
         ))}
       </div>
 
       {karte.merksatz && sprache === 'de' && (
-        <p className="feed-merksatz">{karte.merksatz}</p>
+        <p className="feed-merksatz">{inhalt(karte.merksatz)}</p>
       )}
 
       <div className="feed-sprachen" role="tablist">
         {[
           ['es', 'Español'],
-          ['de', 'Deutsch'],
+          ['de', t('leser.muttersprache')],
         ].map(([wert, name]) => (
           <button
             key={wert}
@@ -377,7 +377,7 @@ export function FeedTuer({ onOeffnen }) {
         <b>{t('fd.fuerDich')}</b>
         <span>
           {gesehen > 0
-            ? `${anzahl - gesehen} neue Karten – Spanisch zum Durchwischen`
+            ? t('fe9.neueKarten', { zahl: anzahl - gesehen })
             : t('fdm.spanischZumDurchwischen')}
         </span>
       </span>

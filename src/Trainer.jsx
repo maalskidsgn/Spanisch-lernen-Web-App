@@ -602,7 +602,7 @@ export default function Trainer({
                   {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? '💡 Ganzes Wort' : '💡 Aufgedeckt'}
                 </button>
                 <button type="submit" disabled={!eingabe.trim()}>
-                  Prüfen
+                  {t('tr9.pruefen')}
                 </button>
               </div>
             </form>
@@ -629,7 +629,7 @@ export default function Trainer({
             {t('tr.wieUeben1')} <span className="accent">{t('tr.wieUeben2')}</span>
           </h1>
           <p className="art-unterzeile">
-            {anzahl} Wörter · {trainable.length > 0 && `${Math.min(trainable.length, anzahl)} davon fällig`}
+            {anzahl} Wörter · {trainable.length > 0 && t('tr9.davonFaellig', { zahl: Math.min(trainable.length, anzahl) })}
           </p>
         </div>
 
@@ -814,7 +814,7 @@ export default function Trainer({
             {gefiltert.length === 0 ? (
               <p className="empty-hint">
                 {suchtext
-                  ? `Nichts gefunden zu „${suche}“.`
+                  ? t('tr9.nichtsGefunden', { suche })
                   : t('trm.keineWoerterIn')}
               </p>
             ) : (
@@ -836,7 +836,7 @@ export default function Trainer({
                         <td>{e.translation || '–'}</td>
                         <td>
                           <span className={'level-badge lvl-' + e.level}>
-                            {e.status === 'gewusst' ? 'Gewusst ✓' : LEVEL_LABELS[e.level]}
+                            {e.status === 'gewusst' ? t('tr9.gewusst') : LEVEL_LABELS[e.level]}
                           </span>
                         </td>
                         <td>{formatDue(e)}</td>

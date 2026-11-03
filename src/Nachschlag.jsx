@@ -28,8 +28,8 @@ const ZEITFORMEN = [
   {
     id: 'presente',
     name: 'ns.presente',
-    deutsch: 'Gegenwart',
-    merken: 'Was jetzt passiert oder immer gilt: hablo – ich spreche.',
+    deutsch: 'ns9.gegenwart',
+    merken: 'ns9.merkenPresente',
     signal: 'ahora, hoy, normalmente, siempre',
     spalten: ['hablar', 'comer', 'vivir'],
     formen: [
@@ -44,8 +44,8 @@ const ZEITFORMEN = [
   {
     id: 'perfecto',
     name: 'ns.pretRitoPerfecto',
-    deutsch: 'Perfekt',
-    merken: 'haber im Presente + Partizip (-ado / -ido): he hablado – ich habe gesprochen.',
+    deutsch: 'ns9.perfekt',
+    merken: 'ns9.merkenPerfecto',
     signal: 'hoy, esta semana, ya, todavía no, alguna vez',
     spalten: ['haber', '+ Partizip'],
     formen: [
@@ -60,7 +60,7 @@ const ZEITFORMEN = [
   {
     id: 'indefinido',
     name: 'ns.pretRitoIndefinido',
-    deutsch: 'Einfache Vergangenheit',
+    deutsch: 'ns9.einfacheVergangenheit',
     merken: 'nsm.abgeschlossenUndMit',
     signal: 'ayer, anoche, el año pasado, en 2020, de repente',
     spalten: ['hablar', 'comer', 'vivir'],
@@ -76,7 +76,7 @@ const ZEITFORMEN = [
   {
     id: 'imperfecto',
     name: 'ns.imperfecto',
-    deutsch: 'Verlaufs-Vergangenheit',
+    deutsch: 'ns9.verlaufsVergangenheit',
     merken: 'nsm.gewohnheitenUndHintergrund',
     signal: 'antes, siempre, todos los días, mientras, de niño',
     spalten: ['hablar', 'comer', 'vivir'],
@@ -92,8 +92,8 @@ const ZEITFORMEN = [
   {
     id: 'futuro',
     name: 'ns.futuroSimple',
-    deutsch: 'Zukunft',
-    merken: 'Ganzer Infinitiv + Endung: hablaré – ich werde sprechen. (Im Alltag oft: voy a hablar.)',
+    deutsch: 'ns9.zukunft',
+    merken: 'ns9.merkenFuturo',
     signal: 'mañana, el año que viene, pronto, algún día',
     spalten: ['hablar', 'comer', 'vivir'],
     formen: [
@@ -108,8 +108,8 @@ const ZEITFORMEN = [
   {
     id: 'condicional',
     name: 'ns.condicional',
-    deutsch: 'Würde-Form',
-    merken: 'Ganzer Infinitiv + ía: hablaría – ich würde sprechen. Höflich: ¿Podrías…?',
+    deutsch: 'ns9.wuerdeForm',
+    merken: 'ns9.merkenCondicional',
     signal: 'me gustaría, en tu lugar, si pudiera',
     spalten: ['hablar', 'comer', 'vivir'],
     formen: [
@@ -128,8 +128,8 @@ const UNREGELMAESSIG = [
   {
     id: 'unreg-presente',
     name: 'ns.unregelmaessigeVerben',
-    deutsch: 'im Presente',
-    merken: 'Diese acht decken den halben Alltag ab – am besten als Ganzes merken.',
+    deutsch: 'ns9.imPresente',
+    merken: 'ns9.merkenUnregelmaessig',
     signal: null,
     spalten: ['ser', 'estar', 'ir', 'tener'],
     formen: [
@@ -155,7 +155,7 @@ const UNREGELMAESSIG = [
   {
     id: 'unreg-indefinido',
     name: 'ns.unregelmaessigeVerben',
-    deutsch: 'im Indefinido',
+    deutsch: 'ns9.imIndefinido',
     merken: 'nsm.serUndIr',
     signal: null,
     spalten: ['ser/ir', 'tener', 'estar', 'hacer'],

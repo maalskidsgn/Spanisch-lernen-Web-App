@@ -1106,7 +1106,7 @@ export default function App() {
         body: JSON.stringify({ lines: video.lines.map((l) => l.text), sprache: sprache() }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || `Server antwortet mit ${res.status}`)
+      if (!res.ok) throw new Error(data.error || t('ap9.serverAntwortet', { status: res.status }))
       setDeLines(data.uebersetzungen)
     } catch (f) {
       setDeFehler(f.message)
@@ -1121,7 +1121,7 @@ export default function App() {
   function addVocabWords(woerter, status = 'lernen') {
     // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
     const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
-    if (neu.size) addXp(XP.WORT_NEU * neu.size, neu.size === 1 ? 'Wort hinzugefügt' : neu.size + ' Wörter hinzugefügt')
+    if (neu.size) addXp(XP.WORT_NEU * neu.size, neu.size === 1 ? t('ap9.wortHinzugefuegt') : t('ap9.woerterHinzugefuegt', { zahl: neu.size }))
     setVocab((v) => {
       const copy = { ...v }
       for (const w of woerter) {
@@ -1457,7 +1457,7 @@ export default function App() {
           )}
           <div
             className="level-pill"
-            title={`${Object.keys(vocab).length} Wörter · ${gelernt} gewusst · ${levelName(level)}`}
+            title={t('ap9.levelTitel', { woerter: Object.keys(vocab).length, gewusst: gelernt, level: levelName(level) })}
             role="img"
             aria-label={`Level ${level} – noch ${nextLevelXp - progress.xp} XP bis Level ${level + 1}`}
           >
@@ -1746,7 +1746,7 @@ export default function App() {
                         <div className="success-text">
                           {cardExit.status === 'gewusst'
                             ? t('apm.starkDasKannst')
-                            : 'Gespeichert – ab in den Trainer!'}
+                            : t('ap9.gespeichertAbIn')}
                         </div>
                         {cardExit.earned > 0 && (
                           <div className="success-xp">+{cardExit.earned} XP</div>
@@ -1876,7 +1876,7 @@ export default function App() {
             {saveOpen && (
               <div className="fab-panel">
                 <div className="fab-panel-head">
-                  <b>{currentSaved ? 'In deiner Mediathek ✓' : 'Video speichern'}</b>
+                  <b>{currentSaved ? t('ap9.inDeinerMediathek') : t('ap9.videoSpeichern')}</b>
                   <button className="btn-plain" onClick={() => setSaveOpen(false)}>
                     ✕
                   </button>
@@ -1912,8 +1912,8 @@ export default function App() {
                       onChange={(e) => setCategoryInput(e.target.value)}
                       placeholder={
                         vorhandeneKategorien.length
-                          ? 'Oder neue Kategorie eingeben…'
-                          : 'Kategorie, z.B. Musik'
+                          ? t('ap9.oderNeueKategorie')
+                          : t('ap9.kategorieZB')
                       }
                     />
                     <button

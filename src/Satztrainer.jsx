@@ -198,9 +198,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
 
         <div className="satz-filter">
           {[
-            ['faellig', `Fällig (${faellig.length})`],
-            ['alle', `Alle (${entries.length})`],
-            ['gewusst', `Sitzt (${gewusst.length})`],
+            ['faellig', t('st9.faellig', { zahl: faellig.length })],
+            ['alle', t('st9.alle', { zahl: entries.length })],
+            ['gewusst', t('st9.sitzt', { zahl: gewusst.length })],
           ].map(([wert, text]) => (
             <button
               key={wert}
@@ -495,7 +495,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               disabled={faellig.length === 0 && entries.filter((e) => e.translation).length < 3}
               onClick={() => (faellig.length > 0 ? setArtWahl(true) : starten('paare'))}
             >
-              {faellig.length > 0 ? 'Üben' : entries.filter((e) => e.translation).length >= 3 ? t('st.satzpaare') : t('st.nichtsFaellig')}
+              {faellig.length > 0 ? t('st9.ueben') : entries.filter((e) => e.translation).length >= 3 ? t('st.satzpaare') : t('st.nichtsFaellig')}
             </button>
           </section>
         </>

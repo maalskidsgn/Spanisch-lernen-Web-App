@@ -28,7 +28,7 @@ const ZEITFORMEN = [
   ['indefinido', 'Indefinido', 'hablé'],
   ['imperfecto', 'Imperfecto', 'hablaba'],
   ['futuro', 'Futuro', 'hablaré'],
-  ['condicional', 'Condicional', 'würde …'],
+  ['condicional', 'Condicional', 'sg9.wuerdeForm'],
   ['subjuntivo', 'Subjuntivo', 'que hable'],
 ]
 
@@ -118,7 +118,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
     if (premiumLaedt && !premium) return null
     return (
       <div className="list-gen">
-        <PremiumWerbung was="Sätze" />
+        <PremiumWerbung was={t('sg9.wasSaetze')} />
       </div>
     )
   }
@@ -211,7 +211,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             ) : zeitform && !thema.trim() ? (
               `Sätze zum ${ZEITFORMEN.find(([w]) => w === zeitform)?.[1]}`
             ) : (
-              'Sätze erzeugen'
+              t('sg9.saetzeErzeugen')
             )}
           </button>
         </div>
@@ -219,7 +219,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
 
       {erfolg > 0 && (
         <p className="gen-success">
-          {erfolg} {erfolg === 1 ? 'Satz' : 'Sätze'} im Trainer! ✓
+          {erfolg} {erfolg === 1 ? t('sg9.satz') : t('sg9.saetze')} im Trainer! ✓
         </p>
       )}
       {fehler && <p className="error">{fehler}</p>}

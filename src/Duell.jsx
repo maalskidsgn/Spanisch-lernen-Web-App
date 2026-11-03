@@ -121,8 +121,8 @@ export default function DuellKasten({ addXp }) {
       {siege.length > 0 && (
         <p className="du-sieg">
           {siege.length === 1
-            ? `Du hast gegen ${siege[0].gegner} gewonnen.`
-            : `Du hast ${siege.length} Duelle gewonnen.`}{' '}
+            ? t('du9.gegenGewonnen', { gegner: siege[0].gegner })
+            : t('du9.duelleGewonnen', { zahl: siege.length })}{' '}
           <b>+{XP_SIEG * siege.length} XP</b>
         </p>
       )}
@@ -183,10 +183,10 @@ function Zeile({ d, onSpielen, onWeg }) {
       <span className="du-text">
         <b>{d.gegner}</b>
         <small>
-          {s === 'ich_dran' && `${FRAGEN} Fragen warten auf dich`}
-          {s === 'er_dran' && `Du: ${d.punkte_ich}/${FRAGEN} · ${zeitText(d.zeit_ich)}`}
+          {s === 'ich_dran' && t('du9.fragenWarten', { zahl: FRAGEN })}
+          {s === 'er_dran' && t('du9.duPunkte', { punkte: d.punkte_ich, gesamt: FRAGEN, zeit: zeitText(d.zeit_ich) })}
           {s !== 'ich_dran' && s !== 'er_dran' &&
-            `${d.punkte_ich}:${d.punkte_gegner} · ${zeitText(d.zeit_ich)} gegen ${zeitText(d.zeit_gegner)}`}
+            t('du9.standGegen', { ich: d.punkte_ich, gegner: d.punkte_gegner, zeitIch: zeitText(d.zeit_ich), zeitGegner: zeitText(d.zeit_gegner) })}
         </small>
       </span>
 
@@ -311,8 +311,8 @@ function DuellSpiel({ duell, addXp, onFertig }) {
               <div className="du-ende-xp">+{XP_GESPIELT} XP</div>
               <p className="du-ende-text">
                 {duell.punkte_gegner === null || duell.punkte_gegner === undefined
-                  ? `Jetzt ist ${duell.gegner} dran. Du siehst hier, sobald gespielt wurde.`
-                  : `${duell.gegner} hatte ${duell.punkte_gegner}/${fragen.length}.`}
+                  ? t('du9.gegnerIstDran', { gegner: duell.gegner })
+                  : t('du9.gegnerHatte', { gegner: duell.gegner, punkte: duell.punkte_gegner, gesamt: fragen.length })}
               </p>
             </>
           )}

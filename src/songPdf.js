@@ -1,3 +1,4 @@
+import { t, gebiet } from './sprache.js'
 /**
  * Songtext als PDF sichern.
  *
@@ -16,7 +17,7 @@ export function songAlsPdf({ titel, kanal, zeilen, deutsch }) {
   const fenster = window.open('', '_blank', 'width=820,height=1000')
   if (!fenster) {
     throw new Error(
-      'Der Browser hat das Fenster blockiert. Bitte Pop-ups für Habloo erlauben.'
+      t('so9.popupBlockiert')
     )
   }
 
@@ -37,7 +38,7 @@ export function songAlsPdf({ titel, kanal, zeilen, deutsch }) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
 
-  const heute = new Date().toLocaleDateString('de-DE', {
+  const heute = new Date().toLocaleDateString(gebiet(), {
     day: '2-digit',
     month: 'long',
     year: 'numeric',

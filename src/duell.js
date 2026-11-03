@@ -1,3 +1,4 @@
+import { t } from './sprache.js'
 /**
  * Duell: zu zweit gegeneinander Vokabeln raten.
  *
@@ -91,9 +92,9 @@ export function baueFragen() {
 
 /** Fordert jemanden heraus. Gibt die Duell-ID zurück. */
 export async function duellStarten(gegner) {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(t('al.bitteAnmelden'))
   const fragen = baueFragen()
-  if (!fragen.length) throw new Error('Gerade keine Fragen verfügbar.')
+  if (!fragen.length) throw new Error(t('du9.keineFragen'))
   const { data, error } = await db.rpc('duell_starten', { gegner, fragen })
   if (error) throw new Error(error.message)
   window.dispatchEvent(new CustomEvent('duelle'))

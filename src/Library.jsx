@@ -398,16 +398,16 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
           <Hero
             symbol={<IconBuch groesse={26} />}
-            titel="Ebook erstellen"
-            text="Nenn einen Buchtitel oder ein Thema – die KI schreibt eine Zusammenfassung auf Spanisch."
+            titel={t('lb9.ebookErstellen')}
+            text={t('lb9.ebookText2')}
           >
             <SuchFeld
               rund
               wert={buchTitel}
               onWert={setBuchTitel}
               onAbsenden={generiereBuch}
-              platzhalter="z. B. „Ikigai“ oder „Besser schlafen“"
-              knopf="Ebook erstellen"
+              platzhalter={t('lb9.ebookPlatzhalter')}
+              knopf={t('lb9.ebookErstellen')}
               laedt={buchLaden}
             />
           </Hero>
@@ -462,12 +462,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         <section className="bereich">
           <Kopf
             symbol={<IconLesezeichen groesse={19} />}
-            titel="Deine gemerkten Videos"
-            text={`${savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.`}
+            titel={t('lb9.deineGemerktenVideos')}
+            text={t('lb9.gespeichertWeiter', { zahl: savedVideos.length })}
             aktion={
               savedVideos.length > SICHTBAR_GEMERKT ? (
                 <button className="kopf-aktion" onClick={() => setAlleGemerkt((a) => !a)}>
-                  {alleGemerkt ? 'Weniger' : 'Alle anzeigen'}
+                  {alleGemerkt ? t('lb9.weniger') : t('lb9.alleAnzeigen')}
                   <IconPfeil groesse={15} />
                 </button>
               ) : null
@@ -638,8 +638,8 @@ function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
     <section className="bereich">
       <Kopf
         symbol={<IconBuch groesse={19} />}
-        titel="Deine eigenen Ebooks"
-        text="Auf diesem Gerät gespeichert."
+        titel={t('lb9.deineEigenenEbooks')}
+        text={t('lb9.aufDiesemGeraet')}
         zahl={buecher.length}
       />
       <ul className="inhalt-liste ebook-eigene">
@@ -768,7 +768,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
         </button>
 
         <div className="leser-sprache" role="tablist" aria-label={t('ytk.sprache')}>
-          {[['es', 'Español'], ['de', 'Deutsch']].map(([wert, text]) => (
+          {[['es', 'Español'], ['de', t('leser.muttersprache')]].map(([wert, text]) => (
             <button
               key={wert}
               role="tab"
@@ -797,7 +797,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
           <div className="lern-balken-voll" style={{ width: ((seite + 1) / seiten) * 100 + '%' }} />
         </div>
         <span>
-          {vokabelSeite ? 'Vokabeln' : `Seite ${seite + 1} von ${absaetze.length}`}
+          {vokabelSeite ? t('lb9.vokabeln') : t('lb9.seiteVon', { seite: seite + 1, gesamt: absaetze.length })}
         </span>
       </div>
 
@@ -879,7 +879,7 @@ function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || t('ytm.keineUebersetzungGefunden')}
+              {wort.laedt ? t('lb9.uebersetze') : wort.de || t('ytm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button className="btn-outline" onClick={() => wortSammeln('gewusst')} disabled={wort.laedt}>

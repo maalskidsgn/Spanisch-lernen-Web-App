@@ -3,7 +3,7 @@ import { sucheNutzer, ladeFreunde, frageFreund, nimmAn, beende } from './ranglis
 import { Bildnis } from './Rangliste.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
 import { useAnwesend } from './praesenz.js'
-import { useTexte } from './sprache.js'
+import { useTexte, gebiet } from './sprache.js'
 
 /**
  * Leute finden und Freundschaften verwalten.
@@ -147,7 +147,7 @@ function Zeile({ p, onSchau, onFertig }) {
           <small>
             {da(p.benutzername)
               ? 'gerade online'
-              : (p.xp ?? 0).toLocaleString('de-DE') + ' XP'}
+              : (p.xp ?? 0).toLocaleString(gebiet()) + ' XP'}
           </small>
         </span>
       </button>

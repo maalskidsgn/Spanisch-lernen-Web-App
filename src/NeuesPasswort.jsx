@@ -21,7 +21,7 @@ export default function NeuesPasswort({ onFertig }) {
   async function absenden(e) {
     e.preventDefault()
     setFehler('')
-    if (passwort.length < 6) return setFehler('Mindestens 6 Zeichen.')
+    if (passwort.length < 6) return setFehler(t('np9.mindestens6Zeichen'))
     if (passwort !== nochmal) return setFehler(t('npm.dieBeidenPasswoerter'))
     setLaeuft(true)
     try {
@@ -72,7 +72,7 @@ export default function NeuesPasswort({ onFertig }) {
           </label>
           {fehler && <p className="login-fehler" role="alert">{fehler}</p>}
           <button type="submit" className="btn login-absenden" disabled={laeuft}>
-            {laeuft ? 'Speichere …' : 'Passwort speichern'}
+            {laeuft ? t('np9.speichere') : t('np9.passwortSpeichern')}
           </button>
         </form>
       </div>

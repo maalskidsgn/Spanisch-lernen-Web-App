@@ -116,14 +116,14 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
               <span key={i} className="confetti" style={{ '--i': i }} />
             ))}
           </div>
-          <h2>{ergebnis.falsch === 0 ? 'Alles richtig! 🎉' : 'Runde geschafft!'}</h2>
+          <h2>{ergebnis.falsch === 0 ? t('bs9.allesRichtig') : t('bs9.rundeGeschafft')}</h2>
           <p>
             {ergebnis.richtig} von {runde.aufgaben.length} bei „{runde.baustein.titel}“
           </p>
           <p className="gram-naechster">
             {bewertung === 'nochmal'
               ? t('bsm.derBausteinKommt')
-              : `Nächste Wiederholung: ${formatDue(eintrag)}`}
+              : t('bs9.naechsteWiederholung', { termin: formatDue(eintrag) })}
           </p>
           <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
           <button onClick={() => setRunde(null)}>{t('bs.zurueckZurUebersicht')}</button>
@@ -181,10 +181,10 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
         <InfoKnopf thema="grammatik" />
         <div className="wiederholen-zahl">
           <b>{faellig.length}</b>
-          <span>{faellig.length === 1 ? 'Baustein wartet' : 'Bausteine warten'}</span>
+          <span>{faellig.length === 1 ? t('bs9.bausteinWartet') : t('bs9.bausteineWarten')}</span>
         </div>
         <div className="wiederholen-text">
-          <h2>{heute ? 'Baustein des Tages' : t('bsm.nochNichtsFreigeschaltet')}</h2>
+          <h2>{heute ? t('bs9.bausteinDesTages') : t('bsm.nochNichtsFreigeschaltet')}</h2>
           {heute ? (
             <>
               <p className="gram-heute-titel">{heute.titel}</p>
@@ -250,7 +250,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
                           {/* Nicht die Stufe anzeigen: Stufe 0 heisst
                               "Neu", und das stand nach dem ersten Ueben
                               faelschlich da. Der Termin ist ehrlicher. */}
-                          {!eintrag ? 'neu' : isDue(eintrag) ? 'fällig' : formatDue(eintrag)}
+                          {!eintrag ? t('bs9.neu') : isDue(eintrag) ? t('bs9.faellig') : formatDue(eintrag)}
                         </span>
                       )}
                     </button>
@@ -332,7 +332,7 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
         <Aufloesung aufgabe={aufgabe} rueckmeldung={rueckmeldung} />
         <div className="flash-actions">
           <button type="submit" disabled={gesperrt || !eingabe.trim()}>
-            Prüfen
+            {t('bs9.pruefen')}
           </button>
         </div>
       </form>
@@ -464,7 +464,7 @@ function SatzBauen({ aufgabe, rueckmeldung, onAntwort }) {
           disabled={!fertig || gesperrt}
           onClick={() => onAntwort(istRichtig(aufgabe, gewaehlt.map((i) => woerter[i]).join(' ')))}
         >
-          Prüfen
+          {t('bs9.pruefen')}
         </button>
       </div>
     </div>

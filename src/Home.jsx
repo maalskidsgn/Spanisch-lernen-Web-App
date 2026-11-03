@@ -156,7 +156,7 @@ export default function Home({
       <div className="zitat">
         <p className="zitat-es">{zitat.es}</p>
         <p className="zitat-de">
-          {zitat.de}
+          {inhaltsText(zitat.de)}
           {zitat.quelle && <span className="zitat-quelle"> · {zitat.quelle}</span>}
         </p>
       </div>
@@ -198,7 +198,7 @@ export default function Home({
             className="start-weiter"
             onClick={() => onNavigate(nextLesson ? 'lektionen' : 'trainer')}
           >
-            {nextLesson ? 'Weiterlernen' : 'Zum Trainer'}
+            {nextLesson ? t('hm9.weiterlernen') : t('hm9.zumTrainer')}
             <IconPfeil groesse={18} />
           </button>
         </div>
@@ -511,7 +511,7 @@ function Kalender() {
 function kalDatum(schluessel) {
   const [j, m, t] = schluessel.split('-').map(Number)
   const d = new Date(j, m - 1, t)
-  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
+  return d.toLocaleDateString(gebiet(), { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
 /** Aufschlüsselung eines Tages als Text, z. B. "1 Lektion, 2 Wiederholungen". */
@@ -617,7 +617,7 @@ function Gruppenstunde({ onNavigate }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {s.zustand === 'laeuft' ? 'Jetzt beitreten' : 'Raum öffnen'}
+            {s.zustand === 'laeuft' ? t('hm9.jetztBeitreten') : t('hm9.raumOeffnen')}
             <IconPfeil groesse={16} />
           </a>
         )}
@@ -769,7 +769,7 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
         <h3>{t('hm.zuZweitHaelt')}</h3>
         <p>{t('hm2.dieSerieReisst')}</p>
         <button className="einladen" onClick={einladen}>
-          {geteilt ? 'Link kopiert ✓' : 'Freunde einladen'}
+          {geteilt ? t('hm9.linkKopiert') : t('hm9.freundeEinladen')}
         </button>
       </div>
     </div>
@@ -830,7 +830,7 @@ function TutorenTeaser({ nutzerEmail }) {
       ) : !andere ? (
         <div className="tutoren-knoepfe">
           <button className="btn" disabled={laedt} onClick={() => eintragen(nutzerEmail)}>
-            {laedt ? 'Einen Moment …' : 'Probestunde vormerken'}
+            {laedt ? t('hm9.einenMoment') : t('hm9.probestundeVormerken')}
           </button>
           <button className="btn-plain tutoren-andere" onClick={() => setAndere(true)}>
             An andere Adresse
@@ -875,7 +875,7 @@ function TutorProfil({ t }) {
       ),
       text: t.bewertungen != null ? `${t.bewertungen} Bewertungen` : 'Bewertung',
     },
-    t.lektionen != null && { wert: t.lektionen.toLocaleString('de-DE'), text: txt('hm.unterrichtsstunden') },
+    t.lektionen != null && { wert: t.lektionen.toLocaleString(gebiet()), text: txt('hm.unterrichtsstunden') },
     t.preis != null && { wert: `${t.preis} €`, text: txt('hm.50MinStunde') },
   ].filter(Boolean)
 
@@ -897,15 +897,15 @@ function TutorProfil({ t }) {
               </span>
             )}
           </h3>
-          <p className="tp-ueberschrift">{t.ueberschrift}</p>
+          <p className="tp-ueberschrift">{txt(t.ueberschrift)}</p>
         </div>
       </div>
 
       <div className="tp-sprachen">
         {t.sprachen.map((s) => (
           <span key={s.name} className="tp-chip">
-            <b>{s.name}</b>
-            {s.stufe && <span>{s.stufe}</span>}
+            <b>{txt(s.name)}</b>
+            {s.stufe && <span>{txt(s.stufe)}</span>}
           </span>
         ))}
       </div>
@@ -924,7 +924,7 @@ function TutorProfil({ t }) {
       {t.schwerpunkte?.length > 0 && (
         <div className="tp-schwerpunkte">
           {t.schwerpunkte.map((s) => (
-            <span key={s}>{s}</span>
+            <span key={s}>{txt(s)}</span>
           ))}
         </div>
       )}
@@ -933,7 +933,7 @@ function TutorProfil({ t }) {
         <div className="tp-ueber">
           <p className={mehr ? '' : 'tp-gekuerzt'}>{t.ueber}</p>
           <button type="button" className="tp-mehr" onClick={() => setMehr(!mehr)}>
-            {mehr ? 'Weniger' : 'Mehr lesen'}
+            {mehr ? txt('hm9.weniger') : txt('hm9.mehrLesen')}
           </button>
         </div>
       )}

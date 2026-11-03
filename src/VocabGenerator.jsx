@@ -84,7 +84,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
     if (premiumLaedt && !premium) return null
     return (
       <div className="vocab-gen">
-        <PremiumWerbung was="Vokabeln" />
+        <PremiumWerbung was={t('vg9.wasVokabeln')} />
       </div>
     )
   }

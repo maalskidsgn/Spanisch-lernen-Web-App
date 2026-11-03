@@ -203,7 +203,7 @@ export default function Onboarding({ onFertig, onUeberspringen, kontoNoetig = fa
             />
           </div>
           <button className="ob-skip" onClick={onUeberspringen}>
-            Überspringen
+            {t('ob9.ueberspringen')}
           </button>
         </div>
 

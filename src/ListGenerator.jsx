@@ -6,7 +6,7 @@ import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, sprache } from './sprache.js'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
@@ -76,7 +76,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function uebernehmen() {
     const neu = new Set(liste.filter((s) => s.checked).map((s) => s.wort.toLowerCase()).filter((k) => !vocab[k]))
-    if (neu.size) addXp?.(XP.WORT_NEU * neu.size, neu.size === 1 ? 'Wort hinzugefügt' : neu.size + ' Wörter hinzugefügt')
+    if (neu.size) addXp?.(XP.WORT_NEU * neu.size, neu.size === 1 ? t('lgn9.wortHinzugefuegt') : neu.size + ' Wörter hinzugefügt')
     setVocab((v) => {
       const copy = { ...v }
       for (const s of liste) {
@@ -101,7 +101,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
     if (premiumLaedt && !premium) return null
     return (
       <div className="list-gen">
-        <PremiumWerbung was="Vokabellisten" />
+        <PremiumWerbung was={t('lgn9.wasVokabellisten')} />
       </div>
     )
   }
@@ -167,7 +167,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
               className={'sg-thema' + (wortart === wert ? ' ist-aktiv' : '')}
               onClick={() => setWortart(wert)}
             >
-              {text}
+              {t(text)}
             </button>
           ))}
         </div>

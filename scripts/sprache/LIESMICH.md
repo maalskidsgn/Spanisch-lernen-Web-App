@@ -88,3 +88,53 @@ Eine frühere Prüfung suchte stattdessen nach deutschen Füllwörtern
 keins davon – sie galten als übersetzt und waren es nicht. Diese
 Prüfung meldete fünf saubere Bildschirme, während der Lernpfad
 komplett deutsch war.
+
+## Was die Werkzeuge NICHT finden
+
+Die Skripte oben suchen nach `>Text<`, nach Attributen wie
+`placeholder=` und nach Zuweisungen. Vier Formen fallen durch, und
+genau dort stand nach dem ersten Durchgang noch alles auf Deutsch:
+
+```jsx
+{laeuft ? 'Wird gesucht …' : 'Käufe wiederherstellen'}   // Ternär
+<HoerKnopf titel="Anhören" />                            // eigenes Prop
+<p>
+  Mehrzeiliger Satz, der im Quelltext umbrochen ist.
+</p>
+`${n} Vokabeln wiederholen`                              // Template
+```
+
+Deshalb vor jedem Abschluss ein Vollscan über **alle** Stringliterale,
+nicht nur über die Muster. Und `src/*.js` nicht vergessen: Die
+Fehlermeldungen der Anmeldung (`auth.js`), die Kaufmeldungen
+(`kauf.js`), die Level-Namen (`gamification.js`) und die Termine
+(`srs.js`) sind genauso sichtbar wie alles in den Komponenten.
+
+## Zwei Fallen, die stillschweigend vorbeigehen
+
+**Eine Datei fehlt in `DATEIEN`.** `zitate.js` und `feed.js` standen
+nicht in der Liste von `sammle-inhalte.mjs`. 171 Lerntexte waren
+deshalb nie übersetzt – ohne Fehlermeldung, denn `text()` gibt den
+deutschen Text zurück, wenn er keine Übersetzung findet. Kommt eine
+Inhaltsdatei dazu, gehört sie in diese Liste.
+
+**Eine Übersetzung für zwei Wörter.** `conocer` und `saber` hiessen
+beide "to know", `ser` und `estar` beide "to be". Beim Multiple
+Choice standen dann zwei gleiche Antworten da – oder, schlimmer, die
+richtige fehlte ganz, weil sie zur anderen zusammenfiel. Das sind
+oft genau die Paare, die eine Lektion erklärt; die englische
+Fassung muss sie auseinanderhalten ("to know (a fact)" /
+"to know (be familiar with)").
+
+`pruefe-lektionen.mjs` läuft seit diesem Durchgang **in beiden
+Sprachen** und fängt beides. Vorher prüfte es nur die Sprache, in
+der Node gerade stand – und das war wegen `navigator.language`
+Englisch, während es deutsche Lösungen erwartete.
+
+## Die Zwischenstände liegen jetzt im Projekt
+
+`uebersetzt.json` und die Sammel-Dateien lagen im Sitzungsordner
+unter `/private/tmp/…/scratchpad`. Der wird aufgeräumt – mit ihm
+wären alle 8.000 Übersetzungen weg gewesen, und der nächste Lauf
+hätte sie neu bezahlt. Alle Skripte lesen und schreiben jetzt
+neben sich selbst in `scripts/sprache/`.

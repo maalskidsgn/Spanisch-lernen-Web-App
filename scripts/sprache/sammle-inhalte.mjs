@@ -17,10 +17,19 @@ if (!import.meta.env) {
   globalThis.import_meta_env_shim = true
 }
 
-const SRC = '/Users/manuelkillert/Projekte/spanisch-app/src'
+const SRC = new URL('../../src', import.meta.url).pathname
+// Die Zwischenstaende liegen neben diesem Skript, nicht im
+// Arbeitsverzeichnis: sonst haengt der Lauf davon ab, wo man steht.
+const ORDNER = new URL('.', import.meta.url).pathname.replace(/\/$/, '')
 const DATEIEN = [
   'lektionen.js', 'pruefstationen.js', 'mitgehoert.js', 'bausteine.js',
   'landUndLeute.js', 'startpakete.js', 'saetze.js', 'lesetexte.js',
+  // Die Sprichwoerter auf der Startseite. Standen lange auf Englisch
+  // deutsch da, weil diese Datei hier fehlte.
+  'zitate.js',
+  // Die Lernkarten im Feed. Fehlten aus demselben Grund wie die
+  // Sprichwoerter: Diese Datei stand nicht in der Liste.
+  'feed.js',
 ]
 
 const TECHNISCH = new Set([
@@ -67,9 +76,9 @@ for (const datei of DATEIEN) {
 }
 
 const liste = [...texte]
-writeFileSync('alle-inhalte.json', JSON.stringify(liste, null, 1))
+writeFileSync(`${ORDNER}/alle-inhalte.json`, JSON.stringify(liste, null, 1))
 
-const fertig = JSON.parse(readFileSync('uebersetzt.json', 'utf8')).texte
+const fertig = JSON.parse(readFileSync(`${ORDNER}/uebersetzt.json`, 'utf8')).texte
 const offen = liste.filter((t) => !fertig[t])
-writeFileSync('offen2.json', JSON.stringify(offen, null, 1))
+writeFileSync(`${ORDNER}/offen2.json`, JSON.stringify(offen, null, 1))
 console.log(`gesamt ${liste.length}, davon offen ${offen.length}`)

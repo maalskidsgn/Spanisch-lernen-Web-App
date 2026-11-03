@@ -5,7 +5,7 @@ import {
 } from './rangliste.js'
 import Logo from './Logo.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, gebiet } from './sprache.js'
 
 /**
  * Die Rangliste auf der Startseite: die zehn Lernenden mit den meisten
@@ -265,7 +265,7 @@ function Einladen({ name }) {
   async function teilen() {
     const daten = {
       title: 'Habloo',
-      text: `Lern mit mir Spanisch bei Habloo – mal sehen, wer vorn liegt.`,
+      text: t('rl9.teilenText'),
       url: adresse,
     }
     // Auf dem Handy das Teilen-Blatt des Systems: WhatsApp, Nachrichten,
@@ -291,7 +291,7 @@ function Einladen({ name }) {
     <div className="rang-einladen">
       <p className="rang-ein-titel">{t('rang.spielGegenFreunde')}</p>
       <p className="rang-ein-text">
-        Schick ihnen den Link. Wer darüber mitmacht, landet direkt in deiner Liste.
+        {t('rl9.schickDenLink')}
       </p>
 
       <button type="button" className="rang-ein-knopf" onClick={teilen}>
@@ -341,9 +341,9 @@ function Saeule({ z, stufe, onOeffnen }) {
       <Bildnis name={z.benutzername} bild={z.bild} klasse="rs-bild" />
       <span className="rs-name">
         {z.benutzername}
-        {z.ich && <small>du</small>}
+        {z.ich && <small>{t('rl9.duMarke')}</small>}
       </span>
-      <span className="rs-xp">{z.xp.toLocaleString('de-DE')} XP</span>
+      <span className="rs-xp">{z.xp.toLocaleString(gebiet())} XP</span>
       <span className="rs-block">{z.platz}</span>
     </button>
   )
@@ -372,10 +372,10 @@ function RangZeile({ z, nr = 0, onOeffnen }) {
       <Bildnis name={z.benutzername} bild={z.bild} klasse="rang-initial" />
       <span className="rang-name">
         {z.benutzername}
-        {z.ich && <small>du</small>}
+        {z.ich && <small>{t('rl9.duMarke')}</small>}
       </span>
         <b className="rang-xp">
-          {z.xp.toLocaleString('de-DE')}
+          {z.xp.toLocaleString(gebiet())}
           <small>XP</small>
         </b>
       </button>

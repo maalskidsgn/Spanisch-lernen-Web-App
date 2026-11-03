@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { API_URL, istApp } from './api.js'
 import { db } from './supabase.js'
-import { useTexte } from './sprache.js'
+import { useTexte, sprache } from './sprache.js'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2']
 
@@ -98,7 +98,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
   }
 
   async function loeschen(id) {
-    if (!confirm('Dieses Buch wirklich löschen?')) return
+    if (!confirm(t('eb9.diesesBuchWirklich'))) return
     const { error } = await db.from('ebooks').delete().eq('id', id)
     if (error) return setFehler(error.message)
     setBuecher((b) => b.filter((x) => x.id !== id))
@@ -164,7 +164,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             {laedt ? (
               <>{t('eb.schreibtDeinBuch')}<span className="studio-punkte" /></>
             ) : (
-              'Buch erstellen'
+              t('eb9.buchErstellen')
             )}
           </button>
 
@@ -195,8 +195,8 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           <h2>{t('eb.deineBuecher')}</h2>
           <p>
             {buecher
-              ? `${buecher.length} zum Lesen – tippe eins an.`
-              : 'Wird geladen …'}
+              ? t('eb9.zumLesen', { zahl: buecher.length })
+              : t('eb9.wirdGeladen')}
           </p>
         </div>
 
@@ -289,7 +289,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
           onClick={() => wortAntippen(teil, absatz)}
-          title={status ? 'Im Vokabeltrainer' : undefined}
+          title={status ? t('eb9.imVokabeltrainer') : undefined}
         >
           {teil}
         </span>
@@ -382,7 +382,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             ))}
           </div>
           <button className="btn" onClick={vokabelnUebernehmen} disabled={uebernommen}>
-            {uebernommen ? '✓ Im Trainer' : t('ebm.alleInDen')}
+            {uebernommen ? t('eb9.imTrainer') : t('ebm.alleInDen')}
           </button>
         </div>
       )}
@@ -398,11 +398,11 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || t('ebm.keineUebersetzungGefunden')}
+              {wort.laedt ? t('eb9.uebersetze') : wort.de || t('ebm.keineUebersetzungGefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button className="btn-outline" onClick={() => setWort(null)}>
-                Schließen
+                {t('eb9.schliessen')}
               </button>
               <button className="btn" onClick={wortSammeln} disabled={wort.laedt}>
                 ＋ Sammeln
@@ -443,7 +443,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
           <span className="leser-stand">
             {fertig
               ? '✓'
-              : `${kapitelNr + 1}/${kapitel.length} · Noch ${restMin} Min`}
+              : `${kapitelNr + 1}/${kapitel.length} · ` + t('eb9.nochMin', { min: restMin })}
           </span>
         </div>
 

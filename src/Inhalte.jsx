@@ -67,7 +67,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
       {!ohneHero && (
         <Hero
           symbol={hoeren ? <IconMediathek groesse={26} /> : <IconBuch groesse={26} />}
-          titel={hoeren ? t('ihm.hoerDichDurch') : 'Ebook finden'}
+          titel={hoeren ? t('ihm.hoerDichDurch') : t('ih9.ebookFinden')}
           text={
             hoeren
               ? t('ihm.jedeFolgeMit')
@@ -78,8 +78,8 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
             wert={suche}
             onWert={setSuche}
             onAbsenden={() => {}}
-            platzhalter={`${ARTEN[art].titel} durchsuchen`}
-            knopf="Filtern"
+            platzhalter={t('ih9.durchsuchen', { was: t(ARTEN[art].titel) })}
+            knopf={t('ih9.filtern')}
           />
         </Hero>
       )}
@@ -94,16 +94,16 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
             type="search"
             value={suche}
             onChange={(e) => setSuche(e.target.value)}
-            placeholder={`${ARTEN[art].titel} durchsuchen`}
+            placeholder={t('ih9.durchsuchen', { was: t(ARTEN[art].titel) })}
           />
         </label>
       )}
       <Kopf
         symbol={<IconLesezeichen groesse={19} />}
-        titel={begriff ? `Treffer für „${suche.trim()}“` : ARTEN[art].titel}
+        titel={begriff ? t('ih9.trefferFuer', { suche: suche.trim() }) : t(ARTEN[art].titel)}
         text={
           begriff
-            ? `${gefiltert.length} von ${verzeichnis.length}`
+            ? t('ih9.vonGesamt', { zahl: gefiltert.length, gesamt: verzeichnis.length })
             : t('ihm.zumLesenAntippen')
         }
         zahl={gefiltert.length}
@@ -118,7 +118,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
                 <span className="inhalt-meta">
                   {e.kapitel ? `${e.kapitel} Kapitel · ` : ''}
                   {lesedauer(e.zeichen)} Min
-                  {e.audio ? ' · zum Hören' : ''}
+                  {e.audio ? ' · ' + t('ih9.zumHoeren') : ''}
                 </span>
               </span>
               <IconPfeil groesse={17} />
@@ -162,10 +162,10 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
       onAddVocab?.([{
         wort,
         uebersetzung: d.translation,
-        quelle: (art === 'hoertexte' ? 'Hörtext: ' : 'Ebook: ') + eintrag.titel,
+        quelle: (art === 'hoertexte' ? t('ih9.hoertextQuelle') + ' ' : 'Ebook: ') + eintrag.titel,
       }])
     } catch (f) {
-      setWortFehler(`„${wort}“ ließ sich nicht übernehmen: ${f.message}`)
+      setWortFehler(t('ih9.nichtUebernommen', { wort, fehler: f.message }))
     } finally {
       setHolt(null)
     }
@@ -202,7 +202,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
   return (
     <section className="lesetext">
       <button className="btn-plain back-link" onClick={onZurueck}>
-        ← {ARTEN[art].titel}
+        ← {t(ARTEN[art].titel)}
       </button>
 
       <h2 className="lesetext-titel">{daten.titelOriginal}</h2>
@@ -222,7 +222,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
             ←
           </button>
           <span>
-            {teil.label || `Kapitel ${kapitel + 1}`} · {kapitel + 1} von {daten.kapitel.length}
+            {teil.label || t('ih9.kapitelNr', { zahl: kapitel + 1 })} · {kapitel + 1} von {daten.kapitel.length}
           </span>
           <button
             className="btn-plain"
