@@ -140,7 +140,7 @@ export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bek
 
   // Bei deutschem Wunsch rutscht das Modell gern ins Deutsche ab – dann neu.
   for (let versuch = 0; versuch < 3; versuch++) {
-    const text = await frageModell(schluessel, auftrag)
+    const text = await frageModell(schluessel, auftrag, ziel)
     if (!text.absaetze.some((a) => klingtDeutsch(a.es)) && !klingtDeutsch(text.titel_es)) {
       return { ...text, gebiet: gebiet || '', stufe }
     }
@@ -160,7 +160,7 @@ function klingtDeutsch(satz = '') {
   return treffer >= 3 || /[äöüß]/i.test(satz)
 }
 
-async function frageModell(schluessel, auftrag) {
+async function frageModell(schluessel, auftrag, ziel = 'Deutsch') {
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
@@ -173,14 +173,14 @@ async function frageModell(schluessel, auftrag) {
         {
           role: 'system',
           content:
-            'Du schreibst kurze Wissenstexte auf Spanisch für deutschsprachige ' +
+            `Du schreibst kurze Wissenstexte auf Spanisch für ${ziel === 'Englisch' ? 'englisch' : 'deutsch'}sprachige ` +
             `Lernende, zum mehrmaligen Lesen. Genau ${ABSAETZE} Absätze. Regeln: ` +
             'Erzähle EINE Sache richtig, statt fünf anzureißen. Fang mit dem ' +
             'Überraschenden an, nicht mit einer Definition ("Der Oktopus hat drei ' +
             'Herzen" statt "Der Oktopus ist ein Weichtier"). Nenne nur Tatsachen, ' +
             'bei denen du sicher bist – lieber eine Zahl weglassen als sie zu ' +
             'erfinden. Keine Anrede, keine Fragen an die Lesenden, keine ' +
-            'Überleitungen wie "Wie wir gesehen haben". Die deutsche Fassung ist ' +
+            `Überleitungen wie "Wie wir gesehen haben". Die Fassung auf ${ziel} ist ` +
             'eine echte Übersetzung desselben Absatzes, kein eigener Text. ' +
             'WICHTIG: Das Feld "es" und "titel_es" sind IMMER komplett auf Spanisch – ' +
             'auch wenn der Wunsch auf Deutsch formuliert ist. Kein einziger deutscher ' +

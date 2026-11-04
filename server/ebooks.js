@@ -296,7 +296,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle',
         ].join(', ')}`
       : ''
 
-    const ergebnis = await frageListe(schluessel, auftrag + nachschlag, fehlen + 8)
+    const ergebnis = await frageListe(schluessel, auftrag + nachschlag, fehlen + 8, ziel)
     if (!begruendung) begruendung = ergebnis.begruendung ?? ''
     if (!gefundenesThema) gefundenesThema = ergebnis.thema ?? ''
 
@@ -314,7 +314,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle',
 }
 
 /** Eine einzelne Anfrage an das Modell für eine Themenliste. */
-async function frageListe(schluessel, auftrag, anzahl) {
+async function frageListe(schluessel, auftrag, anzahl, ziel = 'Deutsch') {
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
@@ -327,7 +327,7 @@ async function frageListe(schluessel, auftrag, anzahl) {
         {
           role: 'system',
           content:
-            `Du stellst Vokabellisten für deutschsprachige Spanischlernende zusammen: ` +
+            `Du stellst Vokabellisten für ${ziel === 'Englisch' ? 'englisch' : 'deutsch'}sprachige Spanischlernende zusammen: ` +
             `genau ${anzahl} Wörter, jedes mit einem kurzen, lebendigen Beispielsatz. ` +
             'Wähle Wörter, die Muttersprachler im Alltag WIRKLICH ständig benutzen – ' +
             'echte, nützliche Wörter, bei denen man denkt "oh ja, das brauche ich". ' +
