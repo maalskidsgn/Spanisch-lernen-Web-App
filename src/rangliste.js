@@ -143,17 +143,17 @@ export async function merkeTagesXp(tag, punkte) {
  * @returns {Promise<object|null>} null = nicht gefunden oder nicht verfügbar
  */
 /**
- * Gesamt-XP einzelner Leute, fürs Level in der Monats- und Jahreswertung.
- * Dort liefert die Rangliste nur die XP des Zeitraums – daraus berechnet
- * stünde bei allen ein zu niedriges Emblem.
+ * Gesamt-XP und Serie einzelner Leute, für Emblem und Flamme in der Liga.
+ * Die Rangliste selbst kennt keine Serie, und bei Monat und Jahr nur die
+ * XP des Zeitraums – daraus berechnet stünde ein zu niedriges Emblem da.
  */
-export async function ladeGesamtXp(namen) {
+export async function ladeProfilWerte(namen) {
   const profile = await Promise.all(namen.map((n) => ladeProfil(n).catch(() => null)))
-  const xp = {}
+  const werte = {}
   namen.forEach((n, i) => {
-    if (profile[i]) xp[n] = profile[i].xp
+    if (profile[i]) werte[n] = { xp: profile[i].xp, serie: profile[i].serie }
   })
-  return xp
+  return werte
 }
 
 export async function ladeProfil(benutzername) {

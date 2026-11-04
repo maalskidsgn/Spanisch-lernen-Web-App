@@ -147,7 +147,7 @@ export default function Home({
       </header>
 
       {/* Rangliste: die Top 10 nach XP – ganz oben, als Ansporn */}
-      {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} />}
+      {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} eigeneSerie={progress.streak ?? 0} />}
 
       {/* Nur im Browser: App auf den Startbildschirm holen */}
       <InstallKnopf app="Habloo" />

@@ -14608,3 +14608,20 @@ body.liest-video::before { background: var(--primary); }
 @media (prefers-reduced-motion: reduce) {
   .flamme *, .level-emblem-sol * { animation: none !important; }
 }
+
+/* Liga: die Serie steht unter dem Namen, auf dem Podest unter den XP */
+.rang-wer { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.rang-wer .rang-name { flex: none; width: 100%; margin: 0; }
+.rang-serie, .rs-serie {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.rs-serie { justify-content: center; margin-top: 3px; }
+/* Auf der eigenen, farbigen Zeile bekäme die Flamme sonst keinen Kontrast */
+.rang-ich .rang-serie { padding: 2px 7px 2px 5px; border-radius: 99px; background: #fff; color: var(--navy); }
