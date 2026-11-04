@@ -14439,14 +14439,34 @@ body.liest-video::before { background: var(--primary); }
 /* ===================================================================
    LEVEL-EMBLEME + STREAK-FLAMME
    =================================================================== */
-.level-emblem { display: block; overflow: visible; }
-.level-emblem-strahlen {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: emblem-strahlen 14s linear infinite;
+.level-emblem {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px var(--emblem-schein, transparent));
 }
-.level-emblem-strahlen { filter: drop-shadow(0 0 3px rgba(255, 138, 26, .8)); }
-@keyframes emblem-strahlen { to { transform: rotate(360deg); } }
+
+/* Sol Eterno: zwei Kränze gegeneinander, pulsierender Schein, kreisende Funken */
+.level-emblem-sol {
+  filter: drop-shadow(0 0 6px rgba(255, 179, 0, .75)) drop-shadow(0 0 14px rgba(255, 95, 162, .45));
+}
+.sol-schein, .sol-kranz-lang, .sol-kranz-kurz, .sol-bahn {
+  transform-box: view-box;
+  transform-origin: 32px 32px;
+}
+.sol-schein { animation: sol-puls 2.6s ease-in-out infinite; }
+.sol-kranz-lang { animation: sol-dreh 18s linear infinite; }
+.sol-kranz-kurz { animation: sol-dreh 12s linear infinite reverse; }
+.sol-bahn { animation: sol-dreh 7s linear infinite; }
+.sol-funke { animation: sol-funkeln 2.6s ease-in-out infinite; }
+@keyframes sol-dreh { to { transform: rotate(360deg); } }
+@keyframes sol-puls {
+  0%, 100% { transform: scale(.92); opacity: .75; }
+  50% { transform: scale(1.14); opacity: 1; }
+}
+@keyframes sol-funkeln {
+  0%, 100% { opacity: .75; }
+  50% { opacity: 1; }
+}
 
 /* Level-Leiste bei den Meilensteinen: läuft bis an den Kartenrand,
    damit man sieht, dass es weitergeht */
@@ -14494,6 +14514,14 @@ body.liest-video::before { background: var(--primary); }
 }
 .lvl-aktuell { border-color: var(--primary); background: #fff6ee; }
 .lvl-offen .level-emblem { opacity: .55; }
+/* Das Ziel bleibt auch gesperrt voll sichtbar */
+.lvl-sol, .lvl-sol.lvl-aktuell {
+  border-color: #ffc800;
+  background: linear-gradient(160deg, #1a1a66, #000041 60%, #3d0a4f);
+}
+.lvl-sol.lvl-offen .level-emblem { opacity: 1; }
+.lvl-sol b { color: #ffd23c; }
+.lvl-sol span, .lvl-sol small { color: #e9e4ff; }
 
 /* Kopfleiste: Emblem, die Zahl als kleines Schild daran */
 .level-circle {
@@ -14534,6 +14562,9 @@ body.liest-video::before { background: var(--primary); }
 .ps-level { right: -11px; bottom: -9px; }
 
 .levelup-emoji { display: grid; place-items: center; }
+.levelup-sol { background: linear-gradient(160deg, #1a1a66, #000041 60%, #3d0a4f); }
+.levelup-sol h2 { color: #ffd23c; }
+.levelup-sol p { color: #e9e4ff; }
 
 /* Flamme */
 .streak { display: inline-flex; align-items: center; gap: 3px; }
@@ -14574,5 +14605,5 @@ body.liest-video::before { background: var(--primary); }
 /* Die Flamme flackert selbst – das alte Wackeln der Kachel wäre doppelt */
 .streak-an svg { animation: none; }
 @media (prefers-reduced-motion: reduce) {
-  .flamme *, .level-emblem-strahlen { animation: none !important; }
+  .flamme *, .level-emblem-sol * { animation: none !important; }
 }

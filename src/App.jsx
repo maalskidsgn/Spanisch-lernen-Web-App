@@ -1397,8 +1397,8 @@ export default function App() {
       )}
       {levelUp && (
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
-          <div className="levelup-card">
-            <div className="levelup-emoji"><LevelEmblem level={levelUp} groesse={96} /></div>
+          <div className={'levelup-card' + (levelUp >= 100 ? ' levelup-sol' : '')}>
+            <div className="levelup-emoji"><LevelEmblem level={levelUp} groesse={levelUp >= 100 ? 150 : 96} /></div>
             <h2>{t('ap9.levelErreicht', { zahl: levelUp })}</h2>
             <p>{t('ap9.duBistJetzt', { level: levelName(levelUp) })}</p>
           </div>

@@ -183,7 +183,7 @@ function LevelLeiste({ xp }) {
           <li
             key={s.ab}
             ref={i === stelle ? aktuell : null}
-            className={'lvl-karte' + (i === stelle ? ' lvl-aktuell' : i > stelle ? ' lvl-offen' : '')}
+            className={'lvl-karte' + (i === stelle ? ' lvl-aktuell' : i > stelle ? ' lvl-offen' : '') + (s.sol ? ' lvl-sol' : '')}
           >
             <LevelEmblem level={s.ab} groesse={64} />
             <b>{levelName(s.ab)}</b>
