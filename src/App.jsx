@@ -26,6 +26,7 @@ import { zeigeMichAn, verschwinde } from './praesenz.js'
 import { kaufMoeglich, kaufVorbereiten, kaufBeenden, istApp } from './kauf.js'
 import { baueBrueckenPlayer } from './ytBruecke.js'
 import Bezahlen from './Bezahlen.jsx'
+import Sprechen from './Sprechen.jsx'
 import KaufNativ from './KaufNativ.jsx'
 import { gleicheGeraetedatenAb } from './geraeteSync.js'
 import { merkeGelernt } from './lernkurve.js'
@@ -313,6 +314,15 @@ export default function App() {
   const [kasseOffen, setKasseOffen] = useState(
     () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse'
   )
+  // Der Sprach-Trainer – eigene Seite unter /sprechen
+  const [sprechenOffen, setSprechenOffen] = useState(
+    () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen'
+  )
+  useEffect(() => {
+    const auf = () => setSprechenOffen(true)
+    window.addEventListener('sprechen-oeffnen', auf)
+    return () => window.removeEventListener('sprechen-oeffnen', auf)
+  }, [])
 
   // Bereichs-Einführungen: Welche Infobox ist gerade offen, und läuft
   // der Rundgang (Index in RUNDGANG_REIHE)? null = nichts davon.
@@ -363,16 +373,17 @@ export default function App() {
   // Zurueck: Der Zurueck-Knopf des Browsers muss die Seite schliessen
   // und nicht die ganze App verlassen.
   useEffect(() => {
-    const soll = rechtSeite ? '/' + rechtSeite : kasseOffen ? '/kasse' : '/'
+    const soll = rechtSeite ? '/' + rechtSeite : kasseOffen ? '/kasse' : sprechenOffen ? '/sprechen' : '/'
     if (window.location.pathname !== soll) {
-      window.history.pushState({ recht: rechtSeite, kasse: kasseOffen }, '', soll)
+      window.history.pushState({ recht: rechtSeite, kasse: kasseOffen, sprechen: sprechenOffen }, '', soll)
     }
-  }, [rechtSeite, kasseOffen])
+  }, [rechtSeite, kasseOffen, sprechenOffen])
 
   useEffect(() => {
     const zurueck = () => {
       setRechtSeite(rechtAusAdresse())
       setKasseOffen(window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse')
+      setSprechenOffen(window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen')
     }
     window.addEventListener('popstate', zurueck)
     return () => window.removeEventListener('popstate', zurueck)
@@ -1358,6 +1369,11 @@ export default function App() {
         addXp={addXp}
       />
     )
+  }
+
+  // ---------- Der Sprach-Trainer: eigene Seite ohne Tab-Leiste
+  if (sprechenOffen) {
+    return <Sprechen onZurueck={() => setSprechenOffen(false)} />
   }
 
   // ---------- Die Kasse: eine eigene Seite, keine Karte in den

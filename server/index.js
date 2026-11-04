@@ -38,6 +38,7 @@ import {
   erzeugeVideoVokabeln,
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
+import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende, vergiss as sprechVergiss } from './sprechen.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
 import {
@@ -1120,5 +1121,26 @@ app.post('/api/konto/loeschen', async (req, res) => {
     res.status(500).json({ error: fehler.message })
   }
 })
+
+/* ------------------------------------------------------------------ *
+ *  Sprach-Trainer: Der Ton laeuft direkt zwischen Browser und OpenAI,
+ *  hier gibt es nur Freigabe, Schluessel und Auswertung.
+ * ------------------------------------------------------------------ */
+function sprechRoute(arbeit) {
+  return async (req, res) => {
+    try {
+      const nutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', ''))
+      if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+      res.json(await arbeit(nutzer, req.body ?? {}))
+    } catch (fehler) {
+      console.error('[sprechen]', fehler.message)
+      res.status(fehler.code || 500).json({ error: fehler.message })
+    }
+  }
+}
+app.get('/api/sprechen/status', sprechRoute((nutzer) => sprechStatus(nutzer)))
+app.post('/api/sprechen/start', sprechRoute(sprechStarte))
+app.post('/api/sprechen/ende', sprechRoute(sprechBeende))
+app.post('/api/sprechen/vergessen', sprechRoute(async (nutzer) => { await sprechVergiss(nutzer); return { ok: true } }))
 
 app.listen(PORT, () => console.log(`Transkript-Server läuft auf http://localhost:${PORT}`))
