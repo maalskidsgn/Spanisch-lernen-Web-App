@@ -1920,10 +1920,14 @@ export default {
 
   /* ---------------- Sprach-Trainer ---------------- */
   "spr.neu": "New",
+  "spr.tuerMarke": "AI speaking trainer",
+  "spr.punktSprechen": "Talk by voice",
+  "spr.punktAuswertung": "AI reviews everything",
+  "spr.punktLevel": "Level up",
   "spr.tuerTitel": "Talk to Habla",
-  "spr.tuerText": "A real voice conversation. It remembers your mistakes.",
+  "spr.tuerText": "You talk to an AI. It reviews every call and remembers your mistakes, so you level up over time.",
   "spr.titel": "Your speaking trainer",
-  "spr.untertitel": "Just start talking. Habla corrects you as you go and remembers what you should work on.",
+  "spr.untertitel": "You talk to an AI. Habla corrects you as you go, reviews everything and remembers your mistakes, so you level up over time.",
   "spr.akzentWaehlen": "Which Spanish?",
   "spr.argentinien": "Argentina",
   "spr.argentinienOrt": "Buenos Aires, with vos",

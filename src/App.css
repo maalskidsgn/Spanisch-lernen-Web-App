@@ -14694,3 +14694,6 @@ body.liest-video::before { background: var(--primary); }
 .spr-tuer-text { display: grid; gap: 1px; min-width: 0; color: var(--muted); font-size: .88rem; line-height: 1.35; }
 .spr-tuer-text small { font-size: .68rem; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; color: var(--primary); }
 .spr-tuer-text b { font-size: 1.05rem; font-weight: 900; color: var(--navy); }
+
+.spr-tuer-punkte { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.spr-tuer-punkte i { font-style: normal; font-size: .72rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: var(--flaeche); color: var(--navy); }

@@ -51,26 +51,38 @@ const zeit = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 
 // Die Karte wandert mit jedem Wechsel zwischen Woertern, Saetzen und
 // Texten neu in die Uebersicht. Gemerkt, damit sie dabei nicht flackert.
-let tuerFrei = false
+// Zusaetzlich gespeichert: Sonst erscheint die Karte bei jedem Start
+// erst nach der Serverantwort und schiebt die Seite nach unten.
+const TUER_SPEICHER = 'sprechen-tuer-frei'
+let tuerFrei = lies(TUER_SPEICHER, '') === 'ja'
 
 /** Die Karte ueber dem Trainer. Erscheint nur, wenn das Konto freigeschaltet ist. */
 export function SprechenTuer() {
   const t = useTexte()
   const [erlaubt, setErlaubt] = useState(tuerFrei)
   useEffect(() => {
-    if (istApp || tuerFrei) return
+    if (istApp) return
     api('/api/sprechen/status')
-      .then((d) => { tuerFrei = Boolean(d.erlaubt); setErlaubt(tuerFrei) })
+      .then((d) => {
+        tuerFrei = Boolean(d.erlaubt)
+        merke(TUER_SPEICHER, tuerFrei ? 'ja' : 'nein')
+        setErlaubt(tuerFrei)
+      })
       .catch(() => {})
   }, [])
-  if (!erlaubt) return null
+  if (!erlaubt || istApp) return null
   return (
     <button className="spr-tuer" onClick={() => window.dispatchEvent(new CustomEvent('sprechen-oeffnen'))}>
       <span className="spr-tuer-kreis" aria-hidden="true"><i /></span>
       <span className="spr-tuer-text">
-        <small>{t('spr.neu')}</small>
+        <small>{t('spr.tuerMarke')}</small>
         <b>{t('spr.tuerTitel')}</b>
         <span>{t('spr.tuerText')}</span>
+        <span className="spr-tuer-punkte">
+          <i>{t('spr.punktSprechen')}</i>
+          <i>{t('spr.punktAuswertung')}</i>
+          <i>{t('spr.punktLevel')}</i>
+        </span>
       </span>
     </button>
   )

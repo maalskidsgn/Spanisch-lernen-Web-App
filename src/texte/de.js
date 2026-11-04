@@ -1920,10 +1920,14 @@ export default {
 
   /* ---------------- Sprach-Trainer ---------------- */
   "spr.neu": "Neu",
+  "spr.tuerMarke": "KI-Sprachtrainer",
+  "spr.punktSprechen": "Per Stimme sprechen",
+  "spr.punktAuswertung": "KI wertet alles aus",
+  "spr.punktLevel": "Level steigern",
   "spr.tuerTitel": "Sprich mit Habla",
-  "spr.tuerText": "Echtes Gespräch per Stimme. Er merkt sich deine Fehler.",
+  "spr.tuerText": "Du sprichst mit einer KI. Sie wertet jedes Gespräch aus und merkt sich deine Fehler. So steigerst du langfristig dein Level.",
   "spr.titel": "Dein Sprach-Trainer",
-  "spr.untertitel": "Rede einfach los. Habla korrigiert dich im Gespräch und merkt sich, woran du arbeiten solltest.",
+  "spr.untertitel": "Du sprichst mit einer KI. Habla korrigiert dich im Gespräch, wertet alles aus und merkt sich deine Fehler. So steigerst du langfristig dein Level.",
   "spr.akzentWaehlen": "Welches Spanisch?",
   "spr.argentinien": "Argentinien",
   "spr.argentinienOrt": "Buenos Aires, mit vos",
