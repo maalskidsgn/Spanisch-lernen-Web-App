@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useTexte, t, gebiet } from './sprache.js'
+import { LEVEL_STUFEN, levelFromXp, levelName, xpForLevel } from './gamification.js'
+import LevelEmblem from './LevelEmblem.jsx'
 
 // Meilensteine: Abzeichen für gesammelte Wörter, gelesene Texte usw.
 // Jede Kategorie hat Stufen – Bronze bis Diamant. Ein erreichtes
@@ -156,11 +158,52 @@ async function teilen(daten) {
 }
 
 /**
+ * Alle Level-Stufen zum Durchwischen: was man schon hat, wo man steht
+ * und was noch kommt. Startet bei der eigenen Stufe, nicht bei Neuling.
+ */
+function LevelLeiste({ xp }) {
+  const t = useTexte()
+  const leiste = useRef(null)
+  const aktuell = useRef(null)
+  const level = levelFromXp(xp)
+  const stelle = LEVEL_STUFEN.findLastIndex((s) => level >= s.ab)
+
+  // Nur die Leiste selbst bewegen: scrollIntoView würde die Seite mitziehen
+  useLayoutEffect(() => {
+    const l = leiste.current
+    const k = aktuell.current
+    if (l && k) l.scrollLeft = k.offsetLeft - l.offsetLeft - (l.clientWidth - k.offsetWidth) / 2
+  }, [stelle])
+
+  return (
+    <div className="lvl-bereich">
+      <p className="start-abschnitt-sub lvl-titel">{t('ms.levelStufen')}</p>
+      <ol className="lvl-leiste" ref={leiste} tabIndex={0} aria-label={t('ms.levelStufen')}>
+        {LEVEL_STUFEN.map((s, i) => (
+          <li
+            key={s.ab}
+            ref={i === stelle ? aktuell : null}
+            className={'lvl-karte' + (i === stelle ? ' lvl-aktuell' : i > stelle ? ' lvl-offen' : '')}
+          >
+            <LevelEmblem level={s.ab} groesse={64} />
+            <b>{levelName(s.ab)}</b>
+            <span>{t('ms.abLevel', { zahl: s.ab })}</span>
+            <small>{xpForLevel(s.ab).toLocaleString(gebiet())} XP</small>
+            {i === stelle && <em>{t('ms.duBistHier')}</em>}
+          </li>
+        ))}
+      </ol>
+    </div>
+  )
+}
+
+/**
  * @param {object} werte – { woerter, texte, saetze, lektionen, streak, wiederholungen }
  * @param {string} app – "Habloo" / "Davaigo"
  * @param {string} adresse – "habloo.de"
+ * @param {number} xp – Gesamt-XP für die Level-Leiste
  */
-export default function Meilensteine({ werte, app, adresse }) {
+export default function Meilensteine({ werte, app, adresse, xp = 0 }) {
   const t = useTexte()
   const [offen, setOffen] = useState(null) // { k, stufe, ziel }
   const [meldung, setMeldung] = useState('')
@@ -183,6 +226,8 @@ export default function Meilensteine({ werte, app, adresse }) {
           {gesamt}/{moeglich}
         </span>
       </div>
+
+      <LevelLeiste xp={xp} />
 
       <div className="ms-liste">
         {KATEGORIEN.map((k) => {
@@ -211,7 +256,7 @@ export default function Meilensteine({ werte, app, adresse }) {
                     <button
                       key={ziel}
                       type="button"
-                      className={'ms-medaille' + (da ? t('msm.istDaMs') + i : '')}
+                      className={'ms-medaille' + (da ? ' ms-erreicht ms-stufe-' + i : '')}
                       disabled={!da}
                       onClick={() => { setMeldung(''); setOffen({ k, stufe: i, ziel }) }}
                       aria-label={`${t(STUFEN[i].name)}: ${ziel} ${t(einheit(k, ziel))}${da ? '' : t('msm.nochGesperrt')}`}

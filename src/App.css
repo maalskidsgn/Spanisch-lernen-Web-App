@@ -11764,12 +11764,12 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
 }
 .ms-medaille:disabled { cursor: default; opacity: .55; }
-.ms-medaille.ist-da { animation: ms-glanz 2.8s ease-in-out infinite; }
-.ms-medaille.ist-da:active { transform: scale(.92); }
+.ms-medaille.ms-erreicht { animation: ms-glanz 2.8s ease-in-out infinite; }
+.ms-medaille.ms-erreicht:active { transform: scale(.92); }
 @keyframes ms-glanz { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.12); } }
 .ms-medaille-symbol { font-size: 18px; line-height: 1; }
 .ms-medaille-zahl { font-size: .62rem; font-weight: 900; color: var(--navy); line-height: 1.3; }
-.ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.ms-medaille.ms-erreicht .ms-medaille-zahl { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
 
 .ms-schicht {
   position: fixed; inset: 0; z-index: 200;
@@ -11811,8 +11811,8 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 }
 .ms-medaille:disabled { opacity: 1; }
 .ms-medaille .ms-medaille-zahl { color: var(--muted); }
-.ms-medaille.ist-da { color: #fff; animation: none; box-shadow: 0 3px 0 var(--primary-press, var(--primary-dark)); }
-.ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: none; }
+.ms-medaille.ms-erreicht { color: #fff; animation: none; box-shadow: 0 3px 0 var(--primary-press, var(--primary-dark)); }
+.ms-medaille.ms-erreicht .ms-medaille-zahl { color: #fff; text-shadow: none; }
 .ms-medaille-symbol { display: grid; place-items: center; }
 .ms-stufe-0 { background: color-mix(in srgb, var(--primary) 38%, #fff); }
 .ms-stufe-1 { background: color-mix(in srgb, var(--primary) 55%, #fff); }
@@ -14447,6 +14447,53 @@ body.liest-video::before { background: var(--primary); }
 }
 .level-emblem-strahlen { filter: drop-shadow(0 0 3px rgba(255, 138, 26, .8)); }
 @keyframes emblem-strahlen { to { transform: rotate(360deg); } }
+
+/* Level-Leiste bei den Meilensteinen: läuft bis an den Kartenrand,
+   damit man sieht, dass es weitergeht */
+.lvl-bereich { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.lvl-titel { margin: 0 0 10px; }
+.lvl-leiste {
+  display: flex;
+  gap: 10px;
+  margin: 0 -18px;
+  padding: 2px 18px 6px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 18px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.lvl-leiste::-webkit-scrollbar { display: none; }
+.lvl-karte {
+  flex: 0 0 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 6px;
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  text-align: center;
+  scroll-snap-align: center;
+}
+.lvl-karte .level-emblem { margin-bottom: 6px; }
+.lvl-karte b { color: var(--navy); font-size: .85rem; line-height: 1.15; }
+.lvl-karte span { color: var(--muted); font-size: .74rem; font-weight: 700; }
+.lvl-karte small { color: var(--muted); font-size: .68rem; }
+.lvl-karte em {
+  margin-top: 5px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--primary);
+  color: #fff;
+  font-size: .64rem;
+  font-style: normal;
+  font-weight: 800;
+}
+.lvl-aktuell { border-color: var(--primary); background: #fff6ee; }
+.lvl-offen .level-emblem { opacity: .55; }
 
 /* Kopfleiste: Emblem, die Zahl als kleines Schild daran */
 .level-circle {

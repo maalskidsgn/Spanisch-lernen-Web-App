@@ -260,6 +260,7 @@ export default function Home({
       <Meilensteine
         app="Habloo"
         adresse="habloo.de"
+        xp={progress.xp}
         werte={{
           woerter: counts.woerter ?? 0,
           texte: counts.texte ?? 0,

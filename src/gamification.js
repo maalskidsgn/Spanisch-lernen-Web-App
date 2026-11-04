@@ -38,23 +38,28 @@ export const XP = {
 // Die Stufen: Ab Level `ab` gilt Titel und Emblem (LevelEmblem.jsx), bis
 // die nächste Stufe beginnt. Legende erst ab 50, Sol Eterno ab 100 – da
 // bleibt man dann.
+// Die Farben bleiben in der Marke: Orange wird kräftiger, ab Meister
+// kommt Navy, ab der Legende Gold. `funken` sind die Rangzeichen im Emblem.
 // Schluessel, nicht Namen: uebersetzt wird beim Anzeigen (levelName).
+const ORANGE = '#ff6c00'
+const NAVY = '#000041'
+const GOLD = '#ffc800'
 export const LEVEL_STUFEN = [
-  { ab: 1, name: 'lv.neuling', rahmen: 'kreis', symbol: 'keim', von: '#d9f2e0', bis: '#a5dfb8', kante: '#7cc896', farbe: '#1f9450' },
-  { ab: 3, name: 'lv.anfaenger', rahmen: 'kreis', symbol: 'blatt', von: '#4cc77f', bis: '#2aae5f', kante: '#1f9450', farbe: '#fff' },
-  { ab: 5, name: 'lv.entdecker', rahmen: 'kreis', symbol: 'kompass', von: '#3cc4b8', bis: '#1a9c91', kante: '#157f76', farbe: '#fff' },
-  { ab: 8, name: 'lv.lerner', rahmen: 'kreis', symbol: 'buch', von: '#6aa5f7', bis: '#3a78e0', kante: '#2c60ba', farbe: '#fff' },
-  { ab: 12, name: 'lv.kenner', rahmen: 'kreis', symbol: 'stern', von: '#a48cf5', bis: '#7655e0', kante: '#5d40bd', farbe: '#fff' },
-  { ab: 16, name: 'lv.koenner', rahmen: 'kreis', symbol: 'blitz', von: '#ff9a40', bis: '#ff6c00', kante: '#bf5200', farbe: '#fff' },
-  { ab: 20, name: 'lv.profi', rahmen: 'schild', symbol: 'haken', von: '#dc9a5f', bis: '#a7652e', kante: '#7f4a1e', farbe: '#fff' },
-  { ab: 25, name: 'lv.experte', rahmen: 'schild', symbol: 'diamant', von: '#e4e9ef', bis: '#9fadbd', kante: '#74838f', farbe: '#000041' },
-  { ab: 30, name: 'lv.meister', rahmen: 'schild', symbol: 'krone', von: '#ffe08a', bis: '#efa91c', kante: '#b97c07', farbe: '#000041' },
-  { ab: 40, name: 'lv.grossmeister', rahmen: 'schild', symbol: 'grosseKrone', von: '#ff8a1a', bis: '#d63a00', kante: '#ffd25e', farbe: '#fff4c9' },
-  { ab: 50, name: 'lv.legende', rahmen: 'sechseck', symbol: 'fluegel', von: '#1f1f7a', bis: '#000041', kante: '#ffc93c', farbe: '#ffd25e' },
-  { ab: 60, name: 'lv.mythos', rahmen: 'sechseck', symbol: 'komet', von: '#5a26b8', bis: '#1c0a57', kante: '#ff9ad5', farbe: '#ffd9ef' },
-  { ab: 70, name: 'lv.titan', rahmen: 'sechseck', symbol: 'berg', von: '#a11a34', bis: '#3a0713', kante: '#ffc93c', farbe: '#ffe08a' },
-  { ab: 85, name: 'lv.unsterblich', rahmen: 'sechseck', symbol: 'unendlich', von: '#3a2a1c', bis: '#0d0805', kante: '#ff6c00', farbe: '#ff9a40' },
-  { ab: 100, name: 'lv.solEterno', rahmen: 'strahlen', symbol: 'sonne', von: '#fff0b8', bis: '#ff8a1a', kante: '#ff6c00', farbe: '#fff' },
+  { ab: 1, name: 'lv.neuling', symbol: 'keim', von: '#ffe9d6', bis: '#ffcfa3', kante: '#ffb47a', blase: '#fff', farbe: ORANGE, funken: 0 },
+  { ab: 3, name: 'lv.anfaenger', symbol: 'blatt', von: '#ffd2a8', bis: '#ffae70', kante: '#ff9a40', blase: '#fff', farbe: ORANGE, funken: 0 },
+  { ab: 5, name: 'lv.entdecker', symbol: 'kompass', von: '#ffb77e', bis: '#ff9a40', kante: '#ff8124', blase: '#fff', farbe: ORANGE, funken: 0 },
+  { ab: 8, name: 'lv.lerner', symbol: 'buch', von: '#ffa35c', bis: '#ff8124', kante: ORANGE, blase: '#fff', farbe: ORANGE, funken: 0 },
+  { ab: 12, name: 'lv.kenner', symbol: 'stern', von: '#ff8f3d', bis: ORANGE, kante: '#e05f00', blase: '#fff', farbe: ORANGE, funken: 0 },
+  { ab: 16, name: 'lv.koenner', symbol: 'blitz', von: '#ff8124', bis: ORANGE, kante: '#bf5200', blase: '#fff', farbe: NAVY, funken: 0 },
+  { ab: 20, name: 'lv.profi', symbol: 'haken', von: ORANGE, bis: '#e05f00', kante: '#bf5200', blase: '#fff', farbe: ORANGE, funken: 1 },
+  { ab: 25, name: 'lv.experte', symbol: 'diamant', von: '#e05f00', bis: '#bf5200', kante: '#8f3d00', blase: '#fff', farbe: NAVY, funken: 1 },
+  { ab: 30, name: 'lv.meister', symbol: 'krone', von: '#1a1a66', bis: NAVY, kante: ORANGE, blase: '#fff', farbe: ORANGE, funken: 2 },
+  { ab: 40, name: 'lv.grossmeister', symbol: 'grosseKrone', von: '#1a1a66', bis: NAVY, kante: ORANGE, blase: ORANGE, farbe: '#fff', funken: 2 },
+  { ab: 50, name: 'lv.legende', symbol: 'fluegel', von: '#1a1a66', bis: NAVY, kante: GOLD, blase: ORANGE, farbe: '#fff', funken: 3 },
+  { ab: 60, name: 'lv.mythos', symbol: 'komet', von: '#1a1a66', bis: NAVY, kante: GOLD, blase: GOLD, farbe: NAVY, funken: 3 },
+  { ab: 70, name: 'lv.titan', symbol: 'berg', von: ORANGE, bis: '#bf5200', kante: GOLD, blase: NAVY, farbe: GOLD, funken: 3 },
+  { ab: 85, name: 'lv.unsterblich', symbol: 'unendlich', von: GOLD, bis: ORANGE, kante: NAVY, blase: NAVY, farbe: GOLD, funken: 3 },
+  { ab: 100, name: 'lv.solEterno', symbol: 'sonne', von: GOLD, bis: ORANGE, kante: ORANGE, blase: '#fff', farbe: ORANGE, funken: 0, strahlen: true },
 ]
 
 // Gesamt-XP, ab denen ein Level erreicht ist.

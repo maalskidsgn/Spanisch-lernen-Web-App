@@ -1,18 +1,18 @@
 // Die Embleme zu den Level-Stufen (LEVEL_STUFEN in gamification.js).
 //
-// Der Rahmen zeigt die Epoche: erst Kreis, ab Level 20 Schild, ab der
-// Legende Sechseck auf Dunkel, und nur Sol Eterno bekommt die Strahlen.
+// Jedes Emblem ist das Habloo-Logo: abgerundete Kachel, weiße Sprechblase
+// mit Spitze unten links. Statt des Funkens steht das Symbol der Stufe in
+// der Blase, die Funken wandern als Rangzeichen auf die Kachel.
 // Alles SVG, damit es in der Kopfleiste genauso scharf ist wie im Profil.
 import { useId } from 'react'
 import { levelName, levelStufe } from './gamification.js'
 
-const RAHMEN = {
-  kreis: 'M32 4a28 28 0 1 1 0 56a28 28 0 1 1 0-56z',
-  schild: 'M32 3l25 8v19c0 15.5-10.5 25.5-25 31C17.5 55.5 7 45.5 7 30V11z',
-  sechseck: 'M32 2l26 15v30L32 62L6 47V17z',
-}
+// Auf der goldenen Kachel von Unsterblich wären weiße Funken unsichtbar
+const NAVY_KANTE = '#000041'
+const BLASE = 'M14 9h36a8 8 0 0 1 8 8v22a8 8 0 0 1-8 8H29l-11 9.5V47h-4a8 8 0 0 1-8-8V17a8 8 0 0 1 8-8z'
+const FUNKE = 'M0-5c.8 3.2 1.8 4.2 5 5-3.2.8-4.2 1.8-5 5-.8-3.2-1.8-4.2-5-5 3.2-.8 4.2-1.8 5-5z'
 
-// Zwölf Zacken um die Mitte – der Strahlenkranz von Sol Eterno
+// Zwölf Zacken um die Kachel-Mitte – nur Sol Eterno bekommt den Strahlenkranz
 const STRAHLEN = Array.from({ length: 24 }, (_, i) => {
   const winkel = (i * Math.PI) / 12
   const r = i % 2 ? 22 : 31
@@ -31,13 +31,13 @@ const FLAECHE = {
   fluegel: 'M10.3 10.5C7.2 9.7 4 7.7 1.5 4.5c-.2 4.7.9 9.6 4 12 1.5 1.1 3.2 1.3 4.8.7zM13.7 10.5c3.1-.8 6.3-2.8 8.8-6 .2 4.7-.9 9.6-4 12-1.5 1.1-3.2 1.3-4.8.7zM12 6.5l1.7 4.5L12 19.5 10.3 11z',
   komet: 'M21.5 2.5L10 9a6.5 6.5 0 1 0 5 5z',
   berg: 'M1.5 20.5L8.8 7.5l3.2 4.7L15.3 5l7.2 15.5z',
-  sonne: 'M12 5.5a6.5 6.5 0 1 1 0 13a6.5 6.5 0 1 1 0-13z',
 }
 
 const LINIE = {
   keim: ['M12 21v-9', 'M12 12.5C12 8.5 9 6 4.5 6c0 4.5 3 6.5 7.5 6.5z', 'M12 15c0-3.5 3-5.5 7.5-5.5 0 4-3 5.5-7.5 5.5z'],
   kompass: ['M12 3a9 9 0 1 1 0 18a9 9 0 1 1 0-18z'],
   haken: ['M5 12.5l4.5 4.5L19 7'],
+  sonne: ['M12 7a5 5 0 1 1 0 10a5 5 0 1 1 0-10z', 'M12 2.5V4', 'M12 20v1.5', 'M2.5 12H4', 'M20 12h1.5', 'M5.3 5.3l1 1', 'M17.7 17.7l1 1', 'M18.7 5.3l-1 1', 'M6.3 17.7l-1 1'],
   unendlich: ['M7.5 8.3a3.7 3.7 0 0 0 0 7.4c3.6 0 5.4-7.4 9-7.4a3.7 3.7 0 0 1 0 7.4c-3.6 0-5.4-7.4-9-7.4z'],
 }
 
@@ -47,6 +47,7 @@ function Symbol({ name, farbe }) {
       <g fill="none" stroke={farbe} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
         {LINIE[name].map((d) => <path key={d} d={d} />)}
         {name === 'kompass' && <path d="M15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3z" fill={farbe} stroke="none" />}
+        {name === 'sonne' && <circle cx="12" cy="12" r="5" fill={farbe} stroke="none" />}
       </g>
     )
   }
@@ -61,13 +62,19 @@ function Symbol({ name, farbe }) {
 export default function LevelEmblem({ level, groesse = 48, klasse = '' }) {
   const stufe = levelStufe(level)
   const id = useId().replace(/[^a-zA-Z0-9]/g, '')
-  const { rahmen, von, bis, kante, farbe, symbol } = stufe
-  const istSol = rahmen === 'strahlen'
-  const form = istSol ? null : RAHMEN[rahmen]
+  const { von, bis, kante, blase, farbe, symbol, funken, strahlen } = stufe
+  const inhalt = (
+    <>
+      <path d={BLASE} fill={blase} />
+      <g transform="translate(17.6 13.6) scale(1.2)">
+        <Symbol name={symbol} farbe={farbe} />
+      </g>
+    </>
+  )
 
   return (
     <svg
-      className={`level-emblem level-emblem-${rahmen} ${klasse}`.trim()}
+      className={`level-emblem ${klasse}`.trim()}
       viewBox="0 0 64 64"
       width={groesse}
       height={groesse}
@@ -81,21 +88,21 @@ export default function LevelEmblem({ level, groesse = 48, klasse = '' }) {
           <stop offset="100%" stopColor={bis} />
         </linearGradient>
       </defs>
-      {istSol ? (
+      {strahlen ? (
         <>
           <polygon className="level-emblem-strahlen" points={STRAHLEN} fill={kante} />
-          <circle cx="32" cy="32" r="21" fill={`url(#${id}f)`} stroke="#fff4c9" strokeWidth="2" />
+          <circle cx="32" cy="32" r="22" fill={`url(#${id}f)`} stroke="#fff" strokeWidth="1.5" />
+          <g transform="translate(32 33) scale(.68) translate(-32 -33)">{inhalt}</g>
         </>
       ) : (
         <>
-          <path d={form} fill={`url(#${id}f)`} stroke={kante} strokeWidth="3" strokeLinejoin="round" />
-          {/* Heller Schein oben: macht aus der Fläche eine Plakette */}
-          <path d={form} fill="#fff" opacity=".14" transform="translate(32 20) scale(.8 .55) translate(-32 -32)" />
+          <rect x="1.5" y="1.5" width="61" height="61" rx="15" fill={`url(#${id}f)`} stroke={kante} strokeWidth="3" />
+          {inhalt}
+          {Array.from({ length: funken }, (_, i) => (
+            <path key={i} d={FUNKE} fill={kante === NAVY_KANTE ? NAVY_KANTE : '#fff'} transform={`translate(${52 - i * 10} 54.5)`} />
+          ))}
         </>
       )}
-      <g transform={`translate(${istSol ? 18.8 : 17.6} ${istSol ? 18.8 : 17.6}) scale(${istSol ? 1.1 : 1.2})`}>
-        <Symbol name={symbol} farbe={farbe} />
-      </g>
     </svg>
   )
 }

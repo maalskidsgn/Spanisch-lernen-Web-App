@@ -1080,7 +1080,6 @@ export default {
 
   /* ---------------- Meilensteine (Meldungen) ---------------- */
   "msm.textKopiertFueg": "Text kopiert – füg ihn ein, wo du willst.",
-  "msm.istDaMs": " ist-da ms-stufe-",
   "msm.nochGesperrt": " (noch gesperrt)",
 
   /* ---------------- Nachschlag (Meldungen) ---------------- */
@@ -1830,6 +1829,9 @@ export default {
   "mm.geschafft": "{zahl} {einheit} geschafft",
 
   /* ---------------- Level, Profil, Installieren ---------------- */
+  "ms.levelStufen": "Level-Stufen",
+  "ms.abLevel": "ab Level {zahl}",
+  "ms.duBistHier": "Du bist hier",
   "lv.neuling": "Neuling",
   "lv.anfaenger": "Anfänger",
   "lv.entdecker": "Entdecker",
