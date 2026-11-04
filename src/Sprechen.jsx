@@ -49,13 +49,19 @@ function merke(schluessel, wert) {
 }
 const zeit = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 
-/** Die Karte auf der Startseite. Erscheint nur, wenn das Konto freigeschaltet ist. */
+// Die Karte wandert mit jedem Wechsel zwischen Woertern, Saetzen und
+// Texten neu in die Uebersicht. Gemerkt, damit sie dabei nicht flackert.
+let tuerFrei = false
+
+/** Die Karte ueber dem Trainer. Erscheint nur, wenn das Konto freigeschaltet ist. */
 export function SprechenTuer() {
   const t = useTexte()
-  const [erlaubt, setErlaubt] = useState(false)
+  const [erlaubt, setErlaubt] = useState(tuerFrei)
   useEffect(() => {
-    if (istApp) return
-    api('/api/sprechen/status').then((d) => setErlaubt(Boolean(d.erlaubt))).catch(() => {})
+    if (istApp || tuerFrei) return
+    api('/api/sprechen/status')
+      .then((d) => { tuerFrei = Boolean(d.erlaubt); setErlaubt(tuerFrei) })
+      .catch(() => {})
   }, [])
   if (!erlaubt) return null
   return (

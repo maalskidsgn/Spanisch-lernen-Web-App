@@ -16,6 +16,7 @@ import { erfolgston } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
 import Gespraech from './Gespraech.jsx'
+import { SprechenTuer } from './Sprechen.jsx'
 import Nachschlag from './Nachschlag.jsx'
 import InfoKnopf from './InfoKnopf.jsx'
 import { faelligeBausteine } from './bausteine.js'
@@ -267,6 +268,7 @@ export default function Trainer({
    */
   const schalter = (
     <>
+      <SprechenTuer />
       <h1 className="trainer-titel">
         {t('tr.titel1')}{' '}
         <span className="accent">

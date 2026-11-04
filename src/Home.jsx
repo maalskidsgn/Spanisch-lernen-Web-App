@@ -1,4 +1,3 @@
-import { SprechenTuer } from './Sprechen.jsx'
 import { API_URL, istApp } from './api.js'
 import { TUTOREN } from './tutoren.js'
 import { MODULE, lektionenVon } from './lektionen.js'
@@ -163,8 +162,6 @@ export default function Home({
         </p>
       </div>
       )}
-
-      <SprechenTuer />
 
       {/* ============ 1. WEITERLERNEN ============ */}
       {LEKTIONSKARTE_ZEIGEN && (
