@@ -142,6 +142,20 @@ export async function merkeTagesXp(tag, punkte) {
  *
  * @returns {Promise<object|null>} null = nicht gefunden oder nicht verfügbar
  */
+/**
+ * Gesamt-XP einzelner Leute, fürs Level in der Monats- und Jahreswertung.
+ * Dort liefert die Rangliste nur die XP des Zeitraums – daraus berechnet
+ * stünde bei allen ein zu niedriges Emblem.
+ */
+export async function ladeGesamtXp(namen) {
+  const profile = await Promise.all(namen.map((n) => ladeProfil(n).catch(() => null)))
+  const xp = {}
+  namen.forEach((n, i) => {
+    if (profile[i]) xp[n] = profile[i].xp
+  })
+  return xp
+}
+
 export async function ladeProfil(benutzername) {
   if (!supabaseBereit || !benutzername) return null
   const { data, error } = await db.rpc('profil_oeffentlich', { name: benutzername })

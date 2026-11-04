@@ -7,6 +7,7 @@
 // Alles SVG, damit es in der Kopfleiste genauso scharf ist wie im Profil.
 import { useId } from 'react'
 import { levelName, levelStufe } from './gamification.js'
+import { useTexte } from './sprache.js'
 
 const BLASE = 'M19 5h26a15 15 0 0 1 15 15v17a15 15 0 0 1-15 15H31l-10.5 7.8c-1.5 1.1-3.5 0-3.5-1.8v-6c-7.7-.6-13-7-13-15V20A15 15 0 0 1 19 5z'
 const FUNKE = 'M0-5c.8 3.2 1.8 4.2 5 5-3.2.8-4.2 1.8-5 5-.8-3.2-1.8-4.2-5-5 3.2-.8 4.2-1.8 5-5z'
@@ -132,5 +133,23 @@ export default function LevelEmblem({ level, groesse = 48, klasse = '' }) {
         </>
       )}
     </svg>
+  )
+}
+
+/** Emblem mit Titel und Level – so steht es in den Profilen. */
+export function LevelPlakette({ level }) {
+  const t = useTexte()
+  const { farbe, sol } = levelStufe(level)
+  return (
+    <div
+      className={'level-plakette' + (sol ? ' level-plakette-sol' : '')}
+      style={sol ? undefined : { '--plakette-ton': farbe }}
+    >
+      <LevelEmblem level={level} groesse={56} />
+      <span>
+        <b>{levelName(level)}</b>
+        <small>{t('se9.levelNr', { zahl: level })}</small>
+      </span>
+    </div>
   )
 }

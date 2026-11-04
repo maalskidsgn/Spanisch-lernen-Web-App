@@ -4,7 +4,7 @@ import {
   usePremium, zurKasse, aboVerwalten,
   TESTPHASE_ALLES_FREI, testkaufAn, testkaufAus, testkaufLaeuft,
 } from './premium.js'
-import { levelFromXp, levelName, xpHeute } from './gamification.js'
+import { levelFromXp, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
@@ -20,7 +20,7 @@ import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 import { useTexte, SPRACHEN, sprache, setzeSprache, gebiet } from './sprache.js'
-import LevelEmblem from './LevelEmblem.jsx'
+import { LevelPlakette } from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
 
 // Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
@@ -366,7 +366,6 @@ export default function Settings({
               {bildLaeuft ? '…' : '✎'}
             </span>
           </button>
-          <span className="pf-level"><LevelEmblem level={level} groesse={50} /></span>
           <input
             ref={bildFeld}
             type="file"
@@ -389,7 +388,7 @@ export default function Settings({
           />
         </div>
         <h1 className="pf-name">{benutzername || anzeigename(nutzer)}</h1>
-        <p className="pf-rang">{t('se9.levelNr', { zahl: level })} · {levelName(level)}</p>
+        <LevelPlakette level={level} />
         {bild && (
           <button
             className="btn-plain pf-bild-weg"

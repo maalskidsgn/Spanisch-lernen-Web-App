@@ -14523,43 +14523,44 @@ body.liest-video::before { background: var(--primary); }
 .lvl-sol b { color: #ffd23c; }
 .lvl-sol span, .lvl-sol small { color: #e9e4ff; }
 
-/* Kopfleiste: Emblem, die Zahl als kleines Schild daran */
-.level-circle {
-  position: relative;
-  background: none;
-  box-shadow: none;
-  color: var(--navy);
+/* Profile: Emblem mit Titel und Level als weiche Plakette */
+.level-plakette {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 8px 22px 8px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--plakette-ton, var(--primary)) 9%, #fff);
+  text-align: left;
 }
-.level-circle .level-emblem { width: 100%; height: 100%; }
-.level-circle-zahl {
-  position: absolute;
-  right: -5px;
-  bottom: -4px;
-  min-width: 15px;
-  height: 15px;
-  padding: 0 3px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
-  background: #fff;
-  border: 1px solid var(--line);
-  font-size: 10px;
-  font-weight: 900;
+.level-plakette span { display: flex; flex-direction: column; gap: 1px; line-height: 1.15; }
+.level-plakette b { color: var(--navy); font-size: 1.05rem; font-weight: 900; }
+.level-plakette small { color: var(--plakette-ton, var(--primary)); font-size: .8rem; font-weight: 800; }
+.level-plakette-sol { background: linear-gradient(160deg, #1a1a66, #000041 60%, #3d0a4f); }
+.level-plakette-sol b { color: #ffd23c; }
+.level-plakette-sol small { color: #e9e4ff; }
+
+/* Liga: eigene Spalte vor den XP, damit die Embleme untereinander stehen */
+.rang-emblem { flex: none; width: 28px; height: 28px; }
+
+/* Podest: Das Emblem steht auf dem Block, die Platzziffer darunter */
+.rang-podest .rs-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 17px;
   line-height: 1;
 }
-
-/* Profile: Das Emblem löst die Zahl im weißen Kreis ab */
-.pf-level, .ps-level {
-  min-width: 0;
-  height: auto;
-  padding: 0;
-  background: none;
-  border: 0;
-  border-radius: 0;
-  filter: drop-shadow(0 3px 5px rgba(0, 0, 65, .22));
+.rs-block .level-emblem { filter: drop-shadow(0 3px 5px rgba(120, 50, 0, .28)); }
+.rs-block .level-emblem-sol {
+  filter: drop-shadow(0 0 6px rgba(255, 179, 0, .75)) drop-shadow(0 0 14px rgba(255, 95, 162, .45));
 }
-.pf-level { right: -12px; bottom: -10px; }
-.ps-level { right: -11px; bottom: -9px; }
+.rang-podest .rang-erster .rs-block { height: 92px; }
+.rang-podest .rang-zweiter .rs-block { height: 76px; }
+.rang-podest .rang-dritter .rs-block { height: 64px; }
 
 .levelup-emoji { display: grid; place-items: center; }
 .levelup-sol { background: linear-gradient(160deg, #1a1a66, #000041 60%, #3d0a4f); }

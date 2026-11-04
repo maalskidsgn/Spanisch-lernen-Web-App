@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import { ladeProfil, blockiere } from './rangliste.js'
 import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
-import { levelFromXp, levelName } from './gamification.js'
+import { levelFromXp } from './gamification.js'
 import { useTexte, gebiet, t } from './sprache.js'
-import LevelEmblem from './LevelEmblem.jsx'
+import { LevelPlakette } from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
@@ -91,11 +91,10 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
           <>
             <span className="ps-rahmen">
               <Bildnis name={profil.benutzername} bild={profil.bild} klasse="ps-bild" />
-              <span className="ps-level"><LevelEmblem level={level} groesse={44} /></span>
             </span>
 
             <h2 className="ps-name">{profil.benutzername}</h2>
-            <p className="ps-rang">{t('se9.levelNr', { zahl: level })} · {levelName(level)}</p>
+            <LevelPlakette level={level} />
 
             <div className="ps-platz">{t('ps9.platz', { zahl: profil.platz })}</div>
 

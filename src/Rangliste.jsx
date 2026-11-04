@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   ladeBenutzername, ladeRangliste, setzeBenutzername, istNameFrei, nameFehler, ZEITRAEUME,
-  bildAdresse, einladungsLink, loeseEinladungEin,
+  bildAdresse, einladungsLink, loeseEinladungEin, ladeGesamtXp,
 } from './rangliste.js'
+import { levelFromXp } from './gamification.js'
+import LevelEmblem from './LevelEmblem.jsx'
 import Logo from './Logo.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
 import { useTexte, gebiet } from './sprache.js'
@@ -38,6 +40,7 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   // stehen und blendet nur ab. Sie ganz zu entfernen liess die Karte
   // zusammenklappen – das sprang.
   const [wechselt, setWechselt] = useState(false)
+  const [gesamtXp, setGesamtXp] = useState({}) // Name -> Gesamt-XP, für die Embleme bei Monat und Jahr
   // Wer gerade angeschaut wird – leer heisst: niemand
   const [schau, setSchau] = useState('')
   // Nur Freunde: macht die Liste persönlich – gegen Leute antreten,
@@ -84,6 +87,19 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nutzerId, zeitraum, nurFreunde])
 
+  // Monat und Jahr: Für das Emblem zählen trotzdem die Gesamt-XP
+  useEffect(() => {
+    if (zeitraum === 'gesamt' || !liste) return
+    const fehlen = liste.map((z) => z.benutzername).filter((n) => !(n in gesamtXp))
+    if (!fehlen.length) return
+    let aktiv = true
+    ladeGesamtXp(fehlen).then((neu) => {
+      if (aktiv) setGesamtXp((alt) => ({ ...alt, ...neu }))
+    })
+    return () => { aktiv = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zeitraum, liste])
+
   if (name === undefined || liste === null) return null
 
   // Die eigenen XP liegen lokal frischer vor als in der Datenbank
@@ -92,8 +108,14 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
   // Datenbank. Bei Monat und Jahr wäre der Gesamtstand schlicht falsch.
   const zeilen =
     zeitraum === 'gesamt'
-      ? liste.map((z) => (z.ich ? { ...z, xp: Math.max(z.xp, eigeneXp) } : z))
-      : liste
+      ? liste.map((z) => {
+          const xp = z.ich ? Math.max(z.xp, eigeneXp) : z.xp
+          return { ...z, xp, level: levelFromXp(xp) }
+        })
+      : liste.map((z) => {
+          const gesamt = z.ich ? eigeneXp : gesamtXp[z.benutzername]
+          return { ...z, level: gesamt === undefined ? null : levelFromXp(gesamt) }
+        })
   // Bei Monat und Jahr nur zeigen, wer in dem Zeitraum wirklich XP
   // hat. Sich selbst mit 0 XP allein in der Liste zu sehen, wirkt
   // wie ein Fehler – dann lieber der Hinweis darunter.
@@ -343,7 +365,10 @@ function Saeule({ z, stufe, onOeffnen }) {
         {z.ich && <small>{t('rl9.duMarke')}</small>}
       </span>
       <span className="rs-xp">{z.xp.toLocaleString(gebiet())} XP</span>
-      <span className="rs-block">{z.platz}</span>
+      <span className="rs-block">
+        {z.level && <LevelEmblem level={z.level} groesse={{ erster: 54, zweiter: 44, dritter: 36 }[stufe]} />}
+        {z.platz}
+      </span>
     </button>
   )
 }
@@ -373,6 +398,9 @@ function RangZeile({ z, nr = 0, onOeffnen }) {
         {z.benutzername}
         {z.ich && <small>{t('rl9.duMarke')}</small>}
       </span>
+        <span className="rang-emblem">
+          {z.level && <LevelEmblem level={z.level} groesse={28} />}
+        </span>
         <b className="rang-xp">
           {z.xp.toLocaleString(gebiet())}
           <small>XP</small>

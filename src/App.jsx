@@ -1465,8 +1465,7 @@ export default function App() {
           >
             {/* key={xp} lässt den Kreis bei jedem XP-Gewinn kurz hüpfen */}
             <span className="level-circle" key={progress.xp}>
-              <LevelEmblem level={level} groesse={30} />
-              <b className="level-circle-zahl">{level}</b>
+              {level}
             </span>
             <div className="xp-bar">
               <div className="xp-bar-fill" style={{ width: levelPercent + '%' }} />
