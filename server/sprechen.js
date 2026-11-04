@@ -18,8 +18,11 @@ const AUSWERTUNG = 'gpt-4o-mini'
 
 /** Laenger laeuft ein Gespraech nicht – der Browser legt dann auf. */
 export const MAX_MINUTEN_GESPRAECH = 10
-export const MINUTEN_PRO_TAG = 30
+export const MINUTEN_FREI = 10
+export const MINUTEN_PREMIUM = 120
 
+// Zum Testen: Diese Konten rechnen wie Premium, auch ohne Abo.
+const PREMIUM_TESTER = (process.env.SPRECH_PREMIUM || 'manuel').toLowerCase().split(',').map((s) => s.trim())
 const TESTER = (process.env.SPRECH_TESTER || 'manuel,maalski.dsgn,jim').toLowerCase().split(',').map((s) => s.trim())
 
 /**
@@ -75,10 +78,26 @@ function minutenVon(g) {
   return Math.min(max, (new Date(g.ende) - new Date(g.beginn)) / 60000)
 }
 
-async function minutenHeute(nutzerId) {
-  const seit = new Date(Date.now() - 24 * 3600 * 1000).toISOString()
+// Bewusst das echte Abo aus "abos", nicht die Testphase aus gespraech.js.
+async function istPremiumKonto(nutzerId) {
+  const { data: profil } = await db().from('profile').select('benutzername').eq('id', nutzerId).maybeSingle()
+  if (PREMIUM_TESTER.includes(String(profil?.benutzername ?? '').toLowerCase())) return true
+  const { data: abo } = await db().from('abos').select('status, laeuft_ab').eq('nutzer_id', nutzerId).maybeSingle()
+  if (!abo || abo.status === 'abgelaufen') return false
+  return abo.laeuft_ab === null || new Date(abo.laeuft_ab) > new Date()
+}
+
+async function minutenImMonat(nutzerId) {
+  const jetzt = new Date()
+  const seit = new Date(Date.UTC(jetzt.getUTCFullYear(), jetzt.getUTCMonth(), 1)).toISOString()
   const { data } = await db().from('sprech_gespraeche').select('beginn, ende').eq('nutzer_id', nutzerId).gte('beginn', seit)
   return (data ?? []).reduce((summe, g) => summe + minutenVon(g), 0)
+}
+
+async function kontingent(nutzerId) {
+  const [premium, genutzt] = await Promise.all([istPremiumKonto(nutzerId), minutenImMonat(nutzerId)])
+  const gesamt = premium ? MINUTEN_PREMIUM : MINUTEN_FREI
+  return { premium, gesamt, restSekunden: Math.max(0, Math.floor((gesamt - genutzt) * 60)) }
 }
 
 async function gedaechtnis(nutzerId) {
@@ -88,10 +107,12 @@ async function gedaechtnis(nutzerId) {
 
 export async function status(nutzer) {
   if (!(await istTester(nutzer.id))) return { erlaubt: false }
-  const [genutzt, g] = await Promise.all([minutenHeute(nutzer.id), gedaechtnis(nutzer.id)])
+  const [k, g] = await Promise.all([kontingent(nutzer.id), gedaechtnis(nutzer.id)])
   return {
     erlaubt: true,
-    restMinuten: Math.max(0, Math.floor(MINUTEN_PRO_TAG - genutzt)),
+    premium: k.premium,
+    kontingentMinuten: k.gesamt,
+    restMinuten: Math.floor(k.restSekunden / 60),
     maxMinuten: MAX_MINUTEN_GESPRAECH,
     gedaechtnis: { zuletzt: g.zuletzt, fehler: g.fehler, merken: g.merken, gespraeche: g.gespraeche },
   }
@@ -136,7 +157,8 @@ START: Greet them in one short sentence. If you know them, refer to something fr
 export async function starte(nutzer, { akzent, niveau, sprache }) {
   if (!(await istTester(nutzer.id))) throw new Fehler(403, 'Der Sprach-Trainer ist noch nicht freigeschaltet.')
   if (!AKZENTE[akzent]) throw new Fehler(400, 'Diesen Akzent gibt es nicht.')
-  if ((await minutenHeute(nutzer.id)) >= MINUTEN_PRO_TAG) throw new Fehler(402, 'limit')
+  const k = await kontingent(nutzer.id)
+  if (k.restSekunden <= 0) throw new Fehler(402, 'limit')
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Fehler(500, 'Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -170,7 +192,12 @@ export async function starte(nutzer, { akzent, niveau, sprache }) {
 
   const { data: zeile, error } = await db().from('sprech_gespraeche').insert({ nutzer_id: nutzer.id, akzent }).select('id').single()
   if (error) throw new Fehler(500, error.message)
-  return { id: zeile.id, schluessel: daten.value, maxMinuten: MAX_MINUTEN_GESPRAECH }
+  return {
+    id: zeile.id,
+    schluessel: daten.value,
+    premium: k.premium,
+    maxSekunden: Math.min(MAX_MINUTEN_GESPRAECH * 60, k.restSekunden),
+  }
 }
 
 /* ---------------------------------------------------------------- *

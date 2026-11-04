@@ -14697,3 +14697,12 @@ body.liest-video::before { background: var(--primary); }
 
 .spr-tuer-punkte { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
 .spr-tuer-punkte i { font-style: normal; font-size: .72rem; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: var(--flaeche); color: var(--navy); }
+
+.spr-abo { width: 100%; box-sizing: border-box; display: grid; gap: 6px; justify-items: center; text-align: center; padding: 15px; margin-bottom: 14px; border-radius: 18px; background: var(--flaeche); color: var(--navy); }
+.spr-abo b { font-weight: 900; font-size: 1.02rem; }
+.spr-abo span { font-size: .85rem; line-height: 1.4; color: var(--muted); }
+.spr-abo .btn { margin-top: 6px; }
+.spr-anruf { position: relative; }
+.spr-xp-flug { position: absolute; top: 22px; right: 22px; padding: 7px 13px; border-radius: 999px; background: #ffc800; color: #241338; font-weight: 900; font-size: 1rem; box-shadow: 0 6px 16px rgba(255, 200, 0, .4); animation: spr-xp 2.2s ease-out forwards; }
+@keyframes spr-xp { 0% { opacity: 0; transform: translateY(14px) scale(.8); } 15% { opacity: 1; transform: translateY(0) scale(1.08); } 75% { opacity: 1; transform: translateY(-6px) scale(1); } 100% { opacity: 0; transform: translateY(-24px); } }
+.spr-karte p.spr-xp-bericht { color: var(--navy); font-weight: 900; margin-bottom: 6px; }
