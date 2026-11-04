@@ -14706,3 +14706,31 @@ body.liest-video::before { background: var(--primary); }
 .spr-xp-flug { position: absolute; top: 22px; right: 22px; padding: 7px 13px; border-radius: 999px; background: #ffc800; color: #241338; font-weight: 900; font-size: 1rem; box-shadow: 0 6px 16px rgba(255, 200, 0, .4); animation: spr-xp 2.2s ease-out forwards; }
 @keyframes spr-xp { 0% { opacity: 0; transform: translateY(14px) scale(.8); } 15% { opacity: 1; transform: translateY(0) scale(1.08); } 75% { opacity: 1; transform: translateY(-6px) scale(1); } 100% { opacity: 0; transform: translateY(-24px); } }
 .spr-karte p.spr-xp-bericht { color: var(--navy); font-weight: 900; margin-bottom: 6px; }
+
+.spr-erklaeren { margin-bottom: 12px; font-weight: 800; }
+.spr-live-woerter { width: 100%; box-sizing: border-box; margin-bottom: 14px; text-align: left; }
+.spr-live-woerter small { display: block; margin-bottom: 6px; font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.spr-live-woerter div { display: flex; flex-wrap: wrap; gap: 6px; }
+.spr-live-woerter span { padding: 6px 10px; border-radius: 12px; background: var(--flaeche); font-size: .82rem; color: var(--muted); animation: spr-wort .35s ease-out; }
+.spr-live-woerter b { color: var(--navy); font-weight: 900; }
+@keyframes spr-wort { from { opacity: 0; transform: translateY(6px); } }
+.spr-vokabeln { display: grid; gap: 7px; margin: 12px 0; }
+.spr-vokabeln label { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 14px; background: var(--flaeche); cursor: pointer; }
+.spr-vokabeln input { flex: none; width: 19px; height: 19px; accent-color: var(--primary); }
+.spr-vokabeln span { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.spr-vokabeln b { color: var(--navy); font-weight: 900; }
+.spr-vokabeln small { color: var(--muted); font-size: .8rem; }
+.spr-karte p.spr-niveau-schaetzung { margin-top: 10px; color: var(--navy); }
+.spr-karte p.spr-niveau-schaetzung b { color: var(--primary); font-weight: 900; }
+.spr-archiv-liste { display: grid; gap: 7px; margin-top: 10px; }
+.spr-archiv-liste button { display: grid; gap: 2px; width: 100%; padding: 12px 14px; text-align: left; font: inherit; color: var(--navy); border: 1.5px solid var(--line); border-radius: 14px; background: #fff; cursor: pointer; line-height: 1.35; font-size: .9rem; }
+.spr-archiv-liste small { color: var(--muted); font-size: .72rem; font-weight: 800; }
+.spr-archiv-titel { margin-top: 10px !important; }
+.spr-karte p.spr-archiv-meldung { margin: 10px 0 0; padding: 9px 12px; border-radius: 12px; background: var(--flaeche); color: var(--navy); font-weight: 800; font-size: .84rem; }
+.spr-archiv-verlauf { display: grid; gap: 8px; margin: 14px 0; }
+.spr-archiv-zeile { display: flex; gap: 7px; align-items: flex-start; max-width: 92%; }
+.spr-archiv-zeile.ist-ich { justify-self: end; flex-direction: row-reverse; }
+.spr-archiv-ton { flex: none; width: 30px; height: 30px; border: 0; border-radius: 50%; display: grid; place-items: center; color: var(--primary); background: var(--flaeche); cursor: pointer; }
+.spr-karte .spr-archiv-zeile p { margin: 0; padding: 8px 11px; border-radius: 14px; background: var(--flaeche); line-height: 1.55; min-width: 0; }
+.spr-archiv-wort { padding: 0 3px; border: 0; border-radius: 6px; background: none; font: inherit; color: var(--navy); cursor: pointer; }
+.spr-archiv-wort:hover, .spr-archiv-wort:focus-visible { background: rgba(127, 127, 127, .18); }

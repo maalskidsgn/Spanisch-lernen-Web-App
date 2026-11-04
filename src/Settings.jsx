@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { API_URL, istApp } from './api.js'
+import { kaufMoeglich } from './kauf.js'
 import {
   usePremium, zurKasse, aboVerwalten,
   TESTPHASE_ALLES_FREI, testkaufAn, testkaufAus, testkaufLaeuft,
@@ -567,6 +568,8 @@ export default function Settings({
                 </button>
               )}
             </>
+          ) : istApp && kaufMoeglich() ? (
+            <button onClick={onKasse}>{t('se9.premiumHolen')}</button>
           ) : istApp ? (
             /* Kein Kauf und kein Link nach draussen – nur der neutrale
                Hinweis, dass ein bestehendes Abo hier ankommt. */

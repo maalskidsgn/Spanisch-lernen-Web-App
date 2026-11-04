@@ -32,3 +32,14 @@ drop policy if exists "gespraeche lesen" on sprech_gespraeche;
 create policy "gespraeche lesen" on sprech_gespraeche for select using (auth.uid() = nutzer_id);
 drop policy if exists "gedaechtnis lesen" on sprech_gedaechtnis;
 create policy "gedaechtnis lesen" on sprech_gedaechtnis for select using (auth.uid() = nutzer_id);
+
+-- Erweiterung: hartes Limit, gespeicherte Gespraeche, Lernprofil
+alter table sprech_gespraeche add column if not exists call_id text;
+alter table sprech_gespraeche add column if not exists bis timestamptz;
+alter table sprech_gespraeche add column if not exists verlauf jsonb;
+alter table sprech_gespraeche add column if not exists zusammenfassung text;
+alter table sprech_gespraeche add column if not exists fehler jsonb;
+alter table sprech_gespraeche add column if not exists vokabeln jsonb;
+alter table sprech_gespraeche add column if not exists tokens jsonb;
+alter table sprech_gedaechtnis add column if not exists profil jsonb not null default '{}';
+create index if not exists sprech_gespraeche_offen on sprech_gespraeche (bis) where ende is null;

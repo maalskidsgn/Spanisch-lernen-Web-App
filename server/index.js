@@ -38,7 +38,7 @@ import {
   erzeugeVideoVokabeln,
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
-import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende, vergiss as sprechVergiss } from './sprechen.js'
+import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende, vergiss as sprechVergiss, gespraeche as sprechGespraeche, gespraech as sprechGespraech, loesche as sprechLoesche, suche as sprechSuche, starteAufsicht as sprechAufsicht } from './sprechen.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
 import {
@@ -1131,7 +1131,7 @@ function sprechRoute(arbeit) {
     try {
       const nutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', ''))
       if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
-      res.json(await arbeit(nutzer, req.body ?? {}))
+      res.json(await arbeit(nutzer, req.body ?? {}, req))
     } catch (fehler) {
       console.error('[sprechen]', fehler.message)
       res.status(fehler.code || 500).json({ error: fehler.message })
@@ -1141,6 +1141,11 @@ function sprechRoute(arbeit) {
 app.get('/api/sprechen/status', sprechRoute((nutzer) => sprechStatus(nutzer)))
 app.post('/api/sprechen/start', sprechRoute(sprechStarte))
 app.post('/api/sprechen/ende', sprechRoute(sprechBeende))
+app.get('/api/sprechen/gespraeche', sprechRoute(sprechGespraeche))
+app.get('/api/sprechen/gespraech/:id', sprechRoute(sprechGespraech))
+app.post('/api/sprechen/gespraech/:id/loeschen', sprechRoute(sprechLoesche))
+app.post('/api/sprechen/suche', sprechRoute(sprechSuche))
+sprechAufsicht()
 app.post('/api/sprechen/vergessen', sprechRoute(async (nutzer) => { await sprechVergiss(nutzer); return { ok: true } }))
 
 app.listen(PORT, () => console.log(`Transkript-Server läuft auf http://localhost:${PORT}`))

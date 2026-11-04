@@ -65,7 +65,7 @@ const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
 // Zum Zurückdrehen: diesen Schalter auf false setzen. Dann gilt
 // wieder das Abo aus der Datenbank, der Code darunter ist
 // unverändert geblieben.
-const TESTPHASE_ALLES_FREI = true
+const TESTPHASE_ALLES_FREI = false
 
 export async function istPremium(nutzerId) {
   if (TESTPHASE_ALLES_FREI) return true

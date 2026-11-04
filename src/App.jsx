@@ -1373,7 +1373,7 @@ export default function App() {
 
   // ---------- Der Sprach-Trainer: eigene Seite ohne Tab-Leiste
   if (sprechenOffen) {
-    return <Sprechen onZurueck={() => setSprechenOffen(false)} addXp={addXp} />
+    return <Sprechen onZurueck={() => setSprechenOffen(false)} addXp={addXp} onAddVocab={addVocabWords} />
   }
 
   // ---------- Die Kasse: eine eigene Seite, keine Karte in den

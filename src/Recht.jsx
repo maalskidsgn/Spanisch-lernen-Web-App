@@ -171,6 +171,14 @@ export function Datenschutz({ onZurueck }) {
         drittland={t("rt3.verarbeitungKannIn")}
       />
       <Empfaenger
+        name="OpenAI (Sprach-Trainer)"
+        zweck={t("rt5.sprachZweck")}
+        daten={t("rt5.sprachDaten")}
+        sitz={t("rt3.openaiIrelandLtd")}
+        grundlage="Art. 6 Abs. 1 lit. a DSGVO"
+        drittland={t("rt3.verarbeitungKannIn")}
+      />
+      <Empfaenger
         name={t("rt3.anthropicNurPremium")}
         zweck={t("rt3.erzeugenZweisprachigerE")}
         daten={t("rt3.dasVonDir")}
@@ -226,6 +234,9 @@ export function Datenschutz({ onZurueck }) {
       <P className="recht-hinweis">
         <b>{t('rt.nichtInDieser')}</b> {t('rt4.sprachaufnahmen')}
       </P>
+
+      <H3>{t("rt5.sprachTitel")}</H3>
+      <P>{t("rt5.sprachText")}</P>
 
       <H2>{t('rt.4CookiesUnd')}</H2>
       <P>{t('rtl.hablooSpeichertDeinen')}</P>
