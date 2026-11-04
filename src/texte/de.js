@@ -1920,7 +1920,7 @@ export default {
 
   /* ---------------- Sprach-Trainer ---------------- */
   "spr.neu": "Neu",
-  "spr.tuerTitel": "Sprich mit deinem Trainer",
+  "spr.tuerTitel": "Sprich mit Habla",
   "spr.tuerText": "Echtes Gespräch per Stimme. Er merkt sich deine Fehler.",
   "spr.titel": "Dein Sprach-Trainer",
   "spr.untertitel": "Rede einfach los. Habla korrigiert dich im Gespräch und merkt sich, woran du arbeiten solltest.",
@@ -1939,6 +1939,7 @@ export default {
   "spr.gedaechtnis": "Das merkt sich Habla",
   "spr.gedaechtnisLeer": "Noch nichts. Nach dem ersten Gespräch stehen hier deine Fehler und Ziele.",
   "spr.gespraecheBisher": "{zahl} Gespräche",
+  "spr.einGespraech": "1 Gespräch",
   "spr.haeufigeFehler": "Deine häufigsten Fehler",
   "spr.dasWeissIch": "Über dich",
   "spr.vergessen": "Gedächtnis löschen",

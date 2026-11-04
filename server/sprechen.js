@@ -20,7 +20,7 @@ const AUSWERTUNG = 'gpt-4o-mini'
 export const MAX_MINUTEN_GESPRAECH = 10
 export const MINUTEN_PRO_TAG = 30
 
-const TESTER = (process.env.SPRECH_TESTER || 'manuel,maalski.dsgn').toLowerCase().split(',').map((s) => s.trim())
+const TESTER = (process.env.SPRECH_TESTER || 'manuel,maalski.dsgn,jim').toLowerCase().split(',').map((s) => s.trim())
 
 /**
  * Die Akzente. Die Stimme allein macht laut Entwicklerberichten keinen

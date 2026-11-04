@@ -12,8 +12,22 @@
 
 	# Fertige Dateien tragen eine Prüfsumme im Namen und ändern sich
 	# nie – die dürfen lange im Zwischenspeicher bleiben.
-	@statisch path /assets/*
+	#
+	# Nur was es wirklich gibt: Waehrend eines Deployments kann jemand
+	# schon die neue index.html haben, die neue JS-Datei aber noch nicht.
+	# Am 04.11. bekam Chrome dafuer die index.html, merkte sie sich ein
+	# Jahr lang als "JS-Datei", und die App blieb weiss.
+	@statisch {
+		path /assets/*
+		file
+	}
 	header @statisch Cache-Control "public, max-age=31536000, immutable"
+
+	@fehlt {
+		path /assets/*
+		not file
+	}
+	header @fehlt Cache-Control "no-store"
 
 	# Alles andere NIEMALS zwischenspeichern. Sonst sieht jemand nach
 	# einer Aktualisierung noch tagelang die alte App und verweist auf
@@ -34,6 +48,11 @@
 
 	# Blog/Ratgeber: fertige HTML-Seiten unter /blog/... – Ordner-Adressen
 	# bekommen ihre index.html, alles andere geht wie bisher an die App.
-	try_files {path} {path}/index.html {path}index.html /index.html
+	#
+	# Nicht fuer /assets/: Eine fehlende Datei dort ist ein echtes 404.
+	@seiten not path /assets/*
+	route @seiten {
+		try_files {path} {path}/index.html {path}index.html /index.html
+	}
 	file_server
 }

@@ -1920,7 +1920,7 @@ export default {
 
   /* ---------------- Sprach-Trainer ---------------- */
   "spr.neu": "New",
-  "spr.tuerTitel": "Talk to your trainer",
+  "spr.tuerTitel": "Talk to Habla",
   "spr.tuerText": "A real voice conversation. It remembers your mistakes.",
   "spr.titel": "Your speaking trainer",
   "spr.untertitel": "Just start talking. Habla corrects you as you go and remembers what you should work on.",
@@ -1939,6 +1939,7 @@ export default {
   "spr.gedaechtnis": "What Habla remembers",
   "spr.gedaechtnisLeer": "Nothing yet. After your first call, your mistakes and goals appear here.",
   "spr.gespraecheBisher": "{zahl} calls",
+  "spr.einGespraech": "1 call",
   "spr.haeufigeFehler": "Your most common mistakes",
   "spr.dasWeissIch": "About you",
   "spr.vergessen": "Delete memory",

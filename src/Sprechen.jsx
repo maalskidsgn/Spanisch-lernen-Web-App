@@ -350,7 +350,7 @@ export default function Sprechen({ onZurueck }) {
                 <p className="spr-klein">{t('spr.gedaechtnisLeer')}</p>
               ) : (
                 <>
-                  <p className="spr-klein">{t('spr.gespraecheBisher', { zahl: g.gespraeche })}{g.zuletzt ? ' · ' + g.zuletzt : ''}</p>
+                  <p className="spr-klein">{g.gespraeche === 1 ? t('spr.einGespraech') : t('spr.gespraecheBisher', { zahl: g.gespraeche })}{g.zuletzt ? ' · ' + g.zuletzt : ''}</p>
                   {g.fehler?.length > 0 && (
                     <>
                       <p className="spr-abschnitt">{t('spr.haeufigeFehler')}</p>
