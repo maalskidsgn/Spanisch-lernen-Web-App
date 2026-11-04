@@ -20,6 +20,8 @@ import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 import { useTexte, SPRACHEN, sprache, setzeSprache, gebiet } from './sprache.js'
+import LevelEmblem from './LevelEmblem.jsx'
+import Flamme from './Flamme.jsx'
 
 // Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
 // Einstellungen. Hier kommen später die sozialen Sachen dazu –
@@ -364,7 +366,7 @@ export default function Settings({
               {bildLaeuft ? '…' : '✎'}
             </span>
           </button>
-          <span className="pf-level" title={t('se9.levelNr', { zahl: level })}>{level}</span>
+          <span className="pf-level"><LevelEmblem level={level} groesse={50} /></span>
           <input
             ref={bildFeld}
             type="file"
@@ -387,7 +389,7 @@ export default function Settings({
           />
         </div>
         <h1 className="pf-name">{benutzername || anzeigename(nutzer)}</h1>
-        <p className="pf-rang">{levelName(level)}</p>
+        <p className="pf-rang">{t('se9.levelNr', { zahl: level })} · {levelName(level)}</p>
         {bild && (
           <button
             className="btn-plain pf-bild-weg"
@@ -402,7 +404,7 @@ export default function Settings({
 
         <dl className="pf-zahlen">
           <div><dt>XP</dt><dd>{progress.xp.toLocaleString(gebiet())}</dd></div>
-          <div><dt>{t('st2.tageAmStueck')}</dt><dd>{progress.streak}</dd></div>
+          <div><dt>{t('st2.tageAmStueck')}</dt><dd className="zahl-flamme"><Flamme an={progress.streak > 0} groesse={20} />{progress.streak}</dd></div>
           <div><dt>{t('st2.woerter')}</dt><dd>{counts.woerter}</dd></div>
           <div><dt>{t('st2.videos')}</dt><dd>{counts.videos}</dd></div>
         </dl>

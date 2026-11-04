@@ -14435,3 +14435,97 @@ body.liest-video::before { background: var(--primary); }
   font-style: italic;
   opacity: .75;
 }
+
+/* ===================================================================
+   LEVEL-EMBLEME + STREAK-FLAMME
+   =================================================================== */
+.level-emblem { display: block; overflow: visible; }
+.level-emblem-strahlen {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: emblem-strahlen 14s linear infinite;
+}
+.level-emblem-strahlen { filter: drop-shadow(0 0 3px rgba(255, 138, 26, .8)); }
+@keyframes emblem-strahlen { to { transform: rotate(360deg); } }
+
+/* Kopfleiste: Emblem, die Zahl als kleines Schild daran */
+.level-circle {
+  position: relative;
+  background: none;
+  box-shadow: none;
+  color: var(--navy);
+}
+.level-circle .level-emblem { width: 100%; height: 100%; }
+.level-circle-zahl {
+  position: absolute;
+  right: -5px;
+  bottom: -4px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Profile: Das Emblem löst die Zahl im weißen Kreis ab */
+.pf-level, .ps-level {
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 65, .22));
+}
+.pf-level { right: -12px; bottom: -10px; }
+.ps-level { right: -11px; bottom: -9px; }
+
+.levelup-emoji { display: grid; place-items: center; }
+
+/* Flamme */
+.streak { display: inline-flex; align-items: center; gap: 3px; }
+.zahl-flamme { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.flamme { flex: none; overflow: visible; filter: grayscale(1); opacity: .45; }
+.flamme-an { filter: drop-shadow(0 2px 5px rgba(255, 108, 0, .35)); opacity: 1; }
+.flamme path, .flamme ellipse, .flamme circle { transform-box: fill-box; transform-origin: 50% 100%; }
+.flamme-an .flamme-aussen { animation: flamme-a 1.7s ease-in-out infinite; }
+.flamme-an .flamme-mitte { animation: flamme-b 1.3s ease-in-out infinite; }
+.flamme-an .flamme-kern { animation: flamme-c 1s ease-in-out infinite; }
+.flamme-an .flamme-schein { transform-origin: center; animation: flamme-schein 1.7s ease-in-out infinite; }
+.flamme-funke { opacity: 0; }
+.flamme-an .flamme-funke-1 { animation: flamme-funke 2.3s ease-out infinite; }
+.flamme-an .flamme-funke-2 { animation: flamme-funke 2.9s ease-out .9s infinite; }
+@keyframes flamme-a {
+  0%, 100% { transform: scale(1, 1) skewX(0); }
+  30% { transform: scale(.97, 1.04) skewX(-2deg); }
+  65% { transform: scale(1.03, .97) skewX(2deg); }
+}
+@keyframes flamme-b {
+  0%, 100% { transform: scale(1, 1) skewX(0); }
+  40% { transform: scale(1.05, .95) skewX(3deg); }
+  70% { transform: scale(.95, 1.07) skewX(-3deg); }
+}
+@keyframes flamme-c {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(.9, 1.12); }
+}
+@keyframes flamme-schein {
+  0%, 100% { opacity: .18; transform: scale(1); }
+  50% { opacity: .32; transform: scale(1.12); }
+}
+@keyframes flamme-funke {
+  0% { opacity: 0; transform: translateY(8px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+/* Die Flamme flackert selbst – das alte Wackeln der Kachel wäre doppelt */
+.streak-an svg { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .flamme *, .level-emblem-strahlen { animation: none !important; }
+}

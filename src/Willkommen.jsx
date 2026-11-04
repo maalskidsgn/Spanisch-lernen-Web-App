@@ -204,7 +204,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
             <div className="wk-zahlen">
               {[
                 { wert: '10', text: t('wk.zahl1') },
-                { wert: '9', text: t('wk.zahl2') },
+                { wert: '50', text: t('wk.zahl2') },
                 { wert: '6', text: t('wk.zahl3') },
                 { wert: '3', text: t('wk.zahl4') },
               ].map((z) => (

@@ -6,6 +6,7 @@ import { usePremium } from './premium.js'
 import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
 import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
+import Flamme from './Flamme.jsx'
 import InstallKnopf from './InstallKnopf.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
@@ -213,22 +214,7 @@ export default function Home({
         {/* Die Serie als Hingucker: Flamme + große Zahl */}
         <div className="streak-kopf">
           <span className={'streak-flamme' + (progress.streak > 0 ? ' streak-an' : '')} aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="40" height="40">
-              <defs>
-                <linearGradient id="streak-verlauf" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ffb347" />
-                  <stop offset="100%" stopColor="#ff5a00" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M12 2.5c.6 3.3 3.1 4.9 4.6 7.2 1.2 1.8 1.9 3.5 1.9 5.3A6.5 6.5 0 0 1 12 21.5 6.5 6.5 0 0 1 5.5 15c0-2.6 1.3-4.6 3-6.3.2 1.6.9 2.7 2 3.3-.3-3.6.3-6.6 1.5-9.5z"
-                fill="url(#streak-verlauf)"
-              />
-              <path
-                d="M12 21.5a3.3 3.3 0 0 1-3.3-3.3c0-1.9 1.6-3 2.6-4.6.5 1.4 1.4 2 2.3 2.6.9.6 1.7 1.2 1.7 2.1a3.3 3.3 0 0 1-3.3 3.2z"
-                fill="#ffe29a"
-              />
-            </svg>
+            <Flamme an={progress.streak > 0} groesse={46} />
           </span>
           <div className="streak-text">
             <b className="streak-zahl">{progress.streak}</b>

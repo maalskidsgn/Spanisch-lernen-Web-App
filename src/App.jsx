@@ -78,6 +78,8 @@ import {
 import { hakeAb } from './tagesplan.js'
 import { erfolgston } from './erfolgston.js'
 import './App.css'
+import LevelEmblem from './LevelEmblem.jsx'
+import Flamme from './Flamme.jsx'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -1396,8 +1398,8 @@ export default function App() {
       {levelUp && (
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
           <div className="levelup-card">
-            <div className="levelup-emoji">🎉</div>
-            <h2>Level {levelUp} erreicht!</h2>
+            <div className="levelup-emoji"><LevelEmblem level={levelUp} groesse={96} /></div>
+            <h2>{t('ap9.levelErreicht', { zahl: levelUp })}</h2>
             <p>{t('ap9.duBistJetzt', { level: levelName(levelUp) })}</p>
           </div>
         </div>
@@ -1452,7 +1454,7 @@ export default function App() {
         <div className="stats">
           {progress.streak > 0 && (
             <span className="streak" title={t('hm.tageGelernt', { zahl: progress.streak })}>
-              🔥 {progress.streak}
+              <Flamme groesse={22} /> {progress.streak}
             </span>
           )}
           <div
@@ -1463,7 +1465,8 @@ export default function App() {
           >
             {/* key={xp} lässt den Kreis bei jedem XP-Gewinn kurz hüpfen */}
             <span className="level-circle" key={progress.xp}>
-              {level}
+              <LevelEmblem level={level} groesse={30} />
+              <b className="level-circle-zahl">{level}</b>
             </span>
             <div className="xp-bar">
               <div className="xp-bar-fill" style={{ width: levelPercent + '%' }} />

@@ -4,6 +4,8 @@ import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
 import { useTexte, gebiet, t } from './sprache.js'
+import LevelEmblem from './LevelEmblem.jsx'
+import Flamme from './Flamme.jsx'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
@@ -89,11 +91,11 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
           <>
             <span className="ps-rahmen">
               <Bildnis name={profil.benutzername} bild={profil.bild} klasse="ps-bild" />
-              <span className="ps-level">{level}</span>
+              <span className="ps-level"><LevelEmblem level={level} groesse={44} /></span>
             </span>
 
             <h2 className="ps-name">{profil.benutzername}</h2>
-            <p className="ps-rang">{levelName(level)}</p>
+            <p className="ps-rang">{t('se9.levelNr', { zahl: level })} · {levelName(level)}</p>
 
             <div className="ps-platz">{t('ps9.platz', { zahl: profil.platz })}</div>
 
@@ -103,7 +105,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                 <dt>{t('ps9.xpGesamt')}</dt>
               </div>
               <div>
-                <dd>{profil.serie}</dd>
+                <dd className="zahl-flamme"><Flamme an={profil.serie > 0} groesse={20} />{profil.serie}</dd>
                 <dt>{t('ps.tageAmStueck')}</dt>
               </div>
               <div>
