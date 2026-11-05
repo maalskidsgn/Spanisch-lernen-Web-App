@@ -323,6 +323,9 @@ export default function App() {
   const [sprechenOffen, setSprechenOffen] = useState(
     () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen'
   )
+  // Jeder Tab beginnt oben, nicht an der Scrollstelle des vorigen.
+  useEffect(() => { window.scrollTo(0, 0) }, [view])
+
   useEffect(() => {
     const auf = () => setSprechenOffen(true)
     window.addEventListener('sprechen-oeffnen', auf)

@@ -35,7 +35,11 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
         // soll markiert sein, damit der Knopf nicht ins Leere zeigt.
         setGewaehlt(a.find((x) => x.id.includes('annual'))?.id || a[0]?.id || '')
       })
-      .catch((f) => aktiv && setFehler(f.message))
+      .catch((f) => {
+        // Rohe Fehlertexte des Kauf-Dienstes sind nichts für Nutzer.
+        console.warn(f)
+        if (aktiv) setAngebote([])
+      })
     return () => { aktiv = false }
   }, [])
 

@@ -1866,7 +1866,7 @@ button:disabled {
   /* Kompakte Kopfzeile: nur Logo + Fortschritt (die Menüleiste ist unten).
      Wichtig: kein backdrop-filter, sonst "fängt" die Kopfzeile die fixierte
      Menüleiste ein und sie klebt oben statt unten am Bildschirm. */
-  .topbar { padding: 9px 14px; backdrop-filter: none; background: #fff; }
+  .topbar { padding: calc(9px + env(safe-area-inset-top)) 14px 9px; backdrop-filter: none; background: #fff; }
   .logo { font-size: 1.05rem; }
   .stats { gap: 8px; margin-left: auto; }
   .xp-text { display: none; }
@@ -1891,7 +1891,7 @@ button:disabled {
     background: #fff;
     border-top: 1px solid var(--line);
     box-shadow: 0 -8px 24px rgba(255, 108, 0, 0.08);
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    padding: 8px 10px max(8px, calc(env(safe-area-inset-bottom) - 16px));
     gap: 0;
   }
   .tab {
@@ -2561,7 +2561,7 @@ button:disabled {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 60px 22px 80px;
+  padding: calc(60px + env(safe-area-inset-top)) 22px 80px;
   /* sanfter Verlauf von warmem Creme nach unten ins Helle */
   background: var(--bg); /* clean weiss – kein getönter Verlauf mehr */
 }
@@ -2951,7 +2951,7 @@ body.liest-buch .bottom-nav,
 body.liest-buch .bereich-schalter,
 body.liest-buch .lib-kopf,
 body.liest-buch .intro { display: none !important; }
-body.liest-buch .app > main { padding-top: 0; }
+body.liest-buch .app > main { padding-top: env(safe-area-inset-top); }
 body.liest-buch .library { padding-top: 8px; }
 
 /* Antippbare Wörter im spanischen Lesetext */
@@ -10277,7 +10277,7 @@ body.lektion-laeuft .lessons > .player-top,
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 12px;
-  padding: 14px 20px;
+  padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
   background: var(--card);
   border-bottom: 1px solid var(--line);
 }
@@ -14072,9 +14072,8 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
    allem und ist nicht anklickbar.
    Im Browser ist env(safe-area-inset-top) gleich 0, dort gibt es
    ihn also gar nicht. */
-/* Der Streifen ist raus: Auf iOS 18 meldet env() trotz contentInset 59pt,
-   dann lag er genau ueber Logo und XP der Kopfzeile. Die Statusleiste
-   haelt contentInset: "always" ohnehin frei. */
+/* Die App laeuft mit contentInset "never" bis an die Oberkante. Den Platz
+   hinter der Uhrzeit hält jede Seite selbst frei, mit env(safe-area-inset-top). */
 /* Die Videoseite blendet die Leiste aus und ist oben orange -
    dort zieht der Streifen mit. */
 
@@ -14631,7 +14630,7 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
    im Gespraech eine Kugel, die zeigt, wer gerade dran ist.
    ================================================================== */
 .spr-seite { min-height: 100vh; background: var(--bg); padding-bottom: 56px; }
-.spr-kopf { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; max-width: 640px; margin: 0 auto; padding: 14px 16px 6px; }
+.spr-kopf { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; max-width: 640px; margin: 0 auto; padding: calc(14px + env(safe-area-inset-top)) 16px 6px; }
 .spr-kopf > :first-child { justify-self: start; }
 .spr-inhalt { max-width: 640px; margin: 0 auto; padding: 8px 16px 0; display: grid; gap: 16px; }
 .spr-inhalt > * { min-width: 0; }
