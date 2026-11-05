@@ -14778,8 +14778,13 @@ body.liest-video::before { background: var(--primary); }
   position: absolute;
   top: 14px;
   right: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
+  min-width: 36px;
   height: 36px;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: var(--line);
