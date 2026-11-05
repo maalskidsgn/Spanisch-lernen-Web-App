@@ -5,7 +5,7 @@ import { supabaseBereit, db } from './supabase.js'
 import { plattform } from './kauf.js'
 import { useTexte, sprache } from './sprache.js'
 
-const ARTEN = ['idee', 'kritik', 'fehler', 'sprechen']
+const ARTEN = { idee: 'fb.art_idee', kritik: 'fb.art_kritik', fehler: 'fb.art_fehler', sprechen: 'fb.art_sprechen' }
 
 /**
  * Knopf samt Formular: Die Nachricht geht ins Postfach, das Manuel
@@ -84,10 +84,10 @@ function Formular({ start, onZu }) {
             <h2>{t('fb.titel')}</h2>
             <p className="fb-unter">{t('fb.unter')}</p>
             <div className="fb-arten" role="radiogroup">
-              {ARTEN.map((a) => (
+              {Object.keys(ARTEN).map((a) => (
                 <button type="button" key={a} role="radio" aria-checked={art === a}
                   className={'fb-art' + (art === a ? ' ist-aktiv' : '')} onClick={() => setArt(a)}>
-                  {t('fb.art_' + a)}
+                  {t(ARTEN[a])}
                 </button>
               ))}
             </div>
