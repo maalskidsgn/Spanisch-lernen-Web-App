@@ -251,7 +251,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
               <span className="wk-tarif-fahne">{t('wk.tarifFahne')}</span>
               <span className="wk-tarif-name">{t('wk.tarifJahr')}</span>
               <span className="wk-tarif-preis">
-                50 €<small>{t('wk.proJahr')}</small>
+                89,99 €<small>{t('wk.proJahr')}</small>
               </span>
               <span className="wk-tarif-hinweis">{t('wk.tarifJahrHinweis')}</span>
               <ul>
@@ -268,7 +268,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
             <div className="wk-tarif zeigt-sich v2">
               <span className="wk-tarif-name">{t('wk.tarifMonat')}</span>
               <span className="wk-tarif-preis">
-                5,99 €<small>{t('wk.proMonat')}</small>
+                12,99 €<small>{t('wk.proMonat')}</small>
               </span>
               <span className="wk-tarif-hinweis">
 {t('wk.tarifMonatHinweis')}

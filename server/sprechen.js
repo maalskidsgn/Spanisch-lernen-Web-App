@@ -281,6 +281,9 @@ export async function starte(nutzer, { akzent, niveau, sprache, sdp }) {
         tool_choice: 'auto',
         audio: {
           input: {
+            // Laptop oder Handy ohne Kopfhoerer: Sonst haelt das Mikrofon die
+            // eigene Stimme des Trainers fuer den Lernenden und unterbricht ihn.
+            noise_reduction: { type: 'far_field' },
             transcription: { model: 'gpt-4o-mini-transcribe', prompt: 'A learner practises Spanish and may mix in German or English.' },
             // "low": Wer eine Fremdsprache spricht, macht lange Pausen.
             // Der Trainer soll dann nicht ins Wort fallen.

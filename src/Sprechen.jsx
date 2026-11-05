@@ -211,6 +211,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
   const zeilenRef = useRef([])
   const ende = useRef(null)
   const werRef = useRef('hoert')
+  const werWarTrainer = useRef(false)
 
   async function ladeStand() {
     try {
@@ -259,6 +260,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
       setSekunden(s)
       const l = leitung.current
       if (!l) return
+      if (s % 5 === 0) miss()
       const minute = Math.floor(s / 60)
       if (minute > letzteMinute) {
         letzteMinute = minute
@@ -349,6 +351,33 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
     }
   }
 
+  function zaehle(l, feld, wert) {
+    l.tokens = l.tokens ?? {}
+    l.tokens[feld] = (l.tokens[feld] ?? 0) + wert
+  }
+
+  // Misst die Leitung: Ohne das laesst sich Stocken nicht von
+  // Unterbrechungen oder einem schlechten Netz unterscheiden.
+  async function miss() {
+    const l = leitung.current
+    if (!l?.pc) return
+    const stats = await l.pc.getStats().catch(() => null)
+    stats?.forEach((r) => {
+      if (r.type === 'inbound-rtp' && r.kind === 'audio') {
+        l.tokens = l.tokens ?? {}
+        l.tokens.pakete_verloren = r.packetsLost
+        l.tokens.pakete_da = r.packetsReceived
+        l.tokens.jitter_max_ms = Math.max(l.tokens.jitter_max_ms ?? 0, Math.round((r.jitter ?? 0) * 1000))
+        l.tokens.proben_gesamt = r.totalSamplesReceived
+        l.tokens.proben_verdeckt = r.concealedSamples
+      }
+      if (r.type === 'candidate-pair' && r.state === 'succeeded' && r.nominated) {
+        l.tokens = l.tokens ?? {}
+        l.tokens.laufzeit_max_ms = Math.max(l.tokens.laufzeit_max_ms ?? 0, Math.round((r.currentRoundTripTime ?? 0) * 1000))
+      }
+    })
+  }
+
   function aufAntwortFertig(antwort) {
     const l = leitung.current
     if (!l || !antwort) return
@@ -401,9 +430,13 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
         fuelle(e.item_id, 'habla', e.transcript || '')
         break
       case 'input_audio_buffer.speech_started':
+        werWarTrainer.current = werRef.current === 'habla'
         setWer('ich')
         werRef.current = 'ich'
         if (leitung.current) leitung.current.gesprochen = true
+        // Spricht der Trainer gerade, hat ihn das Mikrofon unterbrochen.
+        // Das klingt fuer den Nutzer wie Stocken, deshalb wird es gezaehlt.
+        if (leitung.current && werWarTrainer.current) zaehle(leitung.current, 'unterbrechungen', 1)
         break
       case 'input_audio_buffer.speech_stopped':
         setWer('hoert')
@@ -520,6 +553,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
   async function auflegen() {
     const id = leitung.current?.id
     if (!id) return
+    await miss()
     const { tokens, woerter } = leitung.current
     trenne()
     setPhase('wertet')
