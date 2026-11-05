@@ -58,13 +58,6 @@ Erst eine Abo-Gruppe anlegen (z. B. „Habloo Premium"), dann darin:
 | `habloo_premium_monat` | Auto-renewable, 1 Monat | 12,99 € |
 | `habloo_premium_jahr` | Auto-renewable, 1 Jahr | 89,99 € |
 
-Lifetime ist **kein** Abo, sondern unter **In-App-Käufe** als
-*Non-Consumable* anzulegen:
-
-| Produkt-ID | Art |
-|---|---|
-| `habloo_premium_lifetime` | Non-Consumable |
-
 > Die Namen sind nicht beliebig: Der Server liest den Tarif aus der
 > Produkt-ID (`tarifVon` in `server/kauf.js`). Enthält sie „jahr",
 > wird daraus `jaehrlich`, bei „lifetime" wird daraus `lifetime`.
