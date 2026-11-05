@@ -22,6 +22,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
   const [fehler, setFehler] = useState('')
   const [hinweis, setHinweis] = useState('')
   const [danke, setDanke] = useState(null) // null | { verzoegert }
+  const [ursache, setUrsache] = useState('')
 
   const laden = plattform() === 'ios' ? 'App Store' : 'Google Play'
 
@@ -31,14 +32,18 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
       .then((a) => {
         if (!aktiv) return
         setAngebote(a)
+        if (!a.length) setUrsache('leer')
         // Das Jahresabo vorauswählen, sonst das erste – irgendetwas
         // soll markiert sein, damit der Knopf nicht ins Leere zeigt.
         setGewaehlt(a.find((x) => x.id.includes('annual'))?.id || a[0]?.id || '')
       })
       .catch((f) => {
-        // Rohe Fehlertexte des Kauf-Dienstes sind nichts für Nutzer.
+        // Rohe Fehlertexte des Kauf-Dienstes sind nichts für Nutzer,
+        // zur Fehlersuche bleiben sie unter „Details“ aufklappbar.
         console.warn(f)
-        if (aktiv) setAngebote([])
+        if (!aktiv) return
+        setUrsache([f.code, f.underlyingErrorMessage || f.message].filter(Boolean).join(': '))
+        setAngebote([])
       })
     return () => { aktiv = false }
   }, [])
@@ -139,6 +144,13 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
               {laeuft === 'wieder' ? t('kn.wirdGesucht') : t('kn.kaeufeWiederherstellen')}
             </button>
           </>
+        )}
+
+        {ursache && (
+          <details className="kn-klein">
+            <summary>{t('kn2.details')}</summary>
+            {ursache}
+          </details>
         )}
 
         {hinweis && <p className="kn-hinweis">{hinweis}</p>}

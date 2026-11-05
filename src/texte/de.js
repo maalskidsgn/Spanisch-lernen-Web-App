@@ -874,6 +874,7 @@ export default {
   /* ---------------- KaufNativ (mehrzeilig) ---------------- */
   "kn2.zurueck": "Zurück",
   "kn2.alleLektionenDer": "Alle Lektionen, unbegrenzte KI-Vokabellisten, eigene Texte und Sätze.",
+  "kn2.details": "Details",
   "kn2.geradeSindKeine": "Gerade sind keine Angebote verfügbar. Versuch es später nochmal.",
 
   /* ---------------- Inhalte (mehrzeilig) ---------------- */
