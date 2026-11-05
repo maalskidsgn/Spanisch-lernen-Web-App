@@ -195,7 +195,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
     {
       id: 'jahr',
       name: t('bz.jaehrlich'),
-      unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : t('bz9.proJahr'),
+      unter: preise?.jahr ? t('bzc.proMonatEtwa', { w0: geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 }) }) : t('bz9.proJahr'),
       marke: ersparnis > 0 ? `−${ersparnis} %` : 'Beliebt',
     },
   ].filter((k) => preise?.[k.id])
@@ -294,8 +294,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
 
       <footer className="kassen-fuss">
         <p>
-          Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu
-          sehen.{' '}
+          {t('bzc.stripeHinweis')}{' '}
           {tarif === 'lifetime'
             ? t('bzm.einmaligeZahlungKein')
             : t('bz9.jederzeitKuendbarIn')}
@@ -403,7 +402,7 @@ function KassenFormular({ onFertig, onAbbrechen }) {
         {laeuft ? (
           <>{t('bz.zahlungLaeuft')}<span className="studio-punkte" /></>
         ) : summe ? (
-          `${summe} zahlungspflichtig abonnieren`
+          t('bzc.summeAbonnieren', { w0: summe })
         ) : (
           t('bz9.zahlungspflichtigAbonnieren')
         )}

@@ -1999,4 +1999,7 @@ export default {
   "bzc.codeAktiv": "Code {w0} ist aktiv",
   "bzc.codeEntfernen": "Entfernen",
   "bzc.codeFehler": "Dieser Code gilt leider nicht.",
+  "bzc.proMonatEtwa": "≈ {w0} / Monat",
+  "bzc.summeAbonnieren": "{w0} zahlungspflichtig abonnieren",
+  "bzc.stripeHinweis": "Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu sehen.",
 }
