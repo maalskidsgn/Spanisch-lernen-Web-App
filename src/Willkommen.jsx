@@ -268,7 +268,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
             <div className="wk-tarif zeigt-sich v2">
               <span className="wk-tarif-name">{t('wk.tarifMonat')}</span>
               <span className="wk-tarif-preis">
-                12,99 €<small>{t('wk.proMonat')}</small>
+                9,99 €<small>{t('wk.proMonat')}</small>
               </span>
               <span className="wk-tarif-hinweis">
 {t('wk.tarifMonatHinweis')}

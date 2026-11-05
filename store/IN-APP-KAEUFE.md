@@ -55,7 +55,7 @@ Erst eine Abo-Gruppe anlegen (z. B. „Habloo Premium"), dann darin:
 
 | Produkt-ID | Art | Preis |
 |---|---|---|
-| `habloo_premium_monat` | Auto-renewable, 1 Monat | 12,99 € |
+| `habloo_premium_monat` | Auto-renewable, 1 Monat | 9,99 € |
 | `habloo_premium_jahr` | Auto-renewable, 1 Jahr | 89,99 € |
 
 > Die Namen sind nicht beliebig: Der Server liest den Tarif aus der
