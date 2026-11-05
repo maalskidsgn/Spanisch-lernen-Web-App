@@ -1,9 +1,12 @@
+import { merkePartnerLink } from './partnerCode.js'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import Einwilligung from './Einwilligung.jsx'
 import { merkeEinladung } from './rangliste.js'
+
+merkePartnerLink()
 
 // Ganz früh, noch vor dem ersten Rendern: Wer über einen
 // Einladungslink kommt, soll den Namen des Einladenden nicht

@@ -1993,4 +1993,10 @@ export default {
   "rt5.sprachDaten": "Deine Stimme während des Gesprächs, der Gesprächstext, dein gewähltes Niveau sowie dein Lernprofil, frühere Gesprächszusammenfassungen und dein Lernstand. Keine E-Mail-Adresse und kein Name aus deinem Konto.",
   "rt5.sprachTitel": "Was der Sprach-Trainer speichert",
   "rt5.sprachText": "Deine Stimme speichern wir nicht. Wir speichern das Gesprächsprotokoll als Text, eine Zusammenfassung, erkannte Fehler und neue Wörter sowie ein Lernprofil mit deinen Zielen, Interessen, deinem geschätzten Niveau und deinen Fortschritten. Das dient dazu, dass der Trainer sich auf frühere Gespräche beziehen kann und du sie nachlesen kannst. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit widerrufen, indem du einzelne Gespräche oder das gesamte Gedächtnis auf der Seite des Trainers löschst und den Trainer nicht mehr nutzt. Mit deinem Konto werden auch diese Daten gelöscht. Dauer und Beginn jedes Gesprächs behalten wir, um dein Minutenkontingent berechnen zu können. Die Auswertung ist automatisiert und kann Fehler enthalten. Sie hat keine rechtliche Wirkung für dich.",
+  "bzc.codeFrage": "Rabattcode",
+  "bzc.codeFeld": "Code eingeben",
+  "bzc.codeKnopf": "Einlösen",
+  "bzc.codeAktiv": "Code {w0} ist aktiv",
+  "bzc.codeEntfernen": "Entfernen",
+  "bzc.codeFehler": "Dieser Code gilt leider nicht.",
 }

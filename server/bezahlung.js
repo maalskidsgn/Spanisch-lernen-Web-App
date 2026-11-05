@@ -13,6 +13,7 @@
 // bezahlt wurde. Nur Stripe darf das sagen – und wir prüfen per
 // Signatur, dass die Meldung wirklich von Stripe stammt.
 
+import { erfasseRechnung } from './partner.js'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
@@ -306,6 +307,10 @@ export async function verarbeiteMeldung(ereignis) {
     }
 
     // Abo endgültig beendet
+    case 'invoice.paid': {
+      return erfasseRechnung(client(), d)
+    }
+
     case 'customer.subscription.deleted': {
       const nutzerId = d.metadata?.nutzer_id
       if (!nutzerId) return { erledigt: false, grund: 'keine Nutzer-Kennung' }

@@ -38,6 +38,7 @@ import {
   erzeugeVideoVokabeln,
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
+import { zaehleKlick } from './partner.js'
 import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende, vergiss as sprechVergiss, gespraeche as sprechGespraeche, gespraech as sprechGespraech, loesche as sprechLoesche, suche as sprechSuche, starteAufsicht as sprechAufsicht } from './sprechen.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
@@ -1147,5 +1148,10 @@ app.post('/api/sprechen/gespraech/:id/loeschen', sprechRoute(sprechLoesche))
 app.post('/api/sprechen/suche', sprechRoute(sprechSuche))
 sprechAufsicht()
 app.post('/api/sprechen/vergessen', sprechRoute(async (nutzer) => { await sprechVergiss(nutzer); return { ok: true } }))
+
+// Partner-Link: nur ein Zaehler pro Tag, keine Personendaten.
+app.post('/api/partner/klick', async (req, res) => {
+  res.json(await zaehleKlick(req.body?.code).catch(() => ({ ok: false })))
+})
 
 app.listen(PORT, () => console.log(`Transkript-Server läuft auf http://localhost:${PORT}`))

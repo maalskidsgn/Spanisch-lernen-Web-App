@@ -14734,3 +14734,9 @@ body.liest-video::before { background: var(--primary); }
 .spr-karte .spr-archiv-zeile p { margin: 0; padding: 8px 11px; border-radius: 14px; background: var(--flaeche); line-height: 1.55; min-width: 0; }
 .spr-archiv-wort { padding: 0 3px; border: 0; border-radius: 6px; background: none; font: inherit; color: var(--navy); cursor: pointer; }
 .spr-archiv-wort:hover, .spr-archiv-wort:focus-visible { background: rgba(127, 127, 127, .18); }
+
+.kasse-code { display: grid; gap: 6px; margin: 16px 0 4px; font-size: .85rem; }
+.kasse-code label { font-weight: 700; color: var(--muted); font-size: 13px; }
+.kasse-code > div { display: flex; gap: 8px; }
+.kasse-code input { flex: 1; min-width: 0; padding: 11px 13px; border: 1px solid var(--line); border-radius: 14px; font: inherit; text-transform: uppercase; }
+.kasse-code-aktiv { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0; padding: 10px 13px; border-radius: 14px; background: var(--flaeche); color: var(--navy); font-weight: 800; }

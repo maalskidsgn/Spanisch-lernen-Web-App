@@ -1993,4 +1993,10 @@ export default {
   "rt5.sprachDaten": "Your voice during the call, the conversation text, your chosen level, your learning profile, summaries of earlier calls and your learning progress. No email address and no name from your account.",
   "rt5.sprachTitel": "What the speaking trainer stores",
   "rt5.sprachText": "We do not store your voice. We store the conversation as text, a summary, detected mistakes and new words, and a learning profile with your goals, interests, estimated level and progress. This lets the trainer refer to earlier calls and lets you read them again. The legal basis is your consent (Art. 6(1)(a) GDPR). You can withdraw it at any time by deleting individual conversations or the whole memory on the trainer page and no longer using the trainer. This data is also deleted with your account. We keep the start and duration of each call to calculate your minutes. The analysis is automated and may contain errors. It has no legal effect on you.",
+  "bzc.codeFrage": "Discount code",
+  "bzc.codeFeld": "Enter code",
+  "bzc.codeKnopf": "Apply",
+  "bzc.codeAktiv": "Code {w0} applied",
+  "bzc.codeEntfernen": "Remove",
+  "bzc.codeFehler": "This code is not valid.",
 }

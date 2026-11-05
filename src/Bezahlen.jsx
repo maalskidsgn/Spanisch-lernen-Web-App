@@ -16,7 +16,7 @@
  * wir vor, über das `appearance`-Objekt unten.
  */
 
-import { useEffect, useState } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import {
   CheckoutElementsProvider,
@@ -26,6 +26,7 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
+import { gemerkterPartnerCode } from './partnerCode.js'
 import { useTexte, gebiet } from './sprache.js'
 
 // ---------------------------------------------------------------
@@ -310,6 +311,18 @@ function KassenFormular({ onFertig, onAbbrechen }) {
   const zustand = useCheckoutElements()
   const [laeuft, setLaeuft] = useState(false)
   const [fehler, setFehler] = useState('')
+  const [codeEingabe, setCodeEingabe] = useState('')
+  const [codeFehler, setCodeFehler] = useState('')
+  const [codeLaeuft, setCodeLaeuft] = useState(false)
+  const codeVersucht = useRef(false)
+
+  // Kam jemand ueber einen Partner-Link, steht der Code schon bereit.
+  useEffect(() => {
+    if (zustand.type !== 'success' || codeVersucht.current) return
+    codeVersucht.current = true
+    const c = gemerkterPartnerCode()
+    if (c) zustand.checkout.applyPromotionCode(c).catch(() => {})
+  }, [zustand.type])
 
   if (zustand.type === 'loading') {
     return (
@@ -326,6 +339,22 @@ function KassenFormular({ onFertig, onAbbrechen }) {
 
   const kasse = zustand.checkout
   const summe = kasse.total?.total?.amount
+
+  const aktiverCode = kasse.discountAmounts?.[0]?.promotionCode
+
+  async function codeEinloesen(wert) {
+    const c = String(wert).trim()
+    if (!c) return
+    setCodeLaeuft(true)
+    setCodeFehler('')
+    const r = await kasse.applyPromotionCode(c)
+    setCodeLaeuft(false)
+    if (r.type === 'error') {
+      setCodeFehler(t('bzc.codeFehler'))
+      return
+    }
+    setCodeEingabe('')
+  }
 
   async function bezahlen(e) {
     e.preventDefault()
@@ -349,6 +378,24 @@ function KassenFormular({ onFertig, onAbbrechen }) {
     <form className="kasse-form" onSubmit={bezahlen}>
       <h2 className="kassen-abschnitt">{t('bz.zahlungsart')}</h2>
       <PaymentElement options={{ layout: 'accordion' }} />
+
+      <div className="kasse-code">
+        {aktiverCode ? (
+          <p className="kasse-code-aktiv">
+            {t('bzc.codeAktiv', { w0: aktiverCode })}
+            <button type="button" className="btn-plain" onClick={() => kasse.removePromotionCode()}>{t('bzc.codeEntfernen')}</button>
+          </p>
+        ) : (
+          <>
+            <label htmlFor="kasse-code">{t('bzc.codeFrage')}</label>
+            <div>
+              <input id="kasse-code" value={codeEingabe} placeholder={t('bzc.codeFeld')} autoCapitalize="characters" onChange={(e) => setCodeEingabe(e.target.value)} />
+              <button type="button" className="btn-plain" disabled={!codeEingabe.trim() || codeLaeuft} onClick={() => codeEinloesen(codeEingabe)}>{t('bzc.codeKnopf')}</button>
+            </div>
+          </>
+        )}
+        {codeFehler && <p className="error">{codeFehler}</p>}
+      </div>
 
       {fehler && <p className="error kasse-fehler">{fehler}</p>}
 

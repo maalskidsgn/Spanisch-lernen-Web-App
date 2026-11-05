@@ -16,6 +16,7 @@
  * dort – egal, woher die Berechtigung kam.
  */
 
+import { erfasseStoreKauf } from './partner.js'
 import { createClient } from '@supabase/supabase-js'
 
 /**
@@ -133,6 +134,9 @@ export async function verarbeiteKauf(nachricht) {
 
   // Die app_user_id ist die Supabase-Nutzer-Kennung: Die App meldet
   // sich bei RevenueCat genau damit an (siehe src/kauf.js).
+  // Provision zuerst: Der Kauf ist passiert, egal was unten noch geschieht.
+  await erfasseStoreKauf(e).catch((f) => console.warn('[partner]', f.message))
+
   const nutzerId = e.app_user_id
   if (!nutzerId || !/^[0-9a-f-]{36}$/i.test(nutzerId)) {
     // Anonyme Kennungen beginnen mit "$RCAnonymousID:". Dazu gibt es
