@@ -3,12 +3,16 @@ const nurApp=process.argv[2], nurSprache=process.argv[3], nurNr=process.argv[4]
 const MARKE={habloo:{bg:'#ff6c00',bg2:'#ff8a33',tief:'#c85400',akz:'#fff3e6',txt:'#1f1147',dunkel:'#7a2f06',land:'Spanisch',icon:'public/icon-512-1.png'},davaigo:{bg:'#7c3aed',bg2:'#9361f2',tief:'#5b21b6',akz:'#ffd34d',txt:'#1f1147',dunkel:'#3b1a85',icon:'public/icon-512-2.png'}}
 const T={
  habloo:{de:[
+  ['anruf','Sprich wirklich','Spanisch mit Habla',-6,[['10 Minuten gratis','jeden Monat',700,2600]]],
+  ['bericht','Aus jedem Fehler','wird Können',5,[['Nach jedem Gespräch','deine Fehler, erklärt',470,2600]]],
   ['youtube','Spanisch lernen','mit echten Videos',-6,[['Wort antippen','hablar → sprechen',100,2030],['Untertitel','zum Mitlesen',720,2360]]],
   ['modul','Schritt für Schritt','zum Sprechen',5,[['150 Lektionen','in 7 Modulen',760,2610]]],
   ['lektion','Neue Wörter','direkt im Satz',-5,[['Mit Ton','jedes Wort zum Anhören',560,2610]]],
   ['trainer','Kein Wort','mehr vergessen',5,[['Karteikasten','wiederholt zur richtigen Zeit',470,2610]]],
   ['lektionen','Jeden Tag','ein Stück weiter',-5,[['XP, Level & Serien','so bleibst du dran',640,2610]]],
  ],en:[
+  ['anruf','Really speak','Spanish with Habla',-6,[['10 free minutes','every month',720,2600]]],
+  ['bericht','Learn from','every mistake',5,[['After every call','your mistakes, explained',470,2600]]],
   ['youtube','Learn Spanish','with real videos',-6,[['Tap any word','hablar → to speak',100,2030],['Subtitles','to read along',760,2360]]],
   ['modul','Step by step','to speaking',5,[['150 lessons','in 7 modules',800,2610]]],
   ['lektion','New words','right in context',-5,[['With audio','hear every word',720,2610]]],
@@ -16,12 +20,16 @@ const T={
   ['lektionen','A little further','every day',-5,[['XP, levels & streaks','keep your momentum',600,2610]]],
  ]},
  davaigo:{de:[
+  ['anruf','Sprich wirklich','Russisch mit Katja',-6,[['10 Minuten gratis','jeden Monat',700,2600]]],
+  ['bericht','Aus jedem Fehler','wird Können',5,[['Nach jedem Gespräch','deine Fehler, erklärt',470,2600]]],
   ['youtube','Russisch lernen','mit echten Videos',-6,[['Wort antippen','говорить → sprechen',70,2030],['Untertitel','zum Mitlesen',720,2360]]],
   ['lesekurs','Kyrillisch lesen','in 16 Videos',5,[['Lektion 1 gratis','von null zum ersten Text',500,2610]]],
   ['modul','180 Lektionen','alle vertont',-5,[['10 Module','vom Alphabet bis zum Gespräch',390,2610]]],
   ['trainer','Kein Wort','mehr vergessen',5,[['Karteikasten','wiederholt zur richtigen Zeit',470,2610]]],
   ['lektion','Neue Wörter','direkt im Satz',-5,[['Mit Ton','jedes Wort zum Anhören',560,2610]]],
  ],en:[
+  ['anruf','Really speak','Russian with Katja',-6,[['10 free minutes','every month',720,2600]]],
+  ['bericht','Learn from','every mistake',5,[['After every call','your mistakes, explained',470,2600]]],
   ['youtube','Learn Russian','with real videos',-6,[['Tap any word','говорить → to speak',70,2030],['Subtitles','to read along',760,2360]]],
   ['lesekurs','Read Cyrillic','in 16 videos',5,[['Lesson 1 free','from zero to your first text',430,2610]]],
   ['modul','180 lessons','all with audio',-5,[['10 modules','from the alphabet to real talk',420,2610]]],
