@@ -36,26 +36,26 @@ const T={
   ['trainer','Never forget','a word again',5,[['Smart flashcards','review at the right time',560,2610]]],
   ['lektion','New words','right in context',-5,[['With audio','hear every word',720,2610]]],
  ]}}
-const c=await chrome(9345); await c.send('Emulation.setDeviceMetricsOverride',{width:1320,height:2640,deviceScaleFactor:1,mobile:false})
+const c=await chrome(9345); await c.send('Emulation.setDeviceMetricsOverride',{width:1320,height:2347,deviceScaleFactor:1,mobile:false})
 fs.mkdirSync('fertig-play',{recursive:true})
 for(const a of Object.keys(T)){ if(nurApp&&nurApp!=='alle'&&nurApp!==a)continue; const m=MARKE[a]
  for(const l of ['de','en']){ if(nurSprache&&nurSprache!=='alle'&&nurSprache!==l)continue
   for(const [i,[bild,z1,z2,kipp,chips0]] of T[a][l].entries()){ if(i<2||(nurNr&&+nurNr!==i-1))continue
-   const chips=chips0.map(([b,t,x,y])=>[b,t,x,y>=2000?y-230:y])
+   const chips=chips0.map(([b,t,x,y])=>[b,t,Math.min(x,1320-560),y>=2000?y-500:y])
    const html=`<!doctype html><html><head><meta charset=utf-8><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel=stylesheet><style>
-   *{box-sizing:border-box}html,body{margin:0;width:1320px;height:2640px;overflow:hidden;font-family:Nunito,sans-serif}
+   *{box-sizing:border-box}html,body{margin:0;width:1320px;height:2347px;overflow:hidden;font-family:Nunito,sans-serif}
    .bg{position:absolute;inset:0;background:${m.bg}}
    .k1{position:absolute;width:1300px;height:1300px;border-radius:50%;background:${m.bg2};right:${kipp<0?'-420px':'auto'};left:${kipp<0?'auto':'-420px'};top:900px}
    .k2{position:absolute;width:620px;height:620px;border-radius:50%;background:${m.tief};opacity:.35;left:${kipp<0?'-220px':'auto'};right:${kipp<0?'auto':'-220px'};top:2150px}
-   h1{position:absolute;left:80px;right:80px;top:170px;margin:0;text-align:center;color:#fff;font-weight:900;font-size:128px;line-height:1.08;letter-spacing:-3px}
+   h1{position:absolute;left:80px;right:80px;top:120px;margin:0;text-align:center;color:#fff;font-weight:900;font-size:128px;line-height:1.08;letter-spacing:-3px}
    h1 span{display:block;color:${a==='davaigo'?m.akz:'#fff3e0'}}
    ${iphoneCss}
-   .platz{position:absolute;left:210px;top:625px}
+   .platz{position:absolute;left:285px;top:530px}
    .chip{position:absolute;background:#fff;border-radius:48px;padding:38px 52px;box-shadow:0 28px 70px rgba(20,8,50,.28);}
    .chip b{display:block;font-size:58px;font-weight:900;color:${m.bg};letter-spacing:-.5px;white-space:nowrap}
    .chip i{display:block;font-style:normal;font-size:43px;font-weight:800;color:${m.txt};margin-top:6px;white-space:nowrap}
    </style></head><body><div class=bg></div><div class=k1></div><div class=k2></div><h1>${z1}<span>${z2}</span></h1>
-   <div class=platz>${iphone({bild:`file://${process.cwd()}/roh/${a}-${l}-${bild}.png`,kipp,breite:900})}</div>
+   <div class=platz>${iphone({bild:`file://${process.cwd()}/roh/${a}-${l}-${bild}.png`,kipp,breite:750})}</div>
    ${chips.map(([b,t,x,y])=>`<div class=chip style="left:${x}px;top:${y}px"><b>${b}</b><i>${t}</i></div>`).join('')}</body></html>`
    const f=`fertig-play/_t.html`;fs.writeFileSync(f,html)
    await c.gehe('file://'+process.cwd()+'/'+f,1300)
