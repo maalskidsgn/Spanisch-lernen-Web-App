@@ -210,6 +210,14 @@ export function Datenschutz({ onZurueck }) {
         grundlage="Art. 6 Abs. 1 lit. b DSGVO"
       />
       <Empfaenger
+        name={t("rt3.revenuecatName")}
+        zweck={t("rt3.revenuecatZweck")}
+        daten={t("rt3.revenuecatDaten")}
+        sitz={t("rt3.revenuecatSitz")}
+        grundlage="Art. 6 Abs. 1 lit. b DSGVO"
+        drittland={t("rt3.usaAbgesichertUeber")}
+      />
+      <Empfaenger
         name={t("rt3.spotifyNurWenn")}
         zweck={t("rt3.songvorschlaegeAufGrundlage")}
         daten={t("rt3.nachDeinerFreigabe")}
