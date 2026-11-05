@@ -50,8 +50,12 @@ export function kaufBereit() {
 export function pruefeHerkunft(kopfzeile) {
   const erwartet = process.env.REVENUECAT_WEBHOOK_SECRET
   if (!erwartet) throw new Error('REVENUECAT_WEBHOOK_SECRET fehlt auf dem Server.')
-  const gegeben = String(kopfzeile || '')
-  if (gegeben.length !== erwartet.length) throw new Error('Nicht berechtigt.')
+  // Beim Kopieren ins Dashboard rutschen leicht ein Zeilenumbruch oder "Bearer" mit hinein.
+  const gegeben = String(kopfzeile || '').replace(/^Bearer\s+/i, '').trim()
+  if (gegeben.length !== erwartet.length) {
+    console.error('[kauf] Schluessel hat falsche Laenge:', gegeben.length)
+    throw new Error('Nicht berechtigt.')
+  }
   let gleich = 0
   for (let i = 0; i < erwartet.length; i++) {
     gleich |= erwartet.charCodeAt(i) ^ gegeben.charCodeAt(i)
