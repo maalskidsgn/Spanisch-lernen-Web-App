@@ -485,8 +485,8 @@ export default function Settings({
       </section>
 
       {/* ---------- Abo ---------- */}
-      {/* In der Store-App nur zeigen, wenn schon Premium besteht – kein Angebot */}
-      {(!istApp || premium) && (
+      {/* In der Store-App nur zeigen, wenn dort gekauft werden kann oder schon Premium besteht */}
+      {(!istApp || premium || kaufMoeglich()) && (
       <>
       <h2 className="settings-heading">{t('st2.deinAbo')}</h2>
       <div className="plan-grid">
@@ -506,7 +506,7 @@ export default function Settings({
             Premium{' '}
             {premium ? (
               <span className="plan-badge">{t('st2.deinPlan')}</span>
-            ) : !bezahlbar ? (
+            ) : !bezahlbar && !kaufMoeglich() ? (
               <span className="plan-badge badge-soon">{t('st2.baldVerfuegbar')}</span>
             ) : null}
           </div>
@@ -514,7 +514,6 @@ export default function Settings({
             <li>{t('st2.unbegrenzteKiVokabellisten')}</li>
             <li>{t('st2.unbegrenzteZweisprachigeE')}</li>
             <li>{t('st2.eigeneVideosOhne')}</li>
-            <li>{t('st2.offlineModusErinnerungen')}</li>
           </ul>
 
           {preis && !premium && !istApp && (

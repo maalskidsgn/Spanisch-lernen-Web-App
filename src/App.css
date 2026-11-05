@@ -14072,20 +14072,11 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
    allem und ist nicht anklickbar.
    Im Browser ist env(safe-area-inset-top) gleich 0, dort gibt es
    ihn also gar nicht. */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top);
-  background: #fff;
-  z-index: 200;
-  pointer-events: none;
-}
+/* Der Streifen ist raus: Auf iOS 18 meldet env() trotz contentInset 59pt,
+   dann lag er genau ueber Logo und XP der Kopfzeile. Die Statusleiste
+   haelt contentInset: "always" ohnehin frei. */
 /* Die Videoseite blendet die Leiste aus und ist oben orange -
    dort zieht der Streifen mit. */
-body.liest-video::before { background: var(--primary); }
 
 /* ================================================================
    Anmeldung: auf dem Handy eine Seite, am Rechner ein Fenster
