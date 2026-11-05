@@ -117,7 +117,7 @@ export async function anmelden(email, passwort) {
   return data.user
 }
 
-/** Meldet ab – die lokalen Daten im Browser bleiben erhalten. */
+/** Meldet ab – die lokalen Daten bleiben, bis sich ein anderes Konto anmeldet. */
 export async function abmelden() {
   const { error } = await db.auth.signOut()
   if (error) throw new Error(uebersetzeFehler(error))
@@ -164,6 +164,44 @@ export async function passwortVergessen(email) {
 //  React-Hook: wer ist gerade angemeldet?
 // ---------------------------------------------------------------
 
+// ---------------------------------------------------------------
+//  Wem gehoeren die Lerndaten auf diesem Geraet?
+// ---------------------------------------------------------------
+// Beim Abmelden bleiben die Daten im Speicher, und beim Anmelden
+// werden sie ins Konto uebernommen - gewollt fuer alle, die erst ohne
+// Konto lernen. Bis 05.11. galt das aber auch, wenn sich danach ein
+// ANDERES Konto anmeldete: Dessen Konto bekam dann den kompletten
+// Stand des vorigen. Deshalb merken wir uns, wem die Daten gehoeren.
+const BESITZER = 'daten-besitzer'
+// Geraete-Einstellungen, keine Lerndaten - die bleiben stehen.
+const BLEIBEN = ['oberflaeche-sprache', 'messungEinwilligung', 'install-hinweis', BESITZER]
+
+/**
+ * Meldet sich ein anderes Konto an als das, dem die Daten hier
+ * gehoeren, wird der Speicher geleert und die Seite neu geladen.
+ * Liefert dann true - der Aufrufer setzt den Nutzer nicht mehr.
+ */
+function fremdeDatenWeg(user) {
+  if (!user) return false
+  try {
+    const besitzer = localStorage.getItem(BESITZER)
+    if (besitzer === user.id) return false
+    if (besitzer) {
+      for (const k of Object.keys(localStorage)) {
+        // sb-… ist die Anmeldung selbst
+        if (k.startsWith('sb-') || k.startsWith('CapacitorStorage.') || BLEIBEN.includes(k)) continue
+        localStorage.removeItem(k)
+      }
+    }
+    localStorage.setItem(BESITZER, user.id)
+    if (!besitzer) return false // Daten ohne Konto: werden uebernommen
+  } catch {
+    return false
+  }
+  window.location.reload()
+  return true
+}
+
 /**
  * Liefert den angemeldeten Nutzer (oder null) und meldet sich
  * automatisch bei jeder Änderung neu.
@@ -180,6 +218,7 @@ export function useNutzer() {
 
     // Beim Start: gibt es noch eine gültige Sitzung?
     db.auth.getSession().then(({ data }) => {
+      if (fremdeDatenWeg(data.session?.user)) return
       setNutzer(data.session?.user ?? null)
       setLaedt(false)
       if (data.session?.user) merkeSprache()
@@ -187,6 +226,7 @@ export function useNutzer() {
 
     // Danach: auf An- und Abmelden reagieren
     const { data: beobachter } = db.auth.onAuthStateChange((ereignis, sitzung) => {
+      if (fremdeDatenWeg(sitzung?.user)) return
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
       if (sitzung?.user) merkeSprache()
