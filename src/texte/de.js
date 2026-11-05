@@ -660,6 +660,9 @@ export default {
 
   /* ---------------- KaufNativ ---------------- */
   "kn.hablooPremium": "Habloo Premium",
+  "kn.abrechnung": "Abrechnung über dein {laden}-Konto. Abos verlängern sich automatisch, bis du sie dort kündigst – das geht jederzeit in den Einstellungen deines Geräts.",
+  "kn.nutzungsbedingungen": "Nutzungsbedingungen",
+  "kn.datenschutz": "Datenschutz",
   "kn.angeboteWerdenGeladen": "Angebote werden geladen …",
   "kn.tarifWaehlen": "Tarif wählen",
 

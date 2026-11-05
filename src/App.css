@@ -14046,6 +14046,15 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   color: #a2988c;
 }
 
+.kn-rechtliches {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+.kn-rechtliches a { color: var(--muted); text-decoration: underline; }
+
 /* ---------- Der Streifen hinter der Statusleiste ----------
    iOS laesst Inhalt beim Ueberscrollen nach oben ueber den Rand
    hinauslaufen. Der landet dann im Bereich von Uhrzeit und Dynamic

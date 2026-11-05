@@ -136,9 +136,10 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
         {hinweis && <p className="kn-hinweis">{hinweis}</p>}
         {fehler && <p className="kn-fehler">{fehler}</p>}
 
-        <p className="kn-klein">
-          Abrechnung über dein {laden}-Konto. Abos verlängern sich automatisch, bis du
-          sie dort kündigst – das geht jederzeit in den Einstellungen deines Geräts.
+        <p className="kn-klein">{t('kn.abrechnung', { laden })}</p>
+        <p className="kn-rechtliches">
+          <a href="https://habloo.de/agb" target="_blank" rel="noreferrer">{t('kn.nutzungsbedingungen')}</a>
+          <a href="https://habloo.de/datenschutz" target="_blank" rel="noreferrer">{t('kn.datenschutz')}</a>
         </p>
       </div>
     </div>
