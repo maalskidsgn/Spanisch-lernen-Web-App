@@ -1,7 +1,7 @@
 import Logo from './Logo.jsx'
 import { useTexte } from './sprache.js'
 
-const VORTEILE = ['dk.trainer', 'dk.listen', 'dk.saetze', 'dk.videos']
+const VORTEILE = ['dk.listen', 'dk.saetze', 'dk.videos']
 
 /**
  * Die Seite direkt nach dem Kauf, im Browser wie in der App: Sie sagt
@@ -9,11 +9,6 @@ const VORTEILE = ['dk.trainer', 'dk.listen', 'dk.saetze', 'dk.videos']
  */
 export default function PremiumDanke({ verzoegert = false, onWeiter }) {
   const t = useTexte()
-
-  function zumTrainer() {
-    onWeiter?.()
-    window.dispatchEvent(new CustomEvent('sprechen-oeffnen'))
-  }
 
   return (
     <div className="kassen-seite">
@@ -31,8 +26,7 @@ export default function PremiumDanke({ verzoegert = false, onWeiter }) {
           {VORTEILE.map((v) => <li key={v}>{t(v)}</li>)}
         </ul>
         {verzoegert && <p className="danke-hinweis">{t('dk.warte')}</p>}
-        <button className="kn-kaufen" onClick={zumTrainer}>{t('dk.sprechen')}</button>
-        <button className="kn-wieder" onClick={onWeiter}>{t('dk.weiter')}</button>
+        <button className="kn-kaufen" onClick={onWeiter}>{t('dk.weiter')}</button>
       </div>
     </div>
   )
