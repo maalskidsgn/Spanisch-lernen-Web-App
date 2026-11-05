@@ -22,6 +22,7 @@ import {
   holePreise,
 } from './bezahlung.js'
 import { pruefeHerkunft, verarbeiteKauf, kaufBereit } from './kauf.js'
+import { nimmRueckmeldung } from './feedback.js'
 import {
   holeTranskript as holeUeberDienst,
   tubeAlfredBereit,
@@ -1091,6 +1092,19 @@ app.post('/api/kauf/melden', async (req, res) => {
     const code = fehler.message === 'Nicht berechtigt.' ? 401 : 400
     console.error('[kauf] abgelehnt:', fehler.message)
     res.status(code).json({ error: fehler.message })
+  }
+})
+
+// Feedback-Formular: auch ohne Konto erreichbar, die Prüfung steckt in feedback.js
+app.post('/api/feedback', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+    const ip = String(req.headers['x-forwarded-for'] || req.ip || '').split(',')[0].trim()
+    await nimmRueckmeldung(req.body, { nutzer, ip })
+    res.json({ gesendet: true })
+  } catch (fehler) {
+    res.status(400).json({ error: fehler.message })
   }
 })
 

@@ -218,6 +218,13 @@ export function Datenschutz({ onZurueck }) {
         drittland={t("rt3.usaAbgesichertUeber")}
       />
       <Empfaenger
+        name={t("rt3.feedbackName")}
+        zweck={t("rt3.feedbackZweck")}
+        daten={t("rt3.feedbackDaten")}
+        sitz={t("rt3.feedbackSitz")}
+        grundlage="Art. 6 Abs. 1 lit. f DSGVO"
+      />
+      <Empfaenger
         name={t("rt3.spotifyNurWenn")}
         zweck={t("rt3.songvorschlaegeAufGrundlage")}
         daten={t("rt3.nachDeinerFreigabe")}

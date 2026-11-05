@@ -12,6 +12,8 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { API_URL, istApp } from './api.js'
+import { kaufMoeglich } from './kauf.js'
+import FeedbackKnopf from './Feedback.jsx'
 import { db, supabaseBereit } from './supabase.js'
 import { useTexte, sprache, gebiet } from './sprache.js'
 import { spiele } from './audio.js'
@@ -64,12 +66,14 @@ const zeit = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 const TUER_SPEICHER = 'sprechen-tuer-frei'
 let tuerFrei = lies(TUER_SPEICHER, '') === 'ja'
 
+// In den Apps nur, wenn dort wirklich gekauft werden kann.
+const aboMoeglich = !istApp || kaufMoeglich()
+
 /** Die Karte ueber dem Trainer. Erscheint nur, wenn das Konto freigeschaltet ist. */
 export function SprechenTuer() {
   const t = useTexte()
   const [erlaubt, setErlaubt] = useState(tuerFrei)
   useEffect(() => {
-    if (istApp) return
     api('/api/sprechen/status')
       .then((d) => {
         tuerFrei = Boolean(d.erlaubt)
@@ -78,7 +82,7 @@ export function SprechenTuer() {
       })
       .catch(() => {})
   }, [])
-  if (!erlaubt || istApp) return null
+  if (!erlaubt) return null
   return (
     <button className="spr-tuer" onClick={() => window.dispatchEvent(new CustomEvent('sprechen-oeffnen'))}>
       <span className="spr-tuer-kreis" aria-hidden="true"><i /></span>
@@ -673,7 +677,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
                 <div className="spr-abo">
                 <b>{t('spr.mehrTitel')}</b>
                 <span>{t('spr.mehrText')}</span>
-                {!istApp && <button className="btn" onClick={zumAbo}>{t('spr.mehrKnopf')}</button>}
+                {aboMoeglich && <button className="btn" onClick={zumAbo}>{t('spr.mehrKnopf')}</button>}
               </div>
               </section>
             )}
@@ -749,6 +753,11 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
               )}
             </section>
 
+            <section className="spr-karte fb-karte">
+              <b>{t('fb.trainerTitel')}</b>
+              <span>{t('fb.trainerText')}</span>
+              <FeedbackKnopf art="sprechen" className="btn" />
+            </section>
             <Archiv onAddVocab={onAddVocab} aktualisiert={archivStand} />
           </>
         )}
@@ -783,7 +792,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
               <div className="spr-abo">
                 <b>{t('spr.mehrTitel')}</b>
                 <span>{t('spr.mehrText')}</span>
-                {!istApp && <button className="btn" onClick={zumAbo}>{t('spr.mehrKnopf')}</button>}
+                {aboMoeglich && <button className="btn" onClick={zumAbo}>{t('spr.mehrKnopf')}</button>}
               </div>
             )}
             {phase === 'laeuft' && <button className="btn-plain spr-erklaeren" onClick={erklaeren}>{t('spr.erklaer')}</button>}

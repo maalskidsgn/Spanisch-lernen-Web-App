@@ -10,6 +10,7 @@ import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
 import { IconPfeil } from './icons.jsx'
+import FeedbackKnopf from './Feedback.jsx'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
@@ -704,6 +705,16 @@ export default function Settings({
 
       {/* ---------- Rechtliches ---------- */}
       </Klapper>
+
+      <div className="settings-card">
+        <div className="settings-row">
+          <div>
+            <div className="row-title">{t('fb.settingsTitel')}</div>
+            <div className="row-hint">{t('fb.settingsText')}</div>
+          </div>
+          <FeedbackKnopf />
+        </div>
+      </div>
 
       <Klapper titel={t('st4.rechtliches')} hinweis={t('st4.rechtlichesHinweis')}>
       <div className="settings-card">
