@@ -149,7 +149,13 @@ async function lernstand(nutzerId) {
 
 function begleitung(niveau, muttersprache) {
   if (niveau === 'A1') {
-    return `This learner is a complete beginner and will not understand Spanish yet. Guide them in ${muttersprache}: about 80 percent of what you say is ${muttersprache}. Teach one tiny Spanish phrase at a time, say it slowly, give its meaning, and ask them to repeat it. Never give a long Spanish sentence.`
+    return `This learner is a complete beginner. Speak Spanish from your very first word and lead them by the hand.
+- Use only the simplest, most common A1 words, in the present tense.
+- At most 3 to 5 words per sentence. Say one sentence, then ask one very easy question they can answer with one or two words. Example: "Hola. Me llamo Habla. ¿Y tú?"
+- Speak slowly and clearly, and pause after each sentence.
+- Right after each Spanish sentence, give its meaning in ${muttersprache} in a few words, so they never feel lost. Use ${muttersprache} only for that and for very short help.
+- If they do not know what to say, give them the answer and let them repeat it. Praise every attempt.
+- Stay on one small everyday topic at a time, and reuse the same words often so they stick. Never explain grammar at length.`
   }
   if (niveau === 'A2') {
     return `Speak about half Spanish and half ${muttersprache}. Say something short in Spanish, and give the ${muttersprache} meaning whenever it is new. Let them answer in either language, and help them say it in Spanish.`
@@ -208,7 +214,7 @@ In the app: ${stand.lektionen} lessons finished, ${stand.lesekurs} of 16 reading
 Words they often get wrong in the trainer:
 ${liste(stand.schwach.map((w) => `${w.wort_es} = ${w.uebersetzung}`))}
 
-START: Greet them in one short sentence, in ${niveau === 'A1' || niveau === 'A2' ? muttersprache : 'Spanish'}. If you know them, pick up something concrete from above. If it is the first call, ask their name and what they want Spanish for.`
+START: ${niveau === 'A1' ? `Greet them in one tiny Spanish sentence and give its meaning in ${muttersprache}. If it is the first call, ask only their name: "¿Cómo te llamas?"` : `Greet them in one short sentence, in ${niveau === 'A2' ? muttersprache : 'Spanish'}. If it is the first call, ask their name and what they want Spanish for.`} If you know them, pick up something concrete from above.`
 }
 
 const WERKZEUGE = [
@@ -265,7 +271,7 @@ export async function starte(nutzer, { akzent, niveau, sprache, sdp }) {
   if (!schluessel) throw new Fehler(500, 'Kein OpenAI-Schlüssel hinterlegt.')
 
   const [g, stand] = await Promise.all([gedaechtnis(nutzer.id), lernstand(nutzer.id).catch(() => ({ lektionen: 0, lesekurs: 0, vokabeln: 0, schwach: [], vorher: [] }))])
-  const stufe = ['A1', 'A2', 'B1', 'B2', 'C1'].includes(niveau) ? niveau : 'A2'
+  const stufe = ['A1', 'A2', 'B1', 'B2', 'C1'].includes(niveau) ? niveau : 'A1'
   const antwort = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
     method: 'POST',
     headers: { Authorization: `Bearer ${schluessel}`, 'Content-Type': 'application/json' },
@@ -289,7 +295,8 @@ export async function starte(nutzer, { akzent, niveau, sprache, sdp }) {
             // Der Trainer soll dann nicht ins Wort fallen.
             turn_detection: { type: 'semantic_vad', eagerness: 'low', interrupt_response: true },
           },
-          output: { voice: AKZENTE[akzent].stimme },
+          // Anfaenger brauchen vor allem Zeit zum Mithoeren
+          output: { voice: AKZENTE[akzent].stimme, speed: stufe === 'A1' ? 0.85 : 1 },
         },
       },
     }),
