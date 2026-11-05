@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Logo from './Logo.jsx'
+import PremiumDanke from './PremiumDanke.jsx'
 import {
   ladeAngebote, kaufe, stelleWiederHer, warteAufFreischaltung, plattform,
 } from './kauf.js'
@@ -20,6 +21,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
   const [laeuft, setLaeuft] = useState('')       // '' | 'kauf' | 'wieder'
   const [fehler, setFehler] = useState('')
   const [hinweis, setHinweis] = useState('')
+  const [danke, setDanke] = useState(null) // null | { verzoegert }
 
   const laden = plattform() === 'ios' ? 'App Store' : 'Google Play'
 
@@ -50,8 +52,8 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
       // Der Store hat bezahlt, aber unsere Datenbank weiss es erst,
       // wenn die Meldung durch ist. Kurz warten statt den Nutzer mit
       // der Premium-Werbung zurückzulassen.
-      await warteAufFreischaltung()
-      onFertig?.()
+      const frei = await warteAufFreischaltung()
+      setDanke({ verzoegert: !frei })
     } catch (f) {
       setFehler(f.message)
     } finally {
@@ -78,6 +80,8 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
       setLaeuft('')
     }
   }
+
+  if (danke) return <PremiumDanke verzoegert={danke.verzoegert} onWeiter={onFertig} />
 
   return (
     <div className="kassen-seite">

@@ -1931,6 +1931,15 @@ export default {
 
   /* ---------------- Sprach-Trainer ---------------- */
   "spr.neu": "Neu",
+  "dk.titel": "Danke! Du bist jetzt Premium.",
+  "dk.unter": "Das ist ab sofort für dich freigeschaltet:",
+  "dk.trainer": "2 Stunden mit Habla sprechen, jeden Monat",
+  "dk.listen": "Unbegrenzte KI-Vokabellisten",
+  "dk.saetze": "Unbegrenzte Sätze und zweisprachige E-Books",
+  "dk.videos": "Eigene Videos ohne Begrenzung",
+  "dk.warte": "Die Freischaltung kann noch einen Moment dauern. Öffne die App sonst kurz neu.",
+  "dk.sprechen": "Jetzt mit Habla sprechen",
+  "dk.weiter": "Weiter lernen",
   "fb.knopf": "Feedback geben",
   "fb.zuKurz": "Schreib bitte ein paar Worte mehr.",
   "fb.netz": "Das Senden klappt gerade nicht. Versuch es bitte später nochmal.",

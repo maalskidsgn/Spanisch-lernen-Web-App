@@ -1931,6 +1931,15 @@ export default {
 
   /* ---------------- Sprach-Trainer ---------------- */
   "spr.neu": "New",
+  "dk.titel": "Thank you! You're Premium now.",
+  "dk.unter": "Here's what you just unlocked:",
+  "dk.trainer": "2 hours of talking with Habla, every month",
+  "dk.listen": "Unlimited AI vocabulary lists",
+  "dk.saetze": "Unlimited sentences and bilingual e-books",
+  "dk.videos": "Your own videos without limits",
+  "dk.warte": "Unlocking can take a moment. If needed, reopen the app.",
+  "dk.sprechen": "Talk with Habla now",
+  "dk.weiter": "Keep learning",
   "fb.knopf": "Give feedback",
   "fb.zuKurz": "Please write a few more words.",
   "fb.netz": "Sending isn't working right now. Please try again later.",

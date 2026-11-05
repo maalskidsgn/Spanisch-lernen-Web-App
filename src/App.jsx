@@ -27,6 +27,7 @@ import { kaufMoeglich, kaufVorbereiten, kaufBeenden, istApp } from './kauf.js'
 import { baueBrueckenPlayer } from './ytBruecke.js'
 import Bezahlen from './Bezahlen.jsx'
 import Sprechen from './Sprechen.jsx'
+import PremiumDanke from './PremiumDanke.jsx'
 import KaufNativ from './KaufNativ.jsx'
 import { gleicheGeraetedatenAb } from './geraeteSync.js'
 import { merkeGelernt } from './lernkurve.js'
@@ -315,6 +316,10 @@ export default function App() {
     () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse'
   )
   // Der Sprach-Trainer – eigene Seite unter /sprechen
+  // Stripe schickt nach der Zahlung mit ?bezahlt=ja zurück
+  const [dankeOffen, setDankeOffen] = useState(
+    () => new URLSearchParams(window.location.search).get('bezahlt') === 'ja'
+  )
   const [sprechenOffen, setSprechenOffen] = useState(
     () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen'
   )
@@ -1374,6 +1379,18 @@ export default function App() {
   // ---------- Der Sprach-Trainer: eigene Seite ohne Tab-Leiste
   if (sprechenOffen) {
     return <Sprechen onZurueck={() => setSprechenOffen(false)} addXp={addXp} onAddVocab={addVocabWords} />
+  }
+
+  if (dankeOffen) {
+    return (
+      <PremiumDanke
+        onWeiter={() => {
+          setDankeOffen(false)
+          window.history.replaceState(null, '', window.location.pathname)
+          window.dispatchEvent(new CustomEvent('premium-neu'))
+        }}
+      />
+    )
   }
 
   // ---------- Die Kasse: eine eigene Seite, keine Karte in den
