@@ -92,6 +92,7 @@ const LEISTUNGEN = [
   'bz9.unbegrenzteKiVokabellisten',
   'bzm.unbegrenzteSaetzeUnd',
   'bz9.eigeneVideosOhne',
+  'bz9.kiTrainerOhne',
 ]
 
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der

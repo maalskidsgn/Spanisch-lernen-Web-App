@@ -876,7 +876,7 @@ export default {
 
   /* ---------------- KaufNativ (mehrzeilig) ---------------- */
   "kn2.zurueck": "Back",
-  "kn2.alleLektionenDer": "All lessons, unlimited AI vocabulary lists, your own texts and sentences.",
+  "kn2.alleLektionenDer": "All lessons, 2 hours of voice trainer per month, your own texts and sentences.",
   "kn2.details": "Details",
   "kn2.geradeSindKeine": "No offers available right now. Try again later.",
 
