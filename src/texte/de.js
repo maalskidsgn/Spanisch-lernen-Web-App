@@ -172,6 +172,8 @@ export default {
   'home.gesamt': 'Gesamt',
   'home.platz': 'Platz {nr}',
   'home.lernstreak': 'Deine Lernstreak',
+  'hm.tabSerie': 'Serie',
+  'hm.tabAnalyse': 'Analyse',
   'home.tageInFolge': 'Tage in Folge',
   'home.heute': 'Heute',
   'home.kalender': 'Kalender · {zahl} aktive Tage',

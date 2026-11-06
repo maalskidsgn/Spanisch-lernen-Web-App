@@ -172,6 +172,8 @@ export default {
   'home.gesamt': 'All time',
   'home.platz': 'Rank {nr}',
   'home.lernstreak': 'Your streak',
+  'hm.tabSerie': 'Streak',
+  'hm.tabAnalyse': 'Analytics',
   'home.tageInFolge': 'days in a row',
   'home.heute': 'Today',
   'home.kalender': 'Calendar · {zahl} active days',

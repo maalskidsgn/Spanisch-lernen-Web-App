@@ -60,6 +60,9 @@ export default function Home({
   nutzerId,
 }) {
   const t = useTexte()
+  // Serie (Woche + Kalender) oder Analyse (Lernkurve) – beides
+  // untereinander machte die Startseite zu lang.
+  const [wocheTab, setWocheTab] = useState('serie')
   const faellig = counts.faellig ?? 0
 
   // Der Name für die Begrüßung: derselbe, unter dem man in der
@@ -225,6 +228,29 @@ export default function Home({
           <h2 className="start-abschnitt streak-titel">{t('home.lernstreak')}</h2>
         </div>
 
+        <div className="ansicht-schalter woche-tabs" role="tablist">
+          <button
+            role="tab"
+            aria-selected={wocheTab === 'serie'}
+            className={wocheTab === 'serie' ? 'aktiv' : ''}
+            onClick={() => setWocheTab('serie')}
+          >
+            {t('hm.tabSerie')}
+          </button>
+          <button
+            role="tab"
+            aria-selected={wocheTab === 'analyse'}
+            className={wocheTab === 'analyse' ? 'aktiv' : ''}
+            onClick={() => setWocheTab('analyse')}
+          >
+            {t('hm.tabAnalyse')}
+          </button>
+        </div>
+
+        {/* Der Schlüssel lässt den Block beim Wechsel neu einblenden */}
+        <div className="wechsel" key={wocheTab}>
+        {wocheTab === 'serie' && (
+        <>
         <ol className="woche-reihe" aria-label={t('hm.einheitenDieseWoche', { zahl: wochenSumme })}>
           {woche.map((tag, i) => (
             <li key={i} className={'woche-punkt' + (tag.istHeute ? ' punkt-heute' : '')}>
@@ -251,9 +277,12 @@ export default function Home({
             wurde. Antippen zeigt, wie viele Lektionen und
             Wiederholungen es waren. */}
         <Kalender />
+        </>
+        )}
 
         {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
-        <Lernkurve />
+        {wocheTab === 'analyse' && <Lernkurve />}
+        </div>
       </section>
 
       {/* Meilensteine: Abzeichen zum Teilen */}

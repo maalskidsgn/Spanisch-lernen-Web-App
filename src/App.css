@@ -14952,3 +14952,22 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   font-size: 12px;
   font-weight: 900;
 }
+
+/* Serie / Analyse in der Wochen-Karte der Startseite */
+.woche-tabs { display: flex; width: 100%; margin: 4px 0 14px; }
+.woche-tabs button { flex: 1; justify-content: center; }
+
+/* Lernkurve: am Anfang nur Wörter an. Die Kästchen zeigen, dass sich
+   die anderen Linien dazuschalten lassen. */
+.lk-chip { opacity: .8; }
+.lk-chip-haken {
+  width: 18px; height: 18px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 6px;
+  border: 2px solid color-mix(in srgb, var(--farbe) 55%, #fff);
+  background: #fff;
+  color: transparent;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+.lk-chip-haken svg { width: 12px; height: 12px; }
+.lk-chip-an .lk-chip-haken { background: var(--farbe); border-color: var(--farbe); color: #fff; }
