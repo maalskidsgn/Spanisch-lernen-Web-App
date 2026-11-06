@@ -61,13 +61,17 @@ import {
   speichereSaetzeLokal,
   ladeSaetze,
   speichereSaetze,
+  neuerSatz,
+  satzSchluessel,
 } from './saetze.js'
 import {
   ladeTexteLokal,
   speichereTexteLokal,
   ladeTexte,
   speichereTexte,
+  neuerText,
 } from './lesetexte.js'
+import { GRUNDPAKET_VERSION, GRUNDPAKET_WOERTER, GRUNDPAKET_SAETZE, GRUNDPAKET_TEXT } from './grundpaket.js'
 import {
   XP,
   loadProgress,
@@ -550,6 +554,43 @@ export default function App() {
 
     return () => { abgebrochen = true }
   }, [nutzer])
+
+  // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 5 Sätze und
+  // der Text „So lernst du mit Habloo“ – damit Trainer, Sätze und Texte
+  // am ersten Tag nicht leer sind. Wer schon 50+ Wörter hat, bekommt
+  // nur Sätze und Text. Doppeltes fällt über die Schlüssel weg.
+  useEffect(() => {
+    if (nutzer && syncStatus !== 'fertig') return
+    const merker = 'grundpaket-' + GRUNDPAKET_VERSION + ':' + (nutzer?.id ?? 'gast')
+    try {
+      if (localStorage.getItem(merker)) return
+    } catch {
+      return
+    }
+    // Kurz warten: Sätze und Texte aus der Datenbank kommen erst nach dem Abgleich
+    const zeit = setTimeout(() => {
+      try { localStorage.setItem(merker, 'ja') } catch { /* egal */ }
+      setVocab((v) => {
+        if (Object.keys(v).length >= 50) return v
+        const copy = { ...v }
+        for (const w of GRUNDPAKET_WOERTER) {
+          const key = w.wort.toLowerCase()
+          if (!copy[key]) copy[key] = { ...newEntry(w.uebersetzung, 'Grundpaket'), status: 'lernen' }
+        }
+        return copy
+      })
+      setSaetze((alt) => {
+        const neu = { ...alt }
+        for (const s of GRUNDPAKET_SAETZE) {
+          const key = satzSchluessel(s.satz)
+          if (!neu[key]) neu[key] = neuerSatz(s, { thema: 'Grundpaket' })
+        }
+        return neu
+      })
+      setTexte((alt) => (alt['t-grundpaket'] ? alt : { ...alt, 't-grundpaket': neuerText(GRUNDPAKET_TEXT) }))
+    }, 2500)
+    return () => clearTimeout(zeit)
+  }, [nutzer, syncStatus])
 
   // Beim Abmelden wieder auf reinen Browser-Betrieb umstellen
   useEffect(() => {

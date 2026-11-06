@@ -14,6 +14,7 @@ const SERIEN = {
   lektionen: { name: 'lk.lektionen', farbe: '#1e9d85' },
   texte: { name: 'lk.texte', farbe: '#2e8fe8' },
   video: { name: 'lk.videoMin', farbe: '#e5484d' },
+  habla: { name: 'lk.habla', farbe: '#d6409f' },
 }
 
 const ZEITRAEUME = [

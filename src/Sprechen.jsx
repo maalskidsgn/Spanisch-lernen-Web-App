@@ -11,6 +11,7 @@
  * die kommt mit dem naechsten Paket.
  */
 import { useEffect, useRef, useState } from 'react'
+import { merkeGelernt } from './lernkurve.js'
 import { API_URL, istApp } from './api.js'
 import { kaufMoeglich } from './kauf.js'
 import FeedbackKnopf from './Feedback.jsx'
@@ -269,6 +270,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
       const minute = Math.floor(s / 60)
       if (minute > letzteMinute) {
         letzteMinute = minute
+        merkeGelernt('habla') // Gesprächsminute für die Lernkurve
         // Nur wer in dieser Minute gesprochen hat, bekommt XP.
         if (l.gesprochen) {
           addXp?.(XP_PRO_MINUTE)

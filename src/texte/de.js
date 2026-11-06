@@ -446,6 +446,7 @@ export default {
   "lk.lektionen": "Lektionen",
   "lk.texte": "Texte",
   "lk.videoMin": "Video-Min.",
+  "lk.habla": "Habla-Min.",
   "lk.lernkurve": "Lernkurve",
   "lk.nichtsGelernt": "nichts gelernt",
 
