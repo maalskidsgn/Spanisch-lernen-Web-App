@@ -15311,3 +15311,36 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   .spr-blase i { animation: none; }
 }
 .spr-tuer { --spr-voll: #ff6c00; --spr-kante: #c85200; --spr-hell: #ffd2ab; --spr-hell-kante: #f0b27a; --spr-flaeche: #fff3e8; }
+
+/* Abspann im Profil: Klarwerk-Marke */
+.kw-abspann {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 28px auto 8px;
+  padding: 18px 22px;
+  max-width: 320px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: var(--muted);
+  transition: background .2s ease;
+}
+.kw-abspann:hover { background: rgba(79, 91, 255, .06); }
+.kw-zeile { font-size: 13px; font-weight: 700; }
+.kw-logo { display: inline-flex; align-items: center; gap: 7px; }
+.kw-logo b { font-size: 21px; font-weight: 700; letter-spacing: -.03em; color: #10133a; }
+.kw-abspann small { font-size: 11.5px; font-weight: 700; opacity: .75; }
+
+/* Slider-Korrektur (06.11.): erste Karte mit Abstand links (das Einrasten
+   zog sie an den Rand) und die Pfeile auch auf dem Handy. */
+.si-leiste { scroll-padding-inline: 16px; }
+.si-pfeil { display: grid; width: 34px; height: 34px; top: 34%; }
+.si-pfeil-links { left: 6px; }
+.si-pfeil-rechts { right: 6px; }
+@media (min-width: 900px) {
+  .si-leiste { scroll-padding-inline: 2px; }
+  .si-pfeil { width: 40px; height: 40px; top: 38%; }
+  .si-pfeil-links { left: -18px; }
+  .si-pfeil-rechts { right: -18px; }
+}

@@ -14,6 +14,7 @@ import FeedbackKnopf from './Feedback.jsx'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
+import KlarwerkAbspann from './KlarwerkAbspann.jsx'
 import Blockierte from './Blockierte.jsx'
 import {
   ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse,
@@ -856,7 +857,7 @@ export default function Settings({
       </Klapper>
 
       {/* ---------- Über ---------- */}
-      <p className="about-note">{t('st2.mitHerzEntwickelt')}</p>
+      <KlarwerkAbspann zeile={t('st2.entwickeltVon')} unter={t('st2.klarwerkUnter')} />
     </div>
   )
 }

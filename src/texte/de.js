@@ -832,6 +832,8 @@ export default {
   "st2.allesZuruecksetzen": "Alles zurücksetzen",
   "st2.kontoLoeschen": "Konto löschen",
   "st2.mitHerzEntwickelt": "Mit Herz entwickelt von Klarwerk Digital",
+  "st2.entwickeltVon": "Mit Herz entwickelt von Manuel Killert",
+  "st2.klarwerkUnter": "Websites & Apps · klarwerk-digital.com",
   "st2.benutzername": "Benutzername",
 
   /* ---------------- Home (mehrzeilig) ---------------- */
