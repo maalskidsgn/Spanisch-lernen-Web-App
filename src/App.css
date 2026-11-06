@@ -14561,6 +14561,56 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 .rang-podest .rang-zweiter .rs-block { height: 76px; }
 .rang-podest .rang-dritter .rs-block { height: 64px; }
 
+/* ---------- Podest als schwebende Toon-Inseln ----------
+   Orange Insel ohne Kontur (Bild in Rangliste.jsx). Das Emblem steht
+   auf dem Plateau, die Platzziffer liegt darauf. --g skaliert je Platz. */
+.rang-erster { --g: 1; }
+.rang-zweiter { --g: .86; }
+.rang-dritter { --g: .76; }
+.rs-insel {
+  position: relative;
+  display: block;
+  margin-top: calc(var(--g) * 30px + 8px);
+  animation: insel-schweben 5.2s ease-in-out infinite;
+  filter: drop-shadow(0 16px 10px rgba(200, 90, 0, .16));
+}
+.rang-zweiter .rs-insel { animation-delay: -1.7s; animation-duration: 5.8s; }
+.rang-dritter .rs-insel { animation-delay: -3.1s; animation-duration: 6.3s; }
+@keyframes insel-schweben {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.rs-insel-bild {
+  display: block;
+  width: 100%;
+  height: calc(var(--g) * 150px);
+  overflow: visible;
+}
+/* Kopf: unten bündig mit der Plateaumitte (Bild 158 hoch, Mitte bei 36) */
+.rs-kopf {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% - var(--g) * 34px - 13px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  line-height: 1;
+}
+.rs-kopf .level-emblem { margin-bottom: 2px; filter: drop-shadow(0 3px 4px rgba(150, 60, 0, .25)); }
+.rs-kopf .level-emblem-sol {
+  filter: drop-shadow(0 0 6px rgba(255, 179, 0, .75)) drop-shadow(0 0 14px rgba(255, 95, 162, .45));
+}
+.rs-platz { font-size: 20px; font-weight: 900; }
+.rang-erster .rs-platz { color: #b94700; }
+.rang-zweiter .rs-platz { color: #cc6214; }
+.rang-dritter .rs-platz { color: #d97a36; }
+@media (prefers-reduced-motion: reduce) {
+  .rs-insel { animation: none; }
+}
+
+
 .levelup-emoji { display: grid; place-items: center; }
 .levelup-sol { background: linear-gradient(160deg, #1a1a66, #000041 60%, #3d0a4f); }
 .levelup-sol h2 { color: #ffd23c; }
