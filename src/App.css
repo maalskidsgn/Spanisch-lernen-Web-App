@@ -15332,15 +15332,9 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 .kw-logo b { font-size: 21px; font-weight: 700; letter-spacing: -.03em; color: #10133a; }
 .kw-abspann small { font-size: 11.5px; font-weight: 700; opacity: .75; }
 
-/* Slider-Korrektur (06.11.): erste Karte mit Abstand links (das Einrasten
-   zog sie an den Rand) und die Pfeile auch auf dem Handy. */
+/* Slider-Korrektur (06.11.): erste Karte mit Abstand links – das
+   Einrasten zog sie an den Rand. Pfeile weiter nur am Rechner. */
 .si-leiste { scroll-padding-inline: 16px; }
-.si-pfeil { display: grid; width: 34px; height: 34px; top: 34%; }
-.si-pfeil-links { left: 6px; }
-.si-pfeil-rechts { right: 6px; }
 @media (min-width: 900px) {
   .si-leiste { scroll-padding-inline: 2px; }
-  .si-pfeil { width: 40px; height: 40px; top: 38%; }
-  .si-pfeil-links { left: -18px; }
-  .si-pfeil-rechts { right: -18px; }
 }
