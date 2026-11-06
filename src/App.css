@@ -15136,3 +15136,63 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 @media (prefers-reduced-motion: reduce) {
   .si-emblem { animation: none; }
 }
+
+/* Modul-Bilder: Toon-Emblem auf Trommel (ModulBild.jsx) statt Emoji */
+.modul-ring:has(.mb), .modul-kopf-ring:has(.mb), .weiterlernen-ring:has(.mb) {
+  width: 84px;
+  height: 80px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.mb { position: relative; display: block; width: 84px; height: 80px; }
+.mb-sockel {
+  position: absolute;
+  left: 2px;
+  bottom: 0;
+  width: 80px;
+  height: 43px;
+  overflow: visible;
+  filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .1));
+}
+.mb-emblem { position: absolute; left: 10px; top: 0; width: 64px; height: 64px; overflow: visible; }
+
+/* ---------- Profilbilder als 3D-Kachel (Manuel, 06.11.) ----------
+   Weißer Rand, Ring in Platzfarbe und dicke Unterkante wie die
+   Trommeln. Level und Serie stehen als Pillen darunter. */
+.rang-saeule .rs-bild {
+  --ring: #ffae66;
+  --ring-d: #e07a2c;
+  margin-bottom: 20px;
+  box-shadow: 0 0 0 4px #fff, 0 0 0 8px var(--ring), 0 8px 0 8px var(--ring-d), 0 18px 20px -4px rgba(200,90,0,.32);
+  animation: rs-puls-kachel 2.6s ease-in-out infinite;
+}
+.rang-erster .rs-bild { --ring: #ff7a12; --ring-d: #c85200; animation-duration: 2.2s; }
+.rang-dritter .rs-bild { --ring: #ffd3a8; --ring-d: #e5a26a; animation-duration: 3.4s; }
+@keyframes rs-puls-kachel {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(var(--puls, 1.02)); }
+}
+.rang-initial {
+  box-shadow: 0 0 0 2.5px #fff, 0 0 0 5px #ffd9b3, 0 4px 0 5px #f0b27a;
+  margin: 2px 6px 8px 4px;
+}
+.rs-pillen { display: flex; justify-content: center; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.rs-lvl, .rs-pille {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 22px;
+  margin: 0;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+.rs-lvl { background: #ff7a12; color: #fff; box-shadow: 0 2px 0 #c85200; }
+.rs-pille { background: #ffd9b333; color: #c85200; box-shadow: 0 2px 0 #ffd9b3; }
+@media (prefers-reduced-motion: reduce) {
+  .rang-saeule .rs-bild { animation: none; }
+}

@@ -19,6 +19,7 @@ import { erfolgston } from './erfolgston.js'
 import { spiele, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
+import ModulBild from './ModulBild.jsx'
 import { IconLandkarte, IconListe, IconLautsprecher } from './icons.jsx'
 import {
   stationVon,
@@ -665,7 +666,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
         </button>
         <div className="modul-kopf">
           <span className="modul-kopf-ring" aria-hidden="true">
-            {modul.emoji}
+            <ModulBild modul={modul} />
           </span>
           <div className="modul-kopf-text">
             <h1>{uebersetzt(modul.titel)}</h1>
@@ -869,7 +870,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
               onClick={() => setModul(m)}
             >
               <span className="modul-ring" aria-hidden="true">
-                {bald ? '🔜' : offen ? m.emoji : '🔒'}
+                {bald ? '🔜' : offen ? <ModulBild modul={m} /> : '🔒'}
               </span>
 
               <span className="modul-text">
@@ -1308,7 +1309,7 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
   return (
     <button className="weiterlernen" onClick={onOeffnen}>
       <span className="weiterlernen-ring" aria-hidden="true">
-        {modul.emoji}
+        <ModulBild modul={modul} />
       </span>
       <span className="weiterlernen-text">
         <span className="weiterlernen-marke">{t('ls.weiterlernen')}</span>

@@ -418,7 +418,11 @@ function Saeule({ z, stufe, onOeffnen }) {
         {z.ich && <small>{t('rl9.duMarke')}</small>}
       </span>
       <span className="rs-xp">{z.xp.toLocaleString(gebiet())} XP</span>
-      <Serie serie={z.serie} klasse="rs-serie" />
+      {/* Level und Serie als zwei Pillen unter den XP */}
+      <span className="rs-pillen">
+        {z.level && <b className="rs-lvl">Lv {z.level}</b>}
+        <Serie serie={z.serie} klasse="rs-serie rs-pille" />
+      </span>
       {/* Schwebende Insel statt Treppenstufe: Emblem steht auf dem
           Plateau, die Platzziffer liegt darauf. */}
       <span className="rs-insel">
