@@ -1612,6 +1612,7 @@ export default function App() {
             lessonProgress={lessonProgress}
             addXp={addXp}
             onLessonComplete={lektionGeschafft}
+            onKasse={() => setKasseOffen(true)}
           />
         </main>
       )}

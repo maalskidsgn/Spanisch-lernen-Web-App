@@ -194,6 +194,7 @@ export default {
   'lek.geschafft': '{zahl} done',
   'lek.karte': 'Map',
   'lek.liste': 'List',
+  'lek.premium': 'Premium',
   'lek.alsNaechstes': 'Up next',
   'lek.vonZahl': '{fertig} of {gesamt}',
   'lek.minuten': '{von}–{bis} min',

@@ -27,6 +27,20 @@ import { API_URL } from './api.js'
 export const TESTPHASE_ALLES_FREI = false
 
 /**
+ * Lektionen hinter Premium.
+ *
+ * Gratis bleiben die ersten GRATIS_LEKTIONEN Lektionen des Kurses
+ * (nach kursNr) sowie Hörszene und Prüfstation von Modul 1. Alles
+ * danach öffnet die Kasse.
+ *
+ * AUS bis zum offiziellen Start: Erst wenn die Store-Tests durch sind
+ * und die Abos laufen, schalten Manuel und Claude das gemeinsam ein.
+ * Gleicher Schalter in Davaigo (russisch-app/src/premium.js).
+ */
+export const LEKTIONEN_SPERRE = false
+export const GRATIS_LEKTIONEN = 10
+
+/**
  * Ausnahme von der Testphase – nur für dieses eine Gerät.
  *
  * Solange alle Premium geschenkt bekommen, lässt sich der Bezahlweg
