@@ -367,12 +367,12 @@ function Serie({ serie, klasse }) {
  * darunter, ein paar Wolken und Brocken. Je Platz eigene Töne,
  * Platz 1 am kräftigsten.
  */
-const INSEL_TOENE = {
+export const INSEL_TOENE = {
   erster: ['#ffd09a', '#ffb062', '#ff9a3d', '#ff7a12', '#e05e00', '#b94700'],
   zweiter: ['#ffdcb2', '#ffc286', '#ffae66', '#ff9440', '#f07a22', '#cc6214'],
   dritter: ['#ffe7cf', '#ffd3a8', '#ffc28c', '#ffab68', '#f6934c', '#d97a36'],
 }
-function Insel({ stufe }) {
+export function Insel({ stufe }) {
   const [hell, oben, links, mitte, rechts, tief] = INSEL_TOENE[stufe]
   return (
     <svg className="rs-insel-bild" viewBox="-4 -12 108 158" aria-hidden="true" style={{ '--insel-tief': tief }}>

@@ -70,6 +70,17 @@ export default function Settings({
   onKasse,
   addXp,
 }) {
+  // Von den Start-Inseln: direkt zum Duell springen
+  useEffect(() => {
+    let ziel = null
+    try {
+      ziel = sessionStorage.getItem('profil-ziel')
+      sessionStorage.removeItem('profil-ziel')
+    } catch { /* egal */ }
+    if (ziel === 'duell') {
+      setTimeout(() => document.getElementById('profil-duell')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
+    }
+  }, [])
   const t = useTexte()
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   // Der Ton-Schalter liegt nicht in settings: Er soll auch ohne
@@ -425,7 +436,7 @@ export default function Settings({
           Direkt unter den Freunden: Gegen wen man spielt, steht
           eine Kachel weiter oben. */}
       {supabaseBereit && nutzer && (
-        <section className="pf-kasten pf-duelle">
+        <section className="pf-kasten pf-duelle" id="profil-duell">
           <h2 className="pf-kasten-titel">{t('st2.duell')}</h2>
           <p className="pf-kasten-text">
             {t('se9.duellErklaerung2')}

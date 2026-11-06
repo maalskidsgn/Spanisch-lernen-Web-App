@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   vorschau,
   LEVEL_LABELS,
@@ -77,6 +77,18 @@ export default function Trainer({
   const t = useTexte()
   // 'woerter' | 'saetze' | 'grammatik' | 'ki'
   const [deck, setDeck] = useState('woerter')
+  // Von den Start-Inseln: direkt zu den Sätzen oder zu den Spielen
+  useEffect(() => {
+    let ziel = null
+    try {
+      ziel = sessionStorage.getItem('trainer-ziel')
+      sessionStorage.removeItem('trainer-ziel')
+    } catch { /* egal */ }
+    if (ziel === 'saetze') setDeck('saetze')
+    if (ziel === 'spiele') {
+      setTimeout(() => document.getElementById('trainer-spiele')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200)
+    }
+  }, [])
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
   // deshalb eingeklappt und laedt nur haeppchenweise nach.
   const [listeOffen, setListeOffen] = useState(false)
@@ -652,7 +664,7 @@ export default function Trainer({
         </div>
 
         {/* Die Spiele als spielerische Alternative zur Abfrage */}
-      <section className="bereich bereich-spiele">
+      <section className="bereich bereich-spiele" id="trainer-spiele">
         <div className="bereich-kopf">
           <h2>{t('tr.lieberSpielen')}</h2>
           <p>

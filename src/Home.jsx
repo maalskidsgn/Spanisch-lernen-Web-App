@@ -6,13 +6,13 @@ import { usePremium } from './premium.js'
 import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
 import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
+import StartInseln from './StartInseln.jsx'
 import Flamme from './Flamme.jsx'
 import InstallKnopf from './InstallKnopf.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
 import { ladeGelesen } from './LandUndLeute.jsx'
 import { useEffect, useState } from 'react'
-import { IconLektion, IconKarten, IconMediathek } from './icons.jsx'
 import { ladeBenutzername } from './rangliste.js'
 import { FeedTuer } from './Feed.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
@@ -64,6 +64,17 @@ export default function Home({
   // untereinander machte die Startseite zu lang.
   const [wocheTab, setWocheTab] = useState('serie')
   const faellig = counts.faellig ?? 0
+
+  // Die Inseln springen auch in Unterbereiche: Trainer und Profil lesen
+  // das Ziel beim Öffnen aus dem Sitzungsspeicher.
+  function zuTrainer(ziel) {
+    try { sessionStorage.setItem('trainer-ziel', ziel) } catch { /* egal */ }
+    onNavigate('trainer')
+  }
+  function zuProfil(ziel) {
+    try { sessionStorage.setItem('profil-ziel', ziel) } catch { /* egal */ }
+    onNavigate('mehr')
+  }
 
   // Der Name für die Begrüßung: derselbe, unter dem man in der
   // Rangliste steht. Ohne Konto bleibt die Begrüßung namenlos.
@@ -120,34 +131,22 @@ export default function Home({
           {name && <span className="accent">{name}</span>}
           <span className="accent">!</span>
         </h1>
-        <p className="start-zurueck">
-          {progress.xp > 0 ? t('home.schoenWieder') : t('home.schoen')}
-        </p>
-
-        <div className="start-wege">
-          <button className="start-weg" onClick={() => onNavigate('lektionen')}>
-            <span className="sw-zeichen"><IconLektion groesse={22} /></span>
-            <span className="sw-text">
-              <b>{t('home.lektion')}</b>
-              <small>{nextLesson ? inhaltsText(nextLesson.titel) : t('hm.allesGeschafft')}</small>
-            </span>
-          </button>
-          <button className="start-weg" onClick={() => onNavigate('trainer')}>
-            <span className="sw-zeichen"><IconKarten groesse={22} /></span>
-            <span className="sw-text">
-              <b>{t('home.trainer')}</b>
-              <small>{faellig > 0 ? t('home.faellig', { zahl: faellig }) : t('home.woerterUeben')}</small>
-            </span>
-          </button>
-          <button className="start-weg" onClick={() => onNavigate('videos')}>
-            <span className="sw-zeichen"><IconMediathek groesse={22} /></span>
-            <span className="sw-text">
-              <b>{t('home.youtube')}</b>
-              <small>{t('home.videosAnsehen')}</small>
-            </span>
-          </button>
-        </div>
+        <p className="start-zurueck">{t('si.frage')}</p>
       </header>
+
+      {/* Die Funktionen als schwebende Inseln zum Durchwischen */}
+      <StartInseln
+        eintraege={[
+          { id: 'lektionen', titel: t('si.lektionen'), unter: nextLesson ? inhaltsText(nextLesson.titel) : t('hm.allesGeschafft'), info: t('si.info.lektionen'), onClick: () => onNavigate('lektionen') },
+          { id: 'trainer', titel: t('si.trainer'), unter: faellig > 0 ? t('home.faellig', { zahl: faellig }) : t('home.woerterUeben'), info: t('si.info.trainer'), onClick: () => onNavigate('trainer') },
+          { id: 'youtube', titel: t('home.youtube'), unter: t('home.videosAnsehen'), info: t('si.info.youtube'), onClick: () => onNavigate('videos') },
+          { id: 'spiele', titel: t('si.spiele'), unter: t('si.spieleUnter'), info: t('si.info.spiele'), onClick: () => zuTrainer('spiele') },
+          { id: 'saetze', titel: t('si.saetze'), unter: t('si.saetzeUnter'), info: t('si.info.saetze'), onClick: () => zuTrainer('saetze') },
+          { id: 'texte', titel: t('si.texte'), unter: t('si.texteUnter'), info: t('si.info.texte'), onClick: () => onNavigate('lesen') },
+          { id: 'habla', titel: 'Habla', unter: t('si.hablaUnter'), info: t('si.info.habla'), onClick: () => window.dispatchEvent(new CustomEvent('sprechen-oeffnen')) },
+          { id: 'duell', titel: t('si.duell'), unter: t('si.duellUnter'), info: t('si.info.duell'), onClick: () => zuProfil('duell') },
+        ]}
+      />
 
       {/* Rangliste: die Top 10 nach XP – ganz oben, als Ansporn */}
       {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} eigeneSerie={progress.streak ?? 0} />}
