@@ -23,8 +23,7 @@ SOCIAL = os.path.expanduser("~/habloo-social")
 DOMAIN = "https://habloo.de"
 e = html.escape
 
-LOGO = ('<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">'
-        '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10c1.5-1.6 3-1.6 4 0s2.5 1.6 4 0"/></svg>')
+LOGO = '<svg viewBox="0 0 44 44"><path d="M8 5h28a6 6 0 0 1 6 6v16a6 6 0 0 1-6 6H19l-8 7v-7H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6z" fill="#fff"/><path d="M22 9.5c1 4 2.1 5.1 6.1 6.1-4 1-5.1 2.1-6.1 6.1-1-4-2.1-5.1-6.1-6.1 4-1 5.1-2.1 6.1-6.1z" fill="#ff6c00"/><circle cx="32.5" cy="12" r="2.1" fill="#ff9a40"/></svg>'
 
 CSS = """
 :root{--primary:#ff6c00;--dunkel:#d65a00;--navy:#000041;--gruen:#1f9450;--bg:#fdf7f1;--card:#fff;--flaeche:#f5f1ea;--line:#eee8e0;--muted:#6b6053;--zart:#fff1e6;

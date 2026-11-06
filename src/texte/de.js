@@ -97,7 +97,7 @@ export default {
   'wk.tarifFrei3': 'Vokabeltrainer mit XP & Level',
   'wk.tarifFrei4': '3 KI-E-Books pro Monat',
   'wk.tarifFreiKnopf': 'Loslegen',
-  'wk.tarifFahne': 'Beliebteste Wahl · 42 % sparen',
+  'wk.tarifFahne': 'Beliebteste Wahl · 25 % sparen',
   'wk.tarifJahr': 'Premium Jahr',
   'wk.tarifJahrHinweis': 'entspricht 7,50 € pro Monat',
   'wk.tarifJahr1': 'Alles aus Kostenlos',

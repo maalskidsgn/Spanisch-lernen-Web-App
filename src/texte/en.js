@@ -97,7 +97,7 @@ export default {
   'wk.tarifFrei3': 'Vocabulary trainer with XP & levels',
   'wk.tarifFrei4': '3 AI e-books per month',
   'wk.tarifFreiKnopf': 'Get started',
-  'wk.tarifFahne': 'Most popular · save 42%',
+  'wk.tarifFahne': 'Most popular · save 25%',
   'wk.tarifJahr': 'Premium Yearly',
   'wk.tarifJahrHinweis': 'equals €7.50 per month',
   'wk.tarifJahr1': 'Everything in Free',
