@@ -764,7 +764,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                     </span>
                   </span>
                   {gesperrt(l) && !geschafft ? (
-                    <span className="plan-premium">{t('lek.premium')}</span>
+                    <span className="lek-premium">{t('lek.premium')}</span>
                   ) : geschafft ? (
                     <span className="plan-haken" aria-label="geschafft">
                       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">

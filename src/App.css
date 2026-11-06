@@ -14942,7 +14942,7 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 @media(max-width:820px){.ft-buehne{grid-template-columns:1fr}.ft-tabs{justify-content:flex-start}}
 
 /* Lektion hinter Premium (nur wenn LEKTIONEN_SPERRE an ist) */
-.plan-premium {
+.lek-premium {
   flex: none;
   padding: 4px 10px;
   border-radius: 999px;
