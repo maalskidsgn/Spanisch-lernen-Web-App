@@ -176,6 +176,35 @@ Schiedsrichter-Rolle für die Zeit.
       Orange-zu-dunkel-Verlauf, animiertem Ring samt hochzählender
       Prozentzahl, Konfetti-Regen (bei bestanden), Statistik-Chips,
       Kulturnotiz-Karte, Erfolgston und gestaffelten Einblendungen.
+## 🧠 KI- & Grammatik-Ideen (geplant 06.11.2026, gilt für Habloo UND Davaigo)
+
+Noch nichts gebaut – erst planen. KI-Text läuft künftig über Claude
+(200 € Credits/Monat), die Stimme bleibt bei OpenAI.
+
+- [ ] **Textfunktionen auf Claude umstellen** (Lesetexte, Übersetzen,
+      Sätze, Gespräch): ein zentraler Baustein `server/ki.js` statt neun
+      Stellen. Nach dem Store-Start.
+- [ ] **Video → Zusammenfassung als Text**: aus den Untertiteln ein
+      kurzer Text auf dem Niveau des Nutzers, gespeichert unter „Texte“
+      mit Link zum Video, Wörter antippbar.
+- [ ] **Video → Wortliste**: die 10 wichtigsten Wörter eines Videos mit
+      einem Tipp in den Trainer.
+- [ ] **Video → Verständnisfragen** (3–5 Fragen, XP).
+- [ ] **Text vereinfachen**: Lesetext oder eingefügten Text auf A1/A2/B1
+      umschreiben lassen.
+- [ ] **Geschichte aus meinen Wörtern**: kurze Geschichte aus den Wörtern
+      der letzten Woche.
+- [ ] **Schreib-Korrektur**: 2–3 eigene Sätze, Claude korrigiert und
+      erklärt, Fehler landen im Trainer (Premium).
+- [ ] **„Warum falsch?“** bei falschen Antworten in Lektion/Trainer.
+- [ ] **Formen-Tabellen** (Konjugation/Fälle) – Aufbau siehe unten:
+      Datenquelle je Sprache, eine gemeinsame Tabellen-Komponente,
+      eingebunden in Wortkarte, Nachschlagen und Trainer.
+  - Spanisch: Regel-Rechner + Liste unregelmäßiger Verben im Bundle.
+  - Russisch: fertige Formen-Daten (z. B. OpenRussian, CC BY-SA, mit
+    Nennung) als JSON-Dateien je Anfangsbuchstabe, bei Bedarf geladen.
+  - Claude nur beim einmaligen Erstellen/Prüfen, nie live.
+
 ## Reihenfolge
 
 Manuel gibt das Tempo vor. Aktuell: Kalender → Vokabelgenerator
