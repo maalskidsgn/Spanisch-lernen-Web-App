@@ -152,7 +152,7 @@ function begleitung(niveau, muttersprache) {
     return `This learner is a complete beginner. Speak Spanish from your very first word and lead them by the hand.
 - Use only the simplest, most common A1 words, in the present tense.
 - At most 3 to 5 words per sentence. Say one sentence, then ask one very easy question they can answer with one or two words. Example: "Hola. Me llamo Habla. ¿Y tú?"
-- Speak slowly and clearly, and pause after each sentence.
+- Speak noticeably slower than a native speaker would, like a patient teacher: articulate every word clearly and leave a short pause after each sentence.
 - Right after each Spanish sentence, give its meaning in ${muttersprache} in a few words, so they never feel lost. Use ${muttersprache} only for that and for very short help.
 - If they do not know what to say, give them the answer and let them repeat it. Praise every attempt.
 - Stay on one small everyday topic at a time, and reuse the same words often so they stick. Never explain grammar at length.`
@@ -295,8 +295,10 @@ export async function starte(nutzer, { akzent, niveau, sprache, sdp }) {
             // Der Trainer soll dann nicht ins Wort fallen.
             turn_detection: { type: 'semantic_vad', eagerness: 'low', interrupt_response: true },
           },
-          // Anfaenger brauchen vor allem Zeit zum Mithoeren
-          output: { voice: AKZENTE[akzent].stimme, speed: stufe === 'A1' ? 0.85 : 1 },
+          // Immer normales Tempo: speed < 1 streckt das fertige Audio und klang
+          // blechern ("Elektrostimme", 06.11.). Langsam spricht die Trainerin
+          // auf A1 stattdessen von sich aus – siehe begleitung().
+          output: { voice: AKZENTE[akzent].stimme, speed: 1 },
         },
       },
     }),
