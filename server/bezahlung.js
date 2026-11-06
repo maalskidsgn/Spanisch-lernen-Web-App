@@ -211,6 +211,27 @@ function periodenEnde(abo) {
 }
 
 /**
+ * Hat das Konto schon Zugang aus einer ANDEREN Quelle (Web-Abo, App
+ * Store, Google Play, Geschenk), der mindestens so lange hält wie der
+ * neue Stand? Dann bleibt die Zeile, wie sie ist.
+ *
+ * Wer doppelt gekauft hat (z.B. im Web und im App Store), verliert
+ * sonst Premium, sobald das eine Abo ausläuft – obwohl das andere noch
+ * bezahlt ist. Die Zeile hält deshalb immer die Quelle, die am
+ * längsten reicht, und das Ende einer Quelle zählt nur für sie selbst.
+ */
+function andereQuelleHaelt(jetzt, quelle, neuAktiv, neuEnde) {
+  if (!jetzt || jetzt.quelle === quelle) return false
+  const laeuft =
+    ['aktiv', 'gekuendigt'].includes(jetzt.status) &&
+    (!jetzt.laeuft_ab || new Date(jetzt.laeuft_ab) > new Date())
+  if (!laeuft) return false
+  if (!neuAktiv) return true
+  if (!jetzt.laeuft_ab) return true
+  return Boolean(neuEnde) && new Date(jetzt.laeuft_ab) > new Date(neuEnde)
+}
+
+/**
  * Schreibt oder aktualisiert die Berechtigung eines Nutzers.
  *
  * Die Spaltennamen stammen aus dem urspruenglichen Schema
@@ -226,10 +247,14 @@ async function setzeBerechtigung(nutzerId, { status, laeuftAb, externId, zeitrau
   if (!lifetime) {
     const { data: jetzt } = await datenbank()
       .from('abos')
-      .select('tarif, status')
+      .select('tarif, status, quelle, laeuft_ab')
       .eq('nutzer_id', nutzerId)
       .maybeSingle()
     if (jetzt?.tarif === 'lifetime' && jetzt.status === 'aktiv') return
+    // Läuft schon ein Store-Abo oder Geschenk, das länger reicht, bleibt
+    // es stehen – auch wenn dieses Web-Abo endet.
+    const neuAktiv = status === 'aktiv' || status === 'gekuendigt'
+    if (andereQuelleHaelt(jetzt, 'stripe', neuAktiv, new Date(laeuftAb * 1000).toISOString())) return
   }
 
   const { error } = await datenbank()

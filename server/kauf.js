@@ -118,6 +118,27 @@ const NIMMT = new Set([
  * ---------------------------------------------------------------- */
 
 /**
+ * Hat das Konto schon Zugang aus einer ANDEREN Quelle (Web-Abo, App
+ * Store, Google Play, Geschenk), der mindestens so lange hält wie der
+ * neue Stand? Dann bleibt die Zeile, wie sie ist.
+ *
+ * Wer doppelt gekauft hat (z.B. im Web und im App Store), verliert
+ * sonst Premium, sobald das eine Abo ausläuft – obwohl das andere noch
+ * bezahlt ist. Die Zeile hält deshalb immer die Quelle, die am
+ * längsten reicht, und das Ende einer Quelle zählt nur für sie selbst.
+ */
+function andereQuelleHaelt(jetzt, quelle, neuAktiv, neuEnde) {
+  if (!jetzt || jetzt.quelle === quelle) return false
+  const laeuft =
+    ['aktiv', 'gekuendigt'].includes(jetzt.status) &&
+    (!jetzt.laeuft_ab || new Date(jetzt.laeuft_ab) > new Date())
+  if (!laeuft) return false
+  if (!neuAktiv) return true
+  if (!jetzt.laeuft_ab) return true
+  return Boolean(neuEnde) && new Date(jetzt.laeuft_ab) > new Date(neuEnde)
+}
+
+/**
  * Verarbeitet eine geprüfte Nachricht von RevenueCat.
  * @returns {Promise<object>} was getan wurde – landet im Log
  */
@@ -150,7 +171,19 @@ export async function verarbeiteKauf(nachricht) {
 
   const lifetime = tarifVon(e.product_id) === 'lifetime'
 
+  const { data: jetzt } = await datenbank()
+    .from('abos')
+    .select('tarif, status, quelle, laeuft_ab')
+    .eq('nutzer_id', nutzerId)
+    .maybeSingle()
+  const quelle = quelleVon(e.store)
+
   if (NIMMT.has(e.type)) {
+    // Das Ende gilt nur für dieses Store-Abo – läuft daneben noch ein
+    // Web-Abo oder ein Geschenk, bleibt Premium.
+    if (andereQuelleHaelt(jetzt, quelle, false, null)) {
+      return { typ: e.type, nutzerId, getan: 'nichts – andere Quelle (' + jetzt.quelle + ') läuft weiter' }
+    }
     const { error } = await datenbank()
       .from('abos')
       .update({ status: 'abgelaufen' })
@@ -162,13 +195,12 @@ export async function verarbeiteKauf(nachricht) {
   // Wer Lifetime hat, behaelt es – ein spaeter laufendes Monatsabo
   // darf das nicht ueberschreiben.
   if (!lifetime) {
-    const { data: jetzt } = await datenbank()
-      .from('abos')
-      .select('tarif, status')
-      .eq('nutzer_id', nutzerId)
-      .maybeSingle()
     if (jetzt?.tarif === 'lifetime' && jetzt.status === 'aktiv') {
       return { typ: e.type, nutzerId, getan: 'nichts – Lifetime bleibt' }
+    }
+    const neuEnde = e.expiration_at_ms ? new Date(e.expiration_at_ms).toISOString() : null
+    if (andereQuelleHaelt(jetzt, quelle, true, neuEnde)) {
+      return { typ: e.type, nutzerId, getan: 'nichts – ' + jetzt.quelle + ' reicht länger' }
     }
   }
 
@@ -183,7 +215,7 @@ export async function verarbeiteKauf(nachricht) {
         laeuft_ab: lifetime || !e.expiration_at_ms
           ? null
           : new Date(e.expiration_at_ms).toISOString(),
-        quelle: quelleVon(e.store),
+        quelle,
         extern_id: e.transaction_id || e.original_transaction_id || null,
       },
       { onConflict: 'nutzer_id' }
