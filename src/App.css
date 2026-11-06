@@ -14737,7 +14737,6 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 .spr-karte p.spr-zeile.ist-ich { align-self: flex-end; background: #fff1e5; border-radius: 16px 16px 4px 16px; }
 .spr-auflegen { padding: 13px 34px; border: 0; border-radius: 999px; background: #d93a2b; color: #fff; font: inherit; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #a92a1e; }
 
-.spr-tuer { display: flex; align-items: center; gap: 16px; width: 100%; margin-bottom: 16px; padding: 18px; text-align: left; font: inherit; cursor: pointer; background: var(--card); border: 1.5px solid var(--line); border-radius: 22px; box-shadow: 0 6px 22px rgba(255, 108, 0, .10); }
 .spr-tuer-kreis { flex: none; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(145deg, #ffb36b, var(--primary)); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(255, 108, 0, .3); }
 .spr-tuer-kreis i { width: 20px; height: 20px; border-radius: 50%; background: #fff; animation: spr-atmen 1.6s ease-in-out infinite; }
 .spr-tuer-text { display: grid; gap: 1px; min-width: 0; color: var(--muted); font-size: .88rem; line-height: 1.35; }
@@ -15238,3 +15237,77 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
   background: #3fb26f url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 12.5l4 4 8-9' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 14px no-repeat;
   box-shadow: 0 2px 0 #2a8a52;
 }
+
+/* ---------- Habla-Karte über dem Trainer: zwei Toon-Sprechblasen ----------
+   Mobil als Kachel untereinander, am Rechner in einer Zeile. */
+.spr-tuer {
+  display: grid;
+  grid-template-columns: auto;
+  gap: 14px;
+  justify-items: start;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 22px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, .04);
+}
+.spr-tuer:hover { border-color: var(--spr-hell); }
+.spr-blasen { position: relative; display: block; width: 104px; height: 74px; }
+.spr-blase {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 12px;
+}
+.spr-blase-du { left: 0; top: 0; width: 64px; height: 44px; background: var(--spr-voll); box-shadow: 0 5px 0 var(--spr-kante); }
+.spr-blase-sie { right: 0; top: 28px; width: 62px; height: 40px; background: var(--spr-hell); box-shadow: 0 5px 0 var(--spr-hell-kante); }
+.spr-blase-du i { display: block; width: 4px; border-radius: 2px; background: #fff; animation: spr-welle 1.1s ease-in-out infinite; }
+.spr-blase-du i:nth-child(1), .spr-blase-du i:nth-child(5) { height: 8px; }
+.spr-blase-du i:nth-child(2) { height: 16px; animation-delay: -.2s; }
+.spr-blase-du i:nth-child(3) { height: 22px; animation-delay: -.4s; }
+.spr-blase-du i:nth-child(4) { height: 14px; animation-delay: -.6s; }
+.spr-blase-du i:nth-child(5) { animation-delay: -.8s; }
+.spr-blase-sie i { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--spr-kante); opacity: .6; animation: spr-tippen 1.2s ease-in-out infinite; }
+.spr-blase-sie i:nth-child(2) { animation-delay: .2s; }
+.spr-blase-sie i:nth-child(3) { animation-delay: .4s; }
+@keyframes spr-welle { 0%, 100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+@keyframes spr-tippen { 0%, 100% { transform: translateY(0); opacity: .35; } 40% { transform: translateY(-3px); opacity: .8; } }
+.spr-tuer-text b { display: block; font-size: 22px; font-weight: 900; color: var(--navy); }
+.spr-tuer-text span { display: block; margin-top: 3px; color: var(--muted); font-weight: 600; font-size: 14.5px; }
+.spr-tuer-unten { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.spr-tuer-knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: var(--spr-voll);
+  color: #fff;
+  font-weight: 900;
+  font-size: 15px;
+  box-shadow: 0 4px 0 var(--spr-kante);
+}
+.spr-tuer-rest {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--spr-flaeche);
+  color: var(--spr-kante);
+  font-weight: 800;
+  font-size: 12.5px;
+}
+@media (min-width: 760px) {
+  .spr-tuer { grid-template-columns: auto 1fr auto; align-items: center; gap: 22px; padding: 20px 24px; }
+  .spr-tuer-unten { flex-direction: row-reverse; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spr-blase i { animation: none; }
+}
+.spr-tuer { --spr-voll: #ff6c00; --spr-kante: #c85200; --spr-hell: #ffd2ab; --spr-hell-kante: #f0b27a; --spr-flaeche: #fff3e8; }
