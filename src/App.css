@@ -15196,3 +15196,30 @@ body.liest-video .video-kopf .de-fehler { grid-column: 1 / -1; order: 9; }
 @media (prefers-reduced-motion: reduce) {
   .rang-saeule .rs-bild { animation: none; }
 }
+
+/* ---------- Level-Wappen: Bewegung ab Experte (LevelEmblem.jsx) ---------- */
+.lv-glanz { animation: lv-glanz 3.2s ease-in-out infinite; }
+@keyframes lv-glanz {
+  0% { transform: translateX(-20px); }
+  45%, 100% { transform: translateX(70px); }
+}
+.lv-schein { animation: lv-schein 2.6s ease-in-out infinite; transform-origin: 32px 31px; }
+@keyframes lv-schein {
+  0%, 100% { opacity: .16; transform: scale(.9); }
+  50% { opacity: .38; transform: scale(1.02); }
+}
+.lv-schweben { animation: lv-schweben 3s ease-in-out infinite; }
+@keyframes lv-schweben {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.lv-funke { animation: lv-funke 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.lv-funke:nth-of-type(2) { animation-delay: -.6s; }
+.lv-funke:nth-of-type(3) { animation-delay: -1.2s; }
+@keyframes lv-funke {
+  0%, 100% { opacity: .15; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lv-glanz, .lv-schein, .lv-schweben, .lv-funke { animation: none; }
+}
