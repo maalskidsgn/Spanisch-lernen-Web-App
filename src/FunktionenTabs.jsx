@@ -10,7 +10,7 @@ const REITER = [
   { k: 'saetze', n: 'Sätze', t: 'Ganze Sätze statt einzelner Wörter', p: ['Thema wählen, zum Beispiel Reisen oder Restaurant', 'Habloo erstellt passende Sätze für dich', 'Die besten landen mit einem Tipp in deinem Satz-Karteikasten'] },
   { k: 'texte', n: 'Texte', t: 'Lesen und Hören', p: ['Jeden Tag kurze Texte über Land und Leute', 'Mit einem Tipp zwischen Spanisch und Deutsch wechseln oder vorlesen lassen', 'Unbekannte Wörter gehen direkt in den Vokabeltrainer'] },
   { k: 'videos', n: 'Videos', t: 'Lernen mit echten Videos', p: ['Musik, Kochen, Reisen – ganz wie du magst', 'Die Untertitel laufen mit, die aktuelle Zeile leuchtet', 'Ein Klick auf ein Wort – und es ist in deinem Vokabeltrainer'] },
-  { k: 'tutor', n: 'KI-Tutor', t: 'Habla, dein KI-Tutor', p: ['Schreib auf Spanisch – Habla antwortet wie ein echter Gesprächspartner', 'Unter jeder Antwort steht die Übersetzung, auf Wunsch ausgeblendet', 'Habla merkt sich eure Themen und deine schweren Wörter'] },
+  { k: 'tutor', n: 'KI-Tutor', t: 'Sprechen mit Habla', p: ['Aufs Mikrofon tippen und einfach Spanisch sprechen', 'Habla antwortet mit echter Stimme – wie in einem Telefonat', 'Mitschrift mit Übersetzung, und Habla merkt sich deine schweren Wörter'] },
   { k: 'rangliste', n: 'Rangliste', t: 'Ein kleiner Wettbewerb', p: ['Für jedes richtige Wort gibt es XP', 'Mit jedem Punkt kletterst du nach oben', 'Eigener Benutzername – darüber findest du auch deine Freunde'] },
   { k: 'statistik', n: 'Statistik', t: 'Sieh, was du geschafft hast', p: ['Der Kalender zeigt deine Lerntage', 'XP sammeln und Level für Level aufsteigen', 'Deine Tagesserie zeigt, wie lange du dranbleibst'] },
 ]
