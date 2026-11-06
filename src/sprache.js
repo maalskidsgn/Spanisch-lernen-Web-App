@@ -45,6 +45,9 @@ function ermittle() {
   } catch {
     /* privater Modus - dann eben die Gerätesprache */
   }
+  // app.habloo.net ist die englische Adresse der Web-App: dort startet
+  // jeder auf Englisch, umstellen geht wie überall in den Einstellungen.
+  if (typeof location !== 'undefined' && location.hostname === 'app.habloo.net') return 'en'
   const geraet = (navigator.language || 'de').toLowerCase()
   if (geraet.startsWith('de')) return 'de'
   return 'en'

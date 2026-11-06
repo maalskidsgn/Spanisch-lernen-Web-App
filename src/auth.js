@@ -57,7 +57,12 @@ function uebersetzeFehler(fehler) {
 // eingetragen sind (Authentication → URL Configuration). habloo.de
 // muss dort stehen, sonst fällt Supabase still auf die Site URL
 // zurück.
-const MAIL_RUECKKEHR = 'https://habloo.de'
+// Wer sich auf der englischen Adresse app.habloo.net anmeldet, kommt
+// auch dorthin zurück (steht ebenfalls unter "Redirect URLs").
+const MAIL_RUECKKEHR =
+  typeof location !== 'undefined' && location.hostname === 'app.habloo.net'
+    ? 'https://app.habloo.net'
+    : 'https://habloo.de'
 
 /**
  * Die eingestellte Sprache beim Konto hinterlegen.
