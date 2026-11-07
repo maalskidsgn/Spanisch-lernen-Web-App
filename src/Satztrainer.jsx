@@ -474,6 +474,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         <>
           {/* Gleicher Aufbau wie "Heute wiederholen" im Wort-Trainer */}
           <section className="bereich bereich-wiederholen">
+            <div className="wiederholen-reihe">
             <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
               <span>{faellig.length === 1 ? t('st.satzWartet') : t('st.saetzeWarten')}</span>
@@ -488,6 +489,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               <p className="wiederholen-stand">
                 {entries.length} gesammelt · {gewusst.length} sitzen
               </p>
+            </div>
             </div>
             {/* Nichts fällig? Satzpaare gehen trotzdem – mit den übrigen Sätzen */}
             <button

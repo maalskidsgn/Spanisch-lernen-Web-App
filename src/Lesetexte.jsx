@@ -162,6 +162,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
           {/* Wie beim Vokabeltrainer: eine Karte, ein Knopf –
               statt alle fälligen Texte untereinander aufzulisten. */}
           <section className="bereich bereich-wiederholen">
+            <div className="wiederholen-reihe">
             <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
               <span>{faellig.length === 1 ? t('lt9.textWartet') : t('lt9.texteWarten')}</span>
@@ -173,6 +174,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
                   ? t('ltm.dieseTexteSind')
                   : t('ltm.allesGelesenDer')}
               </p>
+            </div>
             </div>
             <button
               className="btn wiederholen-los"

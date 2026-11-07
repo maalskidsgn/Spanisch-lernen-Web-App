@@ -764,7 +764,6 @@ export default function Trainer({
           disabled={entries.length === 0}
         >
           {trainable.length > 0 ? t('tr.uebenZahl', { zahl: Math.min(LEKTION_GROESSE, trainable.length) }) : t('tr.nichtsFaellig')}
-          {trainable.length > 0 && <span className="wiederholen-pfeil" aria-hidden="true">›</span>}
         </button>
       </section>
 
