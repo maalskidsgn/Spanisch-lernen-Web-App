@@ -59,3 +59,27 @@ export function uebernimmVerlauf(v) {
   window.dispatchEvent(new Event('lernkurve'))
   window.dispatchEvent(new Event('aktivitaet'))
 }
+
+/**
+ * Die Serie aus den echten Lerntagen (07.11.).
+ *
+ * Der gespeicherte Zähler konnte abreißen, obwohl jeden Tag gelernt
+ * wurde – etwa wenn ein Gerät mit altem Stand abglich. Der Verlauf
+ * dagegen kennt jeden Tag, an dem etwas gelernt wurde, und wird über
+ * alle Geräte zusammengelegt. Gezählt wird rückwärts ab heute (oder
+ * ab gestern, wenn heute noch nichts gelernt wurde).
+ */
+export function serieAusVerlauf() {
+  const v = lokalerVerlauf()
+  const tage = new Set([...Object.keys(v.aktivitaet ?? {}), ...Object.keys(v.lernkurve ?? {})])
+  const tag = (n) => {
+    const d = new Date()
+    d.setDate(d.getDate() - n)
+    return d.toLocaleDateString('sv-SE')
+  }
+  const start = tage.has(tag(0)) ? 0 : tage.has(tag(1)) ? 1 : -1
+  if (start < 0) return 0
+  let n = 0
+  while (tage.has(tag(start + n))) n++
+  return n
+}
