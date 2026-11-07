@@ -15347,3 +15347,147 @@ html, body { overflow-x: clip; }
 @supports not (overflow: clip) {
   body { overflow-x: hidden; }
 }
+
+/* ---------- Profil im Social-Media-Stil (06.11.) ----------
+   Banner in Markenfarbe, Bild als 3D-Kachel halb darüber, Pillen für
+   Level und Serie, Zahlenreihe. Zahnrad oben rechts → Einstellungen. */
+.pf-kopf.pf-sozial {
+  position: relative;
+  padding: 0 18px 22px;
+  overflow: hidden;
+  box-shadow: 0 14px 34px -24px rgba(255, 108, 0, .45);
+}
+.pf-banner {
+  position: relative;
+  height: 128px;
+  margin: 0 -18px;
+  background:
+    radial-gradient(circle at 18% 120%, rgba(255, 255, 255, .28) 0 34%, transparent 35%),
+    radial-gradient(circle at 92% -10%, rgba(255, 255, 255, .22) 0 26%, transparent 27%),
+    linear-gradient(135deg, #ffb062, #ff6c00 58%, #e85d00);
+}
+.pf-zahnrad {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .24);
+  color: #fff;
+  box-shadow: none;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.pf-zahnrad:hover { background: rgba(255, 255, 255, .36); }
+.pf-sozial .pf-bildfeld { width: 116px; height: 116px; margin: -62px auto 14px; }
+.pf-sozial .pf-bild {
+  width: 116px;
+  height: 116px;
+  border-radius: 32px;
+  font-size: 46px;
+  box-shadow: 0 0 0 5px #fff, 0 0 0 9px #ff9a3d, 0 9px 0 9px #c85200, 0 22px 26px -8px rgba(200, 90, 0, .35);
+}
+.pf-sozial .pf-bild:active { box-shadow: 0 0 0 5px #fff, 0 0 0 9px #ff9a3d, 0 6px 0 9px #c85200; }
+.pf-sozial .pf-name { margin-top: 16px; }
+.pf-pillen { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pf-pille-lvl, .pf-pille-serie {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+.pf-pille-lvl { background: #ff7a12; color: #fff; box-shadow: 0 2px 0 #c85200; }
+.pf-pille-serie { background: #fff3e8; color: #c85200; box-shadow: 0 2px 0 #ffd2ab; }
+.pf-sozial .pf-zahlen { margin-top: 20px; padding-top: 18px; }
+.pf-einst-kopf { margin-bottom: 14px; }
+.pf-einst-kopf h1 { margin: 6px 0 0; font-size: 1.7rem; font-weight: 900; color: var(--navy); }
+
+.pf-sozial .pf-bild:disabled { opacity: 1; }
+
+/* ---------- Profil: sozialer Teil (ProfilSozial.jsx) ---------- */
+.ps-kasten {
+  margin-bottom: 16px;
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 28px -24px rgba(255, 108, 0, .4);
+}
+.ps-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.ps-kopf h2 { margin: 0; font-size: 18px; font-weight: 900; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+.ps-zahl { padding: 2px 9px; border-radius: 999px; background: #fff3e8; color: #c85200; font-size: 13px; }
+.ps-mehr { padding: 0; border: 0; background: none; box-shadow: none; color: var(--primary); font-weight: 800; font-size: 14px; cursor: pointer; }
+.ps-sub { color: var(--muted); font-weight: 700; font-size: 12.5px; }
+.ps-leiste { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 6px; scrollbar-width: none; }
+.ps-leiste::-webkit-scrollbar { display: none; }
+.ps-person { flex: none; width: 72px; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 0; border: 0; background: none; box-shadow: none; cursor: pointer; font: inherit; }
+.ps-person small { max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 800; color: var(--navy); }
+.ps-bildfeld { position: relative; display: block; }
+.ps-bild {
+  width: 60px;
+  height: 60px;
+  border-radius: 19px;
+  display: grid;
+  place-items: center;
+  background: #ff9a40;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 900;
+  object-fit: cover;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5.5px #ffb062, 0 5px 0 5.5px #e07a2c;
+  margin: 6px 0 4px;
+}
+.ps-plus { background: #fff3e8; color: var(--primary); font-size: 30px; box-shadow: 0 0 0 3px #fff, 0 0 0 5.5px #ffd2ab, 0 5px 0 5.5px #f0b27a; border: 2px dashed #ffb062; }
+.ps-da { position: absolute; right: -4px; bottom: 2px; width: 14px; height: 14px; border-radius: 50%; background: #22b07d; border: 2.5px solid #fff; }
+.ps-leer { margin: 0; align-self: center; color: var(--muted); font-weight: 700; font-size: 13.5px; }
+.ps-raster { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ps-spiel {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  border: 0;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--sf) 16%, #fff);
+  box-shadow: 0 5px 0 color-mix(in srgb, var(--sf) 45%, #fff);
+  cursor: pointer;
+  font: inherit;
+  transition: transform .15s ease;
+}
+.ps-spiel:active { transform: translateY(3px); box-shadow: 0 2px 0 color-mix(in srgb, var(--sf) 45%, #fff); }
+.ps-spiel b { font-size: 12.5px; font-weight: 900; color: var(--navy); text-align: center; line-height: 1.15; }
+.ps-g { display: grid; gap: 4px; }
+.ps-g i { display: block; border-radius: 4px; background: var(--sf); }
+.ps-g-memory { grid-template-columns: repeat(2, 16px); }
+.ps-g-memory i { height: 16px; }
+.ps-g-memory i:nth-child(2), .ps-g-memory i:nth-child(3) { opacity: .45; }
+.ps-g-paare { grid-template-columns: 34px; }
+.ps-g-paare i { height: 8px; }
+.ps-g-paare i:nth-child(2) { width: 24px; margin-left: 10px; opacity: .5; }
+.ps-g-suche { grid-template-columns: repeat(3, 10px); gap: 3px; }
+.ps-g-suche i { height: 10px; border-radius: 3px; opacity: .35; }
+.ps-g-suche i:nth-child(4), .ps-g-suche i:nth-child(5), .ps-g-suche i:nth-child(6) { opacity: 1; }
+.ps-g-text { font-size: 18px; font-weight: 900; color: var(--sf); filter: brightness(.85); letter-spacing: .02em; }
+.ps-duell { display: flex; align-items: center; gap: 14px; }
+.ps-duell-bild { width: 58px; height: 58px; flex: none; }
+.ps-duell-text { flex: 1; }
+.ps-duell-text h2 { margin: 0; font-size: 18px; font-weight: 900; color: var(--navy); }
+.ps-duell-text p { margin: 2px 0 0; color: var(--muted); font-weight: 700; font-size: 13.5px; }
+.ps-duell-text b { color: var(--navy); }
+.ps-duell-knopf { flex: none; padding: 10px 16px; border: 0; border-radius: 999px; background: var(--primary); color: #fff; font-weight: 900; font-size: 14px; box-shadow: 0 4px 0 #c85200; cursor: pointer; }
+.ps-raster { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ps-spiel b { font-size: 11.5px; hyphens: manual; }
+.ps-g-text { font-size: 22px; }
+.ps-mehr { text-decoration: none; }

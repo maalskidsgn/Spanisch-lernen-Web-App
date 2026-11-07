@@ -85,8 +85,21 @@ export default function Trainer({
       sessionStorage.removeItem('trainer-ziel')
     } catch { /* egal */ }
     if (ziel === 'saetze') setDeck('saetze')
+    if (ziel?.startsWith('spiel:')) setSpiel(ziel.slice(6))
     if (ziel === 'spiele') {
-      setTimeout(() => document.getElementById('trainer-spiele')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 200)
+      // Mehrmals versuchen: Beim Seitenwechsel springt die App erst nach
+      // oben, und die Spiele stehen ganz unten – ein einzelner Versuch
+      // kam zu früh und wurde wieder überschrieben.
+      let versuche = 0
+      const springe = () => {
+        const el = document.getElementById('trainer-spiele')
+        if (el) {
+          const y = el.getBoundingClientRect().top + window.scrollY - 80
+          window.scrollTo({ top: y, behavior: versuche ? 'auto' : 'smooth' })
+        }
+        if (++versuche < 4) setTimeout(springe, 250)
+      }
+      setTimeout(springe, 150)
     }
   }, [])
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet

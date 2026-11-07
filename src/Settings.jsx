@@ -5,7 +5,7 @@ import {
   usePremium, zurKasse, aboVerwalten,
   TESTPHASE_ALLES_FREI, testkaufAn, testkaufAus, testkaufLaeuft,
 } from './premium.js'
-import { levelFromXp, xpHeute } from './gamification.js'
+import { levelFromXp, xpHeute, levelName } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { leereLerndaten } from './sync.js'
 import { abmelden, anzeigename } from './auth.js'
@@ -15,6 +15,7 @@ import { BenutzernameFeld } from './Rangliste.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
 import KlarwerkAbspann from './KlarwerkAbspann.jsx'
+import ProfilSozial from './ProfilSozial.jsx'
 import Blockierte from './Blockierte.jsx'
 import {
   ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse,
@@ -23,7 +24,6 @@ import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar } from './erfolgston.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 import { useTexte, SPRACHEN, sprache, setzeSprache, gebiet } from './sprache.js'
-import { LevelPlakette } from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
 
 // Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
@@ -79,6 +79,7 @@ export default function Settings({
       sessionStorage.removeItem('profil-ziel')
     } catch { /* egal */ }
     if (ziel === 'duell') {
+      setZeigeDuell(true)
       setTimeout(() => document.getElementById('profil-duell')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
     }
   }, [])
@@ -88,6 +89,11 @@ export default function Settings({
   // Konto und ohne Abgleich gelten – wer im Buero sitzt, will ihn
   // sofort aus, nicht nach der naechsten Synchronisierung.
   const [autoTon, setAutoTon] = useState(tonVonSelbst)
+  // Profil (persönlich, wie in sozialen Netzen) oder Einstellungen (technisch)
+  const [ansicht, setAnsicht] = useState('profil')
+  // Freunde verwalten und Duelle stehen ausführlich darunter, aufgeklappt bei Bedarf
+  const [zeigeFreunde, setZeigeFreunde] = useState(false)
+  const [zeigeDuell, setZeigeDuell] = useState(false)
   const [erfolgAn, setErfolgAn] = useState(erfolgstoeneAn)
   // Die Einwilligung zur Messung – zuruecknehmen muss genauso leicht
   // sein wie zustimmen, sonst ist die Zustimmung nicht wirksam.
@@ -356,12 +362,18 @@ export default function Settings({
 
   return (
     <div className="settings">
-      {/* ---------- Profilkopf ----------
-          Wie man es von sozialen Netzen kennt: grosses Bild, Name,
-          darunter die Zahlen in einer Reihe. Die Einstellungen
-          liegen weiter unten und sind zugeklappt – wer sein Profil
-          anschaut, will nicht zuerst Schalter sehen. */}
-      <header className="pf-kopf">
+      {ansicht === 'profil' && (
+      <>
+      {/* ---------- Profilkopf (06.11.) ----------
+          Wie ein Social-Media-Profil: farbiges Banner, großes Bild als
+          3D-Kachel, Name, Level und Serie, darunter die Zahlen. Alles
+          Technische liegt hinter dem Zahnrad oben rechts. */}
+      <header className="pf-kopf pf-sozial">
+        <div className="pf-banner">
+          <button className="pf-zahnrad" onClick={() => { setAnsicht('einstellungen'); window.scrollTo(0, 0) }} aria-label={t('pf.einstellungen')}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg>
+          </button>
+        </div>
         <div className="pf-bildfeld">
           <button
             className="pf-bild"
@@ -373,7 +385,7 @@ export default function Settings({
               <img src={bildAdresse(bild)} alt="" />
             ) : (
               <span aria-hidden="true">
-                {(benutzername || anzeigename(nutzer)).charAt(0).toUpperCase()}
+                {(benutzername || (nutzer ? anzeigename(nutzer) : t('pf.gast'))).charAt(0).toUpperCase()}
               </span>
             )}
             <span className="pf-bild-stift" aria-hidden="true">
@@ -401,32 +413,42 @@ export default function Settings({
             }}
           />
         </div>
-        <h1 className="pf-name">{benutzername || anzeigename(nutzer)}</h1>
-        <LevelPlakette level={level} />
-        {bild && (
-          <button
-            className="btn-plain pf-bild-weg"
-            onClick={async () => {
-              await loescheProfilbild(nutzer.id)
-              setBild(null)
-            }}
-          >
-            Bild entfernen
-          </button>
-        )}
+        <h1 className="pf-name">{benutzername || (nutzer ? anzeigename(nutzer) : t('pf.gast'))}</h1>
+        <div className="pf-pillen">
+          <span className="pf-pille-lvl">Lv {level} · {levelName(level)}</span>
+          <span className="pf-pille-serie"><Flamme an={progress.streak > 0} groesse={14} />{progress.streak}</span>
+        </div>
 
         <dl className="pf-zahlen">
           <div><dt>XP</dt><dd>{progress.xp.toLocaleString(gebiet())}</dd></div>
-          <div><dt>{t('st2.tageAmStueck')}</dt><dd className="zahl-flamme"><Flamme an={progress.streak > 0} groesse={20} />{progress.streak}</dd></div>
+          <div><dt>{t('st2.tageAmStueck')}</dt><dd>{progress.streak}</dd></div>
           <div><dt>{t('st2.woerter')}</dt><dd>{counts.woerter}</dd></div>
           <div><dt>{t('st2.videos')}</dt><dd>{counts.videos}</dd></div>
         </dl>
       </header>
 
+      {supabaseBereit && nutzer && (
+        <ProfilSozial
+          nutzerName={benutzername || anzeigename(nutzer)}
+          onSpiel={(id) => {
+            try { sessionStorage.setItem('trainer-ziel', 'spiel:' + id) } catch { /* egal */ }
+            onNavigate('trainer')
+          }}
+          onAlleFreunde={() => {
+            setZeigeFreunde((x) => !x)
+            setTimeout(() => document.querySelector('.pf-freunde')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+          }}
+          onDuell={() => {
+            setZeigeDuell(true)
+            setTimeout(() => document.getElementById('profil-duell')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+          }}
+        />
+      )}
+
       {/* ---------- Freunde ----------
           Steht oben, nicht hinter einer Klappe: Wer sein Profil
           öffnet, sucht eher Leute als Einstellungen. */}
-      {supabaseBereit && nutzer && (
+      {supabaseBereit && nutzer && zeigeFreunde && (
         <section className="pf-kasten pf-freunde">
           <h2 className="pf-kasten-titel">{t('st2.freunde')}</h2>
           <Freunde />
@@ -436,7 +458,7 @@ export default function Settings({
       {/* ---------- Duelle ----------
           Direkt unter den Freunden: Gegen wen man spielt, steht
           eine Kachel weiter oben. */}
-      {supabaseBereit && nutzer && (
+      {supabaseBereit && nutzer && zeigeDuell && (
         <section className="pf-kasten pf-duelle" id="profil-duell">
           <h2 className="pf-kasten-titel">{t('st2.duell')}</h2>
           <p className="pf-kasten-text">
@@ -444,6 +466,30 @@ export default function Settings({
           </p>
           <DuellKasten addXp={addXp} />
         </section>
+      )}
+
+      </>
+      )}
+
+      {ansicht === 'einstellungen' && (
+      <>
+      {/* ---------- Einstellungen: alles Technische ---------- */}
+      <div className="pf-einst-kopf">
+        <button className="btn-plain back-link" onClick={() => { setAnsicht('profil'); window.scrollTo(0, 0) }}>
+          ← {t('pf.zumProfil')}
+        </button>
+        <h1>{t('pf.einstellungen')}</h1>
+      </div>
+      {bild && (
+        <button
+          className="btn-plain pf-bild-weg"
+          onClick={async () => {
+            await loescheProfilbild(nutzer.id)
+            setBild(null)
+          }}
+        >
+          {t('pf.bildEntfernen')}
+        </button>
       )}
 
       {/* Zeigt sich nur, wenn wirklich jemand blockiert ist */}
@@ -855,6 +901,9 @@ export default function Settings({
         )}
       </div>
       </Klapper>
+
+      </>
+      )}
 
       {/* ---------- Über ---------- */}
       <KlarwerkAbspann zeile={t('st2.entwickeltVon')} unter={t('st2.klarwerkUnter')} />
