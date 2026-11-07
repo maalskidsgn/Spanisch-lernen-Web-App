@@ -15865,3 +15865,15 @@ html, body { overflow-x: clip; }
 .list-gen .gen-knoepfe .gen-ki:disabled { opacity: .55; }
 .list-gen .gen-knoepfe .gen-ki:disabled::after { display: none; }
 @media (prefers-reduced-motion: reduce) { .list-gen .gen-knoepfe .gen-ki::after { display: none; } }
+
+/* Gelöste Paare (06.11.): kräftig grün mit weißer Schrift statt blass –
+   der deaktivierte Knopf erbte sonst Transparenz und war kaum lesbar. */
+.spiel-toon .quiz-option.option-richtig,
+.spiel-toon .quiz-option.option-richtig:disabled {
+  background: #1fb27a;
+  color: #fff;
+  opacity: 1;
+  filter: none;
+  box-shadow: 0 5px 0 #138a5f;
+}
+.spiel-toon .quiz-option.option-richtig::before { content: '✓ '; }
