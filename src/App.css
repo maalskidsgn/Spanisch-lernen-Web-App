@@ -16109,3 +16109,8 @@ html, body { overflow-x: clip; }
   font-weight: 900;
   box-shadow: 0 2px 0 var(--line);
 }
+
+/* Desktop: nur die Strich-Symbole in der oberen Leiste */
+@media (min-width: 801px) {
+  .tabs .tab .tab-icon > svg.nav-bild { display: none; }
+}
