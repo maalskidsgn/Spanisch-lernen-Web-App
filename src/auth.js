@@ -6,6 +6,7 @@
  * Sicherung der Daten und Nutzung auf mehreren Geräten.
  */
 
+import { herkunft } from './herkunft.js'
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
 import { t, sprache } from './sprache.js'
@@ -72,6 +73,20 @@ const MAIL_RUECKKEHR =
  * Empfaenger stehen, und das einzige Feld, das ohne neue Tabelle
  * dafuer taugt, sind die user_metadata.
  */
+// Konten über Google/Apple bekommen die Herkunft nachträglich – aber
+// nur frische (unter zwei Tagen), sonst stünde bei alten Konten die
+// Herkunft dieses Geräts statt der echten.
+let herkunftGemerkt = false
+function merkeHerkunftImKonto(nutzer) {
+  if (!nutzer || herkunftGemerkt || nutzer.user_metadata?.herkunft) return
+  const alter = Date.now() - new Date(nutzer.created_at).getTime()
+  if (!(alter < 2 * 86400000)) return
+  const h = herkunft()
+  if (!h) return
+  herkunftGemerkt = true
+  setTimeout(() => db.auth.updateUser({ data: { herkunft: h } }).catch(() => {}), 0)
+}
+
 export async function merkeSprache() {
   if (!supabaseBereit) return
   try {
@@ -95,7 +110,7 @@ export async function registrieren(email, passwort, name) {
     email: email.trim(),
     password: passwort,
     options: {
-      data: { name: name?.trim() || undefined, sprache: sprache() },
+      data: { name: name?.trim() || undefined, sprache: sprache(), herkunft: herkunft() },
       emailRedirectTo: MAIL_RUECKKEHR,
     },
   })
@@ -235,6 +250,7 @@ export function useNutzer() {
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
       if (sitzung?.user) merkeSprache()
+      merkeHerkunftImKonto(sitzung?.user)
       // Der Klick in der "Passwort vergessen"-Mail fuehrt hierher.
       // Supabase meldet den Nutzer dabei schon an – aber mit dem ALTEN
       // Passwort im Kopf. Ohne dieses Signal stuende er einfach in der
