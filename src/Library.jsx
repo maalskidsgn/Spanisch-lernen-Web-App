@@ -351,17 +351,22 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
   return (
     <div className="library">
-      <h1 className="lib-kopf">
-        {t('yt.titel1')} <span className="accent">{t('yt.titel2')}</span>
-      </h1>
-      <p className="lib-unter">
-        {{
-          videos: t('yt.untertitel'),
-          songs: t('yt.songs'),
-          hoertexte: t('yt.hoertexte'),
-          ebooks: t('yt.ebooks'),
-        }[bereich]}
-      </p>
+      {/* Bei den Videos sagt der Toon-Kopf schon alles (06.11.) */}
+      {bereich !== 'videos' && (
+        <>
+        <h1 className="lib-kopf">
+          {t('yt.titel1')} <span className="accent">{t('yt.titel2')}</span>
+        </h1>
+        <p className="lib-unter">
+          {{
+            videos: t('yt.untertitel'),
+            songs: t('yt.songs'),
+            hoertexte: t('yt.hoertexte'),
+            ebooks: t('yt.ebooks'),
+          }[bereich]}
+        </p>
+        </>
+      )}
 
       {/* Der Umschalter – dieselbe Bauart wie Vokabeln|Grammatik im
           Trainer, damit die App an beiden Stellen gleich umschaltet. */}
