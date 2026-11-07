@@ -15670,3 +15670,42 @@ html, body { overflow-x: clip; }
 .streak-toon .streak-trommel svg { animation: none; }
 .streak-toon .streak-trommel.streak-an .streak-toon-flamme { animation: streak-wackeln 2.4s ease-in-out infinite; }
 .streak-toon .streak-kopf { grid-template-columns: 96px 1fr; column-gap: 14px; }
+
+/* ---------- Übungsart-Auswahl im Toon-Stil (06.11., Entwurf A) ----------
+   2×2-Raster, jede Art als Figur auf der Trommel, der Hinweis als
+   farbiges Etikett. */
+.art-liste.art-toon { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.art-toon .art-karte {
+  --af: var(--primary);
+  --ak: var(--primary-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 14px 10px 16px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--line);
+  text-align: center;
+}
+.art-toon .art-karte:nth-child(2) { --af: #7d8bff; --ak: #5d6af0; }
+.art-toon .art-karte:nth-child(3) { --af: #ff7aa2; --ak: #c94f78; }
+.art-toon .art-karte:nth-child(4) { --af: #3fc2a5; --ak: #2a9a80; }
+.art-toon .art-karte:hover { transform: translateY(-2px); }
+.art-toon .art-karte:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--line); }
+.art-toon .art-karte:hover .sb-figur { transform: translateY(-4px) rotate(-3deg); }
+.art-toon .art-text { align-items: center; gap: 3px; }
+.art-toon .art-titel { font-size: 17px; font-weight: 900; color: var(--navy); }
+.art-toon .art-beschreibung { font-size: 13px; line-height: 1.3; }
+.art-toon .art-hinweis {
+  margin-top: 8px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--af);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
+  box-shadow: 0 3px 0 var(--ak);
+}

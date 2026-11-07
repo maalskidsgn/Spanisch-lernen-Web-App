@@ -664,19 +664,16 @@ export default function Trainer({
           </p>
         </div>
 
-        <div className="art-liste">
+        <div className="art-liste art-toon">
           {ARTEN.map((a) => (
             <button key={a.id} className="art-karte" onClick={() => startTraining(a.id)}>
-              <span className="art-emoji" aria-hidden="true">
-                {(() => { const I = ART_ICONS[a.icon]; return <I groesse={24} /> })()}
-              </span>
+              <SpielBild id={a.id} />
               <span className="art-text">
                 <span className="art-titel">{t(a.titel)}</span>
                 <span className="art-beschreibung">{t(a.text)}</span>
                 <span className="art-hinweis">{t(a.hinweis)}</span>
               </span>
-              <span className="art-pfeil" aria-hidden="true">›</span>
-            </button>
+                          </button>
           ))}
         </div>
 
