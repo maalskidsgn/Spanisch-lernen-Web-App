@@ -1,4 +1,5 @@
 import { API_URL } from './api.js'
+import { ladeListen, neueListe } from './videoListen.js'
 import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
 import VideoSuche from './VideoSuche.jsx'
 import Songs from './Songs.jsx'
@@ -289,7 +290,25 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   }
 
   // Alle Kategorien, die in den gespeicherten Videos vorkommen
-  const categories = [...new Set(savedVideos.map((v) => v.category).filter(Boolean))]
+  const [eigeneListen, setEigeneListen] = useState(ladeListen)
+  const [neuOffen, setNeuOffen] = useState(false)
+  const [neuName, setNeuName] = useState('')
+  const categories = [...new Set([...eigeneListen, ...savedVideos.map((v) => v.category).filter(Boolean)])]
+
+  function listeAnlegen(e) {
+    e.preventDefault()
+    const name = neuName.trim()
+    if (!name) return
+    setEigeneListen(neueListe(name))
+    setFilter(name)
+    setNeuName('')
+    setNeuOffen(false)
+  }
+
+  // Ein gemerktes Video in eine andere Liste legen
+  function verschiebe(videoId, liste) {
+    setSavedVideos((alle) => alle.map((v) => (v.videoId === videoId ? { ...v, category: liste } : v)))
+  }
 
   const filtered =
     filter === 'alle'
@@ -449,6 +468,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           schon weiss, wonach er sucht, soll nicht erst ein Fenster
           oeffnen muessen. */}
       <VideoEngine
+        bilder={savedVideos.slice(-5).reverse().map((v) => v.videoId)}
         wert={suchFeld}
         onWert={setSuchFeld}
         onSuche={(begriff) => {
@@ -458,11 +478,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       />
 
       {/* ============ 2. GEMERKTE VIDEOS ============ */}
-      {savedVideos.length > 0 && (
+      {true && (
         <section className="bereich">
           <Kopf
             symbol={<IconLesezeichen groesse={19} />}
-            titel={t('lb9.deineGemerktenVideos')}
+            titel={t('yt.deineListen')}
             text={t('lb9.gespeichertWeiter', { zahl: savedVideos.length })}
             aktion={
               savedVideos.length > SICHTBAR_GEMERKT ? (
@@ -473,23 +493,39 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               ) : null
             }
           />
-          <div className="chips">
-            <button
-              className={'chip ' + (filter === 'alle' ? 'chip-active' : '')}
-              onClick={() => setFilter('alle')}
-            >
-              Alle ({savedVideos.length})
-            </button>
-            {categories.map((c) => (
-              <button
-                key={c}
-                className={'chip ' + (filter === c ? 'chip-active' : '')}
-                onClick={() => setFilter(c)}
-              >
-                {c} ({savedVideos.filter((v) => v.category === c).length})
+          {/* Listen als Mappen (06.11.): antippen filtert, „Neue Liste“ legt eine an */}
+          <div className="yt-regal">
+            {neuOffen ? (
+              <form className="mappe mappe-form" onSubmit={listeAnlegen}>
+                <input autoFocus value={neuName} onChange={(e) => setNeuName(e.target.value)} placeholder={t('yt.listeName')} />
+                <button type="submit" disabled={!neuName.trim()}>{t('yt.anlegen')}</button>
+              </form>
+            ) : (
+              <button className="mappe mappe-neu" onClick={() => setNeuOffen(true)}>
+                <span className="mappe-reiter" />
+                <span className="mappe-koerper"><b>+</b><small>{t('yt.neueListe')}</small></span>
               </button>
-            ))}
+            )}
+            {['alle', ...categories].map((c, i) => {
+              const videos = c === 'alle' ? savedVideos : savedVideos.filter((v) => v.category === c)
+              const bild = videos[videos.length - 1]?.videoId
+              return (
+                <button
+                  key={c}
+                  className={'mappe mappe-f' + (i % 6) + (filter === c ? ' mappe-an' : '')}
+                  onClick={() => setFilter(c)}
+                >
+                  <span className="mappe-reiter" />
+                  {bild && <img className="mappe-blatt" src={`https://i.ytimg.com/vi/${bild}/mqdefault.jpg`} alt="" />}
+                  <span className="mappe-koerper">
+                    <b>{c === 'alle' ? t('yt.alleListe') : c}</b>
+                    <small>{t('yt.videosZahl', { zahl: videos.length })}</small>
+                  </span>
+                </button>
+              )
+            })}
           </div>
+          {filtered.length === 0 && <p className="row-hint yt-leer">{t('yt.listeLeer')}</p>}
 
           <div className="quer-liste">
             {(alleGemerkt ? filtered : filtered.slice(0, SICHTBAR_GEMERKT)).map((v) => (
@@ -513,7 +549,16 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     {v.title}
                   </div>
                   <div className="quer-fuss">
-                    {v.category && <span className="category-badge">{v.category}</span>}
+                    <select
+                      className="liste-wahl"
+                      value={v.category || ''}
+                      onChange={(e) => verschiebe(v.videoId, e.target.value)}
+                    >
+                      <option value="">{t('yt.ohneListe')}</option>
+                      {categories.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
                     <button
                       className="btn-delete"
                       title={t('ytk.ausDerMediathek')}
@@ -988,7 +1033,7 @@ const ENGINE_THEMEN = [
  * Kein Formular, sondern das Aushängeschild der Mediathek: dunkle
  * Bühne mit Glühen, großem Suchfeld und Themen zum Antippen.
  */
-function VideoEngine({ wert, onWert, onSuche }) {
+function VideoEngine({ wert, onWert, onSuche, bilder = [] }) {
   const t = useTexte()
   function absenden(e) {
     e.preventDefault()
@@ -996,20 +1041,23 @@ function VideoEngine({ wert, onWert, onSuche }) {
   }
 
   return (
-    <section className="engine">
-      <span className="engine-gluehen" aria-hidden="true" />
-      <span className="engine-gluehen engine-gluehen-2" aria-hidden="true" />
-
-      <div className="engine-kopf">
-        <span className="engine-play" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="22" height="22">
-            <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
-          </svg>
-        </span>
-        <span className="engine-marke">
-          <span className="engine-punkt" /> {t('yt.engine')}
-        </span>
+    <section className="engine engine-toon">
+      {/* Toon-Kopf (06.11., Mix aus V1 + H3): schwebende Vorschaubilder –
+          die eigenen gemerkten Videos, sonst bunte Platzhalter */}
+      <div className="et-flug" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className={'et-bild et-b' + i}
+            style={bilder[i] ? { backgroundImage: `url(https://i.ytimg.com/vi/${bilder[i]}/mqdefault.jpg)` } : undefined}
+          >
+            <i>▶</i>
+          </span>
+        ))}
+        <i className="et-funke et-f1">✦</i>
+        <i className="et-funke et-f2">✦</i>
       </div>
+
 
       <h2 className="engine-titel">
         {t('yt.heroTitel1')} <span>{t('yt.heroTitel2')}</span>
@@ -1035,10 +1083,10 @@ function VideoEngine({ wert, onWert, onSuche }) {
           placeholder={t('yt.suchePlatzhalter')}
           enterKeyHint="search"
         />
-        <button type="submit" disabled={!wert.trim()} aria-label={t('yt.videosSuchen')}>
-          {t('yt.suchen')}
-        </button>
-      </form>
+        </form>
+      <button type="button" className="engine-los" disabled={!wert.trim()} onClick={() => onSuche(wert)}>
+        ✦ {t('yt.findenKnopf')}
+      </button>
 
       <div className="engine-themen">
         {ENGINE_THEMEN.map(([wert, schluessel]) => (

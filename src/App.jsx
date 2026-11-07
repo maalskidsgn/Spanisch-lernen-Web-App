@@ -1,4 +1,5 @@
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
+import { ladeListen } from './videoListen.js'
 import NavBild from './NavBild.jsx'
 import { API_URL } from './api.js'
 import { db, holeVideoMitTranskript, supabaseBereit } from './supabase.js'
@@ -1311,7 +1312,7 @@ export default function App() {
   const nextLevelXp = xpForLevel(level + 1)
   // Alle Kategorien, die schon vergeben wurden – für die Schnellauswahl
   const vorhandeneKategorien = [
-    ...new Set(savedVideos.map((v) => v.category).filter(Boolean)),
+    ...new Set([...ladeListen(), ...savedVideos.map((v) => v.category).filter(Boolean)]),
   ].sort()
 
   const levelPercent = Math.round(

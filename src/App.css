@@ -15976,3 +15976,136 @@ html, body { overflow-x: clip; }
 @keyframes nav-hopsen { 50% { transform: translateY(-4px) scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { .tabs .tab-active .nav-bild { animation: none; } }
 .training-stage:not(.spiel-toon) .flashcard { padding-top: 34px; }
+
+/* ---------- YouTube im Toon-Stil (06.11., Mix aus V1 + H3) ----------
+   Weißer Kopf mit schwebenden Vorschaubildern, Vorteile als Kacheln,
+   große Finden-Taste, bunte Themen; darunter die Listen als Mappen. */
+.engine.engine-toon { position: relative; overflow: hidden; padding: 150px 18px 18px; border: 0; border-radius: 28px; box-shadow: 0 6px 0 var(--line); }
+.et-flug { position: absolute; inset: 0 0 auto; height: 150px; pointer-events: none; }
+.et-bild {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #e74c3c, #a8261a) center / cover;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .1), 0 8px 18px rgba(0, 0, 0, .1);
+  animation: et-schweben 4s ease-in-out infinite;
+}
+.et-bild i { font-style: normal; width: 26px; height: 19px; border-radius: 6px; background: #ff3b30; color: #fff; font-size: 9px; display: grid; place-items: center; box-shadow: 0 2px 0 #b8191a; }
+.et-b0 { left: 14px; top: 22px; width: 96px; height: 58px; transform: rotate(-10deg); }
+.et-b1 { left: 120px; top: 44px; width: 116px; height: 70px; transform: rotate(5deg); background-color: #16a085; background-image: linear-gradient(135deg, #16a085, #0b5e4e); animation-delay: -1s; }
+.et-b2 { right: 14px; top: 16px; width: 100px; height: 60px; transform: rotate(9deg); background-image: linear-gradient(135deg, #8e44ad, #4f2163); animation-delay: -2s; }
+.et-b3 { left: 40px; top: 96px; width: 70px; height: 42px; transform: rotate(5deg); background-image: linear-gradient(135deg, #d35400, #7a3000); animation-delay: -.5s; }
+.et-b4 { right: 56px; top: 90px; width: 82px; height: 50px; transform: rotate(-7deg); background-image: linear-gradient(135deg, #2980b9, #164a6c); animation-delay: -1.5s; }
+.et-bild[style] i { opacity: .92; }
+@keyframes et-schweben { 50% { translate: 0 -4px; } }
+@media (prefers-reduced-motion: reduce) { .et-bild { animation: none; } }
+.et-funke { position: absolute; font-style: normal; color: #ffc43d; font-size: 20px; }
+.et-f1 { left: 46%; top: 12px; }
+.et-f2 { right: 34%; top: 108px; color: #7d8bff; font-size: 14px; }
+.engine-toon .engine-titel { font-size: 1.6rem; }
+.engine-toon .engine-titel span { color: #ff3b30; display: block; }
+.engine-toon .engine-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.engine-toon .engine-features li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 4px;
+  border: 0;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary) 6%, #fff);
+  color: var(--navy);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 4px 0 var(--line);
+}
+.engine-toon .engine-features b { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; background: var(--primary); color: #fff; font-size: 12px; box-shadow: 0 3px 0 var(--primary-dark); }
+.engine-toon .engine-suche { border: 2.5px solid var(--line); border-radius: 18px; box-shadow: none; }
+.engine-los {
+  width: 100%;
+  margin-top: 10px;
+  padding: 15px;
+  border: 0;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ff5a3c, var(--primary));
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 900;
+  box-shadow: 0 6px 0 var(--primary-dark);
+  cursor: pointer;
+}
+.engine-los:disabled { opacity: .55; cursor: default; }
+.engine-los:not(:disabled):active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-dark); }
+.engine-toon .engine-themen button { border: 0; color: #fff; font-weight: 900; background: #5fd38a; box-shadow: 0 3px 0 rgba(0, 0, 0, .15); }
+.engine-toon .engine-themen button:nth-child(5n + 2) { background: #ffb21a; }
+.engine-toon .engine-themen button:nth-child(5n + 3) { background: #4fd1b5; }
+.engine-toon .engine-themen button:nth-child(5n + 4) { background: #ff7aa2; }
+.engine-toon .engine-themen button:nth-child(5n + 5) { background: #7d8bff; }
+
+/* Listen als Mappen */
+.yt-regal { display: flex; gap: 12px; overflow-x: auto; padding: 4px 2px 10px; scrollbar-width: none; }
+.yt-regal::-webkit-scrollbar { display: none; }
+.mappe {
+  --f: #5fd38a;
+  --k: #2f9a5f;
+  position: relative;
+  flex: none;
+  width: 120px;
+  height: 128px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mappe-f1 { --f: #ffb21a; --k: #c27c00; }
+.mappe-f2 { --f: #4fd1b5; --k: #2a9a80; }
+.mappe-f3 { --f: #7d8bff; --k: #5d6af0; }
+.mappe-f4 { --f: #ff7aa2; --k: #c94f78; }
+.mappe-f5 { --f: #ff9a3d; --k: #c85200; }
+.mappe-reiter { position: absolute; left: 10px; top: 4px; width: 46px; height: 18px; border-radius: 8px 8px 0 0; background: var(--k); }
+.mappe-blatt { position: absolute; left: 14px; right: 14px; top: 10px; width: 92px; height: 56px; object-fit: cover; border: 3px solid #fff; border-radius: 10px; transform: rotate(-4deg); box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+.mappe-koerper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--f);
+  color: #fff;
+  box-shadow: 0 5px 0 var(--k);
+}
+.mappe-koerper b { font-size: 15px; font-weight: 900; line-height: 1.15; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mappe-koerper small { font-size: 12px; font-weight: 800; opacity: .92; }
+.mappe-an .mappe-koerper { outline: 3px solid var(--navy); outline-offset: 2px; }
+.mappe:active .mappe-koerper { transform: translateY(3px); box-shadow: 0 2px 0 var(--k); }
+.mappe-neu .mappe-reiter { background: #ffd2ab; }
+.mappe-neu .mappe-koerper { align-items: center; justify-content: center; background: var(--card); border: 2.5px dashed #ffc999; color: var(--primary); box-shadow: none; }
+.mappe-neu .mappe-koerper b { font-size: 26px; line-height: 1; }
+.mappe-form { display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; width: 150px; cursor: default; }
+.mappe-form input { width: 100%; padding: 10px; border: 2.5px solid var(--primary); border-radius: 12px; font: inherit; font-weight: 800; }
+.mappe-form button { padding: 9px; border: 0; border-radius: 12px; background: var(--primary); color: #fff; font: inherit; font-weight: 900; box-shadow: 0 4px 0 var(--primary-dark); }
+.mappe-form button:disabled { opacity: .5; }
+.yt-leer { margin: 6px 2px 0; }
+.liste-wahl {
+  max-width: 150px;
+  padding: 5px 10px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--navy);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 var(--line);
+}
