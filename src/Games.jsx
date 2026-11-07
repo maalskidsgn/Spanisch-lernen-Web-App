@@ -205,7 +205,7 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
 
 const NochmalKontext = createContext(null)
 
-function Pokal() {
+export function Pokal() {
   return (
     <svg className="sf-pokal" viewBox="0 0 80 80">
       <rect x="26" y="60" width="28" height="10" rx="4" fill="#2e3192" />
