@@ -238,6 +238,8 @@ export default {
     'Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.',
   'tr.allesErledigt':
     'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.',
+  'tr.tagesziel': 'Tagesziel',
+  'tr.uebenZahl': '{zahl} Wörter üben',
   'tr.ueben': 'Üben',
   'tr.nichtsFaellig': 'Nichts fällig',
   'tr.listengenerator': 'KI-Listengenerator',

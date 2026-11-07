@@ -15709,3 +15709,87 @@ html, body { overflow-x: clip; }
   line-height: 1.25;
   box-shadow: 0 3px 0 var(--ak);
 }
+
+/* ---------- „Heute wiederholen“ im Toon-Stil (06.11., Entwurf B) ----------
+   Zahl als schräge Kachel mit Unterkante und Glanz, darunter das
+   Tagesziel als Balken, Knopf mit dicker Kante und Pfeil-Knubbel. */
+.bereich.bereich-wiederholen { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+.wiederholen-reihe { display: flex; align-items: center; gap: 16px; padding-right: 34px; }
+.bereich-wiederholen .wiederholen-zahl {
+  position: relative;
+  width: 108px;
+  height: 108px;
+  border-radius: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  box-shadow: 0 7px 0 var(--primary-dark), 0 7px 0 color-mix(in srgb, var(--primary) 70%, #000);
+  transform: rotate(-4deg);
+  text-align: center;
+}
+.bereich-wiederholen .wiederholen-zahl::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 10px;
+  width: 26px;
+  height: 10px;
+  border-top: 4px solid rgba(255, 255, 255, .7);
+  border-radius: 50% 50% 0 0;
+  transform: rotate(-18deg);
+}
+.bereich-wiederholen .wiederholen-zahl b { font-size: 2.2rem; }
+.bereich-wiederholen .wiederholen-zahl span { font-size: .7rem; font-weight: 900; line-height: 1.15; padding: 0 6px; }
+.bereich-wiederholen .wiederholen-text { min-width: 0; }
+.wiederholen-ziel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--primary) 6%, #fff);
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--muted);
+}
+.wiederholen-balken { flex: 1; height: 12px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 14%, #fff); overflow: hidden; }
+.wiederholen-balken span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: #1fb27a;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12), inset 0 2px 0 rgba(255, 255, 255, .4);
+  transition: width .4s ease;
+}
+.wiederholen-ziel b { color: #1fb27a; font-variant-numeric: tabular-nums; }
+.bereich-wiederholen .wiederholen-los {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--primary) 70%, #000);
+}
+.bereich-wiederholen .wiederholen-los:active { transform: translateY(4px); box-shadow: 0 2px 0 color-mix(in srgb, var(--primary) 70%, #000); }
+.wiederholen-pfeil {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--primary);
+  font-size: 20px;
+  line-height: 1;
+  padding-bottom: 3px;
+}
+@media (max-width: 400px) {
+  .bereich-wiederholen .wiederholen-zahl { width: 92px; height: 92px; border-radius: 24px; }
+  .bereich-wiederholen .wiederholen-zahl b { font-size: 1.8rem; }
+}

@@ -238,6 +238,8 @@ export default {
     "These are the words you're about to forget — right now is when they stick best.",
   'tr.allesErledigt':
     'All done. Pick up new words while watching videos, or with the AI below.',
+  'tr.tagesziel': "Today's goal",
+  'tr.uebenZahl': 'Practise {zahl} words',
   'tr.ueben': 'Practise',
   'tr.nichtsFaellig': 'Nothing due',
   'tr.listengenerator': 'AI list generator',

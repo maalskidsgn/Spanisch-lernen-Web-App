@@ -11,7 +11,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { merkeGelernt } from './lernkurve.js'
+import { merkeGelernt, heuteGelernt } from './lernkurve.js'
 import { erfolgston } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
@@ -725,6 +725,7 @@ export default function Trainer({
   }
 
   // ---------- Übersichts-Ansicht ----------
+  const heute = heuteGelernt('woerter')
   return (
     <div className="trainer">
       {schalter}
@@ -737,6 +738,7 @@ export default function Trainer({
       {/* Das Wichtigste zuerst: was heute dran ist */}
       <section className="bereich bereich-wiederholen">
         <InfoKnopf thema="woerter" />
+        <div className="wiederholen-reihe">
         <div className="wiederholen-zahl">
           <b>{trainable.length}</b>
           <span>{trainable.length === 1 ? t('tr.wortWartet') : t('tr.woerterWarten2')}</span>
@@ -749,12 +751,20 @@ export default function Trainer({
               : t('tr.allesErledigt')}
           </p>
         </div>
+        </div>
+        {/* Tagesziel (06.11.): eine Runde = {LEKTION_GROESSE} Karten */}
+        <div className={'wiederholen-ziel' + (heute >= LEKTION_GROESSE ? ' erreicht' : '')}>
+          <span>{t('tr.tagesziel')}</span>
+          <span className="wiederholen-balken"><span style={{ width: Math.min(100, (heute / LEKTION_GROESSE) * 100) + '%' }} /></span>
+          <b>{Math.min(heute, LEKTION_GROESSE)} / {LEKTION_GROESSE}{heute >= LEKTION_GROESSE ? ' ✓' : ''}</b>
+        </div>
         <button
           className="btn wiederholen-los"
           onClick={() => setArtWahl(true)}
           disabled={entries.length === 0}
         >
-          {trainable.length > 0 ? t('tr.ueben') : t('tr.nichtsFaellig')}
+          {trainable.length > 0 ? t('tr.uebenZahl', { zahl: Math.min(LEKTION_GROESSE, trainable.length) }) : t('tr.nichtsFaellig')}
+          {trainable.length > 0 && <span className="wiederholen-pfeil" aria-hidden="true">›</span>}
         </button>
       </section>
 

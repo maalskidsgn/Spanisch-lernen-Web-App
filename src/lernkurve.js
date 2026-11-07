@@ -44,6 +44,11 @@ export function merkeGelernt(art, menge = 1) {
   window.dispatchEvent(new Event('lernkurve'))
 }
 
+/** Wie viel von einer Art heute schon gelernt wurde (für das Tagesziel). */
+export function heuteGelernt(art) {
+  return lade()[tagesSchluessel()]?.[art] ?? 0
+}
+
 function leer() {
   return { woerter: 0, saetze: 0, lektionen: 0, texte: 0, video: 0, habla: 0 }
 }
