@@ -16322,3 +16322,83 @@ html, body { overflow-x: clip; }
 .lk-toon .quiz-option.option-falsch { background: #ff5a6a; color: #fff; border-color: #ff5a6a; box-shadow: 0 6px 0 #c2334a; }
 .lk-toon .quiz-option.option-inaktiv { opacity: .5; }
 .lk-toon .word-step .lesson-hint { margin-bottom: 10px; }
+
+/* Übungen (07.11.): Frage als eigene weiße Karte, Antworten frei darunter */
+.lk-toon .flashcard:has(> .quiz-options) { background: transparent; box-shadow: none; padding: 0; overflow: visible; }
+.lk-toon .flashcard:has(> .quiz-options) > .lesson-hint {
+  margin: 0;
+  padding: 24px 20px 4px;
+  border-radius: 28px 28px 0 0;
+  background: var(--card);
+}
+.lk-toon .flashcard:has(> .quiz-options) > .flash-word {
+  margin: 0;
+  padding: 6px 20px 28px;
+  border-radius: 0 0 28px 28px;
+  background: var(--card);
+  box-shadow: 0 7px 0 var(--line);
+  font-size: 2.6rem;
+}
+.lk-toon .flashcard:has(> .quiz-options) > .quiz-options { margin-top: 20px; }
+.lk-toon .quiz-option { min-height: 78px; font-size: 1.05rem; }
+
+/* Wortkarte (07.11., wie Entwurf B, ohne Band): Kartenstapel, Wort mit
+   runder Ton-Taste, Übersetzung darunter, gestrichelte Trennlinie,
+   Beispielsatz mit Ton links; „Weiter“ unter der Karte. */
+.lk-toon .word-step {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  margin-top: 18px;
+  margin-bottom: 104px;
+  padding: 28px 22px 22px;
+  background: transparent;
+  box-shadow: none;
+}
+.lk-toon .word-step::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: 28px;
+  background: var(--card);
+  box-shadow: 0 6px 0 var(--line);
+}
+.lk-toon .word-step::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--primary) 30%, #fff);
+  transform: rotate(-3.5deg) translateY(10px);
+  box-shadow: 10px -4px 0 -2px color-mix(in srgb, var(--primary) 14%, #fff);
+}
+.lk-toon .word-step > .lesson-hint { display: none; }
+.lk-toon .word-step .flash-word { margin-bottom: 0; }
+.lk-toon .word-step .speak-btn:not(.speak-btn-mini) { border-radius: 50%; }
+.lk-toon .word-step .flash-translation {
+  display: block;
+  margin: 4px 0 0;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--muted);
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+.lk-toon .word-step .example-box {
+  position: relative;
+  margin-top: 18px;
+  padding: 18px 0 0 46px;
+  border: 0;
+  border-top: 3px dashed var(--line);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.lk-toon .word-step .example-box .speak-btn-mini { position: absolute; left: 0; top: 18px; }
+.lk-toon .word-step > button { position: absolute; left: 0; right: 0; bottom: -96px; margin: 0; }
+/* Hör-Übung ohne Wort: Hinweis als ganze Karte, Anhören-Taste darunter */
+.lk-toon .flashcard:has(> .quiz-options):not(:has(> .flash-word)) > .lesson-hint { padding-bottom: 22px; border-radius: 28px; box-shadow: 0 7px 0 var(--line); }
+.lk-toon .flashcard:has(> .quiz-options):not(:has(> .flash-word)) > .lesson-hint + * { margin-top: 18px; }
