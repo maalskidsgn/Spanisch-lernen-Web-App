@@ -16258,3 +16258,4 @@ html, body { overflow-x: clip; }
   box-shadow: 0 4px 0 var(--primary-dark);
 }
 .kursplan-toon .lek-premium { flex: none; padding: 5px 10px; border-radius: 999px; background: #fff3cc; color: #8a5200; font-size: 11.5px; font-weight: 900; box-shadow: none; }
+.tp-jetzt { margin-top: 4px; }

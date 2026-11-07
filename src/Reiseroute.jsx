@@ -58,12 +58,6 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
 
   return (
     <div className="tpfad">
-      <div className="tp-kopf">
-        <span className="tp-balken">
-          <span style={{ width: (lektionen.length ? (fertigAnzahl / lektionen.length) * 100 : 0) + '%' }} />
-        </span>
-        <b>{t('lek.vonZahl', { fertig: fertigAnzahl, gesamt: lektionen.length })}</b>
-      </div>
 
       {dran && (
         <button type="button" className="tp-jetzt" onClick={() => onStart(dran)}>
@@ -73,7 +67,6 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
             <b>{uebersetzt(dran.titel)}</b>
             <span>{uebersetzt(dran.grammatik?.[0] ?? dran.beschreibung)} · {t('lek.minuten', { von: dauerMinuten(dran).von, bis: dauerMinuten(dran).bis })}</span>
           </span>
-          <span className="tp-jetzt-play" aria-hidden="true">▶</span>
         </button>
       )}
 
