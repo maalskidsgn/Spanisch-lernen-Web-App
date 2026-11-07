@@ -15491,3 +15491,12 @@ html, body { overflow-x: clip; }
 .ps-spiel b { font-size: 11.5px; hyphens: manual; }
 .ps-g-text { font-size: 22px; }
 .ps-mehr { text-decoration: none; }
+
+/* ---------- Vokabelspiele: Toon-Figuren auf Trommeln (06.11., Entwurf A) ---------- */
+.spiel-karte { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 14px 10px 16px; box-shadow: 0 12px 24px -20px rgba(0, 0, 0, .25); }
+.spiel-karte:hover { border-color: var(--primary); }
+.sb { position: relative; display: block; width: 110px; height: 96px; margin: 0 auto 6px; }
+.sb-trommel { position: absolute; left: 5px; bottom: 0; width: 100px; height: 54px; overflow: visible; filter: drop-shadow(0 8px 6px rgba(0, 0, 0, .1)); }
+.sb-figur { position: absolute; left: 20px; top: 0; width: 70px; height: 70px; overflow: visible; transition: transform .2s ease; }
+.spiel-karte:hover .sb-figur { transform: translateY(-4px); }
+.spiel-karte:disabled .sb { filter: grayscale(.6); }

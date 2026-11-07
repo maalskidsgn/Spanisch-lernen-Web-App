@@ -14,6 +14,7 @@ import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import { erfolgston } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
+import SpielBild from './SpielBild.jsx'
 import Bausteine from './Bausteine.jsx'
 import Gespraech from './Gespraech.jsx'
 import { SprechenTuer } from './Sprechen.jsx'
@@ -87,6 +88,9 @@ export default function Trainer({
     if (ziel === 'saetze') setDeck('saetze')
     if (ziel?.startsWith('spiel:')) setSpiel(ziel.slice(6))
     if (ziel === 'spiele') {
+      // Die Spiele stehen in der Auswahl der Übungsarten – erst öffnen
+      setDeck('woerter')
+      setArtWahl(true)
       // Mehrmals versuchen: Beim Seitenwechsel springt die App erst nach
       // oben, und die Spiele stehen ganz unten – ein einzelner Versuch
       // kam zu früh und wurde wieder überschrieben.
@@ -688,44 +692,32 @@ export default function Trainer({
         </div>
         <div className="spiel-paar">
           <button className="spiel-karte" onClick={() => setSpiel('memory')} disabled={!spielbar}>
-            <span className="spiel-bild" aria-hidden="true">
-              <i /><i /><i /><i />
-            </span>
+            <SpielBild id="memory" />
             <span className="spiel-name">{t('trk.memory')}</span>
             <span className="spiel-hinweis">{t('trk.6PaareAufdecken')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
-              <i /><i /><i />
-            </span>
+            <SpielBild id="paare" />
             <span className="spiel-name">{t('trk.wortpaare')}</span>
             <span className="spiel-hinweis">{t('trk.5WoerterVerbinden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
-              <i /><i /><i /><i /><i /><i /><i /><i /><i />
-            </span>
+            <SpielBild id="suche" />
             <span className="spiel-name">{t('trk.wortsuche')}</span>
             <span className="spiel-hinweis">{t('trk.5WoerterIm')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('blitz')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="34" height="34"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" /></svg>
-            </span>
+            <SpielBild id="blitz" />
             <span className="spiel-name">{t('trk.blitzrunde')}</span>
             <span className="spiel-hinweis">{t('tr3.sechzigSekunden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <b>{t('trk.cS')}</b>
-            </span>
+            <SpielBild id="galgen" />
             <span className="spiel-name">{t('trk.galgenmaennchen')}</span>
             <span className="spiel-hinweis">{t('tr3.buchstabeRaten')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('salat')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <b>{t('trk.aO')}</b>
-            </span>
+            <SpielBild id="salat" />
             <span className="spiel-name">{t('trk.buchstabensalat')}</span>
             <span className="spiel-hinweis">{t('trk.buchstabenOrdnen')}</span>
           </button>
