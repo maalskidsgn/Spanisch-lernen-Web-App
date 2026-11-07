@@ -16114,3 +16114,98 @@ html, body { overflow-x: clip; }
 @media (min-width: 801px) {
   .tabs .tab .tab-icon > svg.nav-bild { display: none; }
 }
+
+/* ---------- Lernpfad im Modul, Toon-Fassung (07.11., Entwurf A) ---------- */
+.tpfad { position: relative; }
+.tp-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding: 12px 14px; border-radius: 18px; background: var(--card); box-shadow: 0 4px 0 var(--line); }
+.tp-kopf b { font-size: .82rem; font-weight: 900; color: var(--muted); white-space: nowrap; }
+.tp-balken { flex: 1; height: 12px; border-radius: 999px; background: #f3e9de; overflow: hidden; }
+.tp-balken span { display: block; height: 100%; border-radius: 999px; background: var(--primary); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .12), inset 0 2px 0 rgba(255, 255, 255, .4); transition: width .5s ease; }
+.tp-jetzt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  text-align: left;
+  box-shadow: 0 6px 0 var(--primary-dark);
+  cursor: pointer;
+}
+.tp-jetzt:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-dark); }
+.tp-jetzt-nr { flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: #fff; color: var(--primary); font-size: 20px; font-weight: 900; transform: rotate(-6deg); box-shadow: 0 3px 0 rgba(0, 0, 0, .12); }
+.tp-jetzt-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tp-jetzt-text small { font-size: 11px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; opacity: .85; }
+.tp-jetzt-text b { font-size: 17px; font-weight: 900; line-height: 1.2; }
+.tp-jetzt-text span { font-size: 12.5px; font-weight: 700; opacity: .92; }
+.tp-jetzt-play { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--navy); color: #fff; font-size: 14px; box-shadow: 0 4px 0 rgba(0, 0, 0, .3); }
+.tp-buehne { position: relative; padding: 20px 0 10px; border-radius: 26px; background: var(--card); box-shadow: 0 6px 0 var(--line); overflow: hidden; }
+.tp-weg { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); overflow: visible; pointer-events: none; }
+.tp-weg-grund { fill: none; stroke: #efe5da; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 2 12; }
+.tp-weg-voll { fill: none; stroke: #1fb27a; stroke-width: 6; stroke-linecap: round; opacity: .55; }
+.tp-liste { position: relative; list-style: none; margin: 0; padding: 0; }
+.tp-etappe { position: relative; display: flex; align-items: center; justify-content: center; }
+.tp-knopf {
+  --m: #e6ddd3; --r: #d8cdc1; --t: #cfc3b6; --o: #f3ece4;
+  position: relative;
+  width: 92px;
+  height: 70px;
+  padding: 0;
+  border: 0;
+  background: none;
+  transform: translateX(var(--versatz));
+  cursor: pointer;
+}
+.tp-knopf:disabled { cursor: default; }
+.tp-knopf.ist-fertig { --m: #7fd6a6; --r: #4fbf85; --t: #1f9a63; --o: #bdf0d4; }
+.tp-knopf.ist-dran { --m: #ffb877; --r: #f59a4c; --t: #d97a2b; --o: #ffd3a6; }
+.tp-trommel { position: absolute; left: 0; bottom: 0; width: 92px; height: auto; overflow: visible; filter: drop-shadow(0 6px 5px rgba(0, 0, 0, .08)); }
+.tp-mitte { fill: var(--m); } .tp-rechts { fill: var(--r); } .tp-tief { fill: var(--t); } .tp-oben { fill: var(--o); }
+.tp-kugel {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  width: 42px;
+  height: 42px;
+  margin-left: -21px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: #b3a898;
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: 0 4px 0 #ddd0c2;
+}
+.tp-knopf.ist-fertig .tp-kugel { background: #1fb27a; color: #fff; box-shadow: 0 4px 0 #138a5f; }
+.tp-knopf.ist-dran .tp-kugel { top: -6px; width: 50px; height: 50px; margin-left: -25px; background: var(--primary); color: #fff; font-size: 20px; box-shadow: 0 4px 0 var(--primary-dark), 0 0 0 7px color-mix(in srgb, var(--primary) 18%, #fff); animation: tp-puls 2s ease-in-out infinite; }
+@keyframes tp-puls { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .tp-knopf.ist-dran .tp-kugel { animation: none; } }
+.tp-knopf:not(:disabled):active .tp-kugel { transform: translateY(3px); }
+.tp-start {
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tp-start::after { content: ''; position: absolute; left: 50%; bottom: -5px; margin-left: -5px; border: 5px solid transparent; border-bottom: 0; border-top-color: var(--navy); }
+.tp-titel { position: absolute; top: 50%; transform: translateY(-50%); max-width: 130px; display: flex; flex-direction: column; font-size: .88rem; font-weight: 900; color: var(--navy); line-height: 1.2; }
+.tp-titel small { font-size: .72rem; font-weight: 800; color: var(--muted); }
+.tp-titel.ist-zu { color: #b3a898; }
+.tp-titel.ist-dran { color: var(--primary-dark); }
+.tp-rechts .tp-titel { left: calc(50% + var(--versatz) + 52px); text-align: left; }
+.tp-links .tp-titel { right: calc(50% - var(--versatz) + 52px); text-align: right; }
