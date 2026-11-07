@@ -16,7 +16,7 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import { erfolgston } from './erfolgston.js'
-import { spiele, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
+import { spiele, vorladen, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
 import ModulBild from './ModulBild.jsx'
@@ -260,6 +260,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       onKasse?.()
       return
     }
+    vorladen(l) // alle Aufnahmen der Lektion schon mal holen
     setLaufendeStation(station)
     // Szene, Station oder gewoehnliche Lektion – drei Bauplaene, ein
     // Ablauf. Was laeuft, kommt immer als zweites Argument mit, damit

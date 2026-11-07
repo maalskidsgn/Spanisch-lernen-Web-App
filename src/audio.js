@@ -182,9 +182,42 @@ let laufend = null // das gerade spielende Audio
  * @param {string} [opt.stimme]  – eine Kennung aus STIMMEN
  * @param {number} [opt.tempo]   – 1 = normal, 0.75 = langsam
  */
+// ---- Vorladen (07.11.) ------------------------------------------
+//
+// Die Aufnahmen kamen bei jedem Antippen frisch übers Netz – aus
+// Südamerika eine knappe Sekunde. Beim Start einer Lektion holen wir
+// deshalb alle ihre Aufnahmen auf einmal in den Speicher (je ~16 KB);
+// danach spielt jedes Wort sofort.
+const puffer = new Map() // Dateiname -> Objekt-URL (null = lädt noch)
+
+function sammleTexte(wert, ziel, tiefe = 0) {
+  if (tiefe > 6 || wert == null) return
+  if (typeof wert === 'string') ziel.add(wert)
+  else if (Array.isArray(wert)) wert.forEach((w) => sammleTexte(w, ziel, tiefe + 1))
+  else if (typeof wert === 'object') Object.values(wert).forEach((w) => sammleTexte(w, ziel, tiefe + 1))
+}
+
+/** Lädt alle vertonten Texte aus einem Objekt (z. B. einer Lektion) vor. */
+export async function vorladen(quelle) {
+  const texte = new Set()
+  sammleTexte(quelle, texte)
+  for (const text of texte) {
+    for (const stimme of new Set(Object.values(STIMMEN))) {
+      if (!sicherVertont(text, stimme)) continue
+      const name = await audioName(text, stimme)
+      if (puffer.has(name)) continue
+      puffer.set(name, null)
+      fetch(`${ABLAGE}/${name}`)
+        .then((r) => (r.ok ? r.blob() : null))
+        .then((b) => (b ? puffer.set(name, URL.createObjectURL(b)) : puffer.delete(name)))
+        .catch(() => puffer.delete(name))
+    }
+  }
+}
+
 export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}) {
   const name = await audioName(text, stimme)
-  const url = `${ABLAGE}/${name}`
+  const url = puffer.get(name) || `${ABLAGE}/${name}`
 
   // Läuft schon etwas? Stoppen – wie bei der Browser-Stimme auch.
   if (laufend) {
