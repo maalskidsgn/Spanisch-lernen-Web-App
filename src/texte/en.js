@@ -240,6 +240,7 @@ export default {
     'All done. Pick up new words while watching videos, or with the AI below.',
   'tr.tagesziel': "Today's goal",
   'tr.uebenZahl': 'Practise {zahl} words',
+  'trk.bandVokabel': 'Word',
   'tr.ueben': 'Practise',
   'tr.nichtsFaellig': 'Nothing due',
   'tr.listengenerator': 'AI list generator',

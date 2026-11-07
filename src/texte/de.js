@@ -240,6 +240,7 @@ export default {
     'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.',
   'tr.tagesziel': 'Tagesziel',
   'tr.uebenZahl': '{zahl} Wörter üben',
+  'trk.bandVokabel': 'Vokabel',
   'tr.ueben': 'Üben',
   'tr.nichtsFaellig': 'Nichts fällig',
   'tr.listengenerator': 'KI-Listengenerator',

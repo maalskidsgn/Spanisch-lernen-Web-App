@@ -15896,3 +15896,61 @@ html, body { overflow-x: clip; }
 .sf-nochmal { flex: none; background: var(--card); color: var(--navy); border: 2px solid var(--line) !important; box-shadow: 0 5px 0 var(--line); }
 .sf-zurueck { flex: 1; background: var(--primary); color: #fff; box-shadow: 0 6px 0 var(--primary-dark); }
 .sf-knoepfe button:active { transform: translateY(4px); box-shadow: none; }
+
+/* ---------- Karteikarte im Toon-Stil (06.11., Entwurf B) ----------
+   Karte mit Band oben, Beispielsatz auf der Rückseite, Bewertungen
+   als weiße Tasten mit farbigem Rand und dicker Unterkante. */
+.training-stage:not(.spiel-toon) .lern-balken { height: 14px; border-radius: 999px; background: #f3e9de; overflow: hidden; }
+.training-stage:not(.spiel-toon) .lern-balken-voll { border-radius: 999px; background: var(--primary); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12), inset 0 3px 0 rgba(255, 255, 255, .4); }
+.training-stage:not(.spiel-toon) .flashcard {
+  overflow: visible;
+  margin-top: 22px;
+  border: 0;
+  border-radius: 28px;
+  padding: 46px 22px 28px;
+  box-shadow: 0 7px 0 var(--line);
+}
+.fk-band {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  padding: 5px 15px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 0 var(--primary-dark);
+  white-space: nowrap;
+}
+.training-stage:not(.spiel-toon) .flash-translation { font-weight: 800; }
+.fk-beispiel {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--primary) 6%, #fff);
+  color: var(--muted);
+  font-weight: 800;
+  font-style: italic;
+}
+.training-stage:not(.spiel-toon) .bewertungen { margin-top: 22px; }
+.training-stage:not(.spiel-toon) .bewertung {
+  --bf: #ff5a6a;
+  --bk: #c2334a;
+  padding: 13px 4px 10px;
+  border: 2.5px solid var(--bf);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 6px 0 var(--bf);
+  transition: transform .1s, box-shadow .1s;
+}
+.training-stage:not(.spiel-toon) .bewertung:hover { transform: translateY(-2px); background: #fff; }
+.training-stage:not(.spiel-toon) .bewertung:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--bf); }
+.training-stage:not(.spiel-toon) .bewertung .bewertung-text { color: var(--bk); font-size: .95rem; }
+.training-stage:not(.spiel-toon) .bewertung .bewertung-zeit { color: var(--muted); opacity: 1; font-weight: 800; }
+.training-stage:not(.spiel-toon) .bewertung-schwer { --bf: #ffb21a; --bk: #b06f00; }
+.training-stage:not(.spiel-toon) .bewertung-gut { --bf: #1fb27a; --bk: #1f7a45; }
+.training-stage:not(.spiel-toon) .bewertung-einfach { --bf: #7d8bff; --bk: #4b58d6; }

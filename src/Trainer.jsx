@@ -531,12 +531,14 @@ export default function Trainer({
             {/* Bewusst OHNE Lautsprecher: Nur Lektionswoerter sind
                 vertont, gesammelte nicht – mal Ton, mal keiner wirkte
                 im Trainer uneinheitlich (Manuels Punkt vom 24.08.). */}
+            <span className="fk-band">{t('trk.bandVokabel')}</span>
             <div className="word-row">
               <div className="flash-word">{vorderseite}</div>
             </div>
             {revealed ? (
               <div className="flash-back">
                 <div className="flash-translation">{rueckseite}</div>
+                {current.beispiel && <div className="fk-beispiel">„{current.beispiel}“</div>}
                 <div className="bewertungen">
                   {[
                     { wert: 'nochmal', text: t('bw.nochmal') },
