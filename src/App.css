@@ -12925,7 +12925,7 @@ button.rang-saeule {
   cursor: pointer;
   transition: background 0.16s;
 }
-button.rang-saeule:hover { background: rgba(255, 108, 0, 0.07); filter: none; }
+button.rang-saeule:hover, button.rang-saeule:focus { background: none; filter: none; }
 button.rang-saeule:active { transform: none; box-shadow: none; }
 
 /* ---------- Das Profil einer anderen Person ---------- */
