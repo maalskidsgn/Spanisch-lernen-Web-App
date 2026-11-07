@@ -531,7 +531,6 @@ export default function Trainer({
             {/* Bewusst OHNE Lautsprecher: Nur Lektionswoerter sind
                 vertont, gesammelte nicht – mal Ton, mal keiner wirkte
                 im Trainer uneinheitlich (Manuels Punkt vom 24.08.). */}
-            <span className="fk-band">{t('trk.bandVokabel')}</span>
             <div className="word-row">
               <div className="flash-word">{vorderseite}</div>
             </div>

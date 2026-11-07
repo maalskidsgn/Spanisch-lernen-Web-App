@@ -1,4 +1,5 @@
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
+import NavBild from './NavBild.jsx'
 import { API_URL } from './api.js'
 import { db, holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useNutzer } from './auth.js'
@@ -1493,14 +1494,14 @@ export default function App() {
             className={'tab ' + (view === 'start' ? 'tab-active' : '')}
             onClick={() => setView('start')}
           >
-            <span className="tab-icon">{ICONS.start}</span>
+            <span className="tab-icon">{ICONS.start}<NavBild art="start" /></span>
             <span className="tab-label">{t('nav.start')}</span>
           </button>
           <button
             className={'tab ' + (view === 'lektionen' ? 'tab-active' : '')}
             onClick={() => setView('lektionen')}
           >
-            <span className="tab-icon">{ICONS.lektionen}</span>
+            <span className="tab-icon">{ICONS.lektionen}<NavBild art="lektionen" /></span>
             <span className="tab-label">{t('nav.lektionen')}</span>
           </button>
           <button
@@ -1508,7 +1509,7 @@ export default function App() {
             onClick={() => setView('trainer')}
           >
             <span className="tab-icon">
-              {ICONS.trainer}
+              {ICONS.trainer}<NavBild art="trainer" />
               {faellig > 0 && <span className="due-badge">{faellig}</span>}
             </span>
             <span className="tab-label">{t('nav.trainer')}</span>
@@ -1517,14 +1518,14 @@ export default function App() {
             className={'tab ' + (view === 'videos' || view === 'lesen' ? 'tab-active' : '')}
             onClick={() => setView('videos')}
           >
-            <span className="tab-icon">{ICONS.bibliothek}</span>
+            <span className="tab-icon">{ICONS.bibliothek}<NavBild art="youtube" /></span>
             <span className="tab-label">{t('nav.youtube')}</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}
             onClick={() => setView('mehr')}
           >
-            <span className="tab-icon">{ICONS.mehr}</span>
+            <span className="tab-icon">{ICONS.mehr}<NavBild art="profil" /></span>
             <span className="tab-label">{t('nav.profil')}</span>
           </button>
         </nav>
