@@ -15500,3 +15500,173 @@ html, body { overflow-x: clip; }
 .sb-figur { position: absolute; left: 20px; top: 0; width: 70px; height: 70px; overflow: visible; transition: transform .2s ease; }
 .spiel-karte:hover .sb-figur { transform: translateY(-4px); }
 .spiel-karte:disabled .sb { filter: grayscale(.6); }
+
+/* ---------- Spiel-Oberflächen im Toon-Stil (06.11.) ----------
+   Gemeinsamer Kopf mit Spielfigur auf Mini-Trommel, dicker Fortschritts-
+   balken mit Glanz, alles Antippbare mit dicker Unterkante. Je Spiel eine
+   Farbe (--sf). */
+.spiel-toon { --sf: #ff7a12; --sf-kante: #c85200; }
+.spiel-memory { --sf: #ff7a12; --sf-kante: #c85200; }
+.spiel-paare { --sf: #4fd1b5; --sf-kante: #2a9a80; }
+.spiel-suche { --sf: #7d8bff; --sf-kante: #5d6af0; }
+.spiel-fang { --sf: #ff7aa2; --sf-kante: #c94f78; }
+.spiel-blitz { --sf: #ffc43d; --sf-kante: #c27c00; }
+.spiel-galgen { --sf: #ff7aa2; --sf-kante: #c94f78; }
+.spiel-salat { --sf: #5fd38a; --sf-kante: #2f9a5f; }
+
+.sk-kopf { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.sk-kopf .game-title { flex: 1; margin: 0; font-size: 21px; font-weight: 900; color: var(--navy); text-align: left; }
+.sk-bild { flex: none; width: 64px; height: 58px; overflow: visible; }
+.sk-bild .sb { width: 110px; height: 96px; margin: 0; transform: scale(.58); transform-origin: 0 0; }
+.sk-zu {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 900;
+  box-shadow: 0 3px 0 var(--line);
+  cursor: pointer;
+}
+
+.spiel-toon .lern-balken { height: 14px; border-radius: 999px; background: #f3e9de; box-shadow: inset 0 2px 0 rgba(0, 0, 0, .05); overflow: hidden; }
+.spiel-toon .lern-balken-voll { height: 100%; border-radius: 999px; background: var(--sf); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12), inset 0 3px 0 rgba(255, 255, 255, .4); }
+
+/* Memory */
+.spiel-toon .memory-card {
+  border: 0;
+  border-radius: 16px;
+  font-weight: 900;
+  background: repeating-linear-gradient(45deg, #ff7a12 0 10px, #ff8a2a 10px 20px);
+  box-shadow: 0 5px 0 #c85200;
+  color: #fff;
+}
+.memory-frage { width: 32px; height: 32px; border-radius: 10px; display: inline-grid; place-items: center; background: #fff; color: #ff7a12; font-size: 18px; box-shadow: 0 3px 0 #ffd2ab; }
+.spiel-toon .memory-card.memory-offen { background: var(--card); color: var(--navy); border: 2.5px solid #ff7a12; box-shadow: 0 5px 0 #ffd2ab; }
+.spiel-toon .memory-card.memory-gefunden { position: relative; background: #e6f7ef; color: #1d7a52; border: 0; box-shadow: 0 5px 0 #a8e3c7; }
+.spiel-toon .memory-card.memory-gefunden::after {
+  content: '✓';
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #1fb27a;
+  color: #fff;
+  font-size: 12px;
+  box-shadow: 0 2px 0 #138a5f;
+}
+
+/* Wortpaare (und andere Auswahl-Kacheln in Spielen) */
+.spiel-toon .quiz-option { border: 0; border-radius: 16px; background: var(--card); color: var(--navy); font-weight: 900; box-shadow: 0 5px 0 #e6dccf; }
+.spiel-toon .quiz-option.pair-gewaehlt { background: color-mix(in srgb, var(--sf) 16%, #fff); outline: 2.5px solid var(--sf); box-shadow: 0 5px 0 var(--sf); }
+.spiel-toon .quiz-option.option-richtig { background: #e6f7ef; color: #1d7a52; box-shadow: 0 5px 0 #a8e3c7; opacity: .75; }
+.spiel-toon .quiz-option.option-falsch { background: #ffe7ea; color: #c2334a; box-shadow: 0 5px 0 #ffb3bd; }
+
+/* Wortsuche */
+.spiel-toon .gitter { padding: 12px; border-radius: 20px; background: var(--card); box-shadow: 0 6px 0 #e6dccf; }
+.spiel-toon .gitter-feld { border: 0; border-radius: 10px; background: #f4f1ff; color: #2e3192; font-weight: 900; box-shadow: none; }
+.spiel-toon .gitter-feld.feld-aktiv { background: #7d8bff; color: #fff; box-shadow: 0 3px 0 #5d6af0; }
+.spiel-toon .gitter-feld.feld-gefunden { background: #1fb27a; color: #fff; box-shadow: 0 3px 0 #138a5f; }
+.spiel-toon .such-wort { border-radius: 999px; background: var(--card); color: #2e3192; font-weight: 900; box-shadow: 0 3px 0 #e1e4ff; padding: 5px 11px; }
+.spiel-toon .such-wort.wort-gefunden { background: #e6f7ef; color: #1d7a52; text-decoration: line-through; box-shadow: 0 3px 0 #a8e3c7; }
+
+/* Blitzrunde */
+.spiel-toon .blitz-karte { border-radius: 22px; background: var(--card); box-shadow: 0 6px 0 #f2e1b0; border: 0; }
+.spiel-toon .blitz-zeit { height: 14px; border-radius: 999px; background: #fff3cc; overflow: hidden; }
+.spiel-toon .blitz-zeit-balken { background: #ffc43d; box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .1), inset 0 3px 0 rgba(255, 255, 255, .45); }
+.spiel-toon .blitz-knopf { border: 0; border-radius: 18px; color: #fff; font-weight: 900; }
+.spiel-toon .blitz-knopf.ja { background: #1fb27a; box-shadow: 0 6px 0 #138a5f; }
+.spiel-toon .blitz-knopf.nein { background: #ff5a6a; box-shadow: 0 6px 0 #c2334a; }
+.spiel-toon .blitz-knopf:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0, 0, 0, .2); }
+
+/* Galgenmännchen: Leben als Rauten statt Herzen */
+.spiel-toon .galgen-herz { display: inline-block; width: 20px; height: 20px; margin: 0 3px; border-radius: 6px; background: #ff7aa2; box-shadow: 0 3px 0 #c94f78; transform: rotate(45deg); font-size: 0; }
+.spiel-toon .galgen-herz.weg { background: #f3e3ea; box-shadow: none; }
+.spiel-toon .galgen-feld { border-radius: 12px; background: var(--card); box-shadow: 0 5px 0 #e6dccf; color: var(--navy); font-weight: 900; border: 0; }
+.spiel-toon .galgen-feld.offen { background: #ff7aa2; color: #fff; box-shadow: 0 5px 0 #c94f78; }
+.spiel-toon .galgen-taste { border: 0; border-radius: 10px; background: var(--card); color: var(--navy); font-weight: 900; box-shadow: 0 4px 0 #e6dccf; }
+.spiel-toon .galgen-taste.treffer { background: #e6f7ef; color: #1d7a52; box-shadow: 0 4px 0 #a8e3c7; }
+.spiel-toon .galgen-taste.niete { opacity: .35; box-shadow: none; }
+
+/* Buchstabensalat: bunte, leicht schräge Steine */
+.spiel-toon .salat-kachel { border: 0; border-radius: 15px; color: #fff; font-weight: 900; background: #ffc43d; box-shadow: 0 6px 0 #c27c00; transform: rotate(-4deg); }
+.spiel-toon .salat-kachel:nth-child(3n + 2) { background: #4fd1b5; box-shadow: 0 6px 0 #2a9a80; transform: rotate(3deg); }
+.spiel-toon .salat-kachel:nth-child(3n) { background: #ff7aa2; box-shadow: 0 6px 0 #c94f78; transform: rotate(-2deg); }
+.spiel-toon .salat-kachel.verbaut { opacity: .3; box-shadow: none; }
+
+/* ---------- Streak im Toon-Stil (06.11., Entwurf A + Wochen-Sticker aus C) ----------
+   Flamme auf der Trommel, Woche als schräge Flammen-Sticker, Monat als
+   dicke Kacheln mit kleiner Flamme an jedem gelernten Tag. */
+.streak-toon { --st: var(--primary); --st-kante: color-mix(in srgb, var(--primary) 70%, #000); }
+.streak-toon .streak-flamme.streak-trommel {
+  position: relative;
+  width: 96px;
+  height: 88px;
+  flex: none;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  animation: none;
+}
+.streak-trommel .si-sockel { position: absolute; left: 0; bottom: 0; width: 96px; height: auto; }
+.streak-trommel .streak-toon-flamme { position: absolute; left: 26px; top: 0; width: 44px; height: auto; animation: streak-wackeln 2.4s ease-in-out infinite; }
+.streak-trommel:not(.streak-an) .streak-toon-flamme { filter: grayscale(1); opacity: .45; animation: none; }
+@keyframes streak-wackeln { 50% { transform: translateY(-4px) rotate(3deg); } }
+.streak-toon .streak-zahl { color: var(--st); text-shadow: 0 4px 0 color-mix(in srgb, var(--st) 22%, #fff); }
+
+/* Woche: Sticker */
+.streak-toon .woche-reihe::before, .streak-toon .woche-reihe::after { display: none; }
+.streak-toon .woche-kreis {
+  width: 42px;
+  height: 48px;
+  border: 0;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: #f6eee6;
+  box-shadow: 0 4px 0 #ecdccb;
+  color: var(--st);
+  font-size: 22px;
+  font-weight: 900;
+  outline: none;
+}
+.streak-toon .woche-kreis.kreis-halb, .streak-toon .woche-kreis.kreis-voll { background: var(--st); box-shadow: 0 4px 0 var(--st-kante); }
+.streak-toon .woche-punkt:nth-child(odd) .woche-kreis.kreis-halb, .streak-toon .woche-punkt:nth-child(odd) .woche-kreis.kreis-voll { transform: rotate(-5deg); }
+.streak-toon .woche-punkt:nth-child(even) .woche-kreis.kreis-halb, .streak-toon .woche-punkt:nth-child(even) .woche-kreis.kreis-voll { transform: rotate(4deg); }
+.streak-toon .woche-kreis .toon-flamme { width: 21px; height: auto; }
+.streak-toon .punkt-heute .woche-kreis:not(.kreis-halb):not(.kreis-voll) { background: var(--card, #fff); border: 2.5px dashed color-mix(in srgb, var(--st) 55%, #fff); box-shadow: none; animation: none; }
+
+/* Monat: Toon-Kacheln */
+.streak-toon .kal-gitter { gap: 7px; }
+.streak-toon .kal-tag {
+  position: relative;
+  aspect-ratio: 1;
+  height: auto;
+  border: 0;
+  border-radius: 14px;
+  background: #f8f1ea;
+  box-shadow: none;
+  overflow: visible;
+}
+.streak-toon .kal-tag::before, .streak-toon .kal-tag::after { display: none; }
+.streak-toon .kal-tag .kal-zahl { margin: 0; color: #c8b8a8; font-weight: 900; font-size: 14px; }
+.streak-toon .kal-tag.kal-aktiv { background: var(--st); box-shadow: 0 4px 0 var(--st-kante); }
+.streak-toon .kal-tag.kal-aktiv .kal-zahl { margin: 0; color: #fff; font-size: 15px; }
+.streak-toon .kal-flamme { position: absolute; top: -8px; right: -5px; width: 16px; height: auto; }
+.streak-toon .kal-tag.kal-heute { outline: 3px solid #ffd34d; outline-offset: 2px; }
+.streak-toon .kal-tag.kal-heute:not(.kal-aktiv) .kal-zahl { color: var(--st); }
+.streak-toon .kal-tag.kal-zukunft { opacity: .55; background: #f8f1ea; }
+.streak-toon .kal-tag.kal-gewaehlt { box-shadow: 0 4px 0 var(--st-kante), 0 0 0 3px var(--navy); }
+.streak-toon .kal-tag:not(.kal-aktiv).kal-gewaehlt { box-shadow: 0 0 0 3px var(--navy); }
+.streak-toon .streak-trommel .si-sockel { left: 0; margin-left: 0; width: 96px; height: 51px; }
+.streak-toon .streak-trommel svg { animation: none; }
+.streak-toon .streak-trommel.streak-an .streak-toon-flamme { animation: streak-wackeln 2.4s ease-in-out infinite; }
+.streak-toon .streak-kopf { grid-template-columns: 96px 1fr; column-gap: 14px; }

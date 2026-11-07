@@ -7,7 +7,7 @@ import { IconPfeil } from './icons.jsx'
  * Der Sockel unter dem Emblem: eine runde Trommel im Toon-Stil der
  * Podest-Inseln (Manuel, 06.11.).
  */
-function Sockel() {
+export function Sockel() {
   const [hell, oben, links, mitte, rechts, tief] = INSEL_TOENE.zweiter
   return (
     <svg className="si-sockel" viewBox="0 0 120 64" aria-hidden="true">
