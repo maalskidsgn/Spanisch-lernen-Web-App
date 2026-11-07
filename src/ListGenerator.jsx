@@ -1,4 +1,6 @@
 import { XP } from './gamification.js'
+import ZauberBild from './ZauberBild.jsx'
+import ThemaBild from './ThemaBild.jsx'
 import { API_URL, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
@@ -111,9 +113,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
       {/* Gleicher Aufbau wie die anderen Bereiche: Überschrift,
           ein Satz zur Einordnung, dann der Inhalt */}
       <div className="gen-kopf">
-        <span className="gen-symbol" aria-hidden="true">
-          <IconFunken groesse={24} />
-        </span>
+        <ZauberBild art="woerter" />
         <div className="gen-text">
           <h2>{t('lg.kiListengenerator')}</h2>
           <p>{t('lg.erstelleNeueWortlisten')}</p>
@@ -147,6 +147,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
               disabled={laden || uebrig <= 0}
               onClick={() => setThema(thema === v ? '' : v)}
             >
+              <ThemaBild name={v} />
               {t(schluessel)}
             </button>
           ))}

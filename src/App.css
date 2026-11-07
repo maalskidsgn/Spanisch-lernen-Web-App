@@ -15795,3 +15795,73 @@ html, body { overflow-x: clip; }
 }
 .bereich-wiederholen .wiederholen-los:disabled .wiederholen-pfeil { display: none; }
 .bereich-wiederholen .wiederholen-stand { margin-top: 4px; font-size: 12.5px; font-weight: 800; }
+
+/* ---------- KI-Generatoren im Toon-Stil (06.11., Entwurf A) ----------
+   Kopf mit Zauber-Bild auf der Trommel (Wortkarten / Sprechblase /
+   Textseite), Themen als Chips mit kleinem Bild und dicker Unterkante. */
+.gen-kopf .zauber-bild { position: relative; flex: none; width: 96px; height: 88px; display: block; }
+.zauber-bild .si-sockel { left: 0; margin-left: 0; width: 96px; height: 51px; }
+.zauber-figur { position: absolute; left: 12px; top: 0; width: 72px; height: 65px; overflow: visible; animation: zauber-schweben 3s ease-in-out infinite; }
+@keyframes zauber-schweben { 50% { transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .zauber-figur { animation: none; } }
+.list-gen .sg-schritt span { box-shadow: 0 3px 0 var(--primary-dark); }
+.list-gen .sg-thema {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  font-weight: 900;
+  box-shadow: 0 4px 0 var(--line);
+}
+.list-gen .sg-thema:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); background: var(--card); }
+.list-gen .sg-thema.ist-aktiv {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--primary-dark);
+}
+.thema-bild { flex: none; width: 24px; height: 24px; padding: 2px; border-radius: 50%; background: #fff; }
+.list-gen .sg-thema:not(.ist-aktiv) .thema-bild { background: transparent; padding: 0; }
+.list-gen .gen-los { box-shadow: 0 6px 0 var(--primary-dark); font-weight: 900; }
+.list-gen .gen-los:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-dark); }
+.list-gen .sg-themen:not(.sg-vier) .sg-thema { padding: 11px 6px; font-size: .9rem; }
+
+/* KI-Gen (06.11.): halbe Breite und auffällig – Verlauf mit Funken
+   und Glanzstreifen, damit man die Zauber-Taste nicht übersieht. */
+.list-gen .gen-knoepfe .gen-los { flex: 1 1 0; }
+.list-gen .gen-knoepfe .gen-ki {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #2e3192, #7d5cff);
+  color: #fff;
+  font-weight: 900;
+  box-shadow: 0 6px 0 #1f2168;
+}
+.list-gen .gen-knoepfe .gen-ki::before { content: '✦'; color: #ffd34d; font-size: 16px; }
+.list-gen .gen-knoepfe .gen-ki::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent);
+  transform: skewX(-18deg);
+  animation: ki-glanz 3.2s ease-in-out infinite;
+}
+@keyframes ki-glanz { 0%, 55% { left: -60%; } 100% { left: 130%; } }
+.list-gen .gen-knoepfe .gen-ki:hover { filter: brightness(1.08); border: 0; color: #fff; }
+.list-gen .gen-knoepfe .gen-ki:active { transform: translateY(4px); box-shadow: 0 2px 0 #1f2168; }
+.list-gen .gen-knoepfe .gen-ki:disabled { opacity: .55; }
+.list-gen .gen-knoepfe .gen-ki:disabled::after { display: none; }
+@media (prefers-reduced-motion: reduce) { .list-gen .gen-knoepfe .gen-ki::after { display: none; } }

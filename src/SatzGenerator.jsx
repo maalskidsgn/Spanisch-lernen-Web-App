@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import ZauberBild from './ZauberBild.jsx'
+import ThemaBild from './ThemaBild.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { API_URL } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
@@ -128,9 +130,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
   return (
     <div className="list-gen satz-gen">
       <div className="gen-kopf">
-        <span className="gen-symbol" aria-hidden="true">
-          <IconFunken groesse={24} />
-        </span>
+        <ZauberBild art="saetze" />
         <div className="gen-text">
           <h2>{t('sgn.saetzeErzeugen')}</h2>
           <p>{t('sgn.waehleEinThema')}</p>
@@ -154,6 +154,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
               disabled={laden}
               onClick={() => setThema(thema === wert ? '' : wert)}
             >
+              <ThemaBild name={wert} />
               {t(schluessel)}
             </button>
           ))}
