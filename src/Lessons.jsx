@@ -736,7 +736,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
             Jede sagt, WAS man dort lernt – diese Angabe steht laengst in
             den Lektionsdaten (grammatik), wurde aber nirgends gezeigt.
             Genau EINE Zeile ist die naechste: siehe naechsteId. */}
-        <ol className="kursplan">
+        <ol className="kursplan kursplan-toon">
           {liste.map((l) => {
             const geschafft = lessonProgress[l.id]?.fertig
             const offen = ALLES_OFFEN || l.id === naechsteId || geschafft
@@ -755,7 +755,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                   onClick={() => starten(l)}
                 >
                   <span className="plan-nr">
-                    {String(l.kursNr ?? '').padStart(2, '0')}
+                    {geschafft ? '✓' : !offen ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M7.5 11V8.5a4.5 4.5 0 0 1 9 0V11" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /><rect x="6" y="11" width="12" height="9" rx="2.5" fill="currentColor" /></svg> : String(l.kursNr ?? '').padStart(2, '0')}
                   </span>
                   <span className="plan-text">
                     <span className="plan-titel">{uebersetzt(l.titel)}</span>
@@ -766,17 +766,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                   {gesperrt(l) && !geschafft ? (
                     <span className="lek-premium">{t('lek.premium')}</span>
                   ) : geschafft ? (
-                    <span className="plan-haken" aria-label="geschafft">
-                      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M5 12.5 10 17.5 19 7" stroke="currentColor" strokeWidth="3"
-                              strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </span>
+                    <span className="plan-pille">{t('rr.geschafft')}</span>
                   ) : dran ? (
-                    <span className="plan-knopf">{t('ls.start')}</span>
-                  ) : (
-                    <span className="plan-schloss" aria-label={t('ls.nochZu')} />
-                  )}
+                    <span className="plan-knopf">{t('ls.start')} ▶</span>
+                  ) : null}
                 </button>
               </li>
             )
