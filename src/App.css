@@ -16259,3 +16259,65 @@ html, body { overflow-x: clip; }
 }
 .kursplan-toon .lek-premium { flex: none; padding: 5px 10px; border-radius: 999px; background: #fff3cc; color: #8a5200; font-size: 11.5px; font-weight: 900; box-shadow: none; }
 .tp-jetzt { margin-top: 4px; }
+
+/* ---------- Lektion im Toon-Stil (07.11., Entwurf A) ----------
+   Karte mit dicker Kante, Bild auf der Trommel, Wort mit oranger
+   Ton-Taste, Übersetzung als Pille, Beispielsatz als eigene Karte,
+   Antworten als große Kacheln im 2×2-Raster. */
+.lk-toon .player-top .btn-plain { width: 38px; height: 38px; padding: 0; border-radius: 50%; background: var(--card); box-shadow: 0 3px 0 var(--line); }
+.lk-toon .player-bar { height: 16px; border-radius: 999px; background: #f3e9de; overflow: hidden; }
+.lk-toon .player-bar .xp-bar-fill { border-radius: 999px; background: var(--primary); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .12), inset 0 3px 0 rgba(255, 255, 255, .4); }
+.lk-toon .flashcard { border: 0; border-radius: 28px; padding: 26px 22px 24px; box-shadow: 0 7px 0 var(--line); }
+.lk-toon .lesson-hint { font-size: 11.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: #c9b8a6; }
+.lk-bild { display: flex; justify-content: center; margin: 4px 0 2px; }
+.lk-bild .mb { width: 150px; height: 140px; }
+.lk-bild .mb > svg:first-child { width: 150px; height: auto; }
+.lk-bild .mb-emblem { left: 30px; width: 90px; height: 90px; }
+.lk-toon .word-row { gap: 12px; }
+.lk-toon .flash-word { font-size: 2.5rem; font-weight: 900; margin-bottom: 8px; }
+.lk-toon .speak-btn:not(.speak-btn-mini) { width: 46px; height: 46px; border-radius: 14px; background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-dark); border: 0; }
+.lk-toon .word-step .flash-translation {
+  display: inline-block;
+  margin: 2px auto 0;
+  padding: 7px 18px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 10%, #fff);
+  color: var(--primary-dark);
+  font-size: 1.15rem;
+  font-weight: 900;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 28%, #fff);
+}
+.lk-toon .example-box { margin-top: 16px; border: 0; border-left: 0; border-radius: 18px; background: color-mix(in srgb, var(--primary) 5%, #fff); box-shadow: 0 4px 0 var(--line); text-align: left; }
+.lk-toon .speak-btn-mini { background: #fff; color: var(--primary); box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 25%, #fff); border: 0; }
+.lk-toon .flashcard > button,
+.lk-toon .word-step > button {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--primary);
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 900;
+  box-shadow: 0 6px 0 var(--primary-dark);
+}
+.lk-toon .flashcard > button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-dark); }
+.lk-toon .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.lk-toon .quiz-option {
+  min-height: 72px;
+  padding: 14px 8px;
+  border: 2.5px solid transparent;
+  border-radius: 20px;
+  background: #fff;
+  color: var(--navy);
+  font-size: 1.02rem;
+  font-weight: 900;
+  box-shadow: 0 6px 0 #e6dccf;
+}
+.lk-toon .quiz-option:active { transform: translateY(4px); box-shadow: 0 2px 0 #e6dccf; }
+.lk-toon .quiz-option.option-richtig { background: #1fb27a; color: #fff; border-color: #1fb27a; box-shadow: 0 6px 0 #138a5f; opacity: 1; }
+.lk-toon .quiz-option.option-falsch { background: #ff5a6a; color: #fff; border-color: #ff5a6a; box-shadow: 0 6px 0 #c2334a; }
+.lk-toon .quiz-option.option-inaktiv { opacity: .5; }
