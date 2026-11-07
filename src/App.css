@@ -15877,3 +15877,22 @@ html, body { overflow-x: clip; }
   box-shadow: 0 5px 0 #138a5f;
 }
 .spiel-toon .quiz-option.option-richtig::before { content: '✓ '; }
+
+/* ---------- „Geschafft!“ der Spiele im Toon-Stil (06.11., Entwurf A) ---------- */
+.flashcard.done.sf-toon { position: relative; overflow: hidden; text-align: center; border-radius: 28px; box-shadow: 0 6px 0 var(--line); }
+.sf-bild { position: relative; display: block; width: 150px; height: 132px; margin: 0 auto 6px; }
+.sf-bild .si-sockel { left: 0; margin-left: 0; width: 150px; height: 80px; }
+.sf-pokal { position: absolute; left: 31px; top: 0; width: 88px; height: 88px; animation: sf-hopsen .7s cubic-bezier(.3, 1.6, .5, 1) both; }
+@keyframes sf-hopsen { from { transform: translateY(30px) scale(.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sf-pokal { animation: none; } }
+.sf-toon h2 { font-size: 28px; font-weight: 900; color: var(--navy); }
+.sf-toon > p { color: var(--muted); font-weight: 800; }
+.sf-pillen { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
+.sf-pille { padding: 7px 13px; border-radius: 999px; font-weight: 900; font-size: 13.5px; }
+.sf-xp { background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-dark); }
+.sf-stufe { background: #e6f7ef; color: #1d7a52; box-shadow: 0 4px 0 #a8e3c7; }
+.sf-knoepfe { display: flex; gap: 10px; margin-top: 22px; }
+.sf-knoepfe button { border: 0; border-radius: 18px; padding: 14px 16px; font-family: inherit; font-size: 15.5px; font-weight: 900; cursor: pointer; }
+.sf-nochmal { flex: none; background: var(--card); color: var(--navy); border: 2px solid var(--line) !important; box-shadow: 0 5px 0 var(--line); }
+.sf-zurueck { flex: 1; background: var(--primary); color: #fff; box-shadow: 0 6px 0 var(--primary-dark); }
+.sf-knoepfe button:active { transform: translateY(4px); box-shadow: none; }
