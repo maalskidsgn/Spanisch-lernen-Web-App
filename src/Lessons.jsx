@@ -459,8 +459,6 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
         {schritt.typ === 'lernen' && (
           <div className="flashcard word-step" key={'s' + index}>
             <p className="lesson-hint">{t('ls.neuesWort').replace(/^\S+\s+/, '')}</p>
-            {/* Bild auf der Trommel (07.11., Entwurf A) – vorerst das Modul-Emblem */}
-            <span className="lk-bild" aria-hidden="true"><ModulBild modul={modul} /></span>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
               {/* vonSelbst: Das Wort erklingt, sobald die Karte da
