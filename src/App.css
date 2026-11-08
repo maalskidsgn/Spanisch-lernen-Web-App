@@ -16496,3 +16496,4 @@ html, body { overflow-x: clip; }
 .lk-toon .flashcard:has(> .quiz-options):has(> .gap-sentence) > .lesson-hint + * { margin-top: 12px; }
 .lk-toon .flashcard:has(> .gap-sentence) .quiz-option { box-shadow: 0 6px 0 #e6dccf, inset 0 0 0 2px #f3ebe2; }
 .lk-toon .flash-actions button:disabled { background: color-mix(in srgb, var(--primary) 35%, #fff); }
+.engine.engine-toon { box-shadow: 0 6px 0 var(--line), 0 10px 30px rgba(255, 108, 0, .10); }
