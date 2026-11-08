@@ -219,7 +219,7 @@ export default function Meilensteine({ werte, app, adresse, xp = 0 }) {
   }
 
   return (
-    <section className="start-karte meilensteine">
+    <section className="start-karte meilensteine ms-toon">
       <div className="ms-kopf">
         <h2 className="start-abschnitt">{t('ms.meilensteine')}</h2>
         <span className="ms-zaehler">
@@ -247,16 +247,23 @@ export default function Meilensteine({ werte, app, adresse, xp = 0 }) {
                     <span style={{ width: st.anteil * 100 + '%' }} />
                   </span>
                 </div>
+                <span className="ms-stand">{st.erreicht}/{k.ziele.length}</span>
               </div>
 
+              {/* Toon-Leiste (08.11.): die Sticker sitzen auf einer dicken Schiene,
+                  die bis zum Stand gefüllt ist – Mischung aus Sticker-Album und Leiste */}
               <div className="ms-abzeichen">
+                <span className="ms-schiene" aria-hidden="true">
+                  <span style={{ width: (st.erreicht >= k.ziele.length ? 1 : Math.max(0, (st.erreicht - 1 + st.anteil) / (k.ziele.length - 1))) * 100 + '%' }} />
+                </span>
                 {k.ziele.map((ziel, i) => {
                   const da = i < st.erreicht
+                  const naechste = i === st.erreicht
                   return (
                     <button
                       key={ziel}
                       type="button"
-                      className={'ms-medaille' + (da ? ' ms-erreicht ms-stufe-' + i : '')}
+                      className={'ms-medaille' + (da ? ' ms-erreicht ms-stufe-' + i : '') + (naechste ? ' ms-naechste' : '')}
                       disabled={!da}
                       onClick={() => { setMeldung(''); setOffen({ k, stufe: i, ziel }) }}
                       aria-label={`${t(STUFEN[i].name)}: ${ziel} ${t(einheit(k, ziel))}${da ? '' : t('msm.nochGesperrt')}`}
@@ -265,12 +272,11 @@ export default function Meilensteine({ werte, app, adresse, xp = 0 }) {
                         {da ? (
                           <Symbol k={k} groesse={18} />
                         ) : (
-                          <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-                            <path d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-                          </svg>
+                          <span className="ms-frage">{naechste ? '' : '?'}</span>
                         )}
                       </span>
                       <span className="ms-medaille-zahl">{ziel >= 1000 ? ziel / 1000 + 'k' : ziel}</span>
+                      {naechste && <span className="ms-prozent">{Math.round(st.anteil * 100)} %</span>}
                     </button>
                   )
                 })}

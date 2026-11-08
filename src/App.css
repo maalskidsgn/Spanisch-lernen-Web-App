@@ -16497,3 +16497,48 @@ html, body { overflow-x: clip; }
 .lk-toon .flashcard:has(> .gap-sentence) .quiz-option { box-shadow: 0 6px 0 #e6dccf, inset 0 0 0 2px #f3ebe2; }
 .lk-toon .flash-actions button:disabled { background: color-mix(in srgb, var(--primary) 35%, #fff); }
 .engine.engine-toon { box-shadow: 0 6px 0 var(--line), 0 10px 30px rgba(255, 108, 0, .10); }
+
+/* ---------- Meilensteine im Toon-Stil (08.11.): Sticker auf einer Schiene ---------- */
+.ms-toon .ms-balken { display: none; }
+.ms-stand { flex: none; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 10%, #fff); color: var(--primary-dark); font-size: 12.5px; font-weight: 900; }
+.ms-toon .ms-abzeichen { position: relative; gap: 10px; margin-top: 16px; padding: 0 6px; }
+.ms-schiene { position: absolute; left: 10%; right: 10%; top: 50%; height: 16px; margin-top: -8px; border-radius: 999px; background: #f3e9de; overflow: hidden; }
+.ms-schiene > span { display: block; height: 100%; border-radius: 999px; background: var(--primary); box-shadow: inset 0 -4px 0 rgba(0, 0, 0, .14), inset 0 3px 0 rgba(255, 255, 255, .35); transition: width .5s ease; }
+.ms-toon .ms-medaille {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 1;
+  clip-path: none;
+  border-radius: 14px;
+  border: 2.5px dashed #e6dccf;
+  color: #cdbfb0;
+  box-shadow: none;
+  opacity: 1;
+  transition: transform .15s;
+}
+.ms-toon .ms-medaille:disabled { opacity: 1; }
+.ms-toon .ms-medaille:not(.ms-erreicht):not(.ist-da) { background: #f6f1ea; }
+.ms-toon .ms-medaille.ms-erreicht .ms-medaille-symbol, .ms-toon .ms-medaille.ist-da .ms-medaille-symbol { color: #fff; filter: brightness(0) invert(1); }
+.ms-toon .ms-medaille .ms-medaille-zahl { color: #cdbfb0; font-size: .66rem; }
+.ms-frage { font-size: 15px; font-weight: 900; line-height: 1; }
+.ms-toon .ms-medaille.ms-erreicht, .ms-toon .ms-medaille.ist-da {
+  border: 2.5px solid #fff;
+  color: #fff;
+  box-shadow: 0 4px 0 var(--primary-dark);
+  animation: none;
+  transform: rotate(-4deg);
+}
+.ms-toon .ms-medaille:nth-child(odd).ms-erreicht, .ms-toon .ms-medaille:nth-child(odd).ist-da { transform: rotate(3deg); }
+.ms-toon .ms-medaille.ms-erreicht::after, .ms-toon .ms-medaille.ist-da::after { content: ''; position: absolute; left: 6px; top: 5px; width: 12px; height: 6px; border-radius: 4px; background: #fff; opacity: .7; transform: rotate(-25deg); }
+.ms-toon .ms-medaille.ms-erreicht .ms-medaille-zahl, .ms-toon .ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: none; }
+.ms-toon .ms-medaille.ms-erreicht:active, .ms-toon .ms-medaille.ist-da:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-dark); }
+.ms-toon .ms-medaille.ms-naechste {
+  background: var(--card);
+  border: 2.5px dashed var(--primary);
+  color: var(--primary-dark);
+  animation: ms-pochen 2s ease-in-out infinite;
+}
+.ms-toon .ms-medaille.ms-naechste .ms-medaille-zahl { color: var(--primary-dark); font-size: .8rem; }
+.ms-prozent { position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); padding: 1px 6px; border-radius: 999px; background: var(--primary); color: #fff; font-size: 9.5px; font-weight: 900; white-space: nowrap; }
+@keyframes ms-pochen { 50% { transform: scale(1.06); } }
+@media (prefers-reduced-motion: reduce) { .ms-toon .ms-medaille.ms-naechste { animation: none; } }
