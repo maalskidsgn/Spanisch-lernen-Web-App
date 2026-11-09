@@ -27,7 +27,8 @@ import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
 import { gemerkterPartnerCode } from './partnerCode.js'
-import { useTexte, gebiet } from './sprache.js'
+import { useTexte, gebiet, sprache } from './sprache.js'
+import BILDER from './kassenBilder.js'
 
 // ---------------------------------------------------------------
 //  Habloo-Aussehen für die Stripe-Felder
@@ -88,12 +89,46 @@ const AUSSEHEN = {
 // Was Premium kann – dieselbe Liste wie in den Einstellungen.
 // Nur die Schlüssel, nicht die Texte: t() auf Modulebene würde die
 // Sprache einfrieren, die beim Laden gerade eingestellt war.
-const LEISTUNGEN = [
-  'bz9.unbegrenzteKiVokabellisten',
-  'bzm.unbegrenzteSaetzeUnd',
-  'bz9.eigeneVideosOhne',
-  'bz9.kiTrainerOhne',
-]
+// Seit 09.11.2026 (Entwurf A): Vorteile mit den echten Gratis-Grenzen
+// aus limits.js / premium.js daneben.
+const KASSEN_TEXTE = {
+  de: {
+    marke: 'Habloo Premium',
+    titel1: 'Spanisch lernen',
+    titel2: 'ohne Grenzen',
+    lead: 'Alles freigeschaltet – sofort nach der Zahlung.',
+    freiTitel: 'Das schaltest du frei',
+    sofort: 'sofort aktiv',
+    gratis: 'Gratis',
+    jaehrlich: ' · jährlich',
+    monatlich: ' · monatlich',
+    vorteile: [
+      ['lektion', 'Alle Lektionen', 'alles offen', '20 %'],
+      ['mikro', 'Sprach-Trainer', '120 Min. / Monat', '10 Min.'],
+      ['zauber', 'KI‑Wortlisten', 'unbegrenzt', '7 / Woche'],
+      ['buch', 'Sätze, Texte & E‑Books', 'unbegrenzt', 'teilt sich die 7'],
+      ['video', 'Eigene YouTube‑Videos', 'ohne Limit', '1 / Woche'],
+    ],
+  },
+  en: {
+    marke: 'Habloo Premium',
+    titel1: 'Learn Spanish',
+    titel2: 'without limits',
+    lead: 'Everything unlocked – right after payment.',
+    freiTitel: 'What you unlock',
+    sofort: 'instantly',
+    gratis: 'Free',
+    jaehrlich: ' · yearly',
+    monatlich: ' · monthly',
+    vorteile: [
+      ['lektion', 'All lessons', 'all unlocked', '20%'],
+      ['mikro', 'Speaking trainer', '120 min / month', '10 min'],
+      ['zauber', 'AI word lists', 'unlimited', '7 / week'],
+      ['buch', 'Sentences, texts & e‑books', 'unlimited', 'shares the 7'],
+      ['video', 'Your own YouTube videos', 'no limit', '1 / week'],
+    ],
+  },
+}
 
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der
 // Schlüssel kommt vom Server (/api/bezahlung/status), damit
@@ -121,6 +156,7 @@ function stripeHolen(schluessel) {
  */
 export default function Bezahlen({ onFertig, onAbbrechen }) {
   const t = useTexte()
+  const KT = KASSEN_TEXTE[sprache() === 'en' ? 'en' : 'de']
   const [clientSecret, setClientSecret] = useState(null)
   const [stripe, setStripe] = useState(null)
   const [preise, setPreise] = useState(null) // { monat, jahr, lifetime }
@@ -214,59 +250,85 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
         </span>
       </header>
 
-      <div className="kassen-raster">
+      <div className="kassen-raster ka-raster">
         {/* ---------- Links: was man kauft ---------- */}
-        <aside className="kassen-bestellung">
-          <p className="kassen-label">{tarif === 'lifetime' ? t('bz9.deinZugang') : t('bz9.deinAbo')}</p>
-          <h1 className="kassen-titel">{t('bz.hablooPremium')}</h1>
-          {TARIF_KARTEN.length > 1 && (
-            <div className="kassen-tarife" role="radiogroup" aria-label={t('bz.tarifWaehlen')}>
-              {TARIF_KARTEN.map((k) => (
-                <button
-                  key={k.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={tarif === k.id}
-                  className={'kassen-tarif' + (tarif === k.id ? ' ist-aktiv' : '')}
-                  onClick={() => setTarif(k.id)}
-                >
-                  {k.marke && <span className="kassen-tarif-marke">{k.marke}</span>}
-                  <span className="kassen-tarif-name">{k.name}</span>
-                  <b>{geld(preise[k.id])}</b>
-                  <span className="kassen-tarif-unter">{k.unter}</span>
-                </button>
-              ))}
+        <aside className="kassen-bestellung ka-a">
+          {/* Entwurf A (09.11.2026): Pokal-Bühne + strahlende Premium-Schatzkammer */}
+          <div className="ka-held">
+            <div className="ka-held-text">
+              <span className="ka-eyebrow">{KT.marke}</span>
+              <h1 className="kassen-titel">{KT.titel1} <em>{KT.titel2}</em></h1>
+              <p className="ka-lead">{KT.lead}</p>
             </div>
-          )}
+            <div className="ka-pokal" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.pokal + BILDER.buehne }} />
+          </div>
 
-          {preisText && (
-            <p className="kassen-grosspreis">
-              {preisText} <span>{zeitraum}</span>
-            </p>
-          )}
+          <div className="ka-karte">
+            {TARIF_KARTEN.length > 1 && (
+              <div className="kassen-tarife" role="radiogroup" aria-label={t('bz.tarifWaehlen')}>
+                {TARIF_KARTEN.map((k) => (
+                  <button
+                    key={k.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={tarif === k.id}
+                    className={'kassen-tarif' + (tarif === k.id ? ' ist-aktiv' : '')}
+                    onClick={() => setTarif(k.id)}
+                  >
+                    {k.marke && <span className="kassen-tarif-marke">{k.marke}</span>}
+                    <span className="kassen-tarif-name">{k.name}</span>
+                    <b>{geld(preise[k.id])}</b>
+                    <span className="kassen-tarif-unter">{k.unter}</span>
+                  </button>
+                ))}
+              </div>
+            )}
 
-          <ul className="kassen-leistungen">
-            {LEISTUNGEN.map((l) => (
-              <li key={l}>{t(l)}</li>
-            ))}
-          </ul>
-
-          {preisText && (
-            <div className="kassen-summe">
-              <div className="kassen-zeile">
-                <span>{t('bz.hablooPremium')}</span>
-                <span>{preisText}</span>
+            <div className="ka-schatz">
+              <span className="ka-strahlen" aria-hidden="true" />
+              <div className="ka-schatz-kopf">
+                <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.krone }} />
+                <b>{KT.freiTitel}</b>
+                <span className="ka-pill">{KT.sofort}</span>
               </div>
-              <div className="kassen-zeile kassen-zeile-klein">
-                <span>{t('bz.abrechnung')}</span>
-                <span>{abrechnung}</span>
-              </div>
-              <div className="kassen-zeile kassen-gesamt">
-                <span>{t('bz.heuteFaellig')}</span>
-                <span>{preisText}</span>
-              </div>
+              <ul className="ka-inseln">
+                {KT.vorteile.map(([icon, titel, prem, gratis], n) => (
+                  <li key={icon} className={'ka-insel' + (n > 2 ? ' ka-breit' : '')}>
+                    <span className="ka-haken" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.haken }} />
+                    <span className="ka-funkel ka-f1" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.funkel }} />
+                    <span className="ka-funkel ka-f2" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.funkel }} />
+                    <span
+                      className="ka-bild"
+                      aria-hidden="true"
+                      dangerouslySetInnerHTML={{ __html: '<span class="ka-halo"></span>' + BILDER.icons[icon] + (n % 2 ? BILDER.trommel2 : BILDER.trommel1) }}
+                    />
+                    <span className="ka-txt">
+                      <b>{titel}</b>
+                      <span className="ka-prem">{prem}</span>
+                      <small>{KT.gratis}: {gratis}</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
+
+            {preisText && (
+              <div className="kassen-summe">
+                <div className="kassen-zeile">
+                  <span>{t('bz.hablooPremium')}{tarif === 'jahr' ? KT.jaehrlich : tarif === 'monat' ? KT.monatlich : ''}</span>
+                  <span>{preisText}</span>
+                </div>
+                <div className="kassen-zeile kassen-zeile-klein">
+                  <span>{t('bz.abrechnung')}</span>
+                  <span>{abrechnung}</span>
+                </div>
+                <div className="kassen-zeile kassen-gesamt">
+                  <span>{t('bz.heuteFaellig')}</span>
+                  <span>{preisText}</span>
+                </div>
+              </div>
+            )}
+          </div>
         </aside>
 
         {/* ---------- Rechts: bezahlen ---------- */}
