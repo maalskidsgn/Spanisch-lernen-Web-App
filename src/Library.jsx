@@ -22,6 +22,21 @@ const KATEGORIE_ICONS = {
   psychologie: IconPsyche,
   gefunden: IconSuche,
 }
+
+// Mediathek: weniger Kategorien und Videos (Manuel, 09.11.2026).
+// Die alten Kategorien in der Datenbank bleiben – hier werden sie zu
+// drei Gruppen zusammengefasst und je Gruppe auf MAX_JE_GRUPPE gekürzt.
+// "gefunden" (von Nutzern geholte Videos) erscheint nicht mehr.
+const MAX_JE_GRUPPE = 4
+const GRUPPEN = [
+  { wert: 'sprache', de: 'Spanisch lernen', en: 'Learn Spanish', kat: ['sprache'], icon: 'sprache' },
+  { wert: 'koerper', de: 'Gesundheit & Sport', en: 'Health & sport', kat: ['gesundheit', 'sport', 'ernaehrung'], icon: 'gesundheit' },
+  { wert: 'kopf', de: 'Kopf & Alltag', en: 'Mind & everyday life', kat: ['psychologie', 'stoizismus', 'produktivitaet'], icon: 'psychologie' },
+]
+function gruppiere(bibliothek) {
+  return GRUPPEN.map((g) => ({ ...g, videos: bibliothek.filter((v) => g.kat.includes(v.kategorie)).slice(0, MAX_JE_GRUPPE) }))
+    .filter((g) => g.videos.length)
+}
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
@@ -65,19 +80,6 @@ const BEREICHE = [
   ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'kat.ebooks' }] : []),
 ]
 
-const KATEGORIEN = [
-  { wert: 'alle', label: 'yt.alle' },
-  { wert: 'sprache', label: 'kat.sprache' },
-  { wert: 'gesundheit', label: 'thema.gesundheit' },
-  { wert: 'sport', label: 'kat.sport' },
-  { wert: 'ernaehrung', label: 'kat.ernaehrung' },
-  { wert: 'produktivitaet', label: 'kat.produktivitaet' },
-  { wert: 'stoizismus', label: 'kat.stoizismus' },
-  { wert: 'psychologie', label: 'thema.psychologie' },
-  // Videos, die jemand selbst gesucht hat. Ohne eigene Reihe waeren
-  // sie unsichtbar – sie tragen keine der kuratierten Kategorien.
-  { wert: 'gefunden', label: 'kat.gefunden' },
-]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
 // damit regelmäßig frische Videos auftauchen
@@ -129,9 +131,10 @@ function ladeBuecher() {
 // Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
 export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {}, addXp }) {
-  // Eigene YouTube-Videos: nur Premium (09.11.). Solange der Stand lädt: offen lassen.
-  const { premium: istPremium, laedt: premiumLaedt } = usePremium()
-  const videosGesperrt = !istPremium && !premiumLaedt && !TESTPHASE_ALLES_FREI
+  // Eigene YouTube-Videos: nur Premium (09.11.).
+  const { premium: istPremium } = usePremium()
+  // Gesperrt schon während des Ladens (Stand aus dem Speicher) – sonst blitzt das Formular auf
+  const videosGesperrt = !istPremium && !TESTPHASE_ALLES_FREI
   const t = useTexte()
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
@@ -604,24 +607,26 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                 </button>
               ) : null
             }
-            zahl={bibliothek && kategorie === 'alle' ? bibliothek.length : null}
+            zahl={bibliothek && kategorie === 'alle' ? gruppiere(bibliothek).reduce((n, g) => n + g.videos.length, 0) : null}
           />
 
-          <div className="themen-leiste">
-            {KATEGORIEN.map((k) => (
-              <button
-                key={k.wert}
-                className={'thema' + (kategorie === k.wert ? ' thema-aktiv' : '')}
-                onClick={() => {
-                  setKategorie(k.wert)
-                  setSichtbareVideos(SCHRITT) // bei neuem Filter wieder oben anfangen
-                }}
-              >
-                {(() => { const I = KATEGORIE_ICONS[k.wert]; return I ? <I groesse={15} /> : null })()}
-                {t(k.label)}
-              </button>
-            ))}
-          </div>
+          {bibliothek && gruppiere(bibliothek).length > 1 && (
+            <div className="themen-leiste">
+              {[{ wert: 'alle', de: 'Alle', en: 'All', icon: 'alle' }, ...gruppiere(bibliothek)].map((k) => (
+                <button
+                  key={k.wert}
+                  className={'thema' + (kategorie === k.wert ? ' thema-aktiv' : '')}
+                  onClick={() => {
+                    setKategorie(k.wert)
+                    setSichtbareVideos(SCHRITT) // bei neuem Filter wieder oben anfangen
+                  }}
+                >
+                  {(() => { const I = KATEGORIE_ICONS[k.icon]; return I ? <I groesse={15} /> : null })()}
+                  {sprache() === 'en' ? k.en : k.de}
+                </button>
+              ))}
+            </div>
+          )}
 
           {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
           {!bibliothek && !bibliothekFehler && (
@@ -629,10 +634,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           )}
 
           {bibliothek && (() => {
+            const gruppen = gruppiere(bibliothek)
             const gefiltert =
               kategorie === 'alle'
-                ? bibliothek
-                : bibliothek.filter((v) => v.kategorie === kategorie)
+                ? gruppen.flatMap((g) => g.videos)
+                : gruppen.find((g) => g.wert === kategorie)?.videos ?? []
 
             if (gefiltert.length === 0) {
               return <p className="intro">{t('yt3.nichtsDabei')}</p>
