@@ -434,6 +434,31 @@ export const GRUNDPAKET_SAETZE = [
     "satz": "No entiendo, ¿puedes repetir?",
     "uebersetzung": "Ich verstehe nicht, kannst du das wiederholen?",
     "schluessel": "entiendo"
+  },
+  {
+    "satz": "¿Cuánto cuesta esto?",
+    "uebersetzung": "Wie viel kostet das?",
+    "schluessel": "cuesta"
+  },
+  {
+    "satz": "Estoy aprendiendo español.",
+    "uebersetzung": "Ich lerne Spanisch.",
+    "schluessel": "aprendiendo"
+  },
+  {
+    "satz": "Gracias, todo bien.",
+    "uebersetzung": "Danke, alles gut.",
+    "schluessel": "bien"
+  },
+  {
+    "satz": "¿Puedes hablar más despacio?",
+    "uebersetzung": "Kannst du langsamer sprechen?",
+    "schluessel": "despacio"
+  },
+  {
+    "satz": "¡Hasta mañana!",
+    "uebersetzung": "Bis morgen!",
+    "schluessel": "mañana"
   }
 ]
 

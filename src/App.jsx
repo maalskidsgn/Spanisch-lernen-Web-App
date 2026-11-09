@@ -593,9 +593,14 @@ export default function App() {
       })
 
     return () => { abgebrochen = true }
-  }, [nutzer, abgleichNr])
+    // Nur an der Nutzer-ID haengen (09.11.): Supabase meldet nach dem Login
+    // denselben Nutzer mehrfach neu (Schluessel erneuert). Das brach den
+    // laufenden Abgleich ab, ohne ihn neu zu starten – „wird abgeglichen …“
+    // blieb ewig stehen, und das Grundpaket kam nie.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nutzer?.id, abgleichNr])
 
-  // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 5 Sätze und
+  // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 10 Sätze und
   // der Text „So lernst du mit Habloo“ – damit Trainer, Sätze und Texte
   // am ersten Tag nicht leer sind. Wer schon 50+ Wörter hat, bekommt
   // nur Sätze und Text. Doppeltes fällt über die Schlüssel weg.
