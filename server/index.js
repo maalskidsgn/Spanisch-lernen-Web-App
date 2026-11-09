@@ -47,7 +47,6 @@ import {
   VIDEOS_PRO_TAG,
   KI_PRO_WOCHE,
   wochenStand,
-  videoFreigabe,
   nutzungHeute,
   zaehleNutzung,
   gibNutzungZurueck,
@@ -264,18 +263,16 @@ app.get('/api/transcript', async (req, res) => {
 
   // Seit 09.11.2026: jedes zum ersten Mal geöffnete Video zählt
   // (1 pro Woche gratis), auch aus der Mediathek. Musik bleibt frei.
-  if (nutzer && kategorie !== 'musik' && !(await istPremium(nutzer.id))) {
-    const f = await videoFreigabe(nutzer.id, videoId)
-    if (!f.ok) {
-      const en = req.query.sprache === 'en'
-      return res.status(429).json({
-        error: en
-          ? `You've already opened a new video this week. Your next one is free ${naechsteAuffuellung(true)} – or watch as many as you like with Premium.`
-          : `Du hast diese Woche schon ein neues Video geöffnet. Das nächste gibt es ${naechsteAuffuellung()} gratis – oder sofort und ohne Grenze mit Premium.`,
-        grund: 'kontingent',
-        uebrig: 0,
-      })
-    }
+  // Seit 09.11.2026 (Manuel): Eigene YouTube-Videos nur mit Premium.
+  // Gratis gibt es die Mediathek – was dort liegt, bleibt frei.
+  if (nutzer && kategorie !== 'musik' && !(await ausBibliothek(videoId)) && !(await istPremium(nutzer.id))) {
+    const en = req.query.sprache === 'en'
+    return res.status(402).json({
+      error: en
+        ? 'Your own YouTube videos are part of Premium. Free: every video in the library.'
+        : 'Eigene YouTube-Videos gibt es mit Premium. Gratis: alle Videos aus der Mediathek.',
+      grund: 'premium',
+    })
   }
 
   // Temporärer Ordner für die Untertitel-Datei
@@ -706,24 +703,6 @@ async function kiTuersteher(req, res) {
 async function kiVerbuchen(tuer) {
   if (!tuer.premium) await zaehleNutzung(tuer.nutzer.id, 'ki')
 }
-
-// Darf das Video geöffnet werden? Die App fragt VOR dem Öffnen –
-// auch für Videos aus der Mediathek, die sonst nie den Server sehen.
-app.post('/api/video/freigabe', async (req, res) => {
-  const videoId = String(req.body?.videoId || '').replace(/[^\w-]/g, '').slice(0, 20)
-  if (!videoId) return res.status(400).json({ error: 'Kein Video.' })
-  const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
-  if (!nutzer || (await istPremium(nutzer.id))) return res.json({ ok: true })
-  const f = await videoFreigabe(nutzer.id, videoId)
-  if (f.ok) return res.json(f)
-  const en = req.body?.sprache === 'en'
-  res.status(429).json({
-    ok: false,
-    error: en
-      ? `You've already opened a new video this week. Your next one is free ${naechsteAuffuellung(true)} – or watch as many as you like with Premium.`
-      : `Du hast diese Woche schon ein neues Video geöffnet. Das nächste gibt es ${naechsteAuffuellung()} gratis – oder sofort und ohne Grenze mit Premium.`,
-  })
-})
 
 // Stand der Gratis-Grenzen für die Anzeige
 app.get('/api/kontingent', async (req, res) => {

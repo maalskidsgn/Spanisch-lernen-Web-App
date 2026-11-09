@@ -16,12 +16,13 @@
  * Gratis-Grenzen pro WOCHE (seit 09.11.2026, Manuel):
  *  - 7 KI-Erstellungen (Wortlisten, Wörter aus Video, Sätze,
  *    Lesetexte, E-Books) – ein gemeinsamer Topf
- *  - 1 neues YouTube-Video
+ *  - eigene YouTube-Videos: keine (nur Premium); die Mediathek ist frei
  * Die Woche beginnt montags. Premium hat keine Grenze.
  * Gleiche Werte in src/limits.js (nur Anzeige) und in der anderen App.
  */
 export const KI_PRO_WOCHE = 7
-export const VIDEOS_PRO_WOCHE = 1
+// 09.11.2026: eigene Videos nur mit Premium – gratis 0, Mediathek frei
+export const VIDEOS_PRO_WOCHE = 0
 // Alte Namen, damit bestehender Code weiterläuft
 export const VIDEOS_PRO_TAG = VIDEOS_PRO_WOCHE
 

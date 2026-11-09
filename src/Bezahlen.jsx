@@ -107,7 +107,7 @@ const KASSEN_TEXTE = {
       ['mikro', 'Sprach-Trainer', '120 Min. / Monat', '10 Min.'],
       ['zauber', 'KI‑Wortlisten', 'unbegrenzt', '7 / Woche'],
       ['buch', 'Sätze, Texte & E‑Books', 'unbegrenzt', 'teilt sich die 7'],
-      ['video', 'Eigene YouTube‑Videos', 'ohne Limit', '1 / Woche'],
+      ['video', 'Eigene YouTube‑Videos', 'ohne Limit', 'nur Mediathek'],
     ],
   },
   en: {
@@ -125,7 +125,7 @@ const KASSEN_TEXTE = {
       ['mikro', 'Speaking trainer', '120 min / month', '10 min'],
       ['zauber', 'AI word lists', 'unlimited', '7 / week'],
       ['buch', 'Sentences, texts & e‑books', 'unlimited', 'shares the 7'],
-      ['video', 'Your own YouTube videos', 'no limit', '1 / week'],
+      ['video', 'Your own YouTube videos', 'no limit', 'library only'],
     ],
   },
 }

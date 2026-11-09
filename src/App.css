@@ -16872,3 +16872,13 @@ html, body { overflow-x: clip; }
   .ka-insel.ka-breit:last-child { grid-column: span 2; }
   .ka-prem { font-size: 12px; padding: 4px 8px; }
 }
+
+/* Gesperrte YouTube-Suche (nur Premium, 09.11.2026) */
+.engine-suche.engine-zu {
+  width: 100%; font: inherit; cursor: pointer; text-align: left; padding: 15px 16px; background: #fff;
+  border: 2.5px dashed #ffd27a !important;
+  display: flex; align-items: center; gap: 10px;
+  color: var(--muted); font-weight: 800; opacity: .9;
+}
+.engine-suche.engine-zu .engine-lupe { color: #e0a200; position: static; transform: none; flex: none; }
+.engine-suche.engine-zu:disabled { cursor: default; }

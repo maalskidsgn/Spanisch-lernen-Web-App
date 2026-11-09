@@ -1,4 +1,3 @@
-import { holeKontingent, kontingentLeer, videoFreigeben } from './limits.js'
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
 import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
@@ -1099,11 +1098,6 @@ export default function App() {
     try {
       // 1) Mediathek
       const id = videoIdAusEingabe(input)
-      // 0) Gratis: 1 neues Video pro Woche (Musik ausgenommen)
-      if (id && art !== 'musik') {
-        const f = await videoFreigeben(id)
-        if (!f.ok) throw new Error(f.error)
-      }
       if (id && supabaseBereit) {
         const treffer = await holeVideoMitTranskript(id).catch(() => null)
         if (treffer?.transkript?.length) {
@@ -1149,10 +1143,8 @@ export default function App() {
           t('apm.transkriptDienstIst')
         )
       }
-      if (res.status === 429) kontingentLeer('video')
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
-      holeKontingent() // ein neues Video zählt in den Wochentopf
     } catch (err) {
       setError(err.message)
     } finally {

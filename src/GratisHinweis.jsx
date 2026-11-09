@@ -1,7 +1,7 @@
 import { istApp } from './api.js'
 import BILDER from './kassenBilder.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { useKontingent, naechsteAuffuellung, KI_PRO_WOCHE, VIDEOS_PRO_WOCHE, GRATIS_LEKTIONEN_PROZENT } from './limits.js'
+import { useKontingent, naechsteAuffuellung, KI_PRO_WOCHE, GRATIS_LEKTIONEN_PROZENT } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
 
 /**
@@ -11,7 +11,7 @@ import { sprache, useTexte } from './sprache.js'
  * eine Kasse außerhalb des Stores stehen. Premium-Nutzer sehen nichts.
  *
  *   <GratisHinweis art="ki" />         7 KI-Erstellungen / Woche
- *   <GratisHinweis art="video" />      1 neues YouTube-Video / Woche
+ *   <GratisHinweis art="video" />      eigene YouTube-Videos nur Premium
  *   <GratisHinweis art="lektionen" />  20 % der Lektionen
  *   <GratisHinweis art="sprechen" />   10 Min. Sprach-Trainer / Monat
  *   <GratisUebersicht />               alles auf einen Blick (Startseite)
@@ -41,8 +41,9 @@ const TEXT = {
   de: {
     ki: (u, g) => (u > 0 ? `Noch ${u} von ${g} KI-Erstellungen diese Woche` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
     kiKlein: 'Wortlisten, Sätze, Texte & E-Books teilen sich den Wochentopf',
-    video: (u) => (u > 0 ? 'Ein neues Video pro Woche ist gratis' : 'Dein Gratis-Video für diese Woche ist verbraucht'),
-    videoKlein: 'Schon geöffnete Videos bleiben frei',
+    video: () => 'Eigene YouTube-Videos mit Premium',
+    videoKlein: 'Gratis: alle Videos aus der Mediathek. Suche und eigene Links schaltet Premium frei.',
+    mediathek: 'Mediathek',
     lektionen: 'Alle Module und Lektionen mit Premium',
     lektionenKlein: `Gratis sind die ersten ${GRATIS_LEKTIONEN_PROZENT} % des Kurses`,
     sprechen: '120 Minuten Sprach-Trainer im Monat mit Premium',
@@ -56,7 +57,7 @@ const TEXT = {
     unter: 'Mit Premium fallen alle Grenzen weg.',
     zeilen: {
       ki: 'KI-Erstellungen diese Woche',
-      video: 'Neues YouTube-Video diese Woche',
+      video: 'Eigene YouTube-Videos',
       lektionen: 'Lektionen frei',
       sprechen: 'Sprach-Trainer im Monat',
     },
@@ -66,8 +67,9 @@ const TEXT = {
   en: {
     ki: (u, g) => (u > 0 ? `${u} of ${g} AI creations left this week` : `You've used your ${g} free creations`),
     kiKlein: 'Lists, sentences, texts & e-books share the weekly pool',
-    video: (u) => (u > 0 ? 'One new video per week is free' : "You've used this week's free video"),
-    videoKlein: "Videos you've opened before stay free",
+    video: () => 'Your own YouTube videos with Premium',
+    videoKlein: 'Free: every video in the library. Premium unlocks search and your own links.',
+    mediathek: 'Library',
     lektionen: 'Every module and lesson with Premium',
     lektionenKlein: `The first ${GRATIS_LEKTIONEN_PROZENT}% of the course is free`,
     sprechen: '120 minutes of speaking practice a month with Premium',
@@ -81,7 +83,7 @@ const TEXT = {
     unter: 'Premium removes every limit.',
     zeilen: {
       ki: 'AI creations this week',
-      video: 'New YouTube video this week',
+      video: 'Your own YouTube videos',
       lektionen: 'Lessons unlocked',
       sprechen: 'Speaking practice per month',
     },
@@ -106,10 +108,11 @@ export default function GratisHinweis({ art = 'ki' }) {
     klein = leer ? T.wieder(naechsteAuffuellung()) : T.kiKlein
     zahl = <><b>{k.ki.uebrig}</b>/{KI_PRO_WOCHE} {T.frei}</>
   } else if (art === 'video') {
-    leer = k.video.uebrig <= 0
-    titel = T.video(k.video.uebrig)
-    klein = leer ? T.wieder(naechsteAuffuellung()) : T.videoKlein
-    zahl = <><b>{k.video.uebrig}</b>/{VIDEOS_PRO_WOCHE} {T.frei}</>
+    // Seit 09.11.: eigene Videos nur Premium, die Mediathek ist frei
+    zaehlt = false
+    titel = T.video()
+    klein = T.videoKlein
+    zahl = <><b>{T.mediathek}</b> {T.frei}</>
   } else if (art === 'lektionen') {
     zaehlt = false
     titel = T.lektionen
@@ -147,7 +150,7 @@ export function GratisUebersicht() {
   const T = TEXT[sprache() === 'en' ? 'en' : 'de']
   const zeilen = [
     ['ki', `${k.ki.uebrig} / ${KI_PRO_WOCHE}`, k.ki.uebrig / KI_PRO_WOCHE],
-    ['video', `${k.video.uebrig} / ${VIDEOS_PRO_WOCHE}`, k.video.uebrig / VIDEOS_PRO_WOCHE],
+    ['video', '–', 0, true],
     ['lektionen', `${GRATIS_LEKTIONEN_PROZENT} %`, GRATIS_LEKTIONEN_PROZENT / 100],
     ['sprechen', sprache() === 'en' ? '10 min' : '10 Min.', 10 / 120],
   ]
@@ -161,8 +164,8 @@ export function GratisUebersicht() {
         <span className="gu-krone" aria-hidden="true">{KRONE}</span>
       </div>
       <ul>
-        {zeilen.map(([art, wert, anteil]) => (
-          <li key={art} className={anteil <= 0 ? 'gu-leer' : ''}>
+        {zeilen.map(([art, wert, anteil, nurPremium]) => (
+          <li key={art} className={anteil <= 0 && !nurPremium ? 'gu-leer' : ''}>
             <span className="gu-name">{T.zeilen[art]}</span>
             <span className="gu-balken"><i style={{ width: Math.max(4, anteil * 100) + '%' }} /></span>
             <span className="gu-wert">{wert}</span>
