@@ -14,36 +14,36 @@ const M = {
 // [bild, zeile1, zeile2, hintergrund, anordnung, chips, zweitbild]
 const S = {
  habloo: {
-  de: [['anruf', 'Sprich wirklich', 'Spanisch mit Habla', 'geteilt', 'trommel', [['10 Minuten gratis', 'jeden Monat']]],
-       ['bericht', 'Aus jedem Fehler', 'wird Können', 'streifen', 'popout', [['Nach jedem Gespräch', 'deine Fehler, erklärt']]],
-       ['youtube', 'Spanisch lernen', 'mit echten Videos', 'konfetti', 'kippL', [['Wort antippen', 'hablar → sprechen']], 'start'],
+  de: [['anruf', 'Sprich wirklich', 'Spanisch mit Habla', 'marke', 'trommel', [['10 Minuten gratis', 'jeden Monat']]],
+       ['bericht', 'Aus jedem Fehler', 'wird Können', 'marke', 'popout', [['Nach jedem Gespräch', 'deine Fehler, erklärt']]],
+       ['youtube', 'Spanisch lernen', 'mit echten Videos', 'marke', 'kippL', [['Wort antippen', 'hablar → sprechen']], 'start'],
        ['modul', 'Schritt für Schritt', 'zum Sprechen', 'marke', 'trommel', [['150 Lektionen', 'in 7 Modulen']]],
-       ['lektion', 'Neue Wörter', 'direkt im Satz', 'konfetti', 'popout', [['Mit Ton', 'jedes Wort zum Anhören']]],
-       ['trainer', 'Kein Wort', 'mehr vergessen', 'geteilt', 'kippL', [['Karteikasten', 'wiederholt zur richtigen Zeit']]],
-       ['start', 'Jeden Tag', 'ein Stück weiter', 'streifen', 'popout', [['Flammen-Serie', 'so bleibst du dran']]]],
-  en: [['anruf', 'Really speak', 'Spanish with Habla', 'geteilt', 'trommel', [['10 free minutes', 'every month']]],
-       ['bericht', 'Learn from', 'every mistake', 'streifen', 'popout', [['After every call', 'your mistakes, explained']]],
-       ['youtube', 'Learn Spanish', 'with real videos', 'konfetti', 'kippL', [['Tap any word', 'hablar → to speak']], 'start'],
+       ['lektion', 'Neue Wörter', 'direkt im Satz', 'marke', 'popout', [['Mit Ton', 'jedes Wort zum Anhören']]],
+       ['trainer', 'Kein Wort', 'mehr vergessen', 'marke', 'kippL', [['Karteikasten', 'wiederholt zur richtigen Zeit']]],
+       ['start', 'Jeden Tag', 'ein Stück weiter', 'marke', 'popout', [['Flammen-Serie', 'so bleibst du dran']]]],
+  en: [['anruf', 'Really speak', 'Spanish with Habla', 'marke', 'trommel', [['10 free minutes', 'every month']]],
+       ['bericht', 'Learn from', 'every mistake', 'marke', 'popout', [['After every call', 'your mistakes, explained']]],
+       ['youtube', 'Learn Spanish', 'with real videos', 'marke', 'kippL', [['Tap any word', 'hablar → to speak']], 'start'],
        ['modul', 'Step by step', 'to speaking', 'marke', 'trommel', [['150 lessons', 'in 7 modules']]],
-       ['lektion', 'New words', 'right in context', 'konfetti', 'popout', [['With audio', 'hear every word']]],
-       ['trainer', 'Never forget', 'a word again', 'geteilt', 'kippL', [['Smart flashcards', 'review at the right time']]],
-       ['start', 'A little further', 'every day', 'streifen', 'popout', [['Daily streak', 'keep your momentum']]]],
+       ['lektion', 'New words', 'right in context', 'marke', 'popout', [['With audio', 'hear every word']]],
+       ['trainer', 'Never forget', 'a word again', 'marke', 'kippL', [['Smart flashcards', 'review at the right time']]],
+       ['start', 'A little further', 'every day', 'marke', 'popout', [['Daily streak', 'keep your momentum']]]],
  },
  davaigo: {
-  de: [['anruf', 'Sprich wirklich', 'Russisch mit Katja', 'geteilt', 'trommel', [['10 Minuten gratis', 'jeden Monat']]],
-       ['bericht', 'Aus jedem Fehler', 'wird Können', 'streifen', 'popout', [['Nach jedem Gespräch', 'deine Fehler, erklärt']]],
-       ['youtube', 'Russisch lernen', 'mit echten Videos', 'konfetti', 'kippL', [['Wort antippen', 'говорить → sprechen']], 'lektion'],
-       ['lesekurs', 'Kyrillisch lesen', 'in 16 Videos', 'geteilt', 'kippR', [['Lektion 1 gratis', 'von null zum ersten Text']]],
+  de: [['anruf', 'Sprich wirklich', 'Russisch mit Katja', 'marke', 'trommel', [['10 Minuten gratis', 'jeden Monat']]],
+       ['bericht', 'Aus jedem Fehler', 'wird Können', 'marke', 'popout', [['Nach jedem Gespräch', 'deine Fehler, erklärt']]],
+       ['youtube', 'Russisch lernen', 'mit echten Videos', 'marke', 'kippL', [['Wort antippen', 'говорить → sprechen']], 'lektion'],
+       ['lesekurs', 'Kyrillisch lesen', 'in 16 Videos', 'marke', 'kippR', [['Lektion 1 gratis', 'von null zum ersten Text']]],
        ['modul', '180 Lektionen', 'alle vertont', 'marke', 'trommel', [['10 Module', 'vom Alphabet bis zum Gespräch']]],
-       ['trainer', 'Kein Wort', 'mehr vergessen', 'konfetti', 'kippR', [['Karteikasten', 'wiederholt zur richtigen Zeit']]],
-       ['start', 'Jeden Tag', 'ein Stück weiter', 'streifen', 'popout', [['Flammen-Serie', 'so bleibst du dran']]]],
-  en: [['anruf', 'Really speak', 'Russian with Katja', 'geteilt', 'trommel', [['10 free minutes', 'every month']]],
-       ['bericht', 'Learn from', 'every mistake', 'streifen', 'popout', [['After every call', 'your mistakes, explained']]],
-       ['youtube', 'Learn Russian', 'with real videos', 'konfetti', 'kippL', [['Tap any word', 'говорить → to speak']], 'lektion'],
-       ['lesekurs', 'Read Cyrillic', 'in 16 videos', 'geteilt', 'kippR', [['Lesson 1 free', 'from zero to your first text']]],
+       ['trainer', 'Kein Wort', 'mehr vergessen', 'marke', 'kippR', [['Karteikasten', 'wiederholt zur richtigen Zeit']]],
+       ['start', 'Jeden Tag', 'ein Stück weiter', 'marke', 'popout', [['Flammen-Serie', 'so bleibst du dran']]]],
+  en: [['anruf', 'Really speak', 'Russian with Katja', 'marke', 'trommel', [['10 free minutes', 'every month']]],
+       ['bericht', 'Learn from', 'every mistake', 'marke', 'popout', [['After every call', 'your mistakes, explained']]],
+       ['youtube', 'Learn Russian', 'with real videos', 'marke', 'kippL', [['Tap any word', 'говорить → to speak']], 'lektion'],
+       ['lesekurs', 'Read Cyrillic', 'in 16 videos', 'marke', 'kippR', [['Lesson 1 free', 'from zero to your first text']]],
        ['modul', '180 lessons', 'all with audio', 'marke', 'trommel', [['10 modules', 'from the alphabet to real talk']]],
-       ['trainer', 'Never forget', 'a word again', 'konfetti', 'kippR', [['Smart flashcards', 'review at the right time']]],
-       ['start', 'A little further', 'every day', 'streifen', 'popout', [['Daily streak', 'keep your momentum']]]],
+       ['trainer', 'Never forget', 'a word again', 'marke', 'kippR', [['Smart flashcards', 'review at the right time']]],
+       ['start', 'A little further', 'every day', 'marke', 'popout', [['Daily streak', 'keep your momentum']]]],
  },
 }
 
@@ -54,9 +54,10 @@ function trommel(t, w) {
 const flamme = (w) => `<svg viewBox="0 0 40 48" width="${w}"><path d="M20 2C24 12 34 16 34 30a14 14 0 0 1-28 0c0-7 4-11 7-14 0 5 2 8 5 8-2-8 0-16 3-22z" fill="#ff7a12"/><path d="M20 2C24 12 34 16 34 30a14 14 0 0 1-14 14z" fill="#e85d00"/><path d="M20 22c3 5 7 7 7 12a7 7 0 0 1-14 0c0-4 3-6 4-9 1 3 2 4 3 4 0-3-1-5 0-7z" fill="#ffd34d"/></svg>`
 const stern = (w, f) => `<svg viewBox="0 0 24 24" width="${w}"><path d="M12 1.5c1 6 3.5 8.5 10.5 10.5-7 2-9.5 4.5-10.5 10.5-1-6-3.5-8.5-10.5-10.5 7-2 9.5-4.5 10.5-10.5z" fill="${f}"/></svg>`
 
+let SPIEGEL = false
 function hintergrund(art, m) {
   const kreis = (x, y, d, f, o = 1) => `<div style="position:absolute;left:${x}px;top:${y}px;width:${d}px;height:${d}px;border-radius:50%;background:${f};opacity:${o}"></div>`
-  if (art === 'marke') return `<div class=bg style="background:${m.p}"></div>${kreis(-380 * k, 980 * hk, 1300 * k, m.p2)}${kreis(W - 300 * k, 2250 * hk, 640 * k, m.pd, .35)}`
+  if (art === 'marke') return SPIEGEL ? `<div class=bg style="background:${m.p}"></div>${kreis(W - 920 * k, 980 * hk, 1300 * k, m.p2)}${kreis(-340 * k, 2250 * hk, 640 * k, m.pd, .35)}` : `<div class=bg style="background:${m.p}"></div>${kreis(-380 * k, 980 * hk, 1300 * k, m.p2)}${kreis(W - 300 * k, 2250 * hk, 640 * k, m.pd, .35)}`
   if (art === 'hell') return `<div class=bg style="background:${m.hell};background-image:radial-gradient(${m.hell2} ${7 * k}px,transparent ${8 * k}px);background-size:${70 * k}px ${70 * k}px"></div>${kreis(W - 560 * k, 760 * hk, 980 * k, m.hell2, .9)}`
   if (art === 'verlauf') return `<div class=bg style="background:${m.verlauf}"></div>${[[90, 1500, 70], [1150, 1100, 54], [180, 2500, 46], [1180, 2300, 80]].map(([x, y, s]) => `<div style="position:absolute;left:${x * k}px;top:${y * hk}px;opacity:.85">${stern(s * k, '#fff')}</div>`).join('')}`
   if (art === 'dunkel') return `<div class=bg style="background:${m.dunkel}"></div>${Array.from({ length: 34 }, (_, i) => `<i style="position:absolute;left:${(i * 397) % W}px;top:${((i * 613) % (H - 200)) + 60}px;width:${(3 + (i % 3) * 2) * k}px;height:${(3 + (i % 3) * 2) * k}px;border-radius:50%;background:#fff;opacity:${.25 + (i % 4) * .15}"></i>`).join('')}<div style="position:absolute;left:50%;top:${1050 * hk}px;width:${1200 * k}px;height:${1200 * k}px;margin-left:${-600 * k}px;border-radius:50%;background:${m.p};opacity:.35;filter:blur(${160 * k}px)"></div>`
@@ -104,7 +105,7 @@ await c.send('Emulation.setDeviceMetricsOverride', { width: W, height: H, device
 fs.mkdirSync(`fertig2/${FORMAT}`, { recursive: true })
 for (const a of Object.keys(S)) { if (nurApp && nurApp !== 'alle' && nurApp !== a) continue; const m = M[a]
   for (const l of ['de', 'en']) { if (nurSprache && nurSprache !== 'alle' && nurSprache !== l) continue
-    for (const [i, [bild, z1, z2, hg, an, chips, zweit]] of S[a][l].entries()) { if (nurNr && +nurNr !== i + 1) continue
+    for (const [i, [bild, z1, z2, hg, an, chips, zweit]] of S[a][l].entries()) { if (nurNr && +nurNr !== i + 1) continue; SPIEGEL = i % 2 === 1
       const [tf, af] = textFarbe(hg, m)
       const html = `<!doctype html><html><head><meta charset=utf-8><link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel=stylesheet><style>
 *{box-sizing:border-box}html,body{margin:0;width:${W}px;height:${H}px;overflow:hidden;font-family:Nunito,sans-serif}
