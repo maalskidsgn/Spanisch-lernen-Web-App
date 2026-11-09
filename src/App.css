@@ -16542,3 +16542,8 @@ html, body { overflow-x: clip; }
 .ms-prozent { position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); padding: 1px 6px; border-radius: 999px; background: var(--primary); color: #fff; font-size: 9.5px; font-weight: 900; white-space: nowrap; }
 @keyframes ms-pochen { 50% { transform: scale(1.06); } }
 @media (prefers-reduced-motion: reduce) { .ms-toon .ms-medaille.ms-naechste { animation: none; } }
+
+/* Abgleich-Hinweis nach dem Anmelden (09.11.) */
+.sync-leiste { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--primary) 10%, #fff); color: var(--navy); font-size: 14px; font-weight: 800; }
+.sync-leiste.sync-fehler { background: #fff1f2; color: #a8243a; }
+.sync-leiste button { padding: 7px 12px; border: 0; border-radius: 12px; background: var(--primary); color: #fff; font: inherit; font-weight: 900; box-shadow: 0 3px 0 var(--primary-dark); cursor: pointer; }

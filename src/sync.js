@@ -91,13 +91,35 @@ function zuApp(zeile) {
 
 /** Lädt alle Vokabeln des Nutzers – im App-Format { wort: {…} }. */
 export async function ladeVokabeln(nutzerId) {
-  const { data, error } = await db
-    .from('vokabeln')
-    .select('*')
-    .eq('nutzer_id', nutzerId)
+  // Supabase liefert höchstens 1.000 Zeilen je Anfrage. Wer mehr
+  // Wörter hat (Manuel: 1.148 am 09.11.), bekam still nur die ersten
+  // 1.000 – deshalb seitenweise, bis eine Seite nicht voll ist.
+  const alle = []
+  for (let ab = 0; ; ab += 1000) {
+    const { data, error } = await db
+      .from('vokabeln')
+      .select('*')
+      .eq('nutzer_id', nutzerId)
+      .range(ab, ab + 999)
+    if (error) throw new Error(error.message)
+    alle.push(...data)
+    if (data.length < 1000) break
+  }
+  return Object.fromEntries(alle.map(zuApp))
+}
 
-  if (error) throw new Error(error.message)
-  return Object.fromEntries(data.map(zuApp))
+/**
+ * Ein Versprechen mit Zeitlimit. Ohne das konnte der Abgleich nach
+ * dem Anmelden ewig auf eine Antwort warten – und solange hing die
+ * App im Zustand „gleicht ab“, zeigte den leeren Stand und sicherte
+ * nichts (09.11.).
+ */
+function mitZeitlimit(versprechen, sekunden, was) {
+  let uhr
+  const limit = new Promise((_, ablehnen) => {
+    uhr = setTimeout(() => ablehnen(new Error(`${was}: keine Antwort nach ${sekunden} s`)), sekunden * 1000)
+  })
+  return Promise.race([versprechen, limit]).finally(() => clearTimeout(uhr))
 }
 
 /**
@@ -289,7 +311,7 @@ export async function speichereFortschritt(nutzerId, lektionId) {
  * die Datenbankfassung – und mit ihr der kleinere Abstand.
  */
 export async function zusammenfuehren(nutzerId, lokal) {
-  const ausDb = await ladeVokabeln(nutzerId)
+  const ausDb = await mitZeitlimit(ladeVokabeln(nutzerId), 40, 'Vokabeln laden')
   const vereint = { ...ausDb }
 
   for (const [wort, eintrag] of Object.entries(lokal.vokabeln ?? {})) {
@@ -299,18 +321,21 @@ export async function zusammenfuehren(nutzerId, lokal) {
     }
   }
 
-  // Alles zurückschreiben, damit beide Seiten denselben Stand haben
-  await speichereVokabeln(nutzerId, vereint)
+  // Nur zurückschreiben, was sich gegenüber der Datenbank geändert
+  // hat (lokal neu oder lokal weiter). Vorher ging bei jedem Anmelden
+  // der komplette Wortschatz als eine riesige Anfrage raus.
+  const geaendert = Object.fromEntries(Object.entries(vereint).filter(([wort, e]) => e !== ausDb[wort]))
+  if (Object.keys(geaendert).length) await mitZeitlimit(speichereVokabeln(nutzerId, geaendert), 40, 'Vokabeln sichern')
 
   // Statistik: der höhere XP-Stand gewinnt
-  const dbStats = await ladeStatistik(nutzerId)
+  const dbStats = await mitZeitlimit(ladeStatistik(nutzerId), 20, 'Statistik laden')
   const lokaleStats = lokal.stats ?? {}
   const stats =
     (dbStats?.xp ?? 0) >= (lokaleStats.xp ?? 0) ? (dbStats ?? lokaleStats) : lokaleStats
-  await speichereStatistik(nutzerId, stats)
+  await mitZeitlimit(speichereStatistik(nutzerId, stats), 20, 'Statistik sichern')
 
   // Lektionen: alles zusammen, was irgendwo erledigt ist
-  const dbFortschritt = await ladeFortschritt(nutzerId)
+  const dbFortschritt = await mitZeitlimit(ladeFortschritt(nutzerId), 20, 'Lektionen laden')
   const fortschritt = { ...(lokal.fortschritt ?? {}), ...dbFortschritt }
   const neueLektionen = Object.keys(fortschritt).filter((id) => !dbFortschritt[id])
   for (const id of neueLektionen) await speichereFortschritt(nutzerId, id)

@@ -335,6 +335,9 @@ export default {
   'pf.freigeben': 'Unblock',
   'pf.melden': 'Report',
   'pf.blockieren': 'Block',
+  'sync.laeuft': 'Syncing your progress …',
+  'sync.fehler': 'Your progress could not be synced.',
+  'sync.nochmal': 'Try again',
   'pf.abmelden': 'Sign out',
   'pf.sprache': 'Language',
   'pf.spracheText':

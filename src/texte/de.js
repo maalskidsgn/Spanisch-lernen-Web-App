@@ -335,6 +335,9 @@ export default {
   'pf.freigeben': 'Freigeben',
   'pf.melden': 'Melden',
   'pf.blockieren': 'Blockieren',
+  'sync.laeuft': 'Dein Lernstand wird abgeglichen …',
+  'sync.fehler': 'Dein Lernstand konnte nicht abgeglichen werden.',
+  'sync.nochmal': 'Erneut versuchen',
   'pf.abmelden': 'Abmelden',
   'pf.sprache': 'Sprache',
   'pf.spracheText':

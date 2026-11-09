@@ -521,7 +521,7 @@ export default function Settings({
                   <div className="konto-mail">{nutzer.email}</div>
                 </div>
                 <span className="konto-sync">
-                  {syncStatus === 'laeuft' ? '⏳ Gleicht ab…' : '✓ Gesichert'}
+                  {syncStatus === 'fertig' ? '✓ Gesichert' : syncStatus.startsWith('fehler') ? '⚠️ Nicht abgeglichen' : '⏳ Gleicht ab…'}
                 </span>
               </div>
               <p className="settings-hint">{t('st3.deinFortschrittWird')}</p>

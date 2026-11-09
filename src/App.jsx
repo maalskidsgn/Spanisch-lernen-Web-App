@@ -548,6 +548,13 @@ export default function App() {
   const [syncStatus, setSyncStatus] = useState('') // '' | 'laeuft' | 'fertig' | Fehlertext
   const angemeldetRef = useRef(null) // verhindert doppeltes Zusammenführen
 
+  // Abgleich nach Fehler von Hand neu anstoßen (Hinweisleiste)
+  const [abgleichNr, setAbgleichNr] = useState(0)
+  function abgleichNochmal() {
+    angemeldetRef.current = null
+    setAbgleichNr((n) => n + 1)
+  }
+
   // Nach dem Anmelden: lokale und gespeicherte Daten zusammenführen
   useEffect(() => {
     if (!nutzer || angemeldetRef.current === nutzer.id) return
@@ -569,11 +576,11 @@ export default function App() {
         setSyncStatus('fertig')
       })
       .catch((f) => {
-        if (!abgebrochen) setSyncStatus(f.message)
+        if (!abgebrochen) setSyncStatus('fehler: ' + f.message)
       })
 
     return () => { abgebrochen = true }
-  }, [nutzer])
+  }, [nutzer, abgleichNr])
 
   // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 5 Sätze und
   // der Text „So lernst du mit Habloo“ – damit Trainer, Sätze und Texte
@@ -680,7 +687,7 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('vokabeln', JSON.stringify(vocab))
 
-    if (!nutzer || syncStatus === 'laeuft') return
+    if (!nutzer || syncStatus !== 'fertig') return // erst nach erfolgreichem Abgleich – sonst überschreibt ein leerer Stand die Datenbank
     const timer = setTimeout(() => {
       speichereVokabeln(nutzer.id, vocab).catch((f) =>
         console.warn(t('apm.vokabelnKonntenNicht'), f.message)
@@ -695,7 +702,7 @@ export default function App() {
   useEffect(() => {
     speichereSaetzeLokal(saetze)
 
-    if (!nutzer || syncStatus === 'laeuft') return
+    if (!nutzer || syncStatus !== 'fertig') return // erst nach erfolgreichem Abgleich – sonst überschreibt ein leerer Stand die Datenbank
     const timer = setTimeout(() => {
       speichereSaetze(nutzer.id, saetze).catch(() => {})
     }, 1500)
@@ -706,7 +713,7 @@ export default function App() {
   useEffect(() => {
     speichereTexteLokal(texte)
 
-    if (!nutzer || syncStatus === 'laeuft') return
+    if (!nutzer || syncStatus !== 'fertig') return // erst nach erfolgreichem Abgleich – sonst überschreibt ein leerer Stand die Datenbank
     const timer = setTimeout(() => {
       speichereTexte(nutzer.id, texte).catch(() => {})
     }, 1500)
@@ -832,7 +839,7 @@ export default function App() {
 
   // Statistik (XP, Level, Serie) in der Datenbank nachziehen
   useEffect(() => {
-    if (!nutzer || syncStatus === 'laeuft') return
+    if (!nutzer || syncStatus !== 'fertig') return // erst nach erfolgreichem Abgleich – sonst überschreibt ein leerer Stand die Datenbank
     const timer = setTimeout(() => {
       speichereStatistik(nutzer.id, {
         xp: progress.xp,
@@ -1583,6 +1590,15 @@ export default function App() {
 
       {view === 'start' && (
         <main>
+          {nutzer && syncStatus !== 'fertig' && (
+            <div className={'sync-leiste' + (syncStatus.startsWith('fehler') ? ' sync-fehler' : '')} role="status">
+              {syncStatus.startsWith('fehler') ? (
+                <>⚠️ {t('sync.fehler')} <button type="button" onClick={abgleichNochmal}>{t('sync.nochmal')}</button></>
+              ) : (
+                <>⏳ {t('sync.laeuft')}</>
+              )}
+            </div>
+          )}
           <Home
             progress={progress}
             settings={settings}
