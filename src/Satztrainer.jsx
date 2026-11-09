@@ -513,7 +513,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           Erst eine Tür antippen, um dann ein Thema zu wählen, war
           ein Schritt zu viel. */}
       <section className="bereich">
-        <SatzGenerator saetze={saetze} setSaetze={setSaetze} />
+        <SatzGenerator saetze={saetze} setSaetze={setSaetze} addXp={addXp} />
       </section>
 
       {entries.length > 0 && (

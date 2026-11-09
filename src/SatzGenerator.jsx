@@ -1,3 +1,4 @@
+import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { useState, useEffect } from 'react'
 import ZauberBild from './ZauberBild.jsx'
@@ -8,7 +9,7 @@ import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, loginKopf, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
-import { useTexte } from './sprache.js'
+import { useTexte, sprache } from './sprache.js'
 
 // Themen wie beim Vokabelgenerator – dieselbe Sprache, dieselbe
 // Bedienung. Ein Tipp erzeugt sofort, ohne erst ein Feld zu füllen.
@@ -42,7 +43,7 @@ const ZEITFORMEN = [
  * Zeitform. "Reisen" + "Condicional" ergibt genau die Sätze, die man
  * für eine höfliche Anfrage im Hotel braucht.
  */
-export default function SatzGenerator({ saetze, setSaetze }) {
+export default function SatzGenerator({ saetze, setSaetze, addXp }) {
   const t = useTexte()
   const [thema, setThema] = useState('')
   const [zeitform, setZeitform] = useState('')
@@ -114,6 +115,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
       return neu
     })
     setErfolg(liste.filter((s) => s.checked).length)
+    if (liste.some((s) => s.checked)) addXp?.(XP.LISTE_ERSTELLT, sprache() === 'en' ? 'Sentence list added' : 'Satzliste übernommen') // pauschal (09.11.)
     setListe(null)
     setThema('')
   }

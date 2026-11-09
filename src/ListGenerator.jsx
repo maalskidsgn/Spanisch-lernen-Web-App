@@ -84,7 +84,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function uebernehmen() {
     const neu = new Set(liste.filter((s) => s.checked).map((s) => s.wort.toLowerCase()).filter((k) => !vocab[k]))
-    if (neu.size) addXp?.(XP.WORT_NEU * neu.size, neu.size === 1 ? t('lgn9.wortHinzugefuegt') : neu.size + ' Wörter hinzugefügt')
+    if (neu.size) addXp?.(XP.LISTE_ERSTELLT, neu.size === 1 ? t('lgn9.wortHinzugefuegt') : neu.size + ' Wörter hinzugefügt')
     setVocab((v) => {
       const copy = { ...v }
       for (const s of liste) {

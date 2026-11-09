@@ -70,7 +70,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function addToTrainer() {
     const neu = new Set(suggestions.filter((s) => s.checked).map((s) => cleanWord(s.wort)).filter((w) => w && !vocab[w]))
-    if (neu.size) addXp?.(XP.WORT_NEU * neu.size, neu.size === 1 ? t('vg.wortHinzugefuegt') : t('vg.woerterHinzugefuegt', { zahl: neu.size }))
+    if (neu.size) addXp?.(XP.LISTE_ERSTELLT, neu.size === 1 ? t('vg.wortHinzugefuegt') : t('vg.woerterHinzugefuegt', { zahl: neu.size }))
     setVocab((v) => {
       const copy = { ...v }
       for (const s of suggestions) {
