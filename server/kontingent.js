@@ -133,7 +133,7 @@ export function naechsteAuffuellung(en = false) {
 
 /** Stand für die Anzeige: { ki: {genutzt, gesamt}, video: {…}, auffuellung } */
 export async function wochenStand(nutzerId) {
-  const [ki, video] = await Promise.all([nutzungHeute(nutzerId, 'ki'), nutzungHeute(nutzerId, 'video')])
+  const [ki, video] = await Promise.all([nutzungHeute(nutzerId, 'ki'), videosDieseWoche(nutzerId)])
   return {
     ki: { genutzt: ki, gesamt: KI_PRO_WOCHE },
     video: { genutzt: video, gesamt: VIDEOS_PRO_WOCHE },
@@ -166,4 +166,53 @@ export async function gibNutzungZurueck(nutzerId, art) {
     }
   }
   return neu
+}
+
+// ---------------------------------------------------------------
+//  Videos: 1 neues pro Woche (seit 09.11.2026, Manuel: „nur 1 Video“)
+// ---------------------------------------------------------------
+//
+// Gezählt wird jedes Video, das jemand zum ERSTEN Mal öffnet – auch
+// wenn es schon in der Mediathek liegt. Ein Video, das man schon
+// einmal geöffnet hat, bleibt für immer frei (Zeile art = "v:<id>").
+
+function wochenMontag() {
+  return heuteTag()
+}
+
+/** Wie viele verschiedene Videos hat der Nutzer diese Woche neu geöffnet? */
+export async function videosDieseWoche(nutzerId) {
+  try {
+    const r = await fetch(
+      `${BASIS()}/nutzung?select=art&nutzer_id=eq.${nutzerId}&tag=eq.${wochenMontag()}&art=like.v:*`,
+      { headers: supabaseKopf() }
+    )
+    if (r.ok) return (await r.json()).length
+  } catch { /* unten */ }
+  return 0
+}
+
+/**
+ * Darf dieser Nutzer das Video öffnen? Verbucht es beim ersten Mal.
+ * @returns {Promise<{ok: boolean, neu?: boolean}>}
+ */
+export async function videoFreigabe(nutzerId, videoId) {
+  const art = 'v:' + String(videoId).slice(0, 20)
+  try {
+    const schon = await fetch(
+      `${BASIS()}/nutzung?select=tag&nutzer_id=eq.${nutzerId}&art=eq.${encodeURIComponent(art)}&limit=1`,
+      { headers: supabaseKopf() }
+    )
+    if (schon.ok && (await schon.json()).length) return { ok: true }
+    if ((await videosDieseWoche(nutzerId)) >= VIDEOS_PRO_WOCHE) return { ok: false }
+    await fetch(`${BASIS()}/nutzung`, {
+      method: 'POST',
+      headers: supabaseKopf(),
+      body: JSON.stringify({ nutzer_id: nutzerId, tag: wochenMontag(), art, anzahl: 1 }),
+    })
+    return { ok: true, neu: true }
+  } catch {
+    // Datenbank weg: lieber durchlassen als Lernende aussperren
+    return { ok: true }
+  }
 }

@@ -142,3 +142,29 @@ export function useKontingent(premium = false) {
 // Alte Namen, damit bestehender Code weiterläuft
 export const LISTEN_PRO_TAG = KI_PRO_WOCHE
 export const FREE_LIMIT = KI_PRO_WOCHE
+
+/**
+ * Vor dem Öffnen eines Videos fragen: Gratis gibt es 1 NEUES Video pro
+ * Woche – auch aus der Mediathek. Schon einmal geöffnete bleiben frei.
+ * @returns {Promise<{ok: boolean, error?: string}>}
+ */
+export async function videoFreigeben(videoId) {
+  try {
+    const headers = await loginKopf({ 'Content-Type': 'application/json' })
+    if (!headers.Authorization) return { ok: true }
+    const res = await fetch(API_URL + '/api/video/freigabe', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ videoId, sprache: sprache() }),
+    })
+    const d = await res.json().catch(() => ({}))
+    if (res.status === 429) {
+      kontingentLeer('video')
+      return { ok: false, error: d.error }
+    }
+    if (d.neu) holeKontingent()
+    return { ok: true }
+  } catch {
+    return { ok: true } // offline/Server weg: nicht aussperren
+  }
+}

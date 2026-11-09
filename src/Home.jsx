@@ -136,8 +136,6 @@ export default function Home({
         <p className="start-zurueck">{t('si.frage')}</p>
       </header>
 
-      <GratisUebersicht />
-
       {/* Die Funktionen als schwebende Inseln zum Durchwischen */}
       <StartInseln
         eintraege={[
@@ -277,6 +275,9 @@ export default function Home({
         {wocheTab === 'analyse' && <Lernkurve />}
         </div>
       </section>
+
+      {/* Gratis-Paket weiter unten, nicht als Erstes (Manuel, 09.11.) */}
+      <GratisUebersicht />
 
       {/* Meilensteine: Abzeichen zum Teilen */}
       <Meilensteine
