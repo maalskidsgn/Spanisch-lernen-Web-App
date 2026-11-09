@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { registrieren, anmelden, passwortVergessen, mitAnbieter, aktiveAnbieter } from './auth.js'
+import GoogleKnopf from './GoogleKnopf.jsx'
+import { istNativ } from './appAnmeldung.js'
 import Logo from './Logo.jsx'
 import { useTexte } from './sprache.js'
 
@@ -125,7 +127,8 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
               </button>
             )}
             {anbieter.includes('google') && (
-              <button type="button" className="anbieter-knopf" onClick={() => anbieterLogin('google')}>
+              istNativ() ? (
+                <button type="button" className="anbieter-knopf" onClick={() => anbieterLogin('google')}>
                 <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                   <path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z" />
                   <path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.7H2.1v2.8C3.9 20.4 7.7 23 12 23z" />
@@ -134,6 +137,17 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
                 </svg>
                 {t('login.weiterMitGoogle')}
               </button>
+              ) : (
+                <GoogleKnopf onErfolg={() => onFertig?.()} ersatz={<button type="button" className="anbieter-knopf" onClick={() => anbieterLogin('google')}>
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                  <path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9c-.3 1.4-1 2.5-2.2 3.3v2.7h3.5c2.1-1.9 3.3-4.7 3.3-8z" />
+                  <path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.5-2.7c-1 .7-2.3 1.1-3.8 1.1-2.9 0-5.4-2-6.3-4.7H2.1v2.8C3.9 20.4 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.7 14c-.2-.7-.4-1.4-.4-2s.1-1.4.4-2V7.2H2.1C1.4 8.6 1 10.3 1 12s.4 3.4 1.1 4.8L5.7 14z" />
+                  <path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.3 1.7l3.2-3.2C17.5 2 15 1 12 1 7.7 1 3.9 3.6 2.1 7.2L5.7 10c.9-2.7 3.4-4.6 6.3-4.6z" />
+                </svg>
+                {t('login.weiterMitGoogle')}
+              </button>} />
+              )
             )}
             <div className="login-oder"><span>{t('login.oderMitEmail')}</span></div>
           </div>

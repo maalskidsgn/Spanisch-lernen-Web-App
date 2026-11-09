@@ -4,6 +4,8 @@ import CSS from './startseite/startseite.css?raw'
 import { beleben } from './startseite/leben.js'
 import { mitAnbieter } from './auth.js'
 import { sprache, setzeSprache } from './sprache.js'
+import { zeigeGoogleKnopf } from './googleKnopf.js'
+import { istNativ } from './appAnmeldung.js'
 
 /**
  * Startseite B (09.11.2026): Hero, Videobereich + Toon-Bento, Abschluss.
@@ -19,6 +21,16 @@ export default function StartseiteB({ teil, onStarten, onAnmelden, onRecht }) {
     if (!h) return
     const root = h.shadowRoot || h.attachShadow({ mode: 'open' })
     root.innerHTML = `<style>:host{display:block}${CSS}</style><div class="sbx">${INHALT[sp][teil]}</div>`
+    // Im Browser: Googles eigener Knopf statt Umweg über Supabase (zeigt unsere Domain)
+    if (!istNativ()) {
+      root.querySelectorAll('.kn-google').forEach((knopf) => {
+        const platz = document.createElement('div')
+        platz.className = 'kn-gis'
+        knopf.parentElement.style.gridTemplateColumns = '1fr'
+        knopf.replaceWith(platz)
+        zeigeGoogleKnopf(platz, { breite: 360, sprache: sp, onFehler: () => platz.replaceWith(knopf) }).catch(() => platz.replaceWith(knopf))
+      })
+    }
     return beleben(root.querySelector('.sbx'), {
       starten: () => onStarten?.(),
       anmelden: () => onAnmelden?.(),
