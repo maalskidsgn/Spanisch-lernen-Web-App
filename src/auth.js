@@ -216,15 +216,24 @@ function fremdeDatenWeg(user) {
   try {
     const besitzer = localStorage.getItem(BESITZER)
     if (besitzer === user.id) return false
-    if (besitzer) {
+    // Ohne Besitzer-Vermerk (Daten von vor dem 05.11.) duerfen die Daten
+    // nur in ein frisch angelegtes Konto. Meldet sich ein schon laenger
+    // bestehendes Konto an, stammen sie fast sicher von einem anderen
+    // Konto auf diesem Geraet (09.11.: 1.202 fremde Woerter uebernommen).
+    const altesKonto = Date.now() - new Date(user.created_at || 0).getTime() > 24 * 3600 * 1000
+    const fremd = besitzer || altesKonto
+    let entfernt = 0
+    if (fremd) {
       for (const k of Object.keys(localStorage)) {
         // sb-… ist die Anmeldung selbst
         if (k.startsWith('sb-') || k.startsWith('CapacitorStorage.') || BLEIBEN.includes(k)) continue
         localStorage.removeItem(k)
+        entfernt++
       }
     }
     localStorage.setItem(BESITZER, user.id)
-    if (!besitzer) return false // Daten ohne Konto: werden uebernommen
+    if (!fremd) return false // Daten ohne Konto: werden ins neue Konto uebernommen
+    if (!besitzer && !entfernt) return false
   } catch {
     return false
   }
