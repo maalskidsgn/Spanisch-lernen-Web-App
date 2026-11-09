@@ -6,6 +6,7 @@
  * Sicherung der Daten und Nutzung auf mehreren Geräten.
  */
 
+import { uebernimmMerker } from './kontoMerker.js'
 import { herkunft } from './herkunft.js'
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
@@ -239,6 +240,7 @@ export function useNutzer() {
     // Beim Start: gibt es noch eine gültige Sitzung?
     db.auth.getSession().then(({ data }) => {
       if (fremdeDatenWeg(data.session?.user)) return
+      uebernimmMerker(data.session?.user)
       setNutzer(data.session?.user ?? null)
       setLaedt(false)
       if (data.session?.user) merkeSprache()
@@ -247,6 +249,7 @@ export function useNutzer() {
     // Danach: auf An- und Abmelden reagieren
     const { data: beobachter } = db.auth.onAuthStateChange((ereignis, sitzung) => {
       if (fremdeDatenWeg(sitzung?.user)) return
+      uebernimmMerker(sitzung?.user)
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
       if (sitzung?.user) merkeSprache()

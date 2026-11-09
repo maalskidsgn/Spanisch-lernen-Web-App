@@ -16,6 +16,7 @@
 // gezappel – dieselbe Linie wie beim Hörverstehen: ruhig, nicht
 // ablenkend.
 
+import { sichereMerker } from './kontoMerker.js'
 import { useEffect } from 'react'
 import {
   IconLektion, IconKarten, IconMediathek, IconMehr, IconSprache, IconLandkarte,
@@ -35,6 +36,7 @@ export function gesehene() {
 export function merkeGesehen(bereich) {
   try {
     localStorage.setItem(SPEICHER, JSON.stringify({ ...gesehene(), [bereich]: true }))
+    sichereMerker()
   } catch {
     // Kein Speicher – dann kommt die Box eben noch einmal.
   }
