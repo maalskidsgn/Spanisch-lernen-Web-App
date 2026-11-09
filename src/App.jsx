@@ -24,6 +24,8 @@ import Onboarding from './Onboarding.jsx'
 import { BenutzernameWahl } from './Rangliste.jsx'
 import MeilensteinMeldung from './MeilensteinMeldung.jsx'
 import { neueMeilensteine, meilensteineGleichsetzen, meilensteineStillSetzen, MEILENSTEIN_XP } from './meilensteine.js'
+// Pakete, die man geschenkt bekommt – zählen nicht für Meilensteine
+const GESCHENKT = new Set(['Grundpaket', 'Startpaket'])
 import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import { zeigeMichAn, verschwinde } from './praesenz.js'
@@ -1325,9 +1327,11 @@ export default function App() {
   const meilensteinAbgleichRef = useRef(null)
   useEffect(() => {
     const werte = {
-      woerter: Object.keys(vocab).length,
+      // Geschenkte Pakete (Grund-/Startpaket) zählen nicht: Sonst kam gleich
+      // nach dem Anmelden „50 Wörter geschafft“ für Wörter, die man nie gelernt hat.
+      woerter: Object.values(vocab).filter((w) => !GESCHENKT.has(w?.source)).length,
       texte: Object.values(texte).reduce((n, t) => n + (t.gelesen ?? 0), 0),
-      saetze: Object.keys(saetze).length,
+      saetze: Object.values(saetze).filter((s) => !GESCHENKT.has(s?.thema)).length,
       lektionen: Object.keys(lessonProgress).filter(
         (id) => lessonProgress[id]?.fertig && !id.startsWith('station-')
       ).length,
