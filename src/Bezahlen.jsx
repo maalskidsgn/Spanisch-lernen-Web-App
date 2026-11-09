@@ -26,7 +26,6 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
-import { KassenComicKopf, KassenComicVorteile } from './KassenComic.jsx'
 import { gemerkterPartnerCode } from './partnerCode.js'
 import { useTexte, gebiet } from './sprache.js'
 
@@ -53,13 +52,13 @@ const AUSSEHEN = {
   },
   rules: {
     '.Input': {
-      border: '2px solid #000041',
+      border: '1px solid #eee8e0',
       boxShadow: 'none',
       padding: '12px 14px',
       backgroundColor: '#ffffff',
     },
     '.Input:focus': {
-      border: '2px solid #ff6c00',
+      border: '1px solid #ff6c00',
       boxShadow: '0 0 0 3px rgba(255, 108, 0, .12)',
       outline: 'none',
     },
@@ -71,23 +70,30 @@ const AUSSEHEN = {
       marginBottom: '6px',
     },
     '.Tab': {
-      border: '2px solid #000041',
+      border: '1px solid #eee8e0',
       boxShadow: 'none',
       backgroundColor: '#ffffff',
     },
-    '.Tab:hover': { border: '2px solid #ff6c00', color: '#ff6c00' },
+    '.Tab:hover': { border: '1px solid #ff6c00', color: '#ff6c00' },
     '.Tab--selected': {
-      border: '2px solid #ff6c00',
+      border: '1px solid #ff6c00',
       backgroundColor: '#fff3e8',
       color: '#ff6c00',
       boxShadow: 'none',
     },
-    '.AccordionItem': { border: '2px solid #000041', borderRadius: '16px', boxShadow: '3px 3px 0 #000041', padding: '14px 16px' },
-    '.AccordionItem--selected': { backgroundColor: '#fff3e6', boxShadow: '3px 3px 0 #ff6c00' },
     '.Error': { fontSize: '13px', fontWeight: '600' },
   },
 }
 
+// Was Premium kann – dieselbe Liste wie in den Einstellungen.
+// Nur die Schlüssel, nicht die Texte: t() auf Modulebene würde die
+// Sprache einfrieren, die beim Laden gerade eingestellt war.
+const LEISTUNGEN = [
+  'bz9.unbegrenzteKiVokabellisten',
+  'bzm.unbegrenzteSaetzeUnd',
+  'bz9.eigeneVideosOhne',
+  'bz9.kiTrainerOhne',
+]
 
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der
 // Schlüssel kommt vom Server (/api/bezahlung/status), damit
@@ -195,7 +201,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
   ].filter((k) => preise?.[k.id])
 
   return (
-    <div className="kassen-seite kasse-comic">
+    <div className="kassen-seite">
       {/* Eigener Kopf statt der Tab-Leiste: Auf einer Kassenseite
           soll man bezahlen, nicht weiterklicken. */}
       <header className="kassen-kopf">
@@ -211,7 +217,8 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       <div className="kassen-raster">
         {/* ---------- Links: was man kauft ---------- */}
         <aside className="kassen-bestellung">
-          <KassenComicKopf en={gebiet().startsWith('en')} ersparnis={tarif === 'jahr' ? ersparnis : 0} />
+          <p className="kassen-label">{tarif === 'lifetime' ? t('bz9.deinZugang') : t('bz9.deinAbo')}</p>
+          <h1 className="kassen-titel">{t('bz.hablooPremium')}</h1>
           {TARIF_KARTEN.length > 1 && (
             <div className="kassen-tarife" role="radiogroup" aria-label={t('bz.tarifWaehlen')}>
               {TARIF_KARTEN.map((k) => (
@@ -238,7 +245,11 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
             </p>
           )}
 
-          <KassenComicVorteile en={gebiet().startsWith('en')} />
+          <ul className="kassen-leistungen">
+            {LEISTUNGEN.map((l) => (
+              <li key={l}>{t(l)}</li>
+            ))}
+          </ul>
 
           {preisText && (
             <div className="kassen-summe">
