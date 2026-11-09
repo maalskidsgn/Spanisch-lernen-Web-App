@@ -57,8 +57,15 @@ export function beleben(wurzel, aktionen) {
   }
   function mitte(el) { var r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2] }
 
-  // Ton-Knöpfe: nur Bewegung
-  $$('.ton').forEach(function (t) { an(t, 'click', function () { t.classList.remove('spielt'); void t.offsetWidth; t.classList.add('spielt') }) })
+  // Ton: echte Aufnahmen der App-Stimme (data-ton), ein Spieler für alles
+  var spieler = new Audio()
+  function hoer(u) { if (!u) return; try { spieler.pause(); spieler.src = u; spieler.currentTime = 0; spieler.play().catch(function () {}) } catch (e) {} }
+  weg.push(function () { spieler.pause() })
+  function wackel(t) { if (!t) return; t.classList.remove('spielt'); void t.offsetWidth; t.classList.add('spielt') }
+  $$('[data-ton]').forEach(function (el) {
+    if (el.classList.contains('kk1')) return
+    an(el, 'click', function (e) { e.stopPropagation(); hoer(el.dataset.ton); wackel(el.classList.contains('ton') ? el : el.querySelector('.ton')) })
+  })
 
   // Quiz
   $$('.quiz').forEach(function (q) {
@@ -76,7 +83,7 @@ export function beleben(wurzel, aktionen) {
   // Karteikarte: umdrehen, bewerten, nächste
   $$('.karteikarten').forEach(function (k) {
     var c = k.querySelector('.kk1'), W = JSON.parse(k.dataset.woerter), vorlage = k.dataset.nr, i = 0
-    an(c, 'click', function () { c.classList.toggle('offen') })
+    an(c, 'click', function () { if (!c.classList.contains('offen')) hoer(W[i][2]); c.classList.toggle('offen') })
     $$('.kk-k', k).forEach(function (b, j) {
       an(b, 'click', function () {
         if (j >= 2) { var m = mitte(b); xp(m[0], m[1], '+5 XP') }
@@ -103,6 +110,8 @@ export function beleben(wurzel, aktionen) {
       T[thema].forEach(function (w, j) {
         var s = document.createElement('span'); s.className = 'zb-wort'; s.style.animationDelay = (0.25 + j * 0.18) + 's'
         s.textContent = w[0]; var kl = document.createElement('small'); kl.textContent = w[1]; s.appendChild(kl); erg.appendChild(s)
+        if (w[2]) { s.classList.add('hoerbar'); s.addEventListener('click', function () { hoer(w[2]) }) }
+        if (j === 0) setTimeout(function () { hoer(w[2]) }, 450)
       })
       setTimeout(function () { z.classList.remove('zaubert') }, 1300)
     })
