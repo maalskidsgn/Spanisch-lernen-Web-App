@@ -7,7 +7,7 @@ export function iphone({bild,kipp,breite=900,zeit='9:41',farbe='titan'}){
  let lagen='';for(let i=tiefe;i>0;i-=2)lagen+=`<div style="position:absolute;inset:0;border-radius:${r}px;background:${i>tiefe-6||i<6?'#c4c6cb':seite};transform:translateZ(${-i}px)"></div>`
  const k=breite/900
  const tasten=(links)=>links?`<i class=ta style="left:${-5*k}px;top:${360*k}px;height:${62*k}px"></i><i class=ta style="left:${-5*k}px;top:${470*k}px;height:${118*k}px"></i><i class=ta style="left:${-5*k}px;top:${610*k}px;height:${118*k}px"></i>`:`<i class=ta style="right:${-5*k}px;top:${500*k}px;height:${190*k}px"></i>`
- return `<div class=szene style="width:${breite}px;height:${hoch}px;transform:perspective(${5200*k}px) rotateY(${kipp<0?16:-16}deg) rotateX(5deg) rotateZ(${kipp<0?-5:5}deg);transform-style:preserve-3d;">
+ return `<div class=szene style="width:${breite}px;height:${hoch}px;transform:perspective(${5200*k}px) rotateY(${kipp===0?0:kipp<0?16:-16}deg) rotateX(${kipp===0?0:5}deg) rotateZ(${kipp===0?0:kipp<0?-5:5}deg);transform-style:preserve-3d;">
  ${lagen}
  <div style="position:absolute;inset:0;border-radius:${r}px;background:${metall};padding:${rand}px;transform-style:preserve-3d">
   ${tasten(true)}${tasten(false)}
