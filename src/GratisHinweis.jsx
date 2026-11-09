@@ -1,4 +1,5 @@
 import { istApp } from './api.js'
+import BILDER from './kassenBilder.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { useKontingent, naechsteAuffuellung, KI_PRO_WOCHE, VIDEOS_PRO_WOCHE, GRATIS_LEKTIONEN_PROZENT } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
@@ -36,29 +37,21 @@ function useSichtbar() {
   return { zeigen: !premium && !laedt, premium }
 }
 
-function Punkte({ uebrig, gesamt }) {
-  return (
-    <span className="gh-punkte" aria-hidden="true">
-      {Array.from({ length: gesamt }, (_, i) => (
-        <i key={i} className={i < uebrig ? 'voll' : ''} />
-      ))}
-    </span>
-  )
-}
-
 const TEXT = {
   de: {
-    ki: (u, g) => (u > 0 ? `Gratis: noch ${u} von ${g} KI-Erstellungen diese Woche` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
+    ki: (u, g) => (u > 0 ? `Noch ${u} von ${g} KI-Erstellungen diese Woche` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
     kiKlein: 'Wortlisten, Sätze, Texte & E-Books teilen sich den Wochentopf',
-    video: (u) => (u > 0 ? 'Gratis: 1 neues Video pro Woche' : 'Dein Gratis-Video für diese Woche ist verbraucht'),
+    video: (u) => (u > 0 ? 'Ein neues Video pro Woche ist gratis' : 'Dein Gratis-Video für diese Woche ist verbraucht'),
     videoKlein: 'Schon geöffnete Videos bleiben frei',
-    lektionen: `Gratis: ${GRATIS_LEKTIONEN_PROZENT} % der Lektionen`,
-    lektionenKlein: 'Mit Premium sind alle Module und Lektionen offen',
-    sprechen: 'Gratis: 10 Min. Sprach-Trainer im Monat',
-    sprechenKlein: 'Mit Premium 120 Minuten jeden Monat',
+    lektionen: 'Alle Module und Lektionen mit Premium',
+    lektionenKlein: `Gratis sind die ersten ${GRATIS_LEKTIONEN_PROZENT} % des Kurses`,
+    sprechen: '120 Minuten Sprach-Trainer im Monat mit Premium',
+    sprechenKlein: 'Gratis sind 10 Minuten im Monat',
     wieder: (w) => `Wieder frei ${w}`,
-    knopf: 'Unbegrenzt mit Premium',
-    knopfKurz: 'Premium',
+    knopf: 'Jetzt freischalten',
+    knopfKurz: 'Unbegrenzt',
+    knopfFrei: 'Freischalten',
+    frei: 'frei',
     titel: 'Dein Gratis-Paket',
     unter: 'Mit Premium fallen alle Grenzen weg.',
     zeilen: {
@@ -71,17 +64,19 @@ const TEXT = {
     alles: 'Alles freischalten',
   },
   en: {
-    ki: (u, g) => (u > 0 ? `Free: ${u} of ${g} AI creations left this week` : `You've used your ${g} free creations`),
+    ki: (u, g) => (u > 0 ? `${u} of ${g} AI creations left this week` : `You've used your ${g} free creations`),
     kiKlein: 'Lists, sentences, texts & e-books share the weekly pool',
-    video: (u) => (u > 0 ? 'Free: 1 new YouTube video per week' : "You've used this week's free video"),
+    video: (u) => (u > 0 ? 'One new video per week is free' : "You've used this week's free video"),
     videoKlein: "Videos you've opened before stay free",
-    lektionen: `Free: ${GRATIS_LEKTIONEN_PROZENT}% of the lessons`,
-    lektionenKlein: 'Premium unlocks every module and lesson',
-    sprechen: 'Free: 10 min of speaking practice per month',
-    sprechenKlein: 'Premium: 120 minutes every month',
+    lektionen: 'Every module and lesson with Premium',
+    lektionenKlein: `The first ${GRATIS_LEKTIONEN_PROZENT}% of the course is free`,
+    sprechen: '120 minutes of speaking practice a month with Premium',
+    sprechenKlein: '10 minutes a month are free',
     wieder: (w) => `Free again ${w}`,
-    knopf: 'Unlimited with Premium',
-    knopfKurz: 'Premium',
+    knopf: 'Unlock now',
+    knopfKurz: 'Unlimited',
+    knopfFrei: 'Unlock',
+    frei: 'free',
     titel: 'Your free plan',
     unter: 'Premium removes every limit.',
     zeilen: {
@@ -95,41 +90,50 @@ const TEXT = {
   },
 }
 
+// Symbol je Bereich – Toon-Bild auf Podest (Leiste A3, 09.11.2026)
+const SYMBOL = { ki: 'zauber', video: 'video', lektionen: 'lektion', sprechen: 'mikro' }
+
 export default function GratisHinweis({ art = 'ki' }) {
   const { zeigen } = useSichtbar()
   const k = useKontingent(false)
   if (!zeigen) return null
   const T = TEXT[sprache() === 'en' ? 'en' : 'de']
 
-  let titel, klein, leer = false, punkte = null
+  let titel, klein, zahl, leer = false, zaehlt = true
   if (art === 'ki') {
     leer = k.ki.uebrig <= 0
     titel = T.ki(k.ki.uebrig, KI_PRO_WOCHE)
     klein = leer ? T.wieder(naechsteAuffuellung()) : T.kiKlein
-    punkte = <Punkte uebrig={k.ki.uebrig} gesamt={KI_PRO_WOCHE} />
+    zahl = <><b>{k.ki.uebrig}</b>/{KI_PRO_WOCHE} {T.frei}</>
   } else if (art === 'video') {
     leer = k.video.uebrig <= 0
     titel = T.video(k.video.uebrig)
     klein = leer ? T.wieder(naechsteAuffuellung()) : T.videoKlein
-    punkte = <Punkte uebrig={k.video.uebrig} gesamt={VIDEOS_PRO_WOCHE} />
+    zahl = <><b>{k.video.uebrig}</b>/{VIDEOS_PRO_WOCHE} {T.frei}</>
   } else if (art === 'lektionen') {
+    zaehlt = false
     titel = T.lektionen
     klein = T.lektionenKlein
+    zahl = <><b>{GRATIS_LEKTIONEN_PROZENT} %</b> {T.frei}</>
   } else {
+    zaehlt = false
     titel = T.sprechen
     klein = T.sprechenKlein
+    zahl = <><b>10 Min.</b> {T.frei}</>
   }
+  const bild = '<span class="gh-halo"></span>' + BILDER.icons[SYMBOL[art] || 'zauber'] + BILDER.trommel1
 
   return (
     <div className={'gratis-hinweis' + (leer ? ' gh-leer' : '')}>
+      <div className="gh-bild" aria-hidden="true" dangerouslySetInnerHTML={{ __html: bild }} />
       <div className="gh-text">
+        <span className="gh-zahl">{zahl}</span>
         <b>{titel}</b>
         <small>{klein}</small>
       </div>
-      {punkte}
       <button type="button" className="gh-knopf" onClick={zurKasse}>
         {KRONE}
-        <span>{leer ? T.knopf : T.knopfKurz}</span>
+        <span>{leer ? T.knopf : zaehlt ? T.knopfKurz : T.knopfFrei}</span>
       </button>
     </div>
   )
