@@ -16547,3 +16547,39 @@ html, body { overflow-x: clip; }
 .sync-leiste { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 14px; padding: 10px 14px; border-radius: 16px; background: color-mix(in srgb, var(--primary) 10%, #fff); color: var(--navy); font-size: 14px; font-weight: 800; }
 .sync-leiste.sync-fehler { background: #fff1f2; color: #a8243a; }
 .sync-leiste button { padding: 7px 12px; border: 0; border-radius: 12px; background: var(--primary); color: #fff; font: inherit; font-weight: 900; box-shadow: 0 3px 0 var(--primary-dark); cursor: pointer; }
+
+/* ---------- Generatoren einheitlich (09.11.) ----------
+   Wörter, Sätze und Texte: dieselben Toon-Knöpfe für Thema, Wortart,
+   Zeitform und Schwierigkeit – gleiche Rundung, gleiche Kante, gleiche
+   aktive Farbe. Themen am Handy zweispaltig, damit nichts quetscht. */
+.list-gen .sg-themen:not(.sg-vier) { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 560px) { .list-gen .sg-themen:not(.sg-vier) { grid-template-columns: repeat(2, 1fr); } }
+.list-gen .sg-thema,
+.list-gen .sg-form {
+  min-height: 54px;
+  padding: 10px 12px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  color: var(--navy);
+  font-size: .95rem;
+  font-weight: 900;
+  line-height: 1.2;
+  box-shadow: 0 4px 0 var(--line);
+}
+.list-gen .sg-thema { display: flex; align-items: center; justify-content: flex-start; gap: 8px; text-align: left; }
+.list-gen .sg-vier .sg-thema { min-height: 46px; justify-content: center; text-align: center; padding: 8px 4px; font-size: .85rem; }
+.list-gen .sg-form { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; text-align: left; }
+.list-gen .sg-form b { font-size: 1rem; font-weight: 900; color: var(--navy); }
+.list-gen .sg-form span { font-size: .8rem; font-weight: 700; color: var(--muted); }
+.list-gen .sg-thema:active, .list-gen .sg-form:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--line); }
+.list-gen .sg-thema.ist-aktiv,
+.list-gen .sg-form.ist-aktiv {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--primary-dark);
+}
+.list-gen .sg-form.ist-aktiv b, .list-gen .sg-form.ist-aktiv span { color: #fff; }
+.list-gen .sg-thema.ist-aktiv .thema-bild { background: #fff; padding: 2px; }
+.list-gen .sg-formen { gap: 10px; }
