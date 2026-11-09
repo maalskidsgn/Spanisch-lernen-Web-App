@@ -3,6 +3,7 @@ import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
 import FunktionenTabs from './FunktionenTabs.jsx'
+import StartPostkarten from './StartPostkarten.jsx'
 import { useTexte } from './sprache.js'
 
 /**
@@ -37,50 +38,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
   return (
     <div className="wk" ref={seite}>
       {/* ================= HERO ================= */}
-      <header className="wk-hero">
-        <span className="wk-wolke wk-wolke-1" />
-        <span className="wk-wolke wk-wolke-2" />
-
-        <div className="wk-inhalt">
-          <div className="wk-marke">
-            <Logo klasse="wk-badge" />
-            <span className="wk-name">{APP_NAME}</span>
-          </div>
-
-          <h1 className="wk-titel">
-            {t('wk.titel1')}<br />
-            {t('wk.titel2')} <span className="accent">{t('wk.titelAkzent')}</span>
-          </h1>
-
-          <p className="wk-text">
-{t('wk.text')}
-          </p>
-
-          <div className="wk-punkte">
-            <span className="wk-punkt">{t('wk.punkt1')}</span>
-            <span className="wk-punkt">{t('wk.punkt2')}</span>
-            <span className="wk-punkt">{t('wk.punkt3')}</span>
-            <span className="wk-punkt">{t('wk.punkt4')}</span>
-          </div>
-
-          <div className="wk-knoepfe">
-            <button className="btn wk-start" onClick={onStarten}>
-              {t('wk.starten')}
-            </button>
-            <button className="btn-outline wk-anmelden" onClick={onAnmelden}>
-              {t('wk.anmelden')}
-            </button>
-          </div>
-
-          <p className="wk-fuss">
-            {t('wk.fuss')}
-          </p>
-        </div>
-
-        {/* In der App gibt es nichts zum Entdecken - da endet die
-            Seite hier. */}
-        {!istApp && <span className="wk-scroll-hinweis">{t('wk.mehr')}</span>}
-      </header>
+      {/* Startbildschirm mit Postkarten (09.11., Entwurf C1) */}
+      <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
 
       {/* Der Rest ist Werbung fuer Leute, die Habloo noch nicht
           kennen - sinnvoll auf habloo.de, wo man zufaellig landet.

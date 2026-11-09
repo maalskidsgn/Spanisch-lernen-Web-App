@@ -16583,3 +16583,57 @@ html, body { overflow-x: clip; }
 .list-gen .sg-form.ist-aktiv b, .list-gen .sg-form.ist-aktiv span { color: #fff; }
 .list-gen .sg-thema.ist-aktiv .thema-bild { background: #fff; padding: 2px; }
 .list-gen .sg-formen { gap: 10px; }
+
+/* ---------- Startbildschirm mit Postkarten (09.11., Entwurf C1) ---------- */
+.sp-start {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: max(44px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom));
+  color: var(--navy);
+}
+.sp-start::before { content: ''; position: absolute; inset: 0 calc(50% - 50vw); z-index: -1; background: linear-gradient(color-mix(in srgb, var(--primary) 16%, #fff), color-mix(in srgb, var(--primary) 4%, #fff) 60%); }
+.sp-marke { display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 22px; font-weight: 900; }
+.sp-logo { width: 38px; height: 38px; border-radius: 12px; box-shadow: 0 4px 0 var(--primary-dark); }
+.sp-titel { margin: 14px 0 0; text-align: center; font-size: clamp(25px, 7vw, 32px); line-height: 1.12; font-weight: 900; letter-spacing: -.01em; }
+.sp-titel em { font-style: normal; color: var(--primary); }
+.sp-stapel { position: relative; height: 360px; margin: 18px 0 8px; }
+.sp-karte {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .06), 0 16px 26px -16px rgba(0, 0, 0, .3);
+  animation: sp-rein .6s cubic-bezier(.3, 1.4, .5, 1) both;
+}
+.sp-karte-0 { top: 6px; transform: rotate(-4deg); }
+.sp-karte-1 { top: 122px; left: 0; right: 20px; transform: rotate(3deg); z-index: 2; animation-delay: .12s; }
+.sp-karte-2 { top: 238px; left: 20px; right: 0; transform: rotate(-2deg); animation-delay: .24s; }
+@keyframes sp-rein { from { opacity: 0; translate: 0 30px; } }
+@media (prefers-reduced-motion: reduce) { .sp-karte { animation: none; } }
+.sp-bild { width: 112px; height: 86px; flex: none; border-radius: 14px; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0, 0, 0, .15); }
+.sp-text { flex: 1; min-width: 0; }
+.sp-text b { display: block; font-size: 21px; font-weight: 900; line-height: 1.1; }
+.sp-text small { color: var(--muted); font-size: 13px; font-weight: 800; }
+.sp-ort { display: inline-block; margin-bottom: 3px; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 16%, #fff); color: var(--primary-dark); font-size: 10.5px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.sp-ton { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--primary); box-shadow: 0 3px 0 var(--primary-dark); }
+.sp-marke-stempel { position: absolute; right: 10px; top: -10px; width: 32px; height: 36px; display: grid; place-items: center; border: 3px dashed var(--primary); border-radius: 6px; outline: 3px solid #fff; background: color-mix(in srgb, var(--primary) 16%, #fff); color: var(--primary-dark); font-size: 11px; font-weight: 900; transform: rotate(8deg); }
+.sp-knoepfe { display: grid; gap: 12px; margin-top: auto; }
+.sp-k { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 15px; border: 0; border-radius: 18px; font-family: inherit; font-size: 16.5px; font-weight: 900; cursor: pointer; }
+.sp-k:active { transform: translateY(4px); }
+.sp-apple { background: #111; color: #fff; box-shadow: 0 5px 0 #000; }
+.sp-google { background: #fff; color: var(--navy); box-shadow: 0 5px 0 #e6dccf, inset 0 0 0 2px #f1e9df; }
+.sp-mail { background: var(--primary); color: #fff; box-shadow: 0 5px 0 var(--primary-dark); }
+.sp-schon { margin: 4px 0 0; text-align: center; color: var(--muted); font-size: 14.5px; font-weight: 800; }
+.sp-schon button { padding: 0; border: 0; background: none; color: var(--primary); font: inherit; font-weight: 900; cursor: pointer; }
+.sp-fehler { margin: 0; color: #c2334a; font-size: 13.5px; font-weight: 800; text-align: center; }
+@media (min-width: 900px) { .sp-start { min-height: 92vh; } }
