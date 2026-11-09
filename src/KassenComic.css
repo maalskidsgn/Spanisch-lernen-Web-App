@@ -1,0 +1,241 @@
+/* Kasse im Comic-Look (09.11.2026) – dicke Konturen, versetzte Schatten,
+   Rasterpunkte, Sprechblase, Rabatt-Stern. Farben je App oben. */
+.kasse-comic {
+  --kc-p: #ff6c00;
+  --kc-p2: #ffb000;
+  --kc-ink: #000041;
+  --kc-soft: #fff3e6;
+  --kc-gelb: #ffd23f;
+  --kc-gruen: #1fae6b;
+  background:
+    radial-gradient(circle, rgba(0, 0, 65, .07) 1.2px, transparent 1.6px) 0 0 / 16px 16px,
+    #fdf6ec;
+}
+
+/* ---------- Karten: Comic-Panels ---------- */
+.kasse-comic .kassen-bestellung,
+.kasse-comic .kassen-zahlung {
+  background: #fff;
+  border: 3px solid var(--kc-ink);
+  border-radius: 22px;
+  box-shadow: 6px 6px 0 var(--kc-ink);
+}
+.kasse-comic .kassen-bestellung { padding: 26px 24px 22px; position: relative; }
+
+/* ---------- Kopf: Sprechblase + Titel + Stern ---------- */
+.kc-held { position: relative; margin-bottom: 18px; padding-right: 86px; }
+.kc-blase {
+  position: relative;
+  display: inline-block;
+  background: var(--kc-soft);
+  border: 2.5px solid var(--kc-ink);
+  border-radius: 18px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 14.5px;
+  line-height: 1.35;
+  color: var(--kc-ink);
+  margin-bottom: 14px;
+  animation: kc-rein .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.kc-blase b { color: var(--kc-p); font-weight: 900; }
+.kc-blase::after {
+  content: '';
+  position: absolute;
+  left: 26px;
+  bottom: -11px;
+  width: 16px;
+  height: 16px;
+  background: var(--kc-soft);
+  border-right: 2.5px solid var(--kc-ink);
+  border-bottom: 2.5px solid var(--kc-ink);
+  transform: rotate(45deg) skew(8deg, 8deg);
+}
+.kc-titel {
+  margin: 4px 0 2px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -.5px;
+  color: var(--kc-ink);
+  text-wrap: balance;
+}
+.kc-unter { margin: 0; color: #6b6259; font-weight: 600; font-size: 14px; }
+
+.kc-stern {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+  background: var(--kc-ink);
+  clip-path: polygon(50% 0%, 61% 18%, 82% 10%, 80% 32%, 100% 40%, 85% 56%, 96% 76%, 74% 78%, 68% 100%, 50% 87%, 32% 100%, 26% 78%, 4% 76%, 15% 56%, 0% 40%, 20% 32%, 18% 10%, 39% 18%);
+  transform: rotate(-10deg);
+  animation: kc-stern 2.6s ease-in-out infinite;
+}
+.kc-stern span {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  background: var(--kc-gelb);
+  clip-path: inherit;
+  color: var(--kc-ink);
+  font-weight: 900;
+  font-size: 19px;
+}
+
+/* ---------- Tarif-Wahl als Sticker ---------- */
+.kasse-comic .kassen-tarif {
+  border: 2.5px solid var(--kc-ink);
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--kc-ink);
+  background: #fff;
+  transition: transform .15s, box-shadow .15s;
+}
+.kasse-comic .kassen-tarif:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--kc-ink); }
+.kasse-comic .kassen-tarif.ist-aktiv {
+  background: var(--kc-soft);
+  border-color: var(--kc-ink);
+  box-shadow: 4px 4px 0 var(--kc-p);
+  transform: rotate(-1.5deg);
+}
+.kasse-comic .kassen-tarif-marke {
+  background: var(--kc-gelb);
+  color: var(--kc-ink);
+  border: 2px solid var(--kc-ink);
+  font-weight: 900;
+}
+
+.kasse-comic .kassen-grosspreis { color: var(--kc-p); text-shadow: 2px 2px 0 var(--kc-ink); }
+
+/* ---------- Vergleich Gratis → Premium ---------- */
+.kc-vergleich {
+  border: 2.5px solid var(--kc-ink);
+  border-radius: 18px;
+  overflow: hidden;
+  margin: 6px 0 16px;
+  background: #fff;
+}
+.kc-zeile {
+  display: grid;
+  grid-template-columns: 1fr 78px 98px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-top: 2px dashed rgba(0, 0, 65, .12);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--kc-ink);
+  animation: kc-rein .45s cubic-bezier(.2, 1.3, .4, 1) both;
+  animation-delay: calc(var(--i, 0) * 70ms + .15s);
+}
+.kc-kopfzeile {
+  border-top: 0;
+  background: var(--kc-ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  animation: none;
+}
+.kc-kopfzeile .kc-prem { color: var(--kc-gelb); }
+.kc-was { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.kc-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  border: 2px solid var(--kc-ink);
+  background: var(--kc-soft);
+  color: var(--kc-p);
+}
+.kc-icon-mikro { background: #e6f6ff; color: #1679c9; }
+.kc-icon-zauber { background: #f3eaff; color: #7c3aed; }
+.kc-icon-buch, .kc-icon-text { background: #e8f8ef; color: var(--kc-gruen); }
+.kc-icon-video { background: #ffeaea; color: #e23b3b; }
+.kc-frei { color: #9a8f83; text-decoration: line-through; text-decoration-thickness: 2px; font-size: 13px; text-align: center; }
+.kc-prem { text-align: center; }
+.kc-zeile .kc-prem b {
+  display: inline-block;
+  background: var(--kc-p);
+  color: #fff;
+  border: 2px solid var(--kc-ink);
+  border-radius: 10px;
+  padding: 3px 8px;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 2px 2px 0 var(--kc-ink);
+  white-space: nowrap;
+}
+
+/* ---------- Vertrauens-Sticker ---------- */
+.kc-vertrauen {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.kc-vertrauen li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px 5px 7px;
+  border: 2px solid var(--kc-ink);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--kc-ink);
+}
+.kc-vertrauen li svg { width: 17px; height: 17px; color: var(--kc-gruen); }
+.kc-vertrauen li:nth-child(2) { transform: rotate(-1.5deg); }
+.kc-vertrauen li:nth-child(3) { transform: rotate(1.2deg); }
+
+/* ---------- Summe + Bezahlknopf ---------- */
+.kasse-comic .kassen-summe {
+  border: 2.5px dashed var(--kc-ink);
+  border-radius: 16px;
+  background: #fffaf3;
+}
+.kasse-comic .kasse-los {
+  border: 3px solid var(--kc-ink);
+  box-shadow: 0 5px 0 var(--kc-ink);
+  font-weight: 900;
+  font-size: 17px;
+  transition: transform .1s, box-shadow .1s;
+}
+.kasse-comic .kasse-los:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--kc-ink); }
+.kasse-comic .kasse-los:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 var(--kc-ink); }
+.kasse-comic .kassen-abschnitt { font-weight: 900; color: var(--kc-ink); }
+
+@keyframes kc-rein {
+  from { opacity: 0; transform: translateY(8px) scale(.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes kc-stern {
+  0%, 100% { transform: rotate(-10deg) scale(1); }
+  50% { transform: rotate(-4deg) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kc-blase, .kc-zeile, .kc-stern { animation: none; }
+}
+
+@media (max-width: 760px) {
+  .kasse-comic .kassen-bestellung { padding: 20px 16px 18px; box-shadow: 4px 4px 0 var(--kc-ink); }
+  .kasse-comic .kassen-zahlung { box-shadow: 4px 4px 0 var(--kc-ink); }
+  .kc-held { padding-right: 70px; }
+  .kc-titel { font-size: 24px; }
+  .kc-stern { width: 72px; height: 72px; }
+  .kc-stern span { width: 65px; height: 65px; font-size: 15px; }
+  .kc-zeile { grid-template-columns: 1fr 64px 88px; font-size: 13.5px; padding: 8px 10px; gap: 6px; }
+  .kc-icon { width: 30px; height: 30px; border-radius: 9px; }
+  .kc-icon svg { width: 18px; height: 18px; }
+}
