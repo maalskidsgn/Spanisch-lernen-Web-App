@@ -3,7 +3,7 @@ import { istApp } from './api.js'
 import { bezahlungBereit } from './premium.js'
 import { LISTEN_PRO_TAG, naechsteAuffuellung } from './limits.js'
 
-import { useTexte } from './sprache.js'
+import { useTexte, sprache } from './sprache.js'
 /**
  * Hinweis, wenn die kostenlosen Generierungen fuer heute aufgebraucht
  * sind – zugleich die Werbung fuer Premium.
@@ -40,8 +40,9 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
           </div>
         </div>
         <p className="pw-text">
-          Deine Generierungen für heute sind aufgebraucht. Neue {was} gibt es{' '}
-          {naechsteAuffuellung()} – bis dahin kannst du mit dem Gesammelten üben.
+          {sprache() === 'en'
+            ? `You've used this week's free creations. New ${was} ${naechsteAuffuellung()} – until then, practise with what you've collected.`
+            : `Deine Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue ${was} gibt es ${naechsteAuffuellung()} – bis dahin kannst du mit dem Gesammelten üben.`}
         </p>
       </div>
     )
@@ -70,8 +71,9 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
       </div>
 
       <p className="pw-text">
-        Deine {LISTEN_PRO_TAG} kostenlosen Generierungen für heute sind aufgebraucht.
-        Neue {was} gibt es {naechsteAuffuellung()} – oder sofort und ohne Grenze mit Premium.
+        {sprache() === 'en'
+          ? `You've used your ${LISTEN_PRO_TAG} free AI creations this week. New ${was} ${naechsteAuffuellung()} – or right now and without limits with Premium.`
+          : `Deine ${LISTEN_PRO_TAG} Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue ${was} gibt es ${naechsteAuffuellung()} – oder sofort und ohne Grenze mit Premium.`}
       </p>
 
       <ul className="pw-vorteile">
@@ -83,7 +85,7 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
       {!istApp &&
         (bezahlbar ? (
           <button className="pw-knopf" onClick={zurKasse}>
-            Premium freischalten
+            {sprache() === 'en' ? 'Unlock Premium' : 'Premium freischalten'}
           </button>
         ) : (
           <p className="pw-bald">{t('pwk.premiumIstBald')}</p>

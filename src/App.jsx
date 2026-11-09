@@ -1,3 +1,4 @@
+import { holeKontingent, kontingentLeer } from './limits.js'
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
 import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
@@ -1130,7 +1131,7 @@ export default function App() {
       const res = await fetch(
         API_URL +
           '/api/transcript?url=' + encodeURIComponent(input) +
-          (art === 'musik' ? '&art=musik' : ''),
+          (art === 'musik' ? '&art=musik' : '') + '&sprache=' + sprache(),
         zugang ? { headers: { Authorization: 'Bearer ' + zugang } } : undefined
       )
       const text = await res.text()
@@ -1143,8 +1144,10 @@ export default function App() {
           t('apm.transkriptDienstIst')
         )
       }
+      if (res.status === 429) kontingentLeer('video')
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
+      holeKontingent() // ein neues Video zählt in den Wochentopf
     } catch (err) {
       setError(err.message)
     } finally {

@@ -1,3 +1,4 @@
+import { GratisUebersicht } from './GratisHinweis.jsx'
 import { API_URL, istApp } from './api.js'
 import ToonFlamme from './ToonFlamme.jsx'
 import { TUTOREN } from './tutoren.js'
@@ -134,6 +135,8 @@ export default function Home({
         </h1>
         <p className="start-zurueck">{t('si.frage')}</p>
       </header>
+
+      <GratisUebersicht />
 
       {/* Die Funktionen als schwebende Inseln zum Durchwischen */}
       <StartInseln

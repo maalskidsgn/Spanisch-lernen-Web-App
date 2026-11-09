@@ -1,10 +1,11 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { useState, useEffect } from 'react'
 import ZauberBild from './ZauberBild.jsx'
 import ThemaBild from './ThemaBild.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { API_URL } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, loginKopf, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
 import { useTexte } from './sprache.js'
@@ -54,7 +55,11 @@ export default function SatzGenerator({ saetze, setSaetze }) {
   const [uebrig, setUebrig] = useState(() => verbleibend(premium))
   // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
   useEffect(() => {
-    setUebrig(verbleibend(premium))
+    // Live: jede Buchung und der Abgleich mit dem Server (holeKontingent)
+    const neu = () => setUebrig(verbleibend(premium))
+    neu()
+    window.addEventListener('kontingent', neu)
+    return () => window.removeEventListener('kontingent', neu)
   }, [premium])
 
   const bekannt = Object.values(saetze).map((s) => s.anzeige ?? '')
@@ -73,10 +78,11 @@ export default function SatzGenerator({ saetze, setSaetze }) {
     try {
       const res = await fetch(API_URL + '/api/saetze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await loginKopf({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ thema: gefragt, zeitform, bekannt }),
       })
       const daten = await res.json()
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(daten.error || t('sgnm.dasHatNicht'))
 
       setListe(daten.saetze.map((s) => ({ ...s, checked: true })))
@@ -141,6 +147,8 @@ export default function SatzGenerator({ saetze, setSaetze }) {
           </span>
         )}
       </div>
+
+      <GratisHinweis art="ki" />
 
       <form className="wort-form" onSubmit={generieren}>
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}

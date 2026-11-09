@@ -1,3 +1,4 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { XP } from './gamification.js'
 import ZauberBild from './ZauberBild.jsx'
 import ThemaBild from './ThemaBild.jsx'
@@ -5,7 +6,7 @@ import { API_URL, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, loginKopf, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
 import { useTexte, sprache } from './sprache.js'
@@ -30,7 +31,11 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
   useEffect(() => {
-    setUebrig(verbleibend(premium))
+    // Live: jede Buchung und der Abgleich mit dem Server (holeKontingent)
+    const neu = () => setUebrig(verbleibend(premium))
+    neu()
+    window.addEventListener('kontingent', neu)
+    return () => window.removeEventListener('kontingent', neu)
   }, [premium]) // freie Generierungen
   const [begruendung, setBegruendung] = useState('') // warum die KI diese Wörter wählte
   const [infoOffen, setInfoOffen] = useState(false) // Erklärung der Automatik
@@ -52,7 +57,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
     try {
       const res = await fetch(API_URL + '/api/vokabelliste', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await loginKopf({ 'Content-Type': 'application/json' }),
         // Die schon gesammelten Wörter mitschicken: so kommen keine
         // Dopplungen zurück und die Liste passt zum eigenen Stand.
         body: JSON.stringify({ sprache: sprache(),
@@ -62,11 +67,12 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
         }),
       })
       const data = await res.json()
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(data.error)
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
       setBegruendung(data.begruendung || '')
       setFertigThema(data.thema || gefragt)
-      zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
+      zaehleNutzung() // eine Erstellung aus dem gemeinsamen Wochentopf
       setUebrig(verbleibend(premium))
     } catch (err) {
       setFehler(err.message)
@@ -127,6 +133,8 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
           </span>
         )}
       </div>
+
+      <GratisHinweis art="ki" />
 
       <form className="wort-form" onSubmit={generieren}>
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}

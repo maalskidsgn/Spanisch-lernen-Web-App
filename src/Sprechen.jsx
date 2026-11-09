@@ -10,6 +10,7 @@
  * Zunaechst nur im Browser: In den Apps fehlt die Mikrofon-Freigabe,
  * die kommt mit dem naechsten Paket.
  */
+import GratisHinweis from './GratisHinweis.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { merkeGelernt } from './lernkurve.js'
 import { API_URL, istApp } from './api.js'
@@ -625,6 +626,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
 
       <main className="spr-inhalt">
         {fehler && <p className="error spr-fehler">{fehler}</p>}
+        {(phase === 'start' || phase === 'fertig') && <GratisHinweis art="sprechen" />}
         {stand && !stand.erlaubt && <p className="spr-karte spr-hinweis">{t('spr.nochNichtFrei')}</p>}
 
         {stand?.erlaubt && (phase === 'start' || phase === 'fertig') && (

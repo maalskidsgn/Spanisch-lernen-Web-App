@@ -1,3 +1,5 @@
+import GratisHinweis from './GratisHinweis.jsx'
+import { zaehleNutzung, kontingentLeer } from './limits.js'
 import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
@@ -84,10 +86,12 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       })
 
       const antwort = await res.json()
+      if (res.status === 402) { kontingentLeer(); setKontingent((k) => (k ? { ...k, frei: 0 } : k)) }
       if (!res.ok) throw new Error(antwort.nachricht || antwort.error)
 
       setBuecher((b) => [antwort.buch, ...(b ?? [])])
       setKontingent((k) => (k ? { ...k, frei: antwort.frei } : k))
+      zaehleNutzung() // gemeinsamer KI-Wochentopf – Anzeige in den anderen Bereichen
       setThema('')
       setOffenes(antwort.buch)
     } catch (f) {
@@ -115,7 +119,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
     )
   }
 
-  const aufgebraucht = kontingent && kontingent.frei === 0
+  const aufgebraucht = kontingent && !kontingent.premium && kontingent.frei === 0
 
   return (
     <>
@@ -124,7 +128,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
         <div className="bereich-kopf">
           <div className="kopf-zeile">
             <h2>{t('eb.buchSchreibenLassen')}</h2>
-            {kontingent && (
+            {kontingent && !kontingent.premium && (
               <span
                 className={'rest-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
                 title={t('eb.kostenloseBuecherDiesen')}
@@ -135,6 +139,8 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           </div>
           <p>{t('eb2.nennEinThema')}</p>
         </div>
+
+        <GratisHinweis art="ki" />
 
         <form className="wort-form" onSubmit={erstellen}>
           <input

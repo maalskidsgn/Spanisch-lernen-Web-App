@@ -12,8 +12,18 @@
  * einfach eine neue `art`, ohne dass eine Tabelle dazukommt.
  */
 
-/** Wie viele Videos darf ein kostenloser Zugang pro Tag erzeugen? */
-export const VIDEOS_PRO_TAG = 1
+/**
+ * Gratis-Grenzen pro WOCHE (seit 09.11.2026, Manuel):
+ *  - 7 KI-Erstellungen (Wortlisten, Wörter aus Video, Sätze,
+ *    Lesetexte, E-Books) – ein gemeinsamer Topf
+ *  - 1 neues YouTube-Video
+ * Die Woche beginnt montags. Premium hat keine Grenze.
+ * Gleiche Werte in src/limits.js (nur Anzeige) und in der anderen App.
+ */
+export const KI_PRO_WOCHE = 7
+export const VIDEOS_PRO_WOCHE = 1
+// Alte Namen, damit bestehender Code weiterläuft
+export const VIDEOS_PRO_TAG = VIDEOS_PRO_WOCHE
 
 function supabaseKopf() {
   return {
@@ -25,9 +35,14 @@ function supabaseKopf() {
 
 const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
 
-/** Das heutige Datum als YYYY-MM-TT (Server-Ortszeit). */
+/**
+ * Der Schlüssel des Zeitraums als YYYY-MM-TT (Server-Ortszeit).
+ * Seit 09.11.2026 zählt alles wochenweise: Schlüssel ist der Montag
+ * der laufenden Woche. Die Spalte heißt weiter `tag`.
+ */
 function heuteTag() {
   const d = new Date()
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7))
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
     d.getDate()
   ).padStart(2, '0')}`
@@ -103,13 +118,27 @@ export async function zaehleNutzung(nutzerId, art) {
   return neu
 }
 
-/** Wann füllt sich das Kontingent wieder auf? Für die Meldung. */
-export function naechsteAuffuellung() {
-  const morgen = new Date()
-  morgen.setDate(morgen.getDate() + 1)
-  morgen.setHours(0, 0, 0, 0)
-  const stunden = Math.ceil((morgen - Date.now()) / 3600000)
-  return stunden <= 1 ? 'in einer Stunde' : `in ${stunden} Stunden`
+/** Wann füllt sich das Kontingent wieder auf? Nächster Montag 0 Uhr. */
+export function naechsterMontag() {
+  const d = new Date()
+  d.setDate(d.getDate() + (7 - ((d.getDay() + 6) % 7)))
+  d.setHours(0, 0, 0, 0)
+  return d
+}
+export function naechsteAuffuellung(en = false) {
+  const tage = Math.ceil((naechsterMontag() - Date.now()) / 86400000)
+  if (en) return tage <= 1 ? 'tomorrow (Monday)' : `on Monday (in ${tage} days)`
+  return tage <= 1 ? 'morgen (Montag)' : `am Montag (in ${tage} Tagen)`
+}
+
+/** Stand für die Anzeige: { ki: {genutzt, gesamt}, video: {…}, auffuellung } */
+export async function wochenStand(nutzerId) {
+  const [ki, video] = await Promise.all([nutzungHeute(nutzerId, 'ki'), nutzungHeute(nutzerId, 'video')])
+  return {
+    ki: { genutzt: ki, gesamt: KI_PRO_WOCHE },
+    video: { genutzt: video, gesamt: VIDEOS_PRO_WOCHE },
+    auffuellung: naechsterMontag().toISOString(),
+  }
 }
 
 /**

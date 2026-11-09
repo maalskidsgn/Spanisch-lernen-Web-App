@@ -45,6 +45,8 @@ import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
 import {
   VIDEOS_PRO_TAG,
+  KI_PRO_WOCHE,
+  wochenStand,
   nutzungHeute,
   zaehleNutzung,
   gibNutzungZurueck,
@@ -267,11 +269,14 @@ app.get('/api/transcript', async (req, res) => {
       if (!premium) {
         const heute = await nutzungHeute(nutzer.id, 'video')
         if (heute >= VIDEOS_PRO_TAG) {
+          const en = req.query.sprache === 'en'
           return res.status(429).json({
-            error:
-              `Du hast heute schon ${VIDEOS_PRO_TAG === 1 ? 'ein Video' : VIDEOS_PRO_TAG + ' Videos'} ` +
-              `erzeugt. Neues Kontingent gibt es ${naechsteAuffuellung()} – ` +
-              'oder jederzeit mit Premium.',
+            error: en
+              ? `You've already added ${VIDEOS_PRO_TAG === 1 ? 'a new video' : VIDEOS_PRO_TAG + ' new videos'} this week. ` +
+                `Your next one is free ${naechsteAuffuellung(true)} – or add as many as you like with Premium.`
+              : `Du hast diese Woche schon ${VIDEOS_PRO_TAG === 1 ? 'ein neues Video' : VIDEOS_PRO_TAG + ' neue Videos'} ` +
+                `geholt. Das nächste gibt es ${naechsteAuffuellung()} gratis – ` +
+                'oder sofort und ohne Grenze mit Premium.',
             grund: 'kontingent',
             uebrig: 0,
           })
@@ -689,6 +694,48 @@ const STOPWORDS = new Set(
   `el la los las un una unos unas de del a al en y o u que qué no sí se su sus le les lo me te nos os mi mis tu tus yo tú él ella ellos ellas usted ustedes nosotros es son era eran fue fueron ser estar está están estaba estaban con por para como cuando donde dónde pero más muy ya también todo toda todos todas otro otra este esta esto ese esa eso aquel aquella hay ha he has hemos han si porque entonces así cada uno dos tres bien sin sobre hasta desde entre e ni les nada algo alguien nunca siempre ahora aquí allí ay oh eh`.split(/\s+/)
 )
 
+/**
+ * Türsteher für alles, was KI-Geld kostet (seit 09.11.2026, wie in
+ * Davaigo). Gratis: KI_PRO_WOCHE Erstellungen pro Woche, gemeinsam
+ * für Wortlisten, Wörter aus Video, Sätze, Lesetexte und E-Books.
+ * Gezählt wird erst NACH Erfolg (zaehleNutzung im Aufrufer).
+ * @returns {Promise<{nutzer, premium}|null>} null = schon geantwortet.
+ */
+async function kiTuersteher(req, res) {
+  const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
+  const en = (req.body?.sprache || req.query?.sprache) === 'en'
+  if (!nutzer) {
+    res.status(401).json({ error: en ? 'Please sign in first.' : 'Bitte zuerst anmelden.' })
+    return null
+  }
+  if (await istPremium(nutzer.id)) return { nutzer, premium: true }
+  const genutzt = await nutzungHeute(nutzer.id, 'ki')
+  if (genutzt >= KI_PRO_WOCHE) {
+    const nachricht = en
+      ? `You've used your ${KI_PRO_WOCHE} free AI creations this week. New ones ${naechsteAuffuellung(true)} – or unlimited with Premium.`
+      : `Deine ${KI_PRO_WOCHE} Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue gibt es ${naechsteAuffuellung()} – oder sofort unbegrenzt mit Premium.`
+    res.status(402).json({ error: nachricht, nachricht, grund: 'limit', uebrig: 0 })
+    return null
+  }
+  return { nutzer, premium: false }
+}
+async function kiVerbuchen(tuer) {
+  if (!tuer.premium) await zaehleNutzung(tuer.nutzer.id, 'ki')
+}
+
+// Stand der Gratis-Grenzen für die Anzeige
+app.get('/api/kontingent', async (req, res) => {
+  try {
+    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+    const premium = await istPremium(nutzer.id)
+    res.json({ premium, ...(await wochenStand(nutzer.id)) })
+  } catch (err) {
+    console.error('Kontingent:', err.message)
+    res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })
+  }
+})
+
 // Erstellt Vokabel-Vorschläge aus einem Transkript.
 // Mit ANTHROPIC_API_KEY: Claude wählt die nützlichsten Wörter aus.
 // Ohne: Häufigkeits-Analyse + automatische Übersetzung.
@@ -698,8 +745,12 @@ app.post('/api/generate-vocab', async (req, res) => {
   const bekannt = Array.isArray(req.body.exclude) ? req.body.exclude : []
   if (!text.trim()) return res.status(400).json({ error: 'Kein Text übergeben.' })
 
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
+
   try {
     const vokabeln = await erzeugeVideoVokabeln(text, bekannt, req.body.sprache)
+    await kiVerbuchen(tuer)
     res.json({ quelle: 'ki', vokabeln })
   } catch (err) {
     console.error('Video-Vokabeln:', err.message)
@@ -742,8 +793,12 @@ app.post('/api/vokabelliste', async (req, res) => {
     })
   }
 
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
+
   try {
     const ergebnis = await erzeugeVokabelliste(thema, bekannt, wortart, req.body.sprache)
+    await kiVerbuchen(tuer)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
@@ -769,8 +824,13 @@ app.post('/api/saetze', async (req, res) => {
     })
   }
 
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
+
   try {
-    res.json(await erzeugeSatzliste(thema, zeitform, bekannt))
+    const liste = await erzeugeSatzliste(thema, zeitform, bekannt)
+    await kiVerbuchen(tuer)
+    res.json(liste)
   } catch (err) {
     console.error('Satzliste:', err.message)
     res.status(500).json({ error: err.message })
@@ -784,8 +844,13 @@ app.post('/api/lesetext', async (req, res) => {
   const stufe = ['a2', 'b1', 'b2'].includes(req.body?.stufe) ? req.body.stufe : 'b1'
   const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
 
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
+
   try {
-    res.json(await erzeugeLesetext(gebiet, thema, stufe, bekannt, req.body.sprache))
+    const lesetext = await erzeugeLesetext(gebiet, thema, stufe, bekannt, req.body.sprache)
+    await kiVerbuchen(tuer)
+    res.json(lesetext)
   } catch (err) {
     console.error('Lesetext:', err.message)
     res.status(500).json({ error: err.message })
@@ -950,8 +1015,10 @@ app.get('/api/ebook/kontingent', async (req, res) => {
     const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
     if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
 
-    const genutzt = await anzahlDiesenMonat(nutzer.id)
-    res.json({ genutzt, frei: Math.max(0, FREI_PRO_MONAT - genutzt), gesamt: FREI_PRO_MONAT })
+    // Seit 09.11.2026: E-Books zählen in den gemeinsamen KI-Wochentopf
+    if (await istPremium(nutzer.id)) return res.json({ genutzt: 0, frei: 9999, gesamt: 9999, premium: true })
+    const genutzt = await nutzungHeute(nutzer.id, 'ki')
+    res.json({ genutzt, frei: Math.max(0, KI_PRO_WOCHE - genutzt), gesamt: KI_PRO_WOCHE, woche: true })
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })
@@ -965,25 +1032,15 @@ app.post('/api/ebook', async (req, res) => {
 
   if (!thema) return res.status(400).json({ error: 'Bitte gib ein Thema an.' })
 
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
   try {
-    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
-    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
-
-    // Freemium-Grenze prüfen
-    const genutzt = await anzahlDiesenMonat(nutzer.id)
-    if (genutzt >= FREI_PRO_MONAT) {
-      return res.status(402).json({
-        error: 'premium',
-        nachricht:
-          `Du hast diesen Monat schon ${FREI_PRO_MONAT} E-Books erstellt. ` +
-          'Mit Premium sind es unbegrenzt viele.',
-      })
-    }
-
+    const nutzer = tuer.nutzer
     const buch = await erzeugeEbook(thema, niveau, req.body.sprache)
     const gespeichert = await speichereEbook(nutzer.id, buch)
-
-    res.json({ buch: gespeichert, frei: Math.max(0, FREI_PRO_MONAT - genutzt - 1) })
+    await kiVerbuchen(tuer)
+    const genutzt = tuer.premium ? 0 : await nutzungHeute(nutzer.id, 'ki')
+    res.json({ buch: gespeichert, frei: tuer.premium ? 9999 : Math.max(0, KI_PRO_WOCHE - genutzt) })
   } catch (err) {
     console.error('E-Book:', err.message)
     res.status(500).json({ error: err.message })

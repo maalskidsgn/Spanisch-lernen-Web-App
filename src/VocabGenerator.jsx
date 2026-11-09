@@ -1,9 +1,10 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { XP } from './gamification.js'
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, loginKopf, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 
 import { useTexte } from './sprache.js'
@@ -26,7 +27,11 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
   useEffect(() => {
-    setUebrig(verbleibend(premium))
+    // Live: jede Buchung und der Abgleich mit dem Server (holeKontingent)
+    const neu = () => setUebrig(verbleibend(premium))
+    neu()
+    window.addEventListener('kontingent', neu)
+    return () => window.removeEventListener('kontingent', neu)
   }, [premium]) // freie Generierungen
 
   async function generate() {
@@ -37,16 +42,17 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
     try {
       const res = await fetch(API_URL + '/api/generate-vocab', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await loginKopf({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({
           text: video.lines.map((l) => l.text).join('\n'),
           exclude: Object.keys(vocab),
         }),
       })
       const data = await res.json()
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(data.error)
       setSuggestions(data.vokabeln.map((v) => ({ ...v, checked: true })))
-      zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
+      zaehleNutzung() // eine Erstellung aus dem gemeinsamen Wochentopf
       setUebrig(verbleibend(premium))
     } catch (err) {
       setError(err.message)
@@ -93,12 +99,16 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
     <div className="vocab-gen">
       {!suggestions && (
         <>
+          <GratisHinweis art="ki" />
           <button onClick={generate} disabled={loading}>
             {loading ? t('vg.analysiere') : t('vg.generieren')}
           </button>
-          <p className="free-hint">
-            {t('vg.nochHeute', { uebrig, gesamt: LISTEN_PRO_TAG })}
-          </p>
+          {/* Im Web zeigt GratisHinweis den Stand – hier nur in der App */}
+          {istApp && !premium && (
+            <p className="free-hint">
+              {t('vg.nochHeute', { uebrig, gesamt: LISTEN_PRO_TAG })}
+            </p>
+          )}
         </>
       )}
       {added && <p className="gen-success">{t('vg.uebernommen')}</p>}

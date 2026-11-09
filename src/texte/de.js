@@ -514,7 +514,7 @@ export default {
 
   /* ---------------- Ebooks ---------------- */
   "eb.buchSchreibenLassen": "Buch schreiben lassen",
-  "eb.kostenloseBuecherDiesen": "Kostenlose Bücher diesen Monat",
+  "eb.kostenloseBuecherDiesen": "Gratis-Erstellungen diese Woche (gemeinsam mit Listen, Sätzen und Texten)",
   "eb.themaOderBuchtitel": "Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“",
   "eb.niveau": "Niveau",
   "eb.schreibtDeinBuch": "Schreibt dein Buch",
@@ -631,7 +631,7 @@ export default {
   /* ---------------- ListGenerator ---------------- */
   "lg.kiListengenerator": "KI-Listengenerator",
   "lg.erstelleNeueWortlisten": "Erstelle neue Wortlisten zu jedem Thema.",
-  "lg.kostenloseListenDiesen": "Kostenlose Listen diesen Monat",
+  "lg.kostenloseListenDiesen": "Gratis-Erstellungen diese Woche",
   "lg.themaWaehlen": "Thema wählen",
   "lg.wortart": "Wortart",
   "lg.eigenesThema": "Eigenes Thema …",
@@ -646,7 +646,7 @@ export default {
   /* ---------------- SatzGenerator ---------------- */
   "sgn.saetzeErzeugen": "Sätze erzeugen",
   "sgn.waehleEinThema": "Wähle ein Thema, eine Zeitform – oder beides.",
-  "sgn.kostenloseGenerierungenHeute": "Kostenlose Generierungen heute",
+  "sgn.kostenloseGenerierungenHeute": "Gratis-Erstellungen diese Woche",
   "sgn.themaWaehlen": "Thema wählen",
   "sgn.zeitform": "Zeitform",
   "sgn.eigenesThema": "Eigenes Thema …",
@@ -997,7 +997,7 @@ export default {
   "yt3.alleAnsehen": "Alle ansehen",
   "yt3.nichtsDabei": "Zu diesem Thema ist noch nichts dabei.",
   "yt3.wichtigsteWoerter": "Die wichtigsten Wörter",
-  "pw.fuerHeute": "Für heute geschafft",
+  "pw.fuerHeute": "Für diese Woche geschafft",
   "pw.unbegrenzt": "Unbegrenzt Vokabellisten, Wörter und Texte",
   "ll.jedenTag": "Jeden Tag ein kurzes Stück über Spanien und Lateinamerika – auf Spanisch und Deutsch.",
   "ll.wusstestDu": "Wusstest du?",
@@ -1111,8 +1111,8 @@ export default {
   "bzm.einmaligeZahlungKein": "Einmalige Zahlung – kein Abo, keine Verlängerung.",
 
   /* ---------------- Ebooks (Meldungen) ---------------- */
-  "ebm.deinMonatskontingentIst": "Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.",
-  "ebm.deinMonatskontingentIst2": "Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.",
+  "ebm.deinMonatskontingentIst": "Deine Gratis-Erstellungen für diese Woche sind aufgebraucht – ab Montag kannst du wieder neue Bücher schreiben.",
+  "ebm.deinMonatskontingentIst2": "Deine 7 Gratis-Erstellungen für diese Woche sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.",
   "ebm.dieWichtigstenWoerter": "Die wichtigsten Wörter",
   "ebm.alleInDen": "＋ Alle in den Vokabeltrainer",
   "ebm.keineUebersetzungGefunden": "Keine Übersetzung gefunden",
@@ -1247,7 +1247,7 @@ export default {
   'vg.woerterHinzugefuegt': '{zahl} Wörter hinzugefügt',
   'vg.analysiere': 'Analysiere Text…',
   'vg.generieren': 'Vokabeln generieren',
-  'vg.nochHeute': 'Noch {uebrig} von {gesamt} heute',
+  "vg.nochHeute": "Noch {uebrig} von {gesamt} diese Woche",
   'vg.uebernommen': 'Vokabeln wurden in den Trainer übernommen! ✓',
   'vg.waehleAus': 'Wähle aus, welche Vokabeln in deinen Trainer sollen:',
   'mm.weiterMehr': 'Weiter ({zahl} mehr)',
@@ -1356,8 +1356,8 @@ export default {
   "llk.gelesen": "· gelesen",
 
   /* ---------------- PremiumWerbung (kurz) ---------------- */
-  "pwk.morgenGehtS": "Morgen geht's weiter",
-  "pwk.tageslimitErreicht": "Tageslimit erreicht",
+  "pwk.morgenGehtS": "Am Montag geht's weiter",
+  "pwk.tageslimitErreicht": "Wochenlimit erreicht",
   "pwk.premium": "Premium",
   "pwk.unbegrenztEigeneYoutube": "Unbegrenzt eigene YouTube-Videos",
   "pwk.zweisprachigeEBooks": "Zweisprachige E-Books ohne Limit",
@@ -1475,7 +1475,7 @@ export default {
   "rtl.benutzernameUndProfilbild": "Benutzername und Profilbild sind für andere Nutzer sichtbar – in der Rangliste, in der Suche und bei Duellen. Wähle beides so, dass niemand sich daran stört: keine Beleidigungen, keine Gewalt, nichts Sexuelles, keine Darstellung anderer Personen ohne deren Einverständnis, keine Werbung und keine fremden Marken oder Urheberrechte.",
   "rtl.jederKannEin": "Jeder kann ein Profil über den Knopf „Problem mit diesem Profil?“ melden oder blockieren. Gemeldete Profile sehen wir uns an. Verstößt etwas gegen diese Regeln, entfernen wir Bild oder Name – bei wiederholten oder schweren Verstößen sperren wir das Konto. Wer blockiert wurde, erscheint für die blockierende Person nirgends mehr.",
   "rtl.wennDuMeinst": "Wenn du meinst, wir hätten zu Unrecht etwas entfernt, schreib uns an lernen@habloo.de. Wir antworten und erklären unsere Entscheidung.",
-  "rtl.alleLernfunktionenSind": "Alle Lernfunktionen sind kostenlos nutzbar. Premium schaltet die KI-Werkzeuge ohne Tageslimit frei: unbegrenzte Vokabellisten und E-Books sowie Statistiken zu deinem Fortschritt.",
+  "rtl.alleLernfunktionenSind": "Gratis: 20 % der Lektionen, 7 KI-Erstellungen und 1 neues YouTube-Video pro Woche. Premium schaltet alles ohne Limit frei: alle Lektionen, unbegrenzte Vokabellisten, Sätze, Texte und E-Books, eigene Videos und 120 Minuten Sprach-Trainer im Monat.",
   "rtl.dieJeweilsGeltenden": "Die jeweils geltenden Preise stehen in der Anwendung. Zum Zeitpunkt dieser Fassung: 9,99 € monatlich oder 89,99 € jährlich. Alle Preise verstehen sich inklusive gesetzlicher Umsatzsteuer.",
   "rtl.mitDemAnlegen": "Mit dem Anlegen eines Kontos kommt ein unentgeltlicher Nutzungsvertrag zustande. Ein Premium-Vertrag kommt zustande, wenn du den Bestellvorgang über unseren Zahlungsdienstleister Stripe abschließt. Wir bestätigen dir den Vertrag per E-Mail.",
   "rtl.dasMonatsaboLaeuft": "Das Monatsabo läuft einen Monat und verlängert sich um jeweils einen weiteren Monat, wenn du es nicht bis zum Ende der Laufzeit kündigst. Das Jahresabo läuft ein Jahr und verlängert sich nach dem ersten Jahr um jeweils einen Monat (§ 312k BGB). Der Einmalkauf hat keine Laufzeit.",

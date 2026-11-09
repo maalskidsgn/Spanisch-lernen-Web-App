@@ -1,3 +1,4 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { createPortal } from 'react-dom'
 import ZauberBild from './ZauberBild.jsx'
 import ThemaBild from './ThemaBild.jsx'
@@ -10,7 +11,7 @@ import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import { API_URL } from './api.js'
 import { neuerText, textSchluessel } from './lesetexte.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, loginKopf, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken, IconListe, IconPfeil } from './icons.jsx'
 import { useTexte, sprache } from './sprache.js'
@@ -455,7 +456,11 @@ function TextGenerator({ texte, setTexte, onFertig }) {
   const [uebrig, setUebrig] = useState(() => verbleibend(premium))
   // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
   useEffect(() => {
-    setUebrig(verbleibend(premium))
+    // Live: jede Buchung und der Abgleich mit dem Server (holeKontingent)
+    const neu = () => setUebrig(verbleibend(premium))
+    neu()
+    window.addEventListener('kontingent', neu)
+    return () => window.removeEventListener('kontingent', neu)
   }, [premium])
 
   const bekannt = Object.values(texte).map((t) => t.titelDe ?? '')
@@ -471,10 +476,11 @@ function TextGenerator({ texte, setTexte, onFertig }) {
     try {
       const res = await fetch(API_URL + '/api/lesetext', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await loginKopf({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ sprache: sprache(), gebiet: g, thema: thema.trim(), stufe, bekannt }),
       })
       const daten = await res.json()
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(daten.error || t('ltm.dasHatNicht'))
 
       const id = textSchluessel()
@@ -513,6 +519,8 @@ function TextGenerator({ texte, setTexte, onFertig }) {
           </span>
         )}
       </div>
+
+      <GratisHinweis art="ki" />
 
       <form className="wort-form" onSubmit={erzeugen}>
         {/* Schritt 1: Gebiet – nur auswählen, erzeugt wird unten */}

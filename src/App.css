@@ -16654,3 +16654,105 @@ html, body { overflow-x: clip; }
 .spr-vokabeln input:checked::after, .spr-einwilligung input:checked::after, .gen-item input:checked::after, .autoscroll-toggle input:checked::after, .werkzeug-schalter input:checked::after {
   transform: rotate(-45deg) translate(1px, -1px) scale(1);
 }
+
+/* ============================================================
+   Gratis-Hinweise (09.11.2026) – nur Web, nur Gratis-Nutzer
+   GratisHinweis.jsx: Balken pro Bereich + Übersicht Startseite
+   ============================================================ */
+.gratis-hinweis {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 10px 10px 10px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #fffaf2, #fff1e0);
+  box-shadow: 0 0 0 2px #ffe0b8 inset, 0 3px 0 #f6dcc0;
+  text-align: left;
+}
+.gh-text { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.gh-text b { font-size: 14px; font-weight: 900; color: var(--navy); line-height: 1.25; }
+.gh-text small { font-size: 12px; font-weight: 700; color: var(--muted); line-height: 1.3; }
+.gh-punkte { display: flex; gap: 4px; flex: none; }
+.gh-punkte i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #f1dfcb;
+}
+.gh-punkte i.voll { background: linear-gradient(135deg, #ffb062, var(--primary)); box-shadow: 0 1px 0 var(--primary-press); }
+.gh-knopf {
+  flex: none;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 14px;
+  border: 0; border-radius: 999px;
+  font: inherit; font-size: 13.5px; font-weight: 900;
+  color: #6b4500;
+  background: linear-gradient(135deg, #fff1a8, #ffc533);
+  box-shadow: 0 3px 0 #e0a200;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.gh-knopf:hover { filter: brightness(1.04); }
+.gh-knopf:active { transform: translateY(2px); box-shadow: 0 1px 0 #e0a200; }
+.gh-knopf:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+.gratis-hinweis.gh-leer {
+  background: linear-gradient(135deg, #fff6e0, #ffe6c4);
+  box-shadow: 0 0 0 2px #ffc98a inset, 0 3px 0 #f2c48e;
+}
+.gratis-hinweis.gh-leer .gh-knopf { color: #fff; background: linear-gradient(135deg, #ff9a3d, var(--primary)); box-shadow: 0 3px 0 var(--primary-press); }
+@media (max-width: 520px) {
+  .gratis-hinweis { flex-wrap: wrap; padding: 12px 12px 12px 14px; }
+  .gh-text { flex-basis: calc(100% - 90px); }
+  .gh-knopf { margin-left: auto; }
+  .gh-punkte { order: 3; }
+}
+
+.gratis-uebersicht {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 20px;
+  padding: 18px 18px 16px;
+  border-radius: 24px;
+  background: radial-gradient(120% 90% at 50% 0%, #fff 0%, #fffaf0 40%, #ffe9cc 100%);
+  box-shadow: 0 0 0 2.5px #ffd27a inset, 0 5px 0 #f2b866, 0 18px 34px -22px var(--primary);
+  text-align: left;
+}
+.gu-kopf { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+.gu-kopf h3 { margin: 0; font-size: 18px; font-weight: 900; color: var(--navy); }
+.gu-kopf p { margin: 2px 0 0; font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.gu-krone {
+  display: grid; place-items: center; width: 38px; height: 38px; flex: none;
+  border-radius: 12px; color: #6b4500;
+  background: linear-gradient(135deg, #fff1a8, #ffc533); box-shadow: 0 3px 0 #e0a200;
+}
+.gu-krone svg { width: 20px; height: 20px; }
+.gratis-uebersicht ul { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.gratis-uebersicht li {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(50px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 0 0 1.5px #ffe6c4 inset;
+  font-size: 13.5px;
+}
+.gu-name { font-weight: 800; color: var(--navy); }
+.gu-balken { height: 8px; border-radius: 99px; background: #f3e6d6; overflow: hidden; }
+.gu-balken i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ffb062, var(--primary)); }
+.gu-wert { font-weight: 900; color: var(--primary-dark); font-variant-numeric: tabular-nums; }
+.gu-leer .gu-wert { color: var(--red-press); }
+.gu-prem {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 99px;
+  font-size: 12px; font-weight: 900; color: #6b4500;
+  background: linear-gradient(135deg, #fff5c4, #ffd75a);
+  white-space: nowrap;
+}
+.gu-prem svg { width: 12px; height: 12px; }
+.gu-knopf { width: 100%; justify-content: center; padding: 12px; font-size: 15px; }
+@media (max-width: 520px) {
+  .gratis-uebersicht li { grid-template-columns: 1fr auto; row-gap: 6px; }
+  .gu-balken { grid-column: 1 / -1; order: 3; }
+  .gu-prem { display: none; }
+}
