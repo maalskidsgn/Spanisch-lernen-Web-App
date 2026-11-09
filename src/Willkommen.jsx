@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
-import FunktionenTabs from './FunktionenTabs.jsx'
+import StartseiteB from './StartseiteB.jsx'
 import StartPostkarten from './StartPostkarten.jsx'
 import { useTexte } from './sprache.js'
 
@@ -48,137 +48,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       {!istApp && (
       <>
 
-      {/* ================= SO GEHT'S ================= */}
-      <section className="wk-sektion">
-        <div className="wk-breite">
-          <div className="wk-kopf zeigt-sich">
-            <span className="wk-label">{t('wk.schritteLabel')}</span>
-            <h2>{t('wk.schritteTitel')}</h2>
-            <p>
-{t('wk.schritteText')}
-            </p>
-          </div>
-
-          <div className="wk-schritte">
-            {[
-              {
-                nr: '1',
-                titel: t('wk.schritt1Titel'),
-                text: t('wk.schritt1Text'),
-              },
-              {
-                nr: '2',
-                titel: t('wk.schritt2Titel'),
-                text: t('wk.schritt2Text'),
-              },
-              {
-                nr: '3',
-                titel: t('wk.schritt3Titel'),
-                text: t('wk.schritt3Text'),
-              },
-            ].map((s, i) => (
-              <div key={s.nr} className={`wk-schritt zeigt-sich v${i}`}>
-                <span className="wk-schritt-nr">{s.nr}</span>
-                <h3>{s.titel}</h3>
-                <p>{s.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <FunktionenTabs />
-
-      {/* ================= FUNKTIONEN ================= */}
-      <section className="wk-sektion wk-sektion-warm">
-        <span className="wk-wolke wk-wolke-3" />
-        <div className="wk-breite">
-          <div className="wk-kopf zeigt-sich">
-            <span className="wk-label">{t('wk.allesLabel')}</span>
-            <h2>{t('wk.allesTitel')}</h2>
-            <p>
-{t('wk.allesText', { app: APP_NAME })}
-            </p>
-          </div>
-
-          <div className="wk-bento">
-            <div className="wk-kachel wk-kachel-breit zeigt-sich">
-              <span className="wk-kachel-icon">🎬</span>
-              <h3>{t('wk.videoTitel')}</h3>
-              <p>
-{t('wk.videoText')}
-              </p>
-              <div className="wk-demo">
-                <span className="wk-demo-zeile">{t('wkk.holaQuTal')}</span>
-                <span className="wk-demo-zeile wk-demo-aktiv">
-                  Hoy vamos a <b>cocinar</b> algo rico.
-                </span>
-                <span className="wk-demo-zeile">{t('wkk.teApeteceProbarlo')}</span>
-              </div>
-            </div>
-
-            <div className="wk-kachel zeigt-sich v1">
-              <span className="wk-kachel-icon">🎓</span>
-              <h3>{t('wk.lektionenTitel')}</h3>
-              <p>
-{t('wk.lektionenText')}
-              </p>
-            </div>
-
-            <div className="wk-kachel zeigt-sich">
-              <span className="wk-kachel-icon">🃏</span>
-              <h3>{t('wk.trainerTitel')}</h3>
-              <p>
-{t('wk.trainerText')}
-              </p>
-              <div className="wk-stufen">
-                {[t('wk.stufeNeu'), t('wk.stufe1Tag'), t('wk.stufe3Tage'), t('wk.stufe1Woche'), t('wk.stufe1Monat')].map((s, i) => (
-                  <span key={s} className={'wk-stufe' + (i === 0 ? ' wk-stufe-an' : '')}>
-                    {s}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="wk-kachel wk-kachel-dunkel wk-kachel-breit zeigt-sich v1">
-              <span className="wk-kachel-icon">📖</span>
-              <h3>{t('wk.ebooksTitel')}</h3>
-              <p>
-{t('wk.ebooksText')}
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ================= DRANBLEIBEN ================= */}
-      <section className="wk-sektion">
-        <div className="wk-breite">
-          <div className="wk-band zeigt-sich">
-            <div className="wk-band-text">
-              <span className="wk-label wk-label-hell">{t('wk.dranLabel')}</span>
-              <h2>{t('wk.dranTitel')}</h2>
-              <p>
-{t('wk.dranText')}
-              </p>
-            </div>
-            <div className="wk-zahlen">
-              {[
-                { wert: '10', text: t('wk.zahl1') },
-                { wert: '50', text: t('wk.zahl2') },
-                { wert: '6', text: t('wk.zahl3') },
-                { wert: '3', text: t('wk.zahl4') },
-              ].map((z) => (
-                <div key={z.text} className="wk-zahl">
-                  <b>{z.wert}</b>
-                  <span>{z.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Startseite B (09.11.2026): Videobereich + Toon-Bento */}
+      <StartseiteB teil="oben" onStarten={onStarten} onAnmelden={onAnmelden} />
 
       {/* ================= PREISE ================= */}
       {!istApp && (
@@ -249,21 +120,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       </section>
       )}
 
-      {/* ================= ABSCHLUSS ================= */}
-      <section className="wk-sektion wk-sektion-schluss">
-        <div className="wk-breite">
-          <div className="wk-abschluss zeigt-sich">
-            <span className="wk-wolke wk-wolke-5" />
-            <h2>{t('wkk.empezamos')}</h2>
-            <p>
-{t('wk.schlussText', { app: APP_NAME })}
-            </p>
-            <button className="btn wk-start" onClick={onStarten}>
-              {t('wk.schlussKnopf')}
-            </button>
-          </div>
-        </div>
-      </section>
+      {/* ================= ABSCHLUSS (Startseite B) ================= */}
+      <StartseiteB teil="schluss" onStarten={onStarten} onAnmelden={onAnmelden} />
 
       </>
       )}
