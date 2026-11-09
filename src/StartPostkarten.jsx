@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
 import { mitAnbieter, aktiveAnbieter } from './auth.js'
@@ -33,7 +32,7 @@ export default function StartPostkarten({ onStarten, onAnmelden }) {
   const [anbieter, setAnbieter] = useState([])
   const [fehler, setFehler] = useState('')
   useEffect(() => {
-    if (!istApp) aktiveAnbieter().then(setAnbieter)
+    aktiveAnbieter().then(setAnbieter)
   }, [])
 
   async function mit(a) {

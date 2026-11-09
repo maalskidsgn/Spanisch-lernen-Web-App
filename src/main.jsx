@@ -1,5 +1,6 @@
 import { merkePartnerLink } from './partnerCode.js'
 import { merkeHerkunft } from './herkunft.js'
+import { rueckkehrHoeren } from './appAnmeldung.js'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -8,6 +9,7 @@ import Einwilligung from './Einwilligung.jsx'
 import { merkeEinladung } from './rangliste.js'
 
 merkeHerkunft()
+rueckkehrHoeren()
 merkePartnerLink()
 
 // Ganz früh, noch vor dem ersten Rendern: Wer über einen

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { istApp } from './api.js'
 import { registrieren, anmelden, passwortVergessen, mitAnbieter, aktiveAnbieter } from './auth.js'
 import Logo from './Logo.jsx'
 import { useTexte } from './sprache.js'
@@ -25,7 +24,7 @@ export default function Login({ onSchliessen, onFertig, startModus = 'anmelden' 
   // vom Anbieter einen eigenen App-Link.
   const [anbieter, setAnbieter] = useState([])
   useEffect(() => {
-    if (!istApp) aktiveAnbieter().then(setAnbieter)
+    aktiveAnbieter().then(setAnbieter)
   }, [])
 
   async function anbieterLogin(a) {

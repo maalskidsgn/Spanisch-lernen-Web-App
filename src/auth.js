@@ -10,6 +10,7 @@ import { uebernimmMerker } from './kontoMerker.js'
 import { herkunft } from './herkunft.js'
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
+import { istNativ, mitAnbieterInApp, anbieterFuerGeraet } from './appAnmeldung.js'
 import { t, sprache } from './sprache.js'
 
 // ---------------------------------------------------------------
@@ -150,6 +151,14 @@ export async function abmelden() {
  * @param {'google'|'apple'} anbieter
  */
 export async function mitAnbieter(anbieter) {
+  if (istNativ()) {
+    try {
+      await mitAnbieterInApp(anbieter)
+    } catch (f) {
+      throw new Error(uebersetzeFehler(f))
+    }
+    return
+  }
   const { error } = await db.auth.signInWithOAuth({
     provider: anbieter,
     options: { redirectTo: window.location.origin },
@@ -167,7 +176,7 @@ export async function aktiveAnbieter() {
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
     const r = await fetch(url + '/auth/v1/settings', { headers: { apikey: key } })
     const d = await r.json()
-    return ['apple', 'google'].filter((a) => d.external?.[a])
+    return anbieterFuerGeraet(['apple', 'google'].filter((a) => d.external?.[a]))
   } catch {
     return []
   }
