@@ -310,7 +310,42 @@ export async function speichereFortschritt(nutzerId, lektionId) {
  * 39 Tagen liegen beide auf Stufe 1. Bei Gleichstand gewann bisher
  * die Datenbankfassung – und mit ihr der kleinere Abstand.
  */
+/**
+ * Wartet, bis der Login-Schlüssel des Nutzers wirklich mitgeschickt wird (09.11.2026).
+ *
+ * Direkt nach dem Anmelden liefen die ersten Abgleich-Anfragen noch OHNE
+ * Schlüssel raus: Lesen ergab eine leere Liste (anonym), Speichern scheiterte
+ * mit 401 – und der Nutzer sah „Lernstand konnte nicht abgeglichen werden“.
+ * Läuft der Schlüssel bald ab, wird er vorher erneuert.
+ */
+async function sitzungBereit(nutzerId) {
+  for (let i = 0; i < 16; i++) {
+    const { data } = await db.auth.getSession()
+    const s = data?.session
+    if (s?.access_token && s.user?.id === nutzerId) {
+      if ((s.expires_at ?? 0) * 1000 - Date.now() > 60000) return s
+      const { data: neu } = await db.auth.refreshSession()
+      if (neu?.session?.user?.id === nutzerId) return neu.session
+    }
+    await new Promise((weiter) => setTimeout(weiter, 500))
+  }
+  throw new Error('Anmeldung noch nicht bereit')
+}
+
+/** Abgleich mit sicherer Sitzung; scheitert er an der Anmeldung, einmal Sitzung erneuern und nochmal. */
 export async function zusammenfuehren(nutzerId, lokal) {
+  await sitzungBereit(nutzerId)
+  try {
+    return await abgleichen(nutzerId, lokal)
+  } catch (f) {
+    if (!/row-level security|JWT|401|Anmeldung|permission denied/i.test(f?.message ?? '')) throw f
+    await db.auth.refreshSession().catch(() => {})
+    await sitzungBereit(nutzerId)
+    return abgleichen(nutzerId, lokal)
+  }
+}
+
+async function abgleichen(nutzerId, lokal) {
   const ausDb = await mitZeitlimit(ladeVokabeln(nutzerId), 40, 'Vokabeln laden')
   const vereint = { ...ausDb }
 
