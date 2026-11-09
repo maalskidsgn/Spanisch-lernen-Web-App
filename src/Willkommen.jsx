@@ -39,7 +39,10 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
     <div className="wk" ref={seite}>
       {/* ================= HERO ================= */}
       {/* Startbildschirm mit Postkarten (09.11., Entwurf C1) */}
-      <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
+      {/* Web: Hero aus Startseite B (09.11.); in der App bleibt der Postkarten-Startbildschirm */}
+      {istApp
+        ? <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
+        : <StartseiteB teil="hero" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
       {/* Der Rest ist Werbung fuer Leute, die Habloo noch nicht
           kennen - sinnvoll auf habloo.de, wo man zufaellig landet.
