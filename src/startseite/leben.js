@@ -133,7 +133,12 @@ export function beleben(wurzel, aktionen) {
     var R = JSON.parse(vb.dataset.reiter), P = vb.dataset.pfad, v = vb.querySelector('video'), ton = vb.querySelector('.vb-ton'), akt = +vb.dataset.start, mit = false
     var L = JSON.parse(vb.dataset.ton)
     function lade() {
-      var k = R[akt].k; v.poster = P + k + '.jpg'; v.src = P + k + (mit ? '-ton' : '') + '.mp4'; v.muted = !mit; v.loop = !mit; v.play().catch(function () {})
+      var k = R[akt].k; v.poster = P + k + '.jpg'
+      // Safari: stumm gestartete Videos behalten sonst das muted-Attribut → Ton bleibt aus
+      if (mit) { v.removeAttribute('muted'); v.defaultMuted = false } else { v.setAttribute('muted', ''); v.defaultMuted = true }
+      v.muted = !mit; v.loop = !mit; v.volume = 1; v.src = P + k + (mit ? '-ton' : '') + '.mp4'; v.load()
+      if (mit) ton.classList.add('laedt')
+      var pr = v.play(); if (pr) pr.then(function () { ton.classList.remove('laedt'); if (mit) v.muted = false }).catch(function () { ton.classList.remove('laedt') })
       ton.classList.toggle('an', mit); ton.querySelector('span').textContent = mit ? L[1] : L[0]
       var tx = vb.querySelector('.vb-text'); tx.querySelector('h3').textContent = R[akt].t
       $$('li', tx).forEach(function (li, j) { li.lastChild.textContent = R[akt].p[j] || '' })
