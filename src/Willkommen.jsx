@@ -72,19 +72,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           <button onClick={() => onRecht('impressum')}>{t('wk.impressum')}</button>
         </footer>
       ) : (
-        <footer className="wk-footer">
-          <Logo klasse="wk-footer-badge" />
-          <span>{APP_NAME}</span>
-          <span className="wk-footer-klein">
-{t('wk.footerKlein')}
-          </span>
-          <span className="wk-footer-recht">
-            <a href="/blog/">{t('wk.ratgeber')}</a>
-            <button onClick={() => onRecht('impressum')}>{t('wk.impressum')}</button>
-            <button onClick={() => onRecht('datenschutz')}>{t('wk.datenschutz')}</button>
-            <button onClick={() => onRecht('agb')}>{t('wk.agb')}</button>
-          </span>
-        </footer>
+        <StartseiteB teil="fuss" onStarten={onStarten} onAnmelden={onAnmelden} onRecht={onRecht} />
       )}
     </div>
   )
