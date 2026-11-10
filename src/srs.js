@@ -1,4 +1,4 @@
-import { t, gebiet } from './sprache.js'
+import { t, gebiet, sprache } from './sprache.js'
 
 // Spaced Repetition = "verteiltes Wiederholen".
 // Jede Vokabel steckt in einer Stufe (wie Fächer in einem Karteikasten).
@@ -53,7 +53,48 @@ export const BEWERTUNGEN = ['nochmal', 'schwer', 'gut', 'einfach']
 const START_LEICHTIGKEIT = 2.5   // Standard-Multiplikator
 const MIN_LEICHTIGKEIT = 1.3     // darunter wird es nicht zäher
 const ERSTES_INTERVALL = 1       // erste gute Antwort: morgen wieder
-const MAX_TAGE = 365             // ein Jahr ist genug
+const MAX_TAGE = 120             // 4 Monate = letzte Stufe der Monatsleiter (10.11.2026)
+
+// Monatsleiter (Manuel, 10.11.2026): Ab 2 Monaten Abstand geht es in festen
+// Monatsschritten weiter – 2 → 3 → 4 Monate (letzte Stufe). Wer bei 3 Monaten
+// ist, kann auch zurück: Schlecht = 1 Monat, Mittel = ein Monat weniger.
+// Vorher rechnete die Leichtigkeit krumme Werte (52 und 68 Tage), beides
+// stand als „2 Mon.“ auf den Knöpfen und es sah aus, als hinge es fest.
+const MONAT = 30
+const MAX_MONATE = 4
+const LEITER_AB = 45 // ab hier zählt der Abstand als „Monate“
+
+/** Auf welcher Monatsstufe steht die Karte? 0 = noch nicht auf der Leiter. */
+export function monatsStufe(entry) {
+  const { intervall } = zustand(entry)
+  if (intervall < LEITER_AB) return 0
+  return Math.min(MAX_MONATE, Math.max(2, Math.round(intervall / MONAT)))
+}
+
+/** Tage bis zur nächsten Abfrage für eine Bewertung (ohne „nochmal“). */
+function naechsteTage(entry, bewertung) {
+  const { intervall, leichtigkeit } = zustand(entry)
+  const m = monatsStufe(entry)
+  if (m) {
+    if (bewertung === 'schwer') return MONAT
+    if (bewertung === 'gut') return Math.max(2, m - 1) * MONAT
+    return Math.min(MAX_MONATE, m + 1) * MONAT // einfach = „Gut“ auf der Leiter
+  }
+  if (bewertung === 'schwer') return intervall === 0 ? 0.5 : intervall * 1.2
+  const gut = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
+  if (bewertung === 'gut') return gut >= LEITER_AB ? 2 * MONAT : gut
+  const einfach = intervall === 0 ? ERSTES_INTERVALL * 3 : intervall * leichtigkeit * 1.3
+  // Einstieg in die Leiter: Gut → 2 Monate, Einfach → 3 Monate (nie beide gleich)
+  if (gut >= LEITER_AB) return 3 * MONAT
+  return einfach >= LEITER_AB ? 2 * MONAT : einfach
+}
+
+/** Auf der Monatsleiter heißen die Knöpfe anders: Schlecht / Mittel / Gut. */
+export function leiterName(entry, bewertung) {
+  if (!monatsStufe(entry) || bewertung === 'nochmal') return null
+  const namen = { schwer: ['Schlecht', 'Poor'], gut: ['Mittel', 'Okay'], einfach: ['Gut', 'Good'] }[bewertung]
+  return namen ? namen[sprache() === 'en' ? 1 : 0] : null
+}
 
 /** Leitet aus dem Abstand in Tagen die Karteikasten-Stufe ab (für Filter und Anzeige). */
 export function stufeAusIntervall(tage) {
@@ -119,33 +160,17 @@ export function review(entry, bewertung) {
     }
   }
 
-  if (bewertung === 'schwer') {
-    // Kaum längerer Abstand, und die Karte gilt künftig als zäher
-    const tage = intervall === 0 ? 0.5 : intervall * 1.2
-    return fertig(entry, tage, Math.max(MIN_LEICHTIGKEIT, leichtigkeit - 0.15))
-  }
-
-  if (bewertung === 'einfach') {
-    const tage = intervall === 0 ? ERSTES_INTERVALL * 3 : intervall * leichtigkeit * 1.3
-    return fertig(entry, tage, leichtigkeit + 0.15)
-  }
-
-  // 'gut'
-  const tage = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
-  return fertig(entry, tage, leichtigkeit)
+  const tage = naechsteTage(entry, bewertung)
+  if (bewertung === 'schwer') return fertig(entry, tage, Math.max(MIN_LEICHTIGKEIT, leichtigkeit - 0.15))
+  if (bewertung === 'einfach') return fertig(entry, tage, leichtigkeit + 0.15)
+  return fertig(entry, tage, leichtigkeit) // 'gut'
 }
 
 /** Wie lange dauert es bei dieser Bewertung bis zur Wiederholung? Für die Knöpfe. */
 export function vorschau(entry, bewertung) {
   if (bewertung === 'nochmal') return '15 Min'
 
-  const { intervall, leichtigkeit } = zustand(entry)
-  let tage
-  if (bewertung === 'schwer') tage = intervall === 0 ? 0.5 : intervall * 1.2
-  else if (bewertung === 'einfach') tage = intervall === 0 ? 3 : intervall * leichtigkeit * 1.3
-  else tage = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
-
-  tage = Math.min(tage, MAX_TAGE)
+  const tage = Math.min(naechsteTage(entry, bewertung), MAX_TAGE)
   if (tage < 1) return Math.round(tage * 24) + ' Std'
   // Unter einer Woche mit Nachkommastelle. Sonst stuenden auf zwei
   // Knoepfen dieselben "3 Tage" – 2,5 und 3,25 runden beide dorthin –

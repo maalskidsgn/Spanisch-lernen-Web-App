@@ -1,3 +1,4 @@
+import { leiterName } from './srs.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { createPortal } from 'react-dom'
 import ZauberBild from './ZauberBild.jsx'
@@ -388,7 +389,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
                 className={'bewertung bewertung-' + b.wert}
                 onClick={() => onFertig(b.wert)}
               >
-                <span className="bewertung-text">{b.text}</span>
+                <span className="bewertung-text">{leiterName(text, b.wert) ?? b.text}</span>
                 <span className="bewertung-zeit">{vorschau(text, b.wert)}</span>
               </button>
             ))}
