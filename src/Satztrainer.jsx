@@ -1,3 +1,4 @@
+import SpielBild from './SpielBild.jsx'
 import { leiterName } from './srs.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
@@ -22,6 +23,10 @@ const PAARE = 6
 // Nur zwei Übungsarten – Schreiben und Gemischt gibt es hier
 // bewusst nicht: Einen ganzen Satz fehlerfrei abzutippen ist
 // Fleißarbeit, kein Lernfortschritt.
+// Auswahl im 3D-Toon-Stil wie bei den Vokabeln (10.11.2026)
+const SATZ_BILD = {"karten": "karten", "auswahl": "auswahl", "bauen": "schreiben", "luecke": "galgen", "paare": "paare"}
+const SATZ_HINWEIS = {"karten": ["Klassisch wie Karteikarten", "Classic flashcards"], "auswahl": ["Schnell zum Aufwärmen", "Quick warm-up"], "bauen": ["Trainiert den Satzbau", "Builds your word order"], "luecke": ["Grammatik im Zusammenhang", "Grammar in context"], "paare": ["Spielerisch zum Abschluss", "A playful finish"]}
+
 const ARTEN = [
   { id: 'karten',  titel: 'tr.karten',     icon: IconKarten,    text: 'st.satzLesen' },
   { id: 'auswahl', titel: 'st.auswahl',    icon: IconAuswahl,   text: 'st.vierUebersetzungen' },
@@ -438,9 +443,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             {Math.min(RUNDE, faellig.length)} Sätze stehen an.
           </p>
         </div>
-        <div className="art-liste">
+        <div className="art-liste art-toon">
           {ARTEN.map((a) => {
-            const Icon = a.icon
             // Multiple Choice braucht falsche Antworten zum Danebenlegen.
             // Mit weniger als vier Sätzen gibt es die nicht.
             const gesperrt =
@@ -454,19 +458,18 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 disabled={gesperrt}
                 title={gesperrt ? t('st.mindestensVier') : undefined}
               >
-                <span className="art-emoji" aria-hidden="true">
-                  <Icon groesse={24} />
-                </span>
+                <SpielBild id={SATZ_BILD[a.id]} />
                 <span className="art-text">
                   <span className="art-titel">{t(a.titel)}</span>
                   <span className="art-beschreibung">{t(a.text)}</span>
-                  {gesperrt && (
+                  {gesperrt ? (
                     <span className="art-hinweis">
                       {a.id === 'paare' ? t('st.abDreiSaetzen') : t('st.abVierSaetzen')}
                     </span>
+                  ) : (
+                    <span className="art-hinweis">{sprache() === 'en' ? SATZ_HINWEIS[a.id][1] : SATZ_HINWEIS[a.id][0]}</span>
                   )}
                 </span>
-                <span className="art-pfeil" aria-hidden="true">›</span>
               </button>
             )
           })}

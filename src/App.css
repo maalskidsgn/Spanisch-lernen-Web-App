@@ -16997,3 +16997,5 @@ body.lektion-laeuft .lessons > .player-top,
 .training-stage > .lern-fortschritt {
   flex: 0 0 auto;
 }
+
+.art-toon .art-karte:nth-child(5) { --af: #ffb02e; --ak: #d98a00; }
