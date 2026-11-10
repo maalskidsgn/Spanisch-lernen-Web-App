@@ -346,8 +346,8 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
   return (
     <div className="library">
-      {/* Bei den Videos sagt der Toon-Kopf schon alles (06.11.) */}
-      {bereich !== 'videos' && (
+      {/* Überschrift in jedem Bereich (10.11.: seit die Leiste „Mediathek“ heißt, braucht es sie auch bei den Videos) */}
+      {(
         <>
         <h1 className="lib-kopf">
           {bereich === 'ebooks'
