@@ -51,9 +51,8 @@ import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
-import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
-import { XP } from './gamification.js'
-import { erfolgston } from './erfolgston.js'
+import { Kopf } from './MediathekUI.jsx'
+import { BuchFormular, BuchRegal, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
 import { sprache, useTexte } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -76,7 +75,8 @@ const HOERTEXTE_ZEIGEN = false
 // Ebooks vorerst ausgeblendet (24.08., Manuels Wunsch). Der ganze
 // Bereich samt neuem Leser bleibt fertig im Code – diese eine Zeile
 // holt ihn zurueck.
-const EBOOKS_ZEIGEN = false
+// Buch-Generator + Bibliothek seit 10.11.2026 für alle sichtbar
+const EBOOKS_ZEIGEN = true
 
 // Songs vorerst raus (16.10., Manuels Wunsch): In der Mediathek
 // soll es nur um Videos gehen. Der ganze Songs-Bereich bleibt
@@ -163,9 +163,6 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     window.addEventListener('geraetedaten', neu)
     return () => window.removeEventListener('geraetedaten', neu)
   }, [])
-  const [buchTitel, setBuchTitel] = useState('')
-  const [buchLaden, setBuchLaden] = useState(false)
-  const [buchFehler, setBuchFehler] = useState('')
   const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
 
   // ---------- Kuratierte Mediathek aus der Datenbank ----------
@@ -236,33 +233,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     return () => { abgebrochen = true }
   }, [])
 
-  // Eine neue Buchzusammenfassung generieren lassen
-  async function generiereBuch(e) {
-    // Das Ereignis ist freiwillig: Das Suchfeld der Hauptkarte hat
-    // preventDefault() schon selbst erledigt und ruft ohne Argument.
-    e?.preventDefault()
-    if (!buchTitel.trim()) return
-    setBuchLaden(true)
-    setBuchFehler('')
-    try {
-      const res = await fetch(API_URL + '/api/buch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titel: buchTitel.trim() }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      const buch = { ...data, id: Date.now(), erstellt: Date.now() }
-      const neu = [buch, ...buecher]
-      setBuecher(neu)
-      localStorage.setItem('buecher', JSON.stringify(neu))
-      setBuchTitel('')
-      setOffenesBuch(buch)
-    } catch (err) {
-      setBuchFehler(err.message)
-    } finally {
-      setBuchLaden(false)
-    }
+  // Ein neues Buch aus dem Generator (Buecher.jsx) ablegen und öffnen
+  function buchFertig(buch) {
+    const neu = [buch, ...buecher]
+    setBuecher(neu)
+    try { localStorage.setItem('buecher', JSON.stringify(neu)) } catch { /* voll */ }
+    setOffenesBuch(buch)
   }
 
   function loescheBuch(id) {
@@ -358,7 +334,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // ---------- Geöffnete Buchzusammenfassung ----------
   if (offenesBuch) {
     return (
-      <BuchView
+      <BuchLeser
         buch={offenesBuch}
         onClose={() => setOffenesBuch(null)}
         onAddVocab={onAddVocab}
@@ -374,7 +350,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {bereich !== 'videos' && (
         <>
         <h1 className="lib-kopf">
-          {t('yt.titel1')} <span className="accent">{t('yt.titel2')}</span>
+          {bereich === 'ebooks'
+            ? <>{t('yt.buchTitel1')} <span className="accent">{t('yt.buchTitel2')}</span></>
+            : <>{t('yt.titel1')} <span className="accent">{t('yt.titel2')}</span></>}
         </h1>
         <p className="lib-unter">
           {{
@@ -439,36 +417,22 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           {/* Die Hauptkarte des Bereichs ist das Formular – genau wie
               bei den Videos die Suche. Der Filter fuer die fertigen
               Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
-          <Hero
-            symbol={<IconBuch groesse={26} />}
-            titel={t('lb9.ebookErstellen')}
-            text={t('lb9.ebookText2')}
-          >
-            <SuchFeld
-              rund
-              wert={buchTitel}
-              onWert={setBuchTitel}
-              onAbsenden={generiereBuch}
-              platzhalter={t('lb9.ebookPlatzhalter')}
-              knopf={t('lb9.ebookErstellen')}
-              laedt={buchLaden}
-            />
-          </Hero>
+          <BuchFormular onFertig={buchFertig} />
 
-          {buchFehler && <p className="error">{buchFehler}</p>}
-          {buchLaden && (
-            <p className="inhalt-hinweis">{t('yt2.dasDauertEinen')}</p>
-          )}
-
+          {/* Bibliothek darunter – aufgebaut wie die Video-Abschnitte */}
+          <section className="bereich">
+            <Kopf symbol={<IconBuch groesse={19} />} titel={t('yt.bibliothek')} text={t('yt.bibliothekText')} zahl={BIBLIOTHEK.length} />
+            <BuchRegal bibliothek nackt buecher={BIBLIOTHEK} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
+          </section>
           {buecher.length > 0 && (
-            <EigeneEbooks
-              buecher={buecher}
-              onOeffnen={setOffenesBuch}
-              onLoeschen={loescheBuch}
-            />
+            <section className="bereich">
+              <Kopf symbol={<IconBuch groesse={19} />} titel={t('yt.eigeneBuecher')} zahl={buecher.length} />
+              <BuchRegal nackt buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
+            </section>
           )}
 
-          <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />
+          {/* Die 89 älteren E-Books (spanisch-lernen.com): nur Premium – gratis gibt es die 6 der Bibliothek */}
+          {(istPremium || TESTPHASE_ALLES_FREI) && <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />}
         </>
       )}
 
@@ -698,277 +662,6 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
 // Die Lese-Ansicht einer Buchzusammenfassung: einfache spanische Absätze,
 // Übersetzung einblendbar, Vokabeln mit einem Klick in den Trainer
-/**
- * Die selbst erzeugten Ebooks.
- *
- * Sie liegen im Browser, nicht in der Bibliothek – deshalb stehen
- * sie in einem eigenen Abschnitt ueber den fertigen und tragen
- * einen Loeschknopf.
- */
-function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
-  const t = useTexte()
-  return (
-    <section className="bereich">
-      <Kopf
-        symbol={<IconBuch groesse={19} />}
-        titel={t('lb9.deineEigenenEbooks')}
-        text={t('lb9.aufDiesemGeraet')}
-        zahl={buecher.length}
-      />
-      <ul className="inhalt-liste ebook-eigene">
-        {buecher.map((b) => (
-          <li key={b.id}>
-            <button className="inhalt-zeile" onClick={() => onOeffnen(b)}>
-              <span className="inhalt-text">
-                <span className="inhalt-titel">{b.titel}</span>
-                <span className="inhalt-meta">
-                  selbst erstellt
-                  {b.kapitel ? ` · ${b.kapitel.length} Kapitel` : ''}
-                </span>
-              </span>
-              <IconPfeil groesse={17} />
-            </button>
-            <button
-              className="btn-delete ebook-weg"
-              title={t('ytk.loeschen')}
-              onClick={() => onLoeschen(b.id)}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-/**
- * Der Ebook-Leser: ein eigener, ruhiger Lesebereich.
- *
- * Aufbau nach Manuels Vorgabe: Zurück ganz links, in der Mitte der
- * Sprach-Umschalter (Español/Deutsch), rechts blättern. Gelesen wird
- * seitenweise – ein Absatz pro Seite, wie in einem Buch. Die letzte
- * Seite sind die Vokabeln.
- *
- * Im spanischen Text ist jedes Wort antippbar (gleiche Wortkarte wie
- * im Chat und in den Videos). Ein gesammeltes Wort gibt 2 XP mit
- * kleiner Aufsteige-Animation und dem Erfolgston.
- */
-function BuchView({ buch, onClose, onAddVocab, addXp, vocab = {} }) {
-  const t = useTexte()
-  const [seite, setSeite] = useState(0)
-  const [sprache, setSprache] = useState('es') // 'es' | 'de'
-  const [wort, setWort] = useState(null) // { text, de, laedt }
-  const [xpMeldung, setXpMeldung] = useState(null) // { menge, key }
-  const [uebernommen, setUebernommen] = useState(false)
-
-  const absaetze = buch.absaetze ?? []
-  const seiten = absaetze.length + 1 // letzte Seite: Vokabeln
-  const vokabelSeite = seite >= absaetze.length
-
-  function wortSchluessel(w) {
-    return w.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '')
-  }
-
-  function feiere(menge) {
-    addXp?.(menge)
-    erfolgston()
-    setXpMeldung({ menge, key: Date.now() })
-  }
-
-  async function wortAntippen(rohesWort) {
-    const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
-    if (!sauber) return
-    setWort({ text: sauber, de: '', laedt: true })
-    try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber) + '&sprache=' + sprache())
-      const daten = await res.json()
-      setWort({ text: sauber, de: daten.translation || '', laedt: false })
-    } catch {
-      setWort({ text: sauber, de: '', laedt: false })
-    }
-  }
-
-  function wortSammeln(status) {
-    if (!wort?.text) return setWort(null)
-    onAddVocab(
-      [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Buch: ' + buch.titel }],
-      status
-    )
-    feiere(XP.WORT_NEU) // 2 XP, mit Animation und Ton
-    setWort(null)
-  }
-
-  function alsWoerter(text) {
-    return text.split(/(\s+)/).map((teil, i) => {
-      if (!teil.trim()) return teil
-      const status = vocab[wortSchluessel(teil)]?.status
-      return (
-        <span
-          key={i}
-          className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => wortAntippen(teil)}
-        >
-          {teil}
-        </span>
-      )
-    })
-  }
-
-  function vokabelnUebernehmen() {
-    onAddVocab(
-      buch.vokabeln.map((v) => ({
-        wort: v.wort,
-        uebersetzung: v.uebersetzung,
-        quelle: 'Buch: ' + buch.titel,
-      }))
-    )
-    feiere(XP.WORT_NEU * buch.vokabeln.length)
-    setUebernommen(true)
-  }
-
-  const blaettern = (richtung) => {
-    setSeite((n) => Math.min(seiten - 1, Math.max(0, n + richtung)))
-    window.scrollTo({ top: 0 })
-  }
-
-  return (
-    <div className="library buch-leser">
-      {/* Kopfleiste: zurück | Sprache | weiter */}
-      <div className="leser-leiste">
-        <button className="leser-knopf" onClick={onClose} aria-label={t('ytk.zurueckZurMediathek')}>
-          ←
-        </button>
-
-        <div className="leser-sprache" role="tablist" aria-label={t('ytk.sprache')}>
-          {[['es', 'Español'], ['de', t('leser.muttersprache')]].map(([wert, text]) => (
-            <button
-              key={wert}
-              role="tab"
-              aria-selected={sprache === wert}
-              className={sprache === wert ? 'sprache-aktiv' : ''}
-              onClick={() => setSprache(wert)}
-            >
-              {text}
-            </button>
-          ))}
-        </div>
-
-        <button
-          className="leser-knopf"
-          onClick={() => blaettern(1)}
-          disabled={seite >= seiten - 1}
-          aria-label={t('ytk.weiterblaettern')}
-        >
-          →
-        </button>
-      </div>
-
-      {/* Fortschritt */}
-      <div className="leser-stand">
-        <div className="lern-balken">
-          <div className="lern-balken-voll" style={{ width: ((seite + 1) / seiten) * 100 + '%' }} />
-        </div>
-        <span>
-          {vokabelSeite ? t('lb9.vokabeln') : t('lb9.seiteVon', { seite: seite + 1, gesamt: absaetze.length })}
-        </span>
-      </div>
-
-      {seite === 0 && (
-        <header className="leser-buchkopf">
-          <h1>{buch.titel}</h1>
-          <p>{buch.autor} · Niveau {buch.niveau}</p>
-        </header>
-      )}
-
-      {/* Die Seite */}
-      {!vokabelSeite && (
-        <article className="leser-seite" key={seite + sprache}>
-          <p className="leser-absatz">
-            {sprache === 'es' ? alsWoerter(absaetze[seite].es) : absaetze[seite].de}
-          </p>
-          {sprache === 'es' && seite === 0 && (
-            <p className="lese-tipp">{t('ytk.tippTippeEin')}</p>
-          )}
-        </article>
-      )}
-
-      {/* Letzte Seite: die Vokabeln */}
-      {vokabelSeite && (
-        <article className="leser-seite">
-          <h2 className="leser-vokabel-titel">{t('yt3.wichtigsteWoerter')}</h2>
-          <ul className="spielwort-liste">
-            {buch.vokabeln.map((v) => (
-              <li key={v.wort} className="spielwort">
-                <div className="spielwort-kopf">
-                  <b>{v.wort}</b>
-                  <span>{v.uebersetzung}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          {uebernommen ? (
-            <p className="gen-success">{t('ytk.vokabelnSindIm')}</p>
-          ) : (
-            <button className="hero-cta" onClick={vokabelnUebernehmen}>
-              Alle {buch.vokabeln.length} Vokabeln in den Trainer
-            </button>
-          )}
-        </article>
-      )}
-
-      {/* Blätter-Knöpfe unten – auf dem Handy bequemer als oben */}
-      <div className="leser-fuss">
-        <button className="leser-knopf" onClick={() => blaettern(-1)} disabled={seite === 0}>
-          ←
-        </button>
-        <button
-          className="leser-knopf leser-weiter"
-          onClick={() => blaettern(1)}
-          disabled={seite >= seiten - 1}
-        >
-          Weiter →
-        </button>
-      </div>
-
-      {/* +XP-Animation */}
-      {xpMeldung && (
-        <span key={xpMeldung.key} className="buch-xp" onAnimationEnd={() => setXpMeldung(null)}>
-          +{xpMeldung.menge} XP
-        </span>
-      )}
-
-      {/* Wortkarte */}
-      {wort && (
-        <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
-          <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
-            <button className="wortkarte-schliessen" aria-label={t('ytk.schliessen')} onClick={() => setWort(null)}>
-              ✕
-            </button>
-            <div className="wortkarte-wort">
-              {wort.text}
-              {vocab[wortSchluessel(wort.text)] && (
-                <span className="wortkarte-marke">{t('ytk.imTrainer')}</span>
-              )}
-            </div>
-            <div className="wortkarte-de">
-              {wort.laedt ? t('lb9.uebersetze') : wort.de || t('ytm.keineUebersetzungGefunden')}
-            </div>
-            <div className="wortkarte-knoepfe">
-              <button className="btn-outline" onClick={() => wortSammeln('gewusst')} disabled={wort.laedt}>
-                Kenne ich
-              </button>
-              <button className="btn" onClick={() => wortSammeln('lernen')} disabled={wort.laedt}>
-                ＋ Lernen
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 // Eine Video-Karte mit Vorschaubild, Titel und Kanal
 /**
  * Ein Video als Zeile: Vorschaubild links, Text daneben, rechts der

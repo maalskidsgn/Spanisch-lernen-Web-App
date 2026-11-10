@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 /**
  * Schnell-Übersetzer der Startseite (09.11.2026).
  *
@@ -60,11 +61,11 @@ export async function schnellUebersetzen(text, sprache = 'de') {
   const mutter = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = `${sprache}|${sauber.toLowerCase()}`
   if (GEMERKT.has(schluessel)) return GEMERKT.get(schluessel)
-  if (!process.env.OPENAI_API_KEY) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  if (!process.env.ANTHROPIC_API_KEY) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${process.env.ANTHROPIC_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: MODELL,
       temperature: 0,

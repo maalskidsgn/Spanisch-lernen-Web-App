@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 // Übersetzen zwischen Spanisch und Deutsch.
 //
 // Warum nicht mehr Google: Bis zum 23.08. hingen alle drei
@@ -81,10 +82,10 @@ function merke(schluessel, wert) {
 }
 
 async function frageModell(nachrichten, schema) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

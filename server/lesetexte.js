@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 /**
  * Kurze Wissenstexte mit KI erzeugen.
  *
@@ -120,8 +121,8 @@ function bekanntesAlsHinweis(bekannt) {
 export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bekannt = [], sprache = 'de') {
   // In welcher Sprache die Uebersetzungsspalte steht.
   const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const stufenRegel = STUFEN[stufe] ?? STUFEN.b1
   const gebietName = GEBIETE[gebiet]
@@ -161,7 +162,7 @@ function klingtDeutsch(satz = '') {
 }
 
 async function frageModell(schluessel, auftrag, ziel = 'Deutsch') {
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

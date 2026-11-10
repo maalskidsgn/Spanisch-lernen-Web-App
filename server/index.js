@@ -8,7 +8,6 @@ import { execFile } from 'child_process'
 import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import Anthropic from '@anthropic-ai/sdk'
 import { erzeugeBausteinAufgaben } from './bausteine.js'
 import { antworte, istPremium, tutorNutzungHeute, zaehleTutorNutzung, GESPRAECHE_PRO_TAG } from './gespraech.js'
 import { findeSpanischeInterpreten, ergaenzeSongs } from './interpreten.js'
@@ -38,6 +37,8 @@ import {
   FREI_PRO_MONAT,
   erzeugeVokabelliste,
   erzeugeVideoVokabeln,
+  erzeugeBuchZusammenfassung,
+  BUECHER_PREMIUM_PRO_MONAT,
 } from './ebooks.js'
 import { erzeugeSatzliste, ZEITFORMEN } from './saetze.js'
 import { zaehleKlick } from './partner.js'
@@ -107,10 +108,6 @@ app.use((req, res, next) => {
 
 // Gesundheits-Check: damit sieht das Hosting, dass der Server lebt
 app.get('/health', (req, res) => res.json({ ok: true }))
-
-// Claude-KI nur nutzen, wenn ein API-Schlüssel hinterlegt ist —
-// sonst arbeitet der Vokabelgenerator mit Häufigkeits-Analyse + Übersetzung.
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null
 
 /**
  * Schaetzt ein, wie brauchbar ein Transkript ist.
@@ -880,72 +877,36 @@ app.post('/api/baustein-uebungen', async (req, res) => {
   }
 })
 
-// Erstellt eine Blinkist-artige Buchzusammenfassung in einfachem Spanisch.
-// Braucht die Claude-KI – ohne API-Schlüssel kommt ein "Premium"-Hinweis.
+// Buch-Generator im Blinkist-Stil (10.11.2026): Titel oder eingefügter
+// Text → 8 Kapitel zweisprachig. Nur Premium, Fair-Use-Grenze
+// BUECHER_PREMIUM_PRO_MONAT. Gratis: die 6 Bücher der Bibliothek.
 app.post('/api/buch', async (req, res) => {
-  const titel = (req.body.titel || '').trim().slice(0, 120)
-  if (!titel) return res.status(400).json({ error: 'Kein Buchtitel angegeben.' })
-  if (!anthropic) return res.status(402).json({ error: 'premium' })
-
+  const en = req.body?.sprache === 'en'
+  const titel = String(req.body?.titel || '').trim().slice(0, 160)
+  const text = String(req.body?.text || '')
+  const niveau = ['A1', 'A2', 'B1', 'B2', 'C1'].includes(req.body?.niveau) ? req.body.niveau : 'A2'
+  if (!titel && text.trim().length < 400) {
+    return res.status(400).json({ error: en ? 'Enter a book title or paste some text from the book.' : 'Gib einen Buchtitel ein oder füge Text aus dem Buch ein.' })
+  }
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
+  // Seit 10.11.2026: eigene Bücher nur mit Premium – gratis gibt es die 6 der Bibliothek
+  if (!tuer.premium) {
+    const nachricht = en ? 'Creating your own books is a Premium feature. The 6 library books are free.' : 'Eigene Bücher erstellst du mit Premium. Die 6 Bücher der Bibliothek sind gratis.'
+    return res.status(402).json({ error: nachricht, nachricht, grund: 'premium' })
+  }
+  if ((await nutzungHeute(tuer.nutzer.id, 'buch')) >= BUECHER_PREMIUM_PRO_MONAT) {
+    return res.status(429).json({ error: en
+      ? `You've created ${BUECHER_PREMIUM_PRO_MONAT} books this month – new ones ${naechsteAuffuellung(true)}.`
+      : `Du hast diesen Monat schon ${BUECHER_PREMIUM_PRO_MONAT} Bücher erstellt – neue gibt es ${naechsteAuffuellung()}.` })
+  }
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 16000,
-      output_config: {
-        format: {
-          type: 'json_schema',
-          schema: {
-            type: 'object',
-            properties: {
-              titel: { type: 'string' },
-              autor: { type: 'string' },
-              niveau: { type: 'string' },
-              absaetze: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    es: { type: 'string' },
-                    de: { type: 'string' },
-                  },
-                  required: ['es', 'de'],
-                  additionalProperties: false,
-                },
-              },
-              vokabeln: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    wort: { type: 'string' },
-                    uebersetzung: { type: 'string' },
-                  },
-                  required: ['wort', 'uebersetzung'],
-                  additionalProperties: false,
-                },
-              },
-            },
-            required: ['titel', 'autor', 'niveau', 'absaetze', 'vokabeln'],
-            additionalProperties: false,
-          },
-        },
-      },
-      messages: [
-        {
-          role: 'user',
-          content:
-            `Erstelle eine Blinkist-artige Zusammenfassung des Buches "${titel}" für deutschsprachige Spanisch-Anfänger (Niveau A2): ` +
-            '5 bis 7 kurze Absätze in EINFACHEM Spanisch (kurze Sätze, Grundwortschatz), jeder Absatz mit deutscher Übersetzung. ' +
-            'Dazu 8 nützliche spanische Vokabeln aus der Zusammenfassung mit deutscher Übersetzung. ' +
-            'Kennst du das Buch nicht sicher, sage das im ersten Absatz ehrlich und fasse zusammen, wofür der Titel bekannt ist.',
-        },
-      ],
-    })
-    const textBlock = response.content.find((b) => b.type === 'text')
-    res.json(JSON.parse(textBlock.text))
+    const buch = await erzeugeBuchZusammenfassung({ titel, text, niveau, sprache: req.body?.sprache })
+    await zaehleNutzung(tuer.nutzer.id, 'buch')
+    res.json(buch)
   } catch (err) {
-    console.error(err.message)
-    res.status(500).json({ error: 'Zusammenfassung konnte nicht erstellt werden.' })
+    console.error('Buch-Generator:', err.message)
+    res.status(500).json({ error: en ? 'The summary could not be created.' : 'Die Zusammenfassung konnte nicht erstellt werden.' })
   }
 })
 

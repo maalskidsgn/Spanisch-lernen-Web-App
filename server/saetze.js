@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 /**
  * Sätze mit KI erzeugen – das Gegenstück zur Vokabelliste.
  *
@@ -130,8 +131,8 @@ function ohneBekannte(saetze, bekannt) {
  * @param {string[]} bekannt  – schon gesammelte Sätze
  */
 export async function erzeugeSatzliste(thema, zeitform = '', bekannt = []) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const zeitformRegel = ZEITFORMEN[zeitform]
   const automatisch = !thema?.trim()
@@ -146,7 +147,7 @@ export async function erzeugeSatzliste(thema, zeitform = '', bekannt = []) {
     (zeitformRegel ? '\n' + zeitformRegel : '\nMische die Zeitformen natürlich, wie im Alltag.') +
     bekanntesAlsHinweis(bekannt)
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 /**
  * Der Sprach-Tutor: ein Gespräch auf Spanisch, mit deutscher Hilfe.
  *
@@ -177,8 +178,8 @@ export async function antworte(verlauf, niveau = 'Anfänger', sprache = 'de') {
   // Welche Sprache die Oberflaeche spricht - danach richtet sich,
   // in welcher Sprache Habla uebersetzt und erklaert.
   const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   // Nur die letzten 20 Züge mitschicken. Ein Gespräch kann lang
   // werden; die ganze Geschichte jedes Mal zu senden, kostet unnötig
@@ -191,7 +192,7 @@ export async function antworte(verlauf, niveau = 'Anfänger', sprache = 'de') {
     })),
   ]
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

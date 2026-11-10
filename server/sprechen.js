@@ -11,6 +11,7 @@
  * Solange Datenschutz und Abo nicht freigegeben sind, gilt das nur
  * fuer die Konten in TESTER. "alle" oeffnet den Trainer fuer jeden.
  */
+import { claudeFetch } from './ki.js'
 import { createClient } from '@supabase/supabase-js'
 
 const MODELL = 'gpt-realtime-2.1-mini'
@@ -416,7 +417,7 @@ const SCHEMA = {
 
 async function werteAus(protokoll, sprache, bisher) {
   const muttersprache = sprache === 'en' ? 'English' : 'German'
-  const antwort = await fetch('https://api.openai.com/v1/chat/completions', {
+  const antwort = await claudeFetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({

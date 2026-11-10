@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 // Zusatzaufgaben für einen Grammatik-Baustein.
 //
 // Jeder Baustein hat fünf handgeschriebene Aufgaben. Die sind die
@@ -91,12 +92,12 @@ Immer:
  * @param {number} anzahl   – wie viele neue Aufgaben
  */
 export async function erzeugeBausteinAufgaben(baustein, anzahl = 5) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const muster = JSON.stringify(baustein.aufgaben ?? [], null, 1)
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

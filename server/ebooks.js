@@ -1,3 +1,4 @@
+import { kiChat, HAIKU, claudeFetch } from './ki.js'
 /**
  * Bilinguale E-Books für Habloo.
  *
@@ -95,8 +96,8 @@ export async function erzeugeEbook(thema, niveau = 'A2', sprache = 'de') {
   // der Oberflaeche. Die Feldnamen im Schema heissen weiterhin
   // "_de" - sie sind ein interner Schluessel, keine Anzeige.
   const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const vorgaben = {
     A1: 'sehr einfache Sätze, nur Präsens, Grundwortschatz; 4 Kapitel',
@@ -105,7 +106,7 @@ export async function erzeugeEbook(thema, niveau = 'A2', sprache = 'de') {
     B2: 'anspruchsvolle Sprache mit Redewendungen; 6 Kapitel',
   }[niveau] ?? 'einfache Sätze; 5 Kapitel'
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -257,8 +258,8 @@ const WORTART_REGEL = {
 
 export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle', sprache = 'de') {
   const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   // Ohne Thema übernimmt die KI die Auswahl: sie schaut sich den
   // bisherigen Wortschatz an und schlägt den nächsten sinnvollen
@@ -315,7 +316,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], wortart = 'alle',
 
 /** Eine einzelne Anfrage an das Modell für eine Themenliste. */
 async function frageListe(schluessel, auftrag, anzahl, ziel = 'Deutsch') {
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -365,10 +366,10 @@ async function frageListe(schluessel, auftrag, anzahl, ziel = 'Deutsch') {
  */
 export async function erzeugeVideoVokabeln(text, bekannt = [], sprache = 'de') {
   const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -478,4 +479,104 @@ export async function speichereEbook(nutzerId, buch) {
     throw new Error('Buch konnte nicht gespeichert werden: ' + (await antwort.text()).slice(0, 200))
   }
   return (await antwort.json())[0]
+}
+
+// ---------------------------------------------------------------
+//  Buch-Generator im Blinkist-Stil (10.11.2026)
+// ---------------------------------------------------------------
+// Ein echtes Buch (Titel/Autor oder eingefügter Text) → 8 Kapitel,
+// jeder Absatz auf Spanisch UND in der Oberflächensprache. Läuft über
+// Claude Haiku (server/ki.js). Gespeichert wird nur die Zusammenfassung,
+// nie der eingefügte Buchtext.
+
+
+/** Premium: Fair-Use-Grenze im Monat. Gratis zählt in den KI-Topf. */
+export const BUECHER_PREMIUM_PRO_MONAT = 50
+/** So viel eingefügter Text geht mit (≈150 Buchseiten). */
+export const BUCHTEXT_MAX = 300000
+
+const PAAR = (beschreibung, ziel) => ({
+  type: 'object',
+  properties: {
+    es: { type: 'string', description: `${beschreibung} auf Spanisch` },
+    de: { type: 'string', description: `${beschreibung} auf ${ziel}` },
+  },
+  required: ['es', 'de'],
+  additionalProperties: false,
+})
+
+const buchSchema = (ziel) => ({
+  type: 'object',
+  properties: {
+    bekannt: { type: 'boolean', description: 'true nur, wenn du das Buch sicher kennst ODER ein Buchtext mitgeliefert wurde' },
+    titel: { type: 'string', description: 'Titel des Buches auf Spanisch (so, wie es auf Spanisch erschienen ist)' },
+    titel_de: { type: 'string', description: `Titel auf ${ziel} (gängiger Titel der Übersetzung, sonst sinngemäß)` },
+    autor: { type: 'string' },
+    kurz: PAAR('Ein Satz: worum es im Buch geht', ziel),
+    kapitel: {
+      type: 'array',
+      description: 'Genau 8 Kapitel: 1 Einführung, 6 Kernideen, 1 Fazit',
+      items: {
+        type: 'object',
+        properties: {
+          titel: PAAR('Kapitelüberschrift als Aussage, kein Etikett', ziel),
+          absaetze: { type: 'array', description: '3 kurze Absätze', items: PAAR('Absatz', ziel) },
+          kern: PAAR('Die Kernaussage des Kapitels in einem Satz', ziel),
+          vokabeln: {
+            type: 'array',
+            description: '5 nützliche spanische Wörter aus diesem Kapitel',
+            items: {
+              type: 'object',
+              properties: { wort: { type: 'string' }, uebersetzung: { type: 'string' } },
+              required: ['wort', 'uebersetzung'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['titel', 'absaetze', 'kern', 'vokabeln'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['bekannt', 'titel', 'titel_de', 'autor', 'kurz', 'kapitel'],
+  additionalProperties: false,
+})
+
+const NIVEAU_TEXT = {
+  A1: 'sehr kurze Sätze, nur Präsens, Grundwortschatz',
+  A2: 'kurze Sätze, Präsens und einfache Vergangenheit, Alltagswortschatz',
+  B1: 'natürliche Sprache, verschiedene Zeiten, wenige Redewendungen',
+  B2: 'anspruchsvolle, flüssige Sprache mit Redewendungen',
+  C1: 'Sprache wie in einem echten Sachbuch',
+}
+
+/**
+ * @param {{ titel: string, text?: string, niveau?: string, sprache?: string }} eingabe
+ */
+export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A2', sprache = 'de' }) {
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
+  const auszug = String(text || '').slice(0, BUCHTEXT_MAX).trim()
+  const daten = await kiChat({
+    messages: [
+      {
+        role: 'system',
+        content:
+          'Du schreibst Buchzusammenfassungen im Stil von Blinkist für Spanischlernende. ' +
+          `Jeder Absatz steht auf Spanisch und auf ${ziel}; die Fassung auf ${ziel} ist natürlich formuliert, nicht Wort für Wort. ` +
+          'Genau 8 Kapitel: eine Einführung, sechs Kernideen des Buches, ein Fazit. Je Kapitel 3 kurze Absätze (zusammen 90–130 Wörter auf Spanisch). ' +
+          'Fasse in eigenen Worten zusammen, zitiere keine längeren Passagen aus dem Buch. ' +
+          'Erfinde nichts: Kennst du das Buch nicht sicher und liegt kein Buchtext vor, setze bekannt=false, ' +
+          'schreibe trotzdem 8 Kapitel nur über das, was der Titel sicher erkennen lässt, und sage das in der Einführung offen.',
+      },
+      {
+        role: 'user',
+        content:
+          `Buch: ${titel || '(ohne Titel)'}\nNiveau ${niveau}: ${NIVEAU_TEXT[niveau] ?? NIVEAU_TEXT.A2}.` +
+          (auszug ? `\n\nBuchtext oder Auszug (Grundlage der Zusammenfassung):\n"""\n${auszug}\n"""` : ''),
+      },
+    ],
+    response_format: { type: 'json_schema', json_schema: { name: 'buch', schema: buchSchema(ziel), strict: true } },
+  }, HAIKU, { maxTokens: 16000 })
+  const buch = JSON.parse(daten.choices[0].message.content)
+  return { ...buch, niveau, mitText: Boolean(auszug) }
 }

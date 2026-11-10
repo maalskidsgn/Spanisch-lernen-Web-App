@@ -17012,3 +17012,233 @@ body.lektion-laeuft .lessons > :not(button),
 .trainer:has(> .flashcard.done) > :not(button) {
   width: 100%;
 }
+
+/* ===== Buch-Generator im Blinkist-Stil (10.11.2026) =====
+   Weiße Container mit klarem Kontrast auf dem farbigen Grund,
+   Knöpfe im Toon-Stil der App. In Habloo und Davaigo gleich. */
+.bg-karte, .bl-karte {
+  background: var(--card); border-radius: 24px; border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 14px 34px -18px rgba(0, 0, 0, .16);
+}
+.bg-karte { padding: 24px; margin-bottom: 18px; }
+
+/* --- Entdecken --- */
+.bg-form-kopf { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+.bg-form-kopf h2 { margin: 0 0 2px; font-size: 1.3rem; letter-spacing: -.01em; }
+.bg-form-kopf p { margin: 0; color: var(--muted); font-weight: 700; font-size: .92rem; }
+.bg-form-symbol {
+  flex: none; width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center;
+  background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-press);
+}
+.bg-themen { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -24px 16px; padding: 2px 24px 4px; }
+.bg-themen::-webkit-scrollbar { display: none; }
+.bg-themen button {
+  flex: none; border: 0; border-radius: 999px; padding: 9px 15px; font: inherit; font-weight: 800; font-size: .88rem; cursor: pointer;
+  background: color-mix(in srgb, var(--primary) 7%, var(--card)); color: var(--navy);
+}
+.bg-themen button.an { background: var(--navy); color: #fff; }
+.bg-katalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.bg-katalog-buch {
+  position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 10px; border-radius: 16px; border: 0; cursor: pointer;
+  background: var(--card); font: inherit; color: inherit; text-align: left; box-shadow: 0 0 0 1.5px var(--line) inset;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.bg-katalog-buch:hover { transform: translateY(-1px); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--primary) 35%, var(--line)) inset; }
+.bg-katalog-buch.an { box-shadow: 0 0 0 2.5px var(--primary) inset; background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
+.bg-katalog-text { display: grid; gap: 2px; min-width: 0; }
+.bg-katalog-text b { font-size: .92rem; line-height: 1.25; }
+.bg-katalog-text small { color: var(--muted); font-weight: 700; font-size: .78rem; }
+.bg-haken { position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: #fff; font-size: .75rem; font-weight: 900; }
+
+.bg-form-felder { display: grid; gap: 10px; margin-top: 20px; }
+.bg-feldname { font-weight: 900; font-size: .9rem; }
+.bg-form-felder input, .bg-text textarea {
+  width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 13px 15px;
+  font: inherit; font-weight: 700; background: var(--card); color: var(--navy);
+}
+.bg-form-felder input:focus, .bg-text textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent); }
+.bg-text textarea { resize: vertical; min-height: 130px; font-weight: 600; line-height: 1.5; }
+.bg-text-fuss { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+.bg-text-fuss small { color: var(--muted); font-weight: 700; }
+.bg-link { justify-self: start; background: none; border: 0; padding: 2px 0; color: var(--primary); font: inherit; font-weight: 900; font-size: .9rem; cursor: pointer; }
+.bg-trenner { height: 1px; background: var(--line); margin: 6px 0; }
+.bg-niveaus { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.bg-niveaus > span { font-weight: 900; font-size: .9rem; margin-right: 4px; }
+.bg-chip {
+  border: 0; border-radius: 999px; padding: 8px 14px; font: inherit; font-weight: 900; cursor: pointer;
+  background: var(--card); color: var(--navy); box-shadow: 0 0 0 1.5px var(--line) inset;
+}
+.bg-chip-an { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-press); }
+.bg-los {
+  border: 0; border-radius: 16px; padding: 15px 20px; font: inherit; font-weight: 900; font-size: 1.02rem; cursor: pointer;
+  background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-press);
+}
+.bg-los:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-press); }
+.bg-los:disabled { opacity: .5; cursor: default; }
+.bg-dauer { margin: 0; text-align: center; color: var(--muted); font-weight: 700; font-size: .9rem; }
+
+/* --- Cover: flaches Buch mit Rücken --- */
+.bg-cover {
+  position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px;
+  aspect-ratio: 3 / 4; width: 100%; padding: 14px 12px 14px 20px; border-radius: 8px 14px 14px 8px;
+  background: var(--cf); color: #fff; text-align: left; overflow: hidden; box-shadow: 0 5px 0 var(--ck);
+}
+.bg-cover-ruecken { position: absolute; left: 0; top: 0; bottom: 0; width: 8px; background: var(--ck); }
+.bg-cover-niveau { position: absolute; top: 9px; right: 9px; padding: 2px 8px; border-radius: 999px; background: #fff; color: var(--ck); font-weight: 900; font-size: .7rem; }
+.bg-cover b { font-size: 1rem; line-height: 1.2; text-wrap: balance; }
+.bg-cover small { font-weight: 800; opacity: .9; font-size: .76rem; }
+.bg-cover-klein { width: 92px; flex: none; padding: 10px 8px 10px 15px; }
+.bg-cover-klein b { font-size: .78rem; }
+.bg-cover-klein small { font-size: .66rem; }
+.bg-cover-mini { width: 46px; flex: none; padding: 6px 5px 6px 10px; border-radius: 4px 8px 8px 4px; box-shadow: 0 3px 0 var(--ck); }
+.bg-cover-mini .bg-cover-ruecken { width: 5px; }
+.bg-cover-mini b { font-size: .5rem; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* --- Regal --- */
+.bg-regal h3 { margin: 0 0 16px; font-size: 1.1rem; }
+.bg-regal-reihe { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 20px 16px; }
+.bg-regal-buch { position: relative; }
+.bg-regal-knopf { display: grid; gap: 6px; width: 100%; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.bg-regal-knopf .bg-cover { transition: transform .15s ease; }
+.bg-regal-knopf:hover .bg-cover { transform: translateY(-2px); }
+.bg-regal-titel { font-weight: 900; font-size: .9rem; line-height: 1.25; margin-top: 6px; }
+.bg-regal-meta { color: var(--muted); font-weight: 700; font-size: .76rem; display: flex; gap: 6px; flex-wrap: wrap; }
+.bg-regal-meta em { font-style: normal; color: var(--primary); font-weight: 900; }
+.bg-weg { position: absolute; top: -8px; right: -8px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--card); color: var(--muted); font-weight: 900; cursor: pointer; box-shadow: 0 0 0 1.5px var(--line) inset, 0 2px 6px rgba(0, 0, 0, .08); }
+
+/* ----- Leser ----- */
+.bl { max-width: 720px; margin: 0 auto; padding-bottom: 120px; }
+/* Kopfleiste über die volle Breite: Hintergrund per Schatten-Trick,
+   der Inhalt bleibt in der Lesespalte (kein 100vw – sonst seitliches Scrollen) */
+.bl-leiste {
+  position: sticky; top: 0; z-index: 30; margin-bottom: 18px; padding-top: 10px;
+  background: var(--card);
+  box-shadow: 0 0 0 100vmax var(--card), 0 1px 0 100vmax var(--line);
+  clip-path: inset(0 -100vmax -1px);
+}
+.bl-leiste-zeile { display: flex; align-items: center; gap: 12px; }
+.bl-leiste-unten { justify-content: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; }
+.bl-rund {
+  flex: none; width: 42px; height: 42px; border-radius: 50%; border: 0; font: inherit; font-weight: 900; font-size: 1.05rem; cursor: pointer;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card)); color: var(--navy);
+}
+.bl-rund:disabled { opacity: .35; cursor: default; }
+.bl-mitte { flex: 1; min-width: 0; display: grid; text-align: center; }
+.bl-mitte b { font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bl-mitte span { font-size: .76rem; font-weight: 800; color: var(--muted); }
+.bl-platz { width: 42px; flex: none; }
+.bl-laut {
+  flex: none; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 8px; border-radius: 999px; border: 0;
+  font: inherit; font-weight: 900; font-size: .85rem; cursor: pointer; color: var(--muted); background: var(--card); box-shadow: 0 0 0 1.5px var(--line) inset;
+}
+.bl-schalter { position: relative; width: 34px; height: 20px; border-radius: 999px; background: var(--line); transition: background .2s ease; }
+.bl-schalter i { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .18); transition: transform .2s ease; }
+.bl-laut.an { color: var(--primary); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--primary) 40%, var(--card)) inset; }
+.bl-laut.an .bl-schalter { background: var(--primary); }
+.bl-laut.an .bl-schalter i { transform: translateX(14px); }
+.bl-segment {
+  display: flex; width: fit-content; max-width: 100%; padding: 4px; gap: 2px; border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+}
+.bl-segment button { border: 0; background: none; border-radius: 9px; padding: 7px 16px; font: inherit; font-weight: 800; font-size: .86rem; color: var(--muted); cursor: pointer; }
+.bl-segment button.an { background: var(--card); color: var(--navy); box-shadow: 0 1px 2px rgba(0, 0, 0, .08), 0 0 0 1px var(--line); }
+.bl-fortschritt { height: 3px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.bl-fortschritt i { display: block; height: 100%; background: var(--primary); border-radius: 0 999px 999px 0; transition: width .35s ease; }
+
+.bl-seite { display: grid; gap: 16px; animation: bl-ein .3s ease both; }
+@keyframes bl-ein { from { opacity: 0; transform: translateY(6px); } }
+.bl-karte { padding: 28px 30px; }
+.bl-karten-titel { margin: 0; font-size: 1.05rem; font-weight: 900; }
+
+/* Übersicht */
+.bl-held { display: grid; grid-template-columns: 170px 1fr; gap: 26px; align-items: start; }
+.bl-held-text h1 { margin: 0; font-size: 1.75rem; line-height: 1.15; letter-spacing: -.015em; text-wrap: balance; }
+.bl-autor { margin: 6px 0 0; font-weight: 800; color: var(--muted); }
+.bl-fakten { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; padding: 0; }
+.bl-fakten li { padding: 6px 12px; border-radius: 999px; background: color-mix(in srgb, var(--primary) 8%, var(--card)); font-size: .82rem; font-weight: 700; color: var(--muted); }
+.bl-fakten b { color: var(--navy); font-weight: 900; }
+.bl-kurz { margin-top: 14px; }
+.bl-kurz .bl-text { font-size: 1.02rem; line-height: 1.55; }
+.bl-start { margin-top: 20px; width: 100%; max-width: 320px; }
+.bl-warnung { margin: 0; padding: 12px 16px; border-radius: 16px; font-weight: 800; font-size: .9rem; background: color-mix(in srgb, var(--primary) 10%, var(--card)); color: var(--navy); }
+.bl-inhalt { list-style: none; margin: 12px 0 0; padding: 0; display: grid; }
+.bl-inhalt li + li { border-top: 1px solid var(--line); }
+.bl-inhalt button { width: 100%; display: flex; align-items: center; gap: 14px; padding: 14px 2px; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.bl-inhalt button:hover .bl-nr { background: var(--primary); color: #fff; }
+.bl-nr { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: .88rem; background: color-mix(in srgb, var(--primary) 10%, var(--card)); color: var(--primary); transition: background .15s ease; }
+.bl-inhalt-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.bl-inhalt-text small { font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.bl-inhalt-text b { font-size: 1rem; line-height: 1.3; }
+.bl-inhalt-text i, .bl-inhalt-text em { font-size: .86rem; font-weight: 700; }
+.bl-inhalt-text i { color: color-mix(in srgb, var(--primary) 75%, var(--navy)); }
+.bl-inhalt-text em { font-style: normal; color: var(--muted); }
+.bl-pfeil { flex: none; font-size: 1.4rem; color: var(--muted); }
+
+/* Kapitel */
+.bl-label { font-size: .74rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+.bl-kapitel h2 { margin: 8px 0 0; font-size: 1.8rem; line-height: 1.2; letter-spacing: -.015em; font-weight: 900; text-wrap: balance; }
+.bl-laut-titel { font-size: 1rem !important; }
+.bl-titel-zweit { margin-top: 6px !important; }
+.bl-absaetze { display: grid; gap: 22px; margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line); }
+.bl-absatz p, .bl-kurz p, .bl-kern p { margin: 0; }
+.bl-text { font-size: 1.14rem; line-height: 1.75; font-weight: 600; color: var(--navy); }
+.bl-lautzeile { margin: 6px 0 0 !important; font-size: .96rem; line-height: 1.55; font-style: italic; font-weight: 700; color: color-mix(in srgb, var(--primary) 75%, var(--navy)); }
+.bl-uebers { margin: 8px 0 0 !important; font-size: 1rem; line-height: 1.6; font-weight: 600; color: var(--muted); }
+.bl-tipp { margin: 20px 0 0; font-size: .82rem; font-weight: 700; color: var(--muted); }
+.bl-kern { margin: 28px 0 0; padding: 20px 22px; border-radius: 18px; background: color-mix(in srgb, var(--primary) 9%, var(--card)); }
+.bl-kern figcaption { font-size: .72rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+.bl-gross { margin: 8px 0 0 !important; font-size: 1.26rem; line-height: 1.35; font-weight: 900; letter-spacing: -.01em; color: var(--navy); }
+
+.bl-woerter-kopf { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.bl-woerter ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.bl-woerter li { display: grid; gap: 2px; padding: 12px 14px; border-radius: 14px; background: color-mix(in srgb, var(--primary) 5%, var(--card)); box-shadow: 0 0 0 1px var(--line) inset; }
+.bl-woerter li b { font-size: 1rem; }
+.bl-woerter li i { font-size: .8rem; font-weight: 800; color: color-mix(in srgb, var(--primary) 75%, var(--navy)); }
+.bl-woerter li span { font-size: .82rem; font-weight: 700; color: var(--muted); }
+.bl-rein { border: 0; border-radius: 999px; padding: 9px 15px; font: inherit; font-weight: 900; font-size: .85rem; cursor: pointer; background: var(--success); color: #fff; box-shadow: 0 3px 0 var(--success-press); }
+.bl-rein:disabled { background: transparent; color: var(--success); box-shadow: 0 0 0 1.5px var(--success) inset; cursor: default; }
+
+.bl-ende { display: grid; justify-items: center; text-align: center; gap: 12px; }
+.bl-ende .bg-cover { width: 150px; }
+.bl-ende h2 { margin: 6px 0 0; font-size: 1.6rem; }
+
+.bl-fuss { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: var(--card); border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); }
+.bl-fuss-zeile { display: flex; gap: 10px; max-width: 720px; margin: 0 auto; }
+.bl-zurueck {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; height: 46px; padding: 0 18px; border: 0; border-radius: 14px;
+  font: inherit; font-weight: 900; font-size: .95rem; cursor: pointer; color: var(--navy);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+}
+.bl-weiter {
+  flex: 1; border: 0; border-radius: 14px; padding: 0 22px; height: 46px; font: inherit; font-weight: 900; font-size: 1rem; cursor: pointer;
+  background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-press);
+}
+.bl-weiter:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-press); }
+.bl-weiter:disabled { opacity: .6; cursor: default; }
+
+/* Bibliothek (6 Bücher für alle) + Premium-Schranke (10.11.2026) */
+.bg-regal-kopf { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.bg-regal-kopf h3 { margin: 0; font-size: 1.15rem; }
+.bg-regal-kopf span { color: var(--muted); font-weight: 800; font-size: .85rem; }
+.bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.bg-premium-hinweis { margin: 0; color: var(--muted); font-weight: 700; font-size: .92rem; line-height: 1.5; }
+.bg-los-premium { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ffc800; color: #3a2a00; box-shadow: 0 4px 0 #d19b00; }
+.bg-los-premium:active { box-shadow: 0 1px 0 #d19b00; }
+@media (max-width: 900px) { .bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+@media (max-width: 600px) {
+  .bg-karte { padding: 18px; }
+  .bg-themen { margin: 0 -18px 14px; padding: 2px 18px 4px; }
+  .bg-katalog { grid-template-columns: 1fr; }
+  .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bl-karte { padding: 22px 18px; }
+  .bl-held { grid-template-columns: 96px 1fr; gap: 16px; }
+  .bl-held-text h1 { font-size: 1.35rem; }
+  .bl-start { max-width: none; }
+  .bl-kapitel h2 { font-size: 1.45rem; }
+  .bl-text { font-size: 1.06rem; }
+  .bl-laut { padding: 0 10px 0 6px; font-size: .78rem; }
+  .bl-segment button { padding: 7px 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .bl-seite { animation: none; } .bl-fortschritt i, .bl-schalter, .bl-schalter i { transition: none; } }
