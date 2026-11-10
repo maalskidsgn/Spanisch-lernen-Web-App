@@ -16979,3 +16979,21 @@ html, body { overflow-x: clip; }
 @keyframes geschenk-ein { from { opacity: 0; } }
 @keyframes geschenk-hops { from { transform: translateY(20px) scale(.92); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .geschenk-schleier, .geschenk-karte { animation: none; } }
+
+/* ===== Mittig: laufende Übungen UND die Seite „Runde geschafft“ (10.11.2026) =====
+   Davaigo hatte die Zentrier-Regel von Habloo nicht; die Ergebnis-Karte
+   stand in beiden Apps oben. :has() greift die Ergebnis-Ansicht ohne
+   eigenen Klassennamen im JSX. */
+body.lektion-laeuft .lessons,
+.training-stage,
+.trainer:has(> .flashcard.done) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(100dvh - 200px);
+}
+body.lektion-laeuft .lessons > .player-top,
+.training-stage > .player-top,
+.training-stage > .lern-fortschritt {
+  flex: 0 0 auto;
+}
