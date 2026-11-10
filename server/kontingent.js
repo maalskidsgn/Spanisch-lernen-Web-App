@@ -13,14 +13,14 @@
  */
 
 /**
- * Gratis-Grenzen pro WOCHE (seit 09.11.2026, Manuel):
- *  - 7 KI-Erstellungen (Wortlisten, Wörter aus Video, Sätze,
+ * Gratis-Grenzen (seit 09.11.2026, Manuel) – KI pro MONAT:
+ *  - 10 KI-Erstellungen im Monat (Wortlisten, Wörter aus Video, Sätze,
  *    Lesetexte, E-Books) – ein gemeinsamer Topf
  *  - eigene YouTube-Videos: keine (nur Premium); die Mediathek ist frei
- * Die Woche beginnt montags. Premium hat keine Grenze.
+ * Der Monat beginnt am 1. Premium hat keine Grenze.
  * Gleiche Werte in src/limits.js (nur Anzeige) und in der anderen App.
  */
-export const KI_PRO_WOCHE = 7
+export const KI_PRO_MONAT = 10
 // 09.11.2026: eigene Videos nur mit Premium – gratis 0, Mediathek frei
 export const VIDEOS_PRO_WOCHE = 0
 // Alte Namen, damit bestehender Code weiterläuft
@@ -38,12 +38,12 @@ const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
 
 /**
  * Der Schlüssel des Zeitraums als YYYY-MM-TT (Server-Ortszeit).
- * Seit 09.11.2026 zählt alles wochenweise: Schlüssel ist der Montag
- * der laufenden Woche. Die Spalte heißt weiter `tag`.
+ * Seit 09.11.2026 zählt die KI monatsweise: Schlüssel ist der 1. des
+ * laufenden Monats. Die Spalte heißt weiter `tag`.
  */
 function heuteTag() {
   const d = new Date()
-  d.setDate(d.getDate() - ((d.getDay() + 6) % 7))
+  d.setDate(1) // seit 09.11.2026 abends: pro MONAT (Schlüssel = der 1.)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
     d.getDate()
   ).padStart(2, '0')}`
@@ -119,26 +119,25 @@ export async function zaehleNutzung(nutzerId, art) {
   return neu
 }
 
-/** Wann füllt sich das Kontingent wieder auf? Nächster Montag 0 Uhr. */
-export function naechsterMontag() {
+/** Wann füllt sich das Kontingent wieder auf? Am 1. des nächsten Monats. */
+export function naechsterMonat() {
   const d = new Date()
-  d.setDate(d.getDate() + (7 - ((d.getDay() + 6) % 7)))
-  d.setHours(0, 0, 0, 0)
-  return d
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1)
 }
 export function naechsteAuffuellung(en = false) {
-  const tage = Math.ceil((naechsterMontag() - Date.now()) / 86400000)
-  if (en) return tage <= 1 ? 'tomorrow (Monday)' : `on Monday (in ${tage} days)`
-  return tage <= 1 ? 'morgen (Montag)' : `am Montag (in ${tage} Tagen)`
+  const n = naechsterMonat()
+  return en
+    ? 'on ' + n.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+    : 'am ' + n.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })
 }
 
 /** Stand für die Anzeige: { ki: {genutzt, gesamt}, video: {…}, auffuellung } */
-export async function wochenStand(nutzerId) {
-  const [ki, video] = await Promise.all([nutzungHeute(nutzerId, 'ki'), videosDieseWoche(nutzerId)])
+export async function monatsStand(nutzerId) {
+  const ki = await nutzungHeute(nutzerId, 'ki')
   return {
-    ki: { genutzt: ki, gesamt: KI_PRO_WOCHE },
-    video: { genutzt: video, gesamt: VIDEOS_PRO_WOCHE },
-    auffuellung: naechsterMontag().toISOString(),
+    ki: { genutzt: ki, gesamt: KI_PRO_MONAT },
+    video: { genutzt: 0, gesamt: VIDEOS_PRO_WOCHE }, // eigene Videos nur Premium
+    auffuellung: naechsterMonat().toISOString(),
   }
 }
 
@@ -167,53 +166,4 @@ export async function gibNutzungZurueck(nutzerId, art) {
     }
   }
   return neu
-}
-
-// ---------------------------------------------------------------
-//  Videos: 1 neues pro Woche (seit 09.11.2026, Manuel: „nur 1 Video“)
-// ---------------------------------------------------------------
-//
-// Gezählt wird jedes Video, das jemand zum ERSTEN Mal öffnet – auch
-// wenn es schon in der Mediathek liegt. Ein Video, das man schon
-// einmal geöffnet hat, bleibt für immer frei (Zeile art = "v:<id>").
-
-function wochenMontag() {
-  return heuteTag()
-}
-
-/** Wie viele verschiedene Videos hat der Nutzer diese Woche neu geöffnet? */
-export async function videosDieseWoche(nutzerId) {
-  try {
-    const r = await fetch(
-      `${BASIS()}/nutzung?select=art&nutzer_id=eq.${nutzerId}&tag=eq.${wochenMontag()}&art=like.v:*`,
-      { headers: supabaseKopf() }
-    )
-    if (r.ok) return (await r.json()).length
-  } catch { /* unten */ }
-  return 0
-}
-
-/**
- * Darf dieser Nutzer das Video öffnen? Verbucht es beim ersten Mal.
- * @returns {Promise<{ok: boolean, neu?: boolean}>}
- */
-export async function videoFreigabe(nutzerId, videoId) {
-  const art = 'v:' + String(videoId).slice(0, 20)
-  try {
-    const schon = await fetch(
-      `${BASIS()}/nutzung?select=tag&nutzer_id=eq.${nutzerId}&art=eq.${encodeURIComponent(art)}&limit=1`,
-      { headers: supabaseKopf() }
-    )
-    if (schon.ok && (await schon.json()).length) return { ok: true }
-    if ((await videosDieseWoche(nutzerId)) >= VIDEOS_PRO_WOCHE) return { ok: false }
-    await fetch(`${BASIS()}/nutzung`, {
-      method: 'POST',
-      headers: supabaseKopf(),
-      body: JSON.stringify({ nutzer_id: nutzerId, tag: wochenMontag(), art, anzahl: 1 }),
-    })
-    return { ok: true, neu: true }
-  } catch {
-    // Datenbank weg: lieber durchlassen als Lernende aussperren
-    return { ok: true }
-  }
 }

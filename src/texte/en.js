@@ -514,7 +514,7 @@ export default {
 
   /* ---------------- Ebooks ---------------- */
   "eb.buchSchreibenLassen": "Have a book written",
-  "eb.kostenloseBuecherDiesen": "Free creations this week (shared with lists, sentences and texts)",
+  "eb.kostenloseBuecherDiesen": "Free creations this month (shared with lists, sentences and texts)",
   "eb.themaOderBuchtitel": "Topic or book title, e.g. \"Ikigai\" or \"Better Sleep\"",
   "eb.niveau": "Level",
   "eb.schreibtDeinBuch": "Writes your book",
@@ -631,7 +631,7 @@ export default {
   /* ---------------- ListGenerator ---------------- */
   "lg.kiListengenerator": "AI List Generator",
   "lg.erstelleNeueWortlisten": "Create new word lists on any topic.",
-  "lg.kostenloseListenDiesen": "Free creations this week",
+  "lg.kostenloseListenDiesen": "Free creations this month",
   "lg.themaWaehlen": "Choose a topic",
   "lg.wortart": "Part of speech",
   "lg.eigenesThema": "Your own topic …",
@@ -646,7 +646,7 @@ export default {
   /* ---------------- SatzGenerator ---------------- */
   "sgn.saetzeErzeugen": "Create sentences",
   "sgn.waehleEinThema": "Pick a topic, a tense – or both.",
-  "sgn.kostenloseGenerierungenHeute": "Free creations this week",
+  "sgn.kostenloseGenerierungenHeute": "Free creations this month",
   "sgn.themaWaehlen": "Choose a topic",
   "sgn.zeitform": "Tense",
   "sgn.eigenesThema": "Your own topic …",
@@ -997,7 +997,7 @@ export default {
   "yt3.alleAnsehen": "View all",
   "yt3.nichtsDabei": "Nothing here on this topic yet.",
   "yt3.wichtigsteWoerter": "The most important words",
-  "pw.fuerHeute": "Done for this week",
+  "pw.fuerHeute": "Done for this month",
   "pw.unbegrenzt": "Unlimited vocab lists, words, and texts",
   "ll.jedenTag": "A short piece every day about Spain and Latin America – in Spanish and English.",
   "ll.wusstestDu": "Did you know?",
@@ -1111,8 +1111,8 @@ export default {
   "bzm.einmaligeZahlungKein": "One-time payment – no subscription, no renewal.",
 
   /* ---------------- Ebooks (Meldungen) ---------------- */
-  "ebm.deinMonatskontingentIst": "You've used this week's free creations – on Monday you can write new books again.",
-  "ebm.deinMonatskontingentIst2": "You've used your 7 free creations this week – with Premium, write unlimited books.",
+  "ebm.deinMonatskontingentIst": "You've used this month's free creations – next month you can write new books again.",
+  "ebm.deinMonatskontingentIst2": "You've used your 10 free creations this month – with Premium, write unlimited books.",
   "ebm.dieWichtigstenWoerter": "Key Words",
   "ebm.alleInDen": "＋ Add all to Vocab Trainer",
   "ebm.keineUebersetzungGefunden": "No translation found",
@@ -1247,7 +1247,7 @@ export default {
   'vg.woerterHinzugefuegt': '{zahl} words added',
   'vg.analysiere': 'Analysing text…',
   'vg.generieren': 'Generate vocabulary',
-  "vg.nochHeute": "{uebrig} of {gesamt} left this week",
+  "vg.nochHeute": "{uebrig} of {gesamt} left this month",
   'vg.uebernommen': 'Words moved into your trainer! ✓',
   'vg.waehleAus': 'Pick the words you want in your trainer:',
   'mm.weiterMehr': 'Next ({zahl} more)',
@@ -1356,8 +1356,8 @@ export default {
   "llk.gelesen": "· read",
 
   /* ---------------- PremiumWerbung (kurz) ---------------- */
-  "pwk.morgenGehtS": "More on Monday",
-  "pwk.tageslimitErreicht": "Weekly limit reached",
+  "pwk.morgenGehtS": "More next month",
+  "pwk.tageslimitErreicht": "Monthly limit reached",
   "pwk.premium": "Premium",
   "pwk.unbegrenztEigeneYoutube": "Unlimited YouTube videos",
   "pwk.zweisprachigeEBooks": "Unlimited bilingual e-books",
@@ -1475,7 +1475,7 @@ export default {
   "rtl.benutzernameUndProfilbild": "Username and profile picture are visible to other users – in the leaderboard, in search, and in duels. Choose both so that no one is disturbed by them: no insults, no violence, nothing sexual, no depiction of other people without their consent, no advertising, and no foreign trademarks or copyrights.",
   "rtl.jederKannEin": "Anyone can report or block a profile via the 'Problem with this profile?' button. We review reported profiles. If something violates these rules, we remove the image or name – for repeated or serious violations, we block the account. A blocked person will no longer appear anywhere for the person who blocked them.",
   "rtl.wennDuMeinst": "If you believe we have unjustly removed something, write to us at lernen@habloo.de. We will respond and explain our decision.",
-  "rtl.alleLernfunktionenSind": "Free: 20% of the lessons, 7 AI creations per week and every video in the library. Premium unlocks everything without limits: all lessons, unlimited vocab lists, sentences, texts and e-books, your own videos and 120 minutes of speaking practice per month.",
+  "rtl.alleLernfunktionenSind": "Free: 20% of the lessons, 10 AI creations per month and every video in the library. Premium unlocks everything without limits: all lessons, unlimited vocab lists, sentences, texts and e-books, your own videos and 120 minutes of speaking practice per month.",
   "rtl.dieJeweilsGeltenden": "The applicable prices are listed in the application. At the time of this version: €9.99 monthly or €89.99 annually. All prices include statutory VAT.",
   "rtl.mitDemAnlegen": "By creating an account, a free usage contract is concluded. A premium contract is concluded when you complete the order process via our payment service provider Stripe. We confirm the contract to you by email.",
   "rtl.dasMonatsaboLaeuft": "The monthly subscription runs for one month and is extended by another month if you do not cancel it by the end of the term. The annual subscription runs for one year and is extended by one month after the first year (§ 312k BGB). The one-time purchase has no term.",

@@ -52,7 +52,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
       if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(data.error)
       setSuggestions(data.vokabeln.map((v) => ({ ...v, checked: true })))
-      zaehleNutzung() // eine Erstellung aus dem gemeinsamen Wochentopf
+      zaehleNutzung() // eine Erstellung aus dem gemeinsamen Monatstopf
       setUebrig(verbleibend(premium))
     } catch (err) {
       setError(err.message)

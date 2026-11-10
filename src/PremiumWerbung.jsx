@@ -41,8 +41,8 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
         </div>
         <p className="pw-text">
           {sprache() === 'en'
-            ? `You've used this week's free creations. New ${was} ${naechsteAuffuellung()} – until then, practise with what you've collected.`
-            : `Deine Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue ${was} gibt es ${naechsteAuffuellung()} – bis dahin kannst du mit dem Gesammelten üben.`}
+            ? `You've used this month's free creations. New ${was} ${naechsteAuffuellung()} – until then, practise with what you've collected.`
+            : `Deine Gratis-Erstellungen für diesen Monat sind aufgebraucht. Neue ${was} gibt es ${naechsteAuffuellung()} – bis dahin kannst du mit dem Gesammelten üben.`}
         </p>
       </div>
     )
@@ -72,8 +72,8 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
 
       <p className="pw-text">
         {sprache() === 'en'
-          ? `You've used your ${LISTEN_PRO_TAG} free AI creations this week. New ${was} ${naechsteAuffuellung()} – or right now and without limits with Premium.`
-          : `Deine ${LISTEN_PRO_TAG} Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue ${was} gibt es ${naechsteAuffuellung()} – oder sofort und ohne Grenze mit Premium.`}
+          ? `You've used your ${LISTEN_PRO_TAG} free AI creations this month. New ${was} ${naechsteAuffuellung()} – or right now and without limits with Premium.`
+          : `Deine ${LISTEN_PRO_TAG} Gratis-Erstellungen für diesen Monat sind aufgebraucht. Neue ${was} gibt es ${naechsteAuffuellung()} – oder sofort und ohne Grenze mit Premium.`}
       </p>
 
       <ul className="pw-vorteile">

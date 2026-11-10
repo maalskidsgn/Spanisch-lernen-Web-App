@@ -91,7 +91,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
       setBuecher((b) => [antwort.buch, ...(b ?? [])])
       setKontingent((k) => (k ? { ...k, frei: antwort.frei } : k))
-      zaehleNutzung() // gemeinsamer KI-Wochentopf – Anzeige in den anderen Bereichen
+      zaehleNutzung() // gemeinsamer KI-Monatstopf – Anzeige in den anderen Bereichen
       setThema('')
       setOffenes(antwort.buch)
     } catch (f) {

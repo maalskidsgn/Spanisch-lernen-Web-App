@@ -72,7 +72,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
       setBegruendung(data.begruendung || '')
       setFertigThema(data.thema || gefragt)
-      zaehleNutzung() // eine Erstellung aus dem gemeinsamen Wochentopf
+      zaehleNutzung() // eine Erstellung aus dem gemeinsamen Monatstopf
       setUebrig(verbleibend(premium))
     } catch (err) {
       setFehler(err.message)

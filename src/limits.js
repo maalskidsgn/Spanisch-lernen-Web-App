@@ -1,11 +1,11 @@
-// Gratis-Grenzen – seit 09.11.2026 pro WOCHE (Manuel):
+// Gratis-Grenzen – seit 09.11.2026 (Manuel), KI pro MONAT:
 //
-//   - 7 KI-Erstellungen: Wortlisten, Wörter aus Video, Sätze,
+//   - 10 KI-Erstellungen im Monat: Wortlisten, Wörter aus Video, Sätze,
 //     Lesetexte und E-Books teilen sich EINEN Topf
 //   - eigene YouTube-Videos nur mit Premium, die Mediathek ist frei
 //   - 20 % der Lektionen (siehe premium.js)
 //
-// Die Woche beginnt montags. Die GRENZE zieht der Server
+// Der Monat beginnt am 1. Die GRENZE zieht der Server
 // (server/kontingent.js) – der Zähler hier ist nur für die Anzeige
 // und wird mit dem Server abgeglichen (holeKontingent).
 
@@ -15,24 +15,22 @@ import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { sprache } from './sprache.js'
 
-export const KI_PRO_WOCHE = 7
+export const KI_PRO_MONAT = 10
 export const VIDEOS_PRO_WOCHE = 0 // eigene Videos nur mit Premium (09.11.)
 export const GRATIS_LEKTIONEN_PROZENT = 20
 
-/** Montag der laufenden Woche als "JJJJ-MM-TT" – Schlüssel des Zeitraums. */
-export function wochenSchluessel(d = new Date()) {
-  const m = new Date(d)
-  m.setDate(m.getDate() - ((m.getDay() + 6) % 7))
-  return tagesSchluessel(m)
+/** Der 1. des laufenden Monats als "JJJJ-MM-TT" – Schlüssel des Zeitraums. */
+export function monatsSchluessel(d = new Date()) {
+  return tagesSchluessel(new Date(d.getFullYear(), d.getMonth(), 1))
 }
 
 function lies() {
   try {
     const g = JSON.parse(localStorage.getItem('nutzung')) ?? {}
-    if (g.woche !== wochenSchluessel()) return { woche: wochenSchluessel(), listen: 0, video: 0 }
+    if (g.woche !== monatsSchluessel()) return { woche: monatsSchluessel(), listen: 0, video: 0 }
     return { woche: g.woche, listen: g.listen ?? 0, video: g.video ?? 0 }
   } catch {
-    return { woche: wochenSchluessel(), listen: 0, video: 0 }
+    return { woche: monatsSchluessel(), listen: 0, video: 0 }
   }
 }
 
@@ -41,7 +39,7 @@ function schreib(stand) {
   window.dispatchEvent(new Event('kontingent'))
 }
 
-/** Der Zählerstand dieser Woche. */
+/** Der Zählerstand dieses Monats. */
 export function nutzung() {
   return lies()
 }
@@ -65,36 +63,34 @@ export function zaehleVideo() {
 export function kontingentLeer(art = 'ki') {
   const stand = lies()
   if (art === 'video') stand.video = VIDEOS_PRO_WOCHE
-  else stand.listen = KI_PRO_WOCHE
+  else stand.listen = KI_PRO_MONAT
   schreib(stand)
 }
 
-/** Wie viele KI-Erstellungen sind diese Woche noch übrig? */
+/** Wie viele KI-Erstellungen sind diesen Monat noch übrig? */
 export function verbleibend(premium = false) {
   if (premium) return Infinity
-  return Math.max(0, KI_PRO_WOCHE - lies().listen)
+  return Math.max(0, KI_PRO_MONAT - lies().listen)
 }
 
-/** Wie viele neue Videos sind diese Woche noch übrig? */
+/** Wie viele neue Videos sind diesen Monat noch übrig? */
 export function videosUebrig(premium = false) {
   if (premium) return Infinity
   return Math.max(0, VIDEOS_PRO_WOCHE - lies().video)
 }
 
-/** Nächster Montag 0 Uhr. */
-export function naechsterMontag() {
+/** Der 1. des nächsten Monats. */
+export function naechsterMonat() {
   const d = new Date()
-  d.setDate(d.getDate() + (7 - ((d.getDay() + 6) % 7)))
-  d.setHours(0, 0, 0, 0)
-  return d
+  return new Date(d.getFullYear(), d.getMonth() + 1, 1)
 }
 
 /** Wann füllt sich das Kontingent wieder auf? Für die Anzeige. */
 export function naechsteAuffuellung() {
-  const tage = Math.ceil((naechsterMontag() - Date.now()) / 86400000)
-  const en = sprache() === 'en'
-  if (en) return tage <= 1 ? 'tomorrow (Monday)' : `on Monday (in ${tage} days)`
-  return tage <= 1 ? 'morgen (Montag)' : `am Montag (in ${tage} Tagen)`
+  const n = naechsterMonat()
+  return sprache() === 'en'
+    ? 'on ' + n.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+    : 'am ' + n.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })
 }
 
 /** Kopfzeile mit Anmeldung – für alle Abrufe, die das Kontingent betreffen. */
@@ -118,7 +114,7 @@ export async function holeKontingent() {
     if (!res.ok) return
     const d = await res.json()
     if (d.premium) return
-    schreib({ woche: wochenSchluessel(), listen: d.ki?.genutzt ?? 0, video: d.video?.genutzt ?? 0 })
+    schreib({ woche: monatsSchluessel(), listen: d.ki?.genutzt ?? 0, video: d.video?.genutzt ?? 0 })
   } catch {
     /* offline – lokaler Stand bleibt */
   }
@@ -134,12 +130,12 @@ export function useKontingent(premium = false) {
     return () => window.removeEventListener('kontingent', neu)
   }, [])
   return {
-    ki: { uebrig: premium ? Infinity : Math.max(0, KI_PRO_WOCHE - stand.listen), gesamt: KI_PRO_WOCHE },
+    ki: { uebrig: premium ? Infinity : Math.max(0, KI_PRO_MONAT - stand.listen), gesamt: KI_PRO_MONAT },
     video: { uebrig: premium ? Infinity : Math.max(0, VIDEOS_PRO_WOCHE - stand.video), gesamt: VIDEOS_PRO_WOCHE },
   }
 }
 
 // Alte Namen, damit bestehender Code weiterläuft
-export const LISTEN_PRO_TAG = KI_PRO_WOCHE
-export const FREE_LIMIT = KI_PRO_WOCHE
+export const LISTEN_PRO_TAG = KI_PRO_MONAT
+export const FREE_LIMIT = KI_PRO_MONAT
 

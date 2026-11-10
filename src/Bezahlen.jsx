@@ -105,8 +105,8 @@ const KASSEN_TEXTE = {
     vorteile: [
       ['lektion', 'Alle Lektionen', 'alles offen', '20 %'],
       ['mikro', 'Sprach-Trainer', '120 Min. / Monat', '10 Min.'],
-      ['zauber', 'KI‑Wortlisten', 'unbegrenzt', '7 / Woche'],
-      ['buch', 'Sätze, Texte & E‑Books', 'unbegrenzt', 'teilt sich die 7'],
+      ['zauber', 'KI‑Wortlisten', 'unbegrenzt', '10 / Monat'],
+      ['buch', 'Sätze, Texte & E‑Books', 'unbegrenzt', 'teilt sich die 10'],
       ['video', 'Eigene YouTube‑Videos', 'ohne Limit', 'nur Mediathek'],
     ],
   },
@@ -123,8 +123,8 @@ const KASSEN_TEXTE = {
     vorteile: [
       ['lektion', 'All lessons', 'all unlocked', '20%'],
       ['mikro', 'Speaking trainer', '120 min / month', '10 min'],
-      ['zauber', 'AI word lists', 'unlimited', '7 / week'],
-      ['buch', 'Sentences, texts & e‑books', 'unlimited', 'shares the 7'],
+      ['zauber', 'AI word lists', 'unlimited', '10 / month'],
+      ['buch', 'Sentences, texts & e‑books', 'unlimited', 'shares the 10'],
       ['video', 'Your own YouTube videos', 'no limit', 'library only'],
     ],
   },

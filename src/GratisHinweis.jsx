@@ -1,7 +1,7 @@
 import { istApp } from './api.js'
 import BILDER from './kassenBilder.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { useKontingent, naechsteAuffuellung, KI_PRO_WOCHE, GRATIS_LEKTIONEN_PROZENT } from './limits.js'
+import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, GRATIS_LEKTIONEN_PROZENT } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
 
 /**
@@ -10,7 +10,7 @@ import { sprache, useTexte } from './sprache.js'
  * Nur in der Web-Version: In den Store-Apps darf kein Verweis auf
  * eine Kasse außerhalb des Stores stehen. Premium-Nutzer sehen nichts.
  *
- *   <GratisHinweis art="ki" />         7 KI-Erstellungen / Woche
+ *   <GratisHinweis art="ki" />         10 KI-Erstellungen / Monat
  *   <GratisHinweis art="video" />      eigene YouTube-Videos nur Premium
  *   <GratisHinweis art="lektionen" />  20 % der Lektionen
  *   <GratisHinweis art="sprechen" />   10 Min. Sprach-Trainer / Monat
@@ -42,8 +42,8 @@ function useSichtbar() {
 
 const TEXT = {
   de: {
-    ki: (u, g) => (u > 0 ? `Noch ${u} von ${g} KI-Erstellungen diese Woche` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
-    kiKlein: 'Wortlisten, Sätze, Texte & E-Books teilen sich den Wochentopf',
+    ki: (u, g) => (u > 0 ? `Noch ${u} von ${g} KI-Erstellungen diesen Monat` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
+    kiKlein: 'Wortlisten, Sätze, Texte & E-Books teilen sich den Monatstopf',
     video: () => 'Eigene YouTube-Videos mit Premium',
     videoKlein: 'Gratis: alle Videos aus der Mediathek. Suche und eigene Links schaltet Premium frei.',
     mediathek: 'Mediathek',
@@ -59,7 +59,7 @@ const TEXT = {
     titel: 'Dein Gratis-Paket',
     unter: 'Mit Premium fallen alle Grenzen weg.',
     zeilen: {
-      ki: 'KI-Erstellungen diese Woche',
+      ki: 'KI-Erstellungen diesen Monat',
       video: 'Eigene YouTube-Videos',
       lektionen: 'Lektionen frei',
       sprechen: 'Sprach-Trainer im Monat',
@@ -68,8 +68,8 @@ const TEXT = {
     alles: 'Alles freischalten',
   },
   en: {
-    ki: (u, g) => (u > 0 ? `${u} of ${g} AI creations left this week` : `You've used your ${g} free creations`),
-    kiKlein: 'Lists, sentences, texts & e-books share the weekly pool',
+    ki: (u, g) => (u > 0 ? `${u} of ${g} AI creations left this month` : `You've used your ${g} free creations`),
+    kiKlein: 'Lists, sentences, texts & e-books share the monthly pool',
     video: () => 'Your own YouTube videos with Premium',
     videoKlein: 'Free: every video in the library. Premium unlocks search and your own links.',
     mediathek: 'Library',
@@ -85,7 +85,7 @@ const TEXT = {
     titel: 'Your free plan',
     unter: 'Premium removes every limit.',
     zeilen: {
-      ki: 'AI creations this week',
+      ki: 'AI creations this month',
       video: 'Your own YouTube videos',
       lektionen: 'Lessons unlocked',
       sprechen: 'Speaking practice per month',
@@ -107,9 +107,9 @@ export default function GratisHinweis({ art = 'ki' }) {
   let titel, klein, zahl, leer = false, zaehlt = true
   if (art === 'ki') {
     leer = k.ki.uebrig <= 0
-    titel = T.ki(k.ki.uebrig, KI_PRO_WOCHE)
+    titel = T.ki(k.ki.uebrig, KI_PRO_MONAT)
     klein = leer ? T.wieder(naechsteAuffuellung()) : T.kiKlein
-    zahl = <><b>{k.ki.uebrig}</b>/{KI_PRO_WOCHE} {T.frei}</>
+    zahl = <><b>{k.ki.uebrig}</b>/{KI_PRO_MONAT} {T.frei}</>
   } else if (art === 'video') {
     // Seit 09.11.: eigene Videos nur Premium, die Mediathek ist frei
     zaehlt = false
@@ -152,7 +152,7 @@ export function GratisUebersicht() {
   if (!zeigen) return null
   const T = TEXT[sprache() === 'en' ? 'en' : 'de']
   const zeilen = [
-    ['ki', `${k.ki.uebrig} / ${KI_PRO_WOCHE}`, k.ki.uebrig / KI_PRO_WOCHE],
+    ['ki', `${k.ki.uebrig} / ${KI_PRO_MONAT}`, k.ki.uebrig / KI_PRO_MONAT],
     ['video', '–', 0, true],
     ['lektionen', `${GRATIS_LEKTIONEN_PROZENT} %`, GRATIS_LEKTIONEN_PROZENT / 100],
     ['sprechen', sprache() === 'en' ? '10 min' : '10 Min.', 10 / 120],
