@@ -1,7 +1,7 @@
 import { istApp } from './api.js'
 import BILDER from './kassenBilder.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, GRATIS_LEKTIONEN_PROZENT } from './limits.js'
+import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, GRATIS_LEKTIONEN_PROZENT, MAX_VOKABELN } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
 
 /**
@@ -96,9 +96,9 @@ const TEXT = {
 }
 
 // Symbol je Bereich – Toon-Bild auf Podest (Leiste A3, 09.11.2026)
-const SYMBOL = { ki: 'zauber', video: 'video', lektionen: 'lektion', sprechen: 'mikro' }
+const SYMBOL = { ki: 'zauber', video: 'video', lektionen: 'lektion', sprechen: 'mikro', vokabeln: 'buch' }
 
-export default function GratisHinweis({ art = 'ki' }) {
+export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
   const { zeigen } = useSichtbar()
   const k = useKontingent(false)
   if (!zeigen) return null
@@ -116,6 +116,17 @@ export default function GratisHinweis({ art = 'ki' }) {
     titel = T.video()
     klein = T.videoKlein
     zahl = <><b>{T.mediathek}</b> {T.frei}</>
+  } else if (art === 'vokabeln') {
+    // Nur zeigen, wenn es eng wird: ab 80 % der Grenze
+    if (gesamt < MAX_VOKABELN * 0.8) return null
+    zaehlt = false
+    leer = gesamt > MAX_VOKABELN
+    const en = sprache() === 'en'
+    titel = leer
+      ? (en ? `${gesamt - MAX_VOKABELN} words paused – Premium brings them all back` : `${gesamt - MAX_VOKABELN} Vokabeln pausiert – mit Premium wieder alle im Training`)
+      : (en ? `${gesamt} of ${MAX_VOKABELN} words in your trainer` : `${gesamt} von ${MAX_VOKABELN} Vokabeln im Trainer`)
+    klein = en ? `Free: up to ${MAX_VOKABELN} words are trained. Premium: unlimited.` : `Gratis werden bis zu ${MAX_VOKABELN} Vokabeln abgefragt. Premium: unbegrenzt.`
+    zahl = <><b>{Math.min(gesamt, MAX_VOKABELN)}</b>/{MAX_VOKABELN}</>
   } else if (art === 'lektionen') {
     zaehlt = false
     titel = T.lektionen

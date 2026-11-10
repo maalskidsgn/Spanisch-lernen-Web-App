@@ -6,6 +6,7 @@
 // tippt, auswählt oder Karten dreht – am Ende landet jedes Wort
 // über dieselbe review()-Funktion im Spaced-Repetition-Verfahren.
 
+import { wiederholReihenfolge } from './srs.js'
 import { mischen } from './lektionen.js'
 
 export const LEKTION_GROESSE = 20
@@ -23,7 +24,8 @@ export const ARTEN = [
  */
 export function baueLektion(alleEintraege, faellige) {
   const rest = alleEintraege.filter((e) => !faellige.some((f) => f.word === e.word))
-  return [...mischen(faellige), ...mischen(rest)]
+  // Fällige nach Abstand (längster zuerst), aufgefüllt mit gemischten übrigen
+  return [...[...faellige].sort(wiederholReihenfolge), ...mischen(rest)]
     .slice(0, LEKTION_GROESSE)
     .map((e) => e.word)
 }

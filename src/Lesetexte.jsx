@@ -5,14 +5,14 @@ import ThemaBild from './ThemaBild.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useMemo, useState, useEffect } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
-import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
+import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS, wiederholReihenfolge } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import { API_URL } from './api.js'
 import { neuerText, textSchluessel } from './lesetexte.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, loginKopf, kontingentLeer } from './limits.js'
-import { usePremium } from './premium.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, loginKopf, kontingentLeer, pausierteSchluessel, MAX_TEXTE } from './limits.js'
+import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { IconFunken, IconListe, IconPfeil } from './icons.jsx'
 import { useTexte, sprache } from './sprache.js'
 
@@ -50,6 +50,9 @@ const STUFEN = [
  * Karten (srs.js), wann der Text wieder dran ist.
  */
 export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vocab = {} }) {
+  // Gratis: nur die ersten MAX_TEXTE im Wiederholen (09.11.)
+  const { premium: ltPremium } = usePremium()
+  const pausiert = pausierteSchluessel(texte, MAX_TEXTE, ltPremium || TESTPHASE_ALLES_FREI, 'erstelltAm')
   const t = useTexte()
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [offenerText, setOffenerText] = useState(null) // Kennung des Textes im Leser
@@ -63,7 +66,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
     [texte]
   )
 
-  const faellig = entries.filter(isDue)
+  const faellig = entries.filter((e) => !pausiert.has(e.id) && isDue(e)).sort(wiederholReihenfolge)
   const neueste = [...entries].sort((a, b) => (b.erstelltAm ?? 0) - (a.erstelltAm ?? 0))
 
   /** Nach dem Lesen bewerten und den nächsten Termin setzen. */
@@ -132,7 +135,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
             {neueste.map((eintrag) => (
               <div key={eintrag.id} className="text-zeile">
                 <button className="text-zeile-text" onClick={() => setOffenerText(eintrag.id)}>
-                  <span className="text-titel">{eintrag.titelEs}</span>
+                  <span className="text-titel">{eintrag.titelEs}{pausiert.has(eintrag.id) && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</span>
                   <span className="text-untertitel">{eintrag.titelDe}</span>
                   <span className="text-meta">
                     {t(LEVEL_LABELS[eintrag.level] ?? 'srs.neu')} · {formatDue(eintrag)}

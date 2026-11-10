@@ -1,3 +1,4 @@
+import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
 import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
@@ -273,6 +274,7 @@ async function ladeFertigeUebersetzung(id, laenge) {
 }
 
 export default function App() {
+  const { premium: appPremium } = usePremium()
   const t = useTexte()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -1345,7 +1347,9 @@ export default function App() {
 
   const gelernt = Object.values(vocab).filter((v) => v.status === 'gewusst').length
   // Wie viele Vokabeln sind gerade zum Üben fällig? (für das rote Punkt-Badge im Tab)
-  const faellig = Object.values(vocab).filter((v) => isDue(withSrsDefaults(v))).length
+  // Gratis: pausierte Vokabeln (über 500) zählen nicht als fällig (09.11.)
+  const pausiertApp = pausierteSchluessel(vocab, MAX_VOKABELN, appPremium || TESTPHASE_ALLES_FREI, 'addedAt')
+  const faellig = Object.entries(vocab).filter(([k, v]) => !pausiertApp.has(k) && isDue(withSrsDefaults(v))).length
 
   // ---------- Meilensteine ----------
   // Nach jeder Änderung an den Zählern nachsehen, ob eine Stufe

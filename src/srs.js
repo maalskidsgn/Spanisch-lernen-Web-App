@@ -176,3 +176,16 @@ export function formatDue(entry) {
   if (days < 31) return t('srs.inTagen', { zahl: days })
   return new Date(entry.due).toLocaleDateString(gebiet())
 }
+
+/**
+ * Reihenfolge beim Wiederholen (09.11.2026, Manuel): die Karten mit dem
+ * längsten Abstand zuerst – wer 2 Monate gehalten hat, kommt vor der
+ * 2-Wochen- und der 1-Tag-Karte. Gleicher Abstand: die länger fällige zuerst.
+ * Vorher wurde gemischt, die Reihenfolge sprang wild hin und her.
+ */
+export function intervallVon(entry) {
+  return entry.intervall ?? INTERVALS_DAYS[entry.level ?? 0] ?? 0
+}
+export function wiederholReihenfolge(a, b) {
+  return intervallVon(b) - intervallVon(a) || (a.due ?? 0) - (b.due ?? 0)
+}

@@ -139,3 +139,22 @@ export function useKontingent(premium = false) {
 export const LISTEN_PRO_TAG = KI_PRO_MONAT
 export const FREE_LIMIT = KI_PRO_MONAT
 
+// ---------------------------------------------------------------
+//  Obergrenzen im Trainer für Gratis-Nutzer (09.11.2026, Manuel)
+// ---------------------------------------------------------------
+// Gespeichert wird weiter alles – auch wer Premium gekündigt hat, verliert
+// nichts. Im Training (Algorithmus, Fällig-Zahlen) sind aber nur die
+// ERSTEN 500 Vokabeln / 50 Sätze / 10 Texte (nach Hinzufüge-Datum).
+// Der Rest ist als „Pausiert · Premium“ gekennzeichnet.
+export const MAX_VOKABELN = 500
+export const MAX_SAETZE = 50
+export const MAX_TEXTE = 10
+
+/** Schlüssel, die für Gratis-Nutzer pausiert sind. Premium: leer. */
+export function pausierteSchluessel(objekt, max, premium, datumFeld) {
+  if (premium) return new Set()
+  const keys = Object.keys(objekt || {})
+  if (keys.length <= max) return new Set()
+  keys.sort((a, b) => (objekt[a]?.[datumFeld] ?? 0) - (objekt[b]?.[datumFeld] ?? 0) || a.localeCompare(b))
+  return new Set(keys.slice(max))
+}
