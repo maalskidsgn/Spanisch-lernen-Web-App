@@ -1,3 +1,4 @@
+import { pausierteSchluessel, MAX_VOKABELN } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
 import { sichereMerker } from './kontoMerker.js'

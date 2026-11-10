@@ -1,3 +1,4 @@
+import { pausierteSchluessel, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { useEffect, useMemo, useState } from 'react'

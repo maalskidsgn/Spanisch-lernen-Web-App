@@ -1,3 +1,4 @@
+import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Pokal } from './Games.jsx'
