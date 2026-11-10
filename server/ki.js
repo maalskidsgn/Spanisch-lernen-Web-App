@@ -107,6 +107,8 @@ export async function kiChat(body, modell = HAIKU, opt = {}) {
     .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: inhalt(m.content) || '…' }))
   // Claude verlangt, dass das Gespräch mit dem Nutzer beginnt
   if (!messages.length || messages[0].role !== 'user') messages.unshift({ role: 'user', content: '(Start)' })
+  // … und mit dem Nutzer endet (eine Assistenten-Nachricht am Ende wäre ein „Prefill“ → Fehler)
+  if (messages[messages.length - 1].role !== 'user') messages.push({ role: 'user', content: '(weiter)' })
 
   const schema = body.response_format?.json_schema?.schema
   const params = {
