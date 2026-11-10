@@ -17004,3 +17004,11 @@ body.lektion-laeuft .lessons > .player-top,
 svg.level-emblem.emblem-toon,
 .rs-block svg.level-emblem.emblem-toon,
 .rs-kopf svg.level-emblem.emblem-toon { filter: none; }
+
+/* Nicht gequetscht (10.11.2026): In der Flex-Spalte schrumpfen Karten mit
+   margin: auto auf Inhaltsbreite. Volle Breite zurück, max-width bleibt. */
+body.lektion-laeuft .lessons > :not(button),
+.training-stage > :not(button),
+.trainer:has(> .flashcard.done) > :not(button) {
+  width: 100%;
+}
