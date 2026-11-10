@@ -92,8 +92,16 @@ export async function nutzungHeute(nutzerId, art) {
  * Fehlversuch soll nicht aufs Kontingent gehen.
  */
 export async function zaehleNutzung(nutzerId, art) {
+  return addiereNutzung(nutzerId, art, 1)
+}
+
+/**
+ * Einen Betrag addieren statt 1 – z. B. KI-Kosten in Millionstel Dollar
+ * (art 'kosten' bzw. 'kosten:<bereich>', siehe server/ki.js).
+ */
+export async function addiereNutzung(nutzerId, art, menge) {
   const jetzt = await nutzungHeute(nutzerId, art)
-  const neu = jetzt + 1
+  const neu = jetzt + menge
 
   // Im Speicher immer mitführen – er ist der Rückfall, wenn die
   // Datenbank gerade nicht antwortet.

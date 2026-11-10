@@ -1,3 +1,4 @@
+import { kiKontext } from './ki.js'
 // Kleiner Server, der das Transkript (Untertitel) eines YouTube-Videos holt.
 // Er benutzt dafür das Programm "yt-dlp" (per Homebrew installiert), weil das
 // zuverlässig an die YouTube-Untertitel kommt.
@@ -104,6 +105,14 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
   if (req.method === 'OPTIONS') return res.sendStatus(204)
   next()
+})
+
+// KI-Kosten je Nutzer: jede /api-Anfrage bekommt einen Kontext mit Token
+// und Bereich, server/ki.js verbucht danach den Preis (10.11.2026)
+app.use('/api', (req, res, next) => {
+  const token = (req.headers.authorization || '').replace('Bearer ', '') || null
+  const bereich = (req.path.split('/')[1] || 'sonst').slice(0, 40)
+  kiKontext.run({ token, bereich }, next)
 })
 
 // Gesundheits-Check: damit sieht das Hosting, dass der Server lebt

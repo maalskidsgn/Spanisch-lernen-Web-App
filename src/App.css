@@ -17127,6 +17127,12 @@ body.lektion-laeuft .lessons > :not(button),
 .bl-mitte b { font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .bl-mitte span { font-size: .76rem; font-weight: 800; color: var(--muted); }
 .bl-platz { width: 42px; flex: none; }
+.bl-inhalt-knopf {
+  flex: none; display: inline-flex; align-items: center; gap: 7px; height: 42px; padding: 0 16px; border: 0; border-radius: 999px;
+  font: inherit; font-weight: 900; font-size: .88rem; cursor: pointer; color: var(--navy);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+}
+.bl-inhalt-knopf:hover { background: color-mix(in srgb, var(--primary) 14%, var(--card)); }
 .bl-laut {
   flex: none; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 8px; border-radius: 999px; border: 0;
   font: inherit; font-weight: 900; font-size: .85rem; cursor: pointer; color: var(--muted); background: var(--card); box-shadow: 0 0 0 1.5px var(--line) inset;

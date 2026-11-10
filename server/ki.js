@@ -11,6 +11,8 @@
 // zurück. So bleibt der Umbau klein und überprüfbar.
 
 import Anthropic from '@anthropic-ai/sdk'
+import { AsyncLocalStorage } from 'node:async_hooks'
+import { addiereNutzung } from './kontingent.js'
 
 export const HAIKU = 'claude-haiku-5-5'
 export const SONNET = 'claude-sonnet-5-5'
@@ -19,6 +21,49 @@ let kunde = null
 const client = () => (kunde ??= new Anthropic()) // liest ANTHROPIC_API_KEY
 
 export const kiBereit = () => Boolean(process.env.ANTHROPIC_API_KEY)
+
+// ---------------------------------------------------------------
+//  Kosten mitschreiben (10.11.2026): je Nutzer, Monat und Bereich
+// ---------------------------------------------------------------
+// index.js startet für jede /api-Anfrage einen Kontext mit Token und
+// Bereich (z. B. 'buch', 'vokabelliste'). Nach jedem Claude-Aufruf
+// landet der Preis in der Tabelle nutzung: art 'kosten' (Summe) und
+// 'kosten:<bereich>', anzahl = Millionstel Dollar. Ohne Anmeldung wird
+// nur ins Server-Protokoll geschrieben.
+export const kiKontext = new AsyncLocalStorage()
+// $ pro Million Tokens [Eingabe, Ausgabe] – Tokens × Preis = Millionstel $
+const PREIS = { 'claude-haiku-5-5': [0.10, 0.50], 'claude-sonnet-5-5': [2, 10] }
+const NUTZER = new Map() // Token → Nutzer-ID (spart die Abfrage je Aufruf)
+
+async function nutzerVon(token) {
+  if (!token) return null
+  if (NUTZER.has(token)) return NUTZER.get(token)
+  try {
+    const r = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: process.env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${token}` },
+    })
+    const id = r.ok ? (await r.json()).id ?? null : null
+    if (NUTZER.size > 5000) NUTZER.clear()
+    NUTZER.set(token, id)
+    return id
+  } catch {
+    return null
+  }
+}
+
+async function verbucheKosten(modell, usage = {}) {
+  const [pe, pa] = PREIS[modell] ?? PREIS['claude-haiku-5-5']
+  const ein = (usage.input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0) * 1.25 + (usage.cache_read_input_tokens ?? 0) * 0.1
+  // Haiku: ab 100.000 Eingabe-Tokens gilt der höhere Satz
+  const lang = modell.includes('haiku') && ein > 100000
+  const mikro = Math.round(ein * (lang ? 0.5 : pe) + (usage.output_tokens ?? 0) * (lang ? 2.5 : pa))
+  const ctx = kiKontext.getStore() ?? {}
+  console.log(`KI ${ctx.bereich ?? '-'} ${modell} ein=${Math.round(ein)} aus=${usage.output_tokens ?? 0} ${(mikro / 10000).toFixed(3)} Cent`)
+  const id = await nutzerVon(ctx.token)
+  if (!id || !mikro) return
+  await addiereNutzung(id, 'kosten', mikro)
+  await addiereNutzung(id, 'kosten:' + (ctx.bereich ?? 'sonst'), mikro)
+}
 
 // Structured Outputs verlangen additionalProperties: false und kennen keine
 // Längen-/Zahlengrenzen – die streichen wir aus den alten Schemas.
@@ -89,6 +134,7 @@ export async function kiChat(body, modell = HAIKU, opt = {}) {
   }
   if (r.stop_reason === 'refusal') throw new Error('Die KI hat diese Anfrage abgelehnt.')
   if (r.stop_reason === 'max_tokens') throw new Error('Die Antwort der KI war zu lang und wurde abgeschnitten.')
+  verbucheKosten(r.model || modell, r.usage).catch(() => {}) // nie den Aufruf aufhalten
   const text = r.content.filter((b) => b.type === 'text').map((b) => b.text).join('')
   return { choices: [{ message: { content: text } }], usage: r.usage }
 }

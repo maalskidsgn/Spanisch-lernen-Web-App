@@ -406,8 +406,9 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
             <span>{kopfZeile}</span>
           </div>
           {uebersicht ? <span className="bl-platz" /> : (
-            <button type="button" className="bl-rund" onClick={() => setNr(-1)} aria-label={L.inhalt} title={L.inhalt}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" /><circle cx="4.5" cy="6" r="1.3" fill="currentColor" stroke="none" /><circle cx="4.5" cy="12" r="1.3" fill="currentColor" stroke="none" /><circle cx="4.5" cy="18" r="1.3" fill="currentColor" stroke="none" /></svg>
+            <button type="button" className="bl-inhalt-knopf" onClick={() => setNr(-1)}>
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" /><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none" /></svg>
+              {L.inhalt}
             </button>
           )}
         </div>
