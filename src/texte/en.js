@@ -13,7 +13,7 @@ export default {
   'nav.start': 'Home',
   'nav.lektionen': 'Lessons',
   'nav.trainer': 'Practice',
-  'nav.youtube': 'YouTube',
+  'nav.youtube': 'Library',
   'nav.profil': 'Profile',
 
   /* ---------------- General ---------------- */
@@ -269,6 +269,11 @@ export default {
   /* ---------------- Library ---------------- */
   'yt.titel1': 'Learn with',
   'yt.titel2': 'YouTube',
+  'yt.buchTitel1': 'Learn with',
+  'yt.buchTitel2': 'books',
+  'yt.bibliothek': 'Library',
+  'yt.bibliothekText': '6 books, free for everyone – chapter by chapter in Spanish and English.',
+  'yt.eigeneBuecher': 'Your own books',
   'yt.untertitel': 'Find Spanish videos that match your level.',
   'yt.findenKnopf': 'Find videos for me',
   'yt.deineListen': 'Your lists',

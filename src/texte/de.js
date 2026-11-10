@@ -13,7 +13,7 @@ export default {
   'nav.start': 'Start',
   'nav.lektionen': 'Lektionen',
   'nav.trainer': 'Trainer',
-  'nav.youtube': 'YouTube',
+  'nav.youtube': 'Mediathek',
   'nav.profil': 'Profil',
 
   /* ---------------- Allgemeines ---------------- */
@@ -269,6 +269,11 @@ export default {
   /* ---------------- Mediathek ---------------- */
   'yt.titel1': 'Lernen mit',
   'yt.titel2': 'YouTube',
+  'yt.buchTitel1': 'Lernen mit',
+  'yt.buchTitel2': 'Büchern',
+  'yt.bibliothek': 'Bibliothek',
+  'yt.bibliothekText': '6 Bücher, gratis für alle – Kapitel für Kapitel auf Spanisch und Deutsch.',
+  'yt.eigeneBuecher': 'Deine eigenen Bücher',
   'yt.untertitel': 'Finde spanische Videos, die zu deinem Niveau passen.',
   'yt.findenKnopf': 'Videos für mich finden',
   'yt.deineListen': 'Deine Listen',

@@ -7072,7 +7072,7 @@ export const TEXTE = {
   "Du kannst ein Gespräch führen": "You can hold a conversation",
   "Du kannst kommen, wann du willst.": "You can come whenever you want.",
   "Du kannst mitkommen.": "You can come along.",
-  "Du kannst schon Spanisch": "You already know some Spanish",
+  "Wörter, die du schon kennst": "Words you already know",
   "Du kannst wirklich erzählen": "You can really tell stories",
   "Du kennst Ana. Und Carmen.": "You know Ana. And Carmen.",
   "Du kommst überall hin": "You can get anywhere",

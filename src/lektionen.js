@@ -1468,7 +1468,7 @@ export const LEKTIONEN = [
     wiederholt: [],
     vorher: [],
     kulturnotiz: 'Spanisch ist nach Mandarin die Sprache mit den zweitmeisten Muttersprachlern – rund 500 Millionen Menschen in 21 Ländern.',
-    titel: 'Du kannst schon Spanisch',
+    titel: 'Wörter, die du schon kennst',
     emoji: '🚪',
     beschreibung: 'Der Einstieg – und warum du mehr verstehst, als du denkst',
     ziele: [
