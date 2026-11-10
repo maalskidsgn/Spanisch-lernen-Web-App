@@ -55,6 +55,7 @@ const T = {
     niveau: 'Dein Niveau',
     los: 'Zusammenfassung erstellen',
     losTitel: (t) => `„${t}“ zusammenfassen`,
+    losKurz: 'Zusammenfassen', ausgewaehlt: 'Ausgewählt', eigenerText: 'Dein eingefügter Text', eigenesLink: '+ Anderes Buch eingeben',
     laedt: 'Liest das Buch und schreibt 8 Kapitel …',
     dauer: 'Das dauert etwa 20–40 Sekunden.',
     regal: 'Deine Bücher',
@@ -94,6 +95,7 @@ const T = {
     niveau: 'Your level',
     los: 'Create summary',
     losTitel: (t) => `Summarise “${t}”`,
+    losKurz: 'Summarise', ausgewaehlt: 'Selected', eigenerText: 'Your pasted text', eigenesLink: '+ Enter another book',
     laedt: 'Reading the book and writing 8 chapters …',
     dauer: 'This takes about 20–40 seconds.',
     regal: 'Your books',
@@ -156,6 +158,7 @@ export function BuchFormular({ onFertig }) {
   const [titel, setTitel] = useState('')
   const [text, setText] = useState('')
   const [textOffen, setTextOffen] = useState(false)
+  const [eigenesOffen, setEigenesOffen] = useState(false)
   const [niveau, setNiveau] = useState('A2')
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -164,8 +167,8 @@ export function BuchFormular({ onFertig }) {
 
   const aktuell = themen.find((t) => t.id === thema) ?? themen[0]
   const katalogTitel = gewaehlt ? (en ? gewaehlt.en : gewaehlt.de) : ''
-  const anfrageTitel = gewaehlt ? `${katalogTitel} – ${gewaehlt.autor}` : titel.trim()
-  const bereit = Boolean(anfrageTitel) || text.trim().length >= 400
+  const anfrageTitel = gewaehlt ? `${katalogTitel} – ${gewaehlt.autor}` : eigenesOffen ? titel.trim() : ''
+  const bereit = Boolean(anfrageTitel) || (eigenesOffen && textOffen && text.trim().length >= 400)
 
   async function erstellen(e) {
     e.preventDefault()
@@ -176,7 +179,7 @@ export function BuchFormular({ onFertig }) {
       const res = await fetch(API_URL + '/api/buch', {
         method: 'POST',
         headers: await loginKopf({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ titel: anfrageTitel, text: textOffen ? text : '', niveau, sprache: sprache() }),
+        body: JSON.stringify({ titel: anfrageTitel, text: eigenesOffen && textOffen ? text : '', niveau, sprache: sprache() }),
       })
       const daten = await res.json()
       if (res.status === 402) kontingentLeer()
@@ -186,6 +189,7 @@ export function BuchFormular({ onFertig }) {
       setText('')
       setTextOffen(false)
       setGewaehlt(null)
+      setEigenesOffen(false)
       onFertig({ ...daten, id: 'b' + Date.now(), erstellt: Date.now() })
     } catch (err) {
       setFehler(err.message)
@@ -232,52 +236,63 @@ export function BuchFormular({ onFertig }) {
           const an = gewaehlt === b
           const t = en ? b.en : b.de
           return (
-            <button key={b.de} type="button" className={'bg-katalog-buch' + (an ? ' an' : '')} aria-pressed={an} onClick={() => { setGewaehlt(an ? null : b); setTitel('') }} disabled={laedt}>
+            <button key={b.de} type="button" className={'bg-katalog-buch' + (an ? ' an' : '')} aria-pressed={an} onClick={() => { setGewaehlt(an ? null : b); setEigenesOffen(false) }} disabled={laedt}>
               <BuchCover buch={{ titel: t, autor: b.autor }} mini />
               <span className="bg-katalog-text"><b>{t}</b><small>{b.autor}</small></span>
-              {an && <span className="bg-haken" aria-hidden="true">✓</span>}
+              <span className={'bg-haken' + (an ? ' an' : '')} aria-hidden="true">{an ? '✓' : '+'}</span>
             </button>
           )
         })}
       </div>
 
-      <form onSubmit={erstellen} className="bg-form-felder">
-        <label className="bg-feldname" htmlFor="bg-titel">{L.eigenes}</label>
-        <input id="bg-titel" type="text" value={titel} onChange={(e) => { setTitel(e.target.value); setGewaehlt(null) }} placeholder={L.platz} maxLength={160} disabled={laedt} />
-        {textOffen ? (
-          <div className="bg-text">
-            <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, TEXT_MAX))} placeholder={L.textPlatz} rows={6} disabled={laedt} />
-            <div className="bg-text-fuss">
-              <small>{L.textInfo(text.length)}</small>
-              <button type="button" className="bg-link" onClick={() => { setText(''); setTextOffen(false) }}>{L.textZu}</button>
-            </div>
+      {/* Eigenes Buch: erst auf Wunsch aufklappen – hält die Karte ruhig */}
+      {eigenesOffen ? (
+        <form className="bg-eigenes" onSubmit={erstellen}>
+          <div className="bg-eigenes-kopf">
+            <label className="bg-feldname" htmlFor="bg-titel">{L.eigenes}</label>
+            <button type="button" className="bg-link" onClick={() => { setEigenesOffen(false); setTitel(''); setText(''); setTextOffen(false) }}>{L.schliessen}</button>
           </div>
-        ) : (
-          <button type="button" className="bg-link" onClick={() => setTextOffen(true)}>{L.textAuf}</button>
-        )}
+          <input id="bg-titel" type="text" value={titel} onChange={(e) => setTitel(e.target.value)} placeholder={L.platz} maxLength={160} disabled={laedt} autoFocus />
+          {textOffen ? (
+            <div className="bg-text">
+              <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, TEXT_MAX))} placeholder={L.textPlatz} rows={5} disabled={laedt} />
+              <div className="bg-text-fuss">
+                <small>{L.textInfo(text.length)}</small>
+                <button type="button" className="bg-link" onClick={() => { setText(''); setTextOffen(false) }}>{L.textZu}</button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" className="bg-link" onClick={() => setTextOffen(true)}>{L.textAuf}</button>
+          )}
+        </form>
+      ) : (
+        <button type="button" className="bg-link bg-eigenes-link" onClick={() => { setEigenesOffen(true); setGewaehlt(null) }}>{L.eigenesLink}</button>
+      )}
 
-        <div className="bg-trenner" />
-        <div className="bg-niveaus">
-          <span>{L.niveau}</span>
-          {NIVEAUS.map((n) => (
-            <button key={n} type="button" className={'bg-chip' + (niveau === n ? ' bg-chip-an' : '')} onClick={() => setNiveau(n)} disabled={laedt}>{n}</button>
-          ))}
-        </div>
-        {darf ? (
-          <button type="submit" className="bg-los" disabled={laedt || !bereit}>
-            {laedt ? L.laedt : gewaehlt ? L.losTitel(katalogTitel) : L.los}
-          </button>
-        ) : (
-          <>
+      {/* Auswahl-Leiste: erscheint erst, wenn ein Buch feststeht */}
+      {bereit && (
+        <form className="bg-auswahl" onSubmit={erstellen}>
+          <div className="bg-auswahl-buch">
+            <BuchCover buch={{ titel: katalogTitel || titel || '…', autor: '' }} mini />
+            <span><small>{L.ausgewaehlt}</small><b>{katalogTitel || titel.trim() || L.eigenerText}</b></span>
+          </div>
+          <div className="bg-auswahl-niveau" role="radiogroup" aria-label={L.niveau}>
+            {NIVEAUS.map((n) => (
+              <button key={n} type="button" role="radio" aria-checked={niveau === n} className={niveau === n ? 'an' : ''} onClick={() => setNiveau(n)} disabled={laedt}>{n}</button>
+            ))}
+          </div>
+          {darf ? (
+            <button type="submit" className="bg-los" disabled={laedt}>{laedt ? L.laedt : L.losKurz}</button>
+          ) : (
             <button type="button" className="bg-los bg-los-premium" onClick={zurKasse}>
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
               {L.premiumKnopf}
             </button>
-          </>
-        )}
-        {laedt && <p className="bg-dauer">{L.dauer}</p>}
-        {fehler && <p className="error">{fehler}</p>}
-      </form>
+          )}
+          {laedt && <p className="bg-dauer">{L.dauer}</p>}
+        </form>
+      )}
+      {fehler && <p className="error">{fehler}</p>}
     </section>
   )
 }
@@ -294,6 +309,55 @@ export function BuchCover({ buch, klein = false, mini = false }) {
       <b>{buch.titel}</b>
       {!mini && <small>{buch.autor}</small>}
     </span>
+  )
+}
+
+// Bücher als Zeilen – dieselben Bausteine wie die Video-Zeilen der Mediathek
+// (video-zeile / zeile-bild / zeile-text / zeile-play), damit beide Bereiche
+// gleich aufgebaut sind (Manuel, 10.11.2026).
+export function BuchZeilen({ buecher, onOeffnen, onLoeschen }) {
+  useTexte()
+  const L = txt()
+  const en = sprache() === 'en'
+  return (
+    <div className="video-zeilen">
+      {buecher.map((b) => (
+        <div key={b.id} className="bg-zeile">
+          <button type="button" className="video-zeile" onClick={() => onOeffnen(b)}>
+            <span className="zeile-bild bg-zeile-bild"><BuchCover buch={{ titel: b.titel, autor: b.autor }} mini /></span>
+            <span className="zeile-text">
+              {b.niveau && <span className={'niveau-badge niveau-' + b.niveau}>{b.niveau}</span>}
+              <span className="zeile-titel">{(en ? b.titel_en : b.titel_de) || b.titel_de || b.titel}</span>
+              <span className="zeile-kanal">{b.autor}</span>
+              <span className="zeile-dauer">{b.kapitelZahl ?? b.kapitel?.length ?? 1} {L.kapitel} · {L.min(b.minuten ?? leseMinuten(alsKapitelBuch(b)))}</span>
+            </span>
+            <span className="zeile-play" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5C7 4.3 10 4.6 12 6.5c2-1.9 5-2.2 8-1V19c-3-1.2-6-.9-8 1-2-1.9-5-2.2-8-1z" /><path d="M12 6.5V20" /></svg>
+            </span>
+          </button>
+          {onLoeschen && (
+            <button type="button" className="bg-zeile-weg" title={L.loeschen} aria-label={L.loeschen} onClick={() => onLoeschen(b.id)}>✕</button>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// Niveau-Filter über der Bibliothek – wie die Themen-Leiste bei „Für dich“
+export function NiveauFilter({ buecher, wert, onWert }) {
+  useTexte()
+  const en = sprache() === 'en'
+  const stufen = [...new Set(buecher.map((b) => b.niveau).filter(Boolean))].sort()
+  if (stufen.length < 2) return null
+  return (
+    <div className="themen-leiste">
+      {['alle', ...stufen].map((n) => (
+        <button key={n} type="button" className={'thema' + (wert === n ? ' thema-aktiv' : '')} onClick={() => onWert(n)}>
+          {n === 'alle' ? (en ? 'All' : 'Alle') : n}
+        </button>
+      ))}
+    </div>
   )
 }
 

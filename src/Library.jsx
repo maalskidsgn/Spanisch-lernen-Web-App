@@ -52,7 +52,7 @@ import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
 import { Kopf } from './MediathekUI.jsx'
-import { BuchFormular, BuchRegal, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
+import { BuchFormular, BuchZeilen, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
 import { sprache, useTexte } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -163,6 +163,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     window.addEventListener('geraetedaten', neu)
     return () => window.removeEventListener('geraetedaten', neu)
   }, [])
+  const [buchNiveau, setBuchNiveau] = useState('alle') // Filter der Bibliothek
   const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
 
   // ---------- Kuratierte Mediathek aus der Datenbank ----------
@@ -419,17 +420,18 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
           <BuchFormular onFertig={buchFertig} />
 
-          {/* Bibliothek darunter – aufgebaut wie die Video-Abschnitte */}
-          <section className="bereich">
-            <Kopf symbol={<IconBuch groesse={19} />} titel={t('yt.bibliothek')} text={t('yt.bibliothekText')} zahl={BIBLIOTHEK.length} />
-            <BuchRegal bibliothek nackt buecher={BIBLIOTHEK} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
-          </section>
+          {/* Wie bei den Videos: erst die eigenen, dann die Bibliothek mit Filter */}
           {buecher.length > 0 && (
             <section className="bereich">
-              <Kopf symbol={<IconBuch groesse={19} />} titel={t('yt.eigeneBuecher')} zahl={buecher.length} />
-              <BuchRegal nackt buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
+              <Kopf symbol={<IconLesezeichen groesse={19} />} titel={t('yt.eigeneBuecher')} text={t('yt.eigeneBuecherText')} zahl={buecher.length} />
+              <BuchZeilen buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
             </section>
           )}
+          <section className="bereich">
+            <Kopf symbol={<IconBuch groesse={19} />} titel={t('yt.bibliothek')} text={t('yt.bibliothekText')} zahl={BIBLIOTHEK.length} />
+            <NiveauFilter buecher={BIBLIOTHEK} wert={buchNiveau} onWert={setBuchNiveau} />
+            <BuchZeilen buecher={buchNiveau === 'alle' ? BIBLIOTHEK : BIBLIOTHEK.filter((b) => b.niveau === buchNiveau)} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
+          </section>
 
           {/* Die 89 älteren E-Books (spanisch-lernen.com): nur Premium – gratis gibt es die 6 der Bibliothek */}
           {(istPremium || TESTPHASE_ALLES_FREI) && <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />}

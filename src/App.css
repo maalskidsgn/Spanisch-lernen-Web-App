@@ -17037,19 +17037,37 @@ body.lektion-laeuft .lessons > :not(button),
   background: color-mix(in srgb, var(--primary) 7%, var(--card)); color: var(--navy);
 }
 .bg-themen button.an { background: var(--navy); color: #fff; }
-.bg-katalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.bg-katalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 4px 12px; }
 .bg-katalog-buch {
-  position: relative; display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 10px; border-radius: 16px; border: 0; cursor: pointer;
-  background: var(--card); font: inherit; color: inherit; text-align: left; box-shadow: 0 0 0 1.5px var(--line) inset;
-  transition: box-shadow .15s ease, transform .15s ease;
+  display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 8px; border-radius: 14px; border: 0; cursor: pointer;
+  background: transparent; font: inherit; color: inherit; text-align: left; transition: background .15s ease;
 }
-.bg-katalog-buch:hover { transform: translateY(-1px); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--primary) 35%, var(--line)) inset; }
-.bg-katalog-buch.an { box-shadow: 0 0 0 2.5px var(--primary) inset; background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
-.bg-katalog-text { display: grid; gap: 2px; min-width: 0; }
+.bg-katalog-buch:hover { background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
+.bg-katalog-buch.an { background: color-mix(in srgb, var(--primary) 10%, var(--card)); }
+.bg-katalog-text { flex: 1; display: grid; gap: 2px; min-width: 0; }
 .bg-katalog-text b { font-size: .92rem; line-height: 1.25; }
 .bg-katalog-text small { color: var(--muted); font-weight: 700; font-size: .78rem; }
-.bg-haken { position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: #fff; font-size: .75rem; font-weight: 900; }
-
+.bg-haken { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: .9rem; color: var(--muted); box-shadow: 0 0 0 1.5px var(--line) inset; }
+.bg-haken.an { background: var(--primary); color: #fff; box-shadow: none; }
+.bg-eigenes-link { margin-top: 12px; }
+.bg-eigenes { display: grid; gap: 10px; margin-top: 14px; padding: 16px; border-radius: 18px; background: color-mix(in srgb, var(--primary) 5%, var(--card)); box-shadow: 0 0 0 1px var(--line) inset; }
+.bg-eigenes-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.bg-eigenes input { width: 100%; border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; font: inherit; font-weight: 700; background: var(--card); color: var(--navy); }
+.bg-eigenes input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent); }
+.bg-auswahl {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; padding: 12px 12px 12px 14px; border-radius: 20px;
+  background: color-mix(in srgb, var(--primary) 9%, var(--card)); animation: bl-ein .25s ease both;
+}
+.bg-auswahl-buch { flex: 1 1 220px; min-width: 0; display: flex; align-items: center; gap: 12px; }
+.bg-auswahl-buch .bg-cover-mini { width: 38px; }
+.bg-auswahl-buch span { display: grid; min-width: 0; }
+.bg-auswahl-buch small { font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.bg-auswahl-buch b { font-size: .98rem; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bg-auswahl-niveau { display: flex; padding: 3px; gap: 2px; border-radius: 12px; background: var(--card); box-shadow: 0 0 0 1px var(--line) inset; }
+.bg-auswahl-niveau button { border: 0; background: none; border-radius: 9px; padding: 8px 11px; font: inherit; font-weight: 900; font-size: .85rem; color: var(--muted); cursor: pointer; }
+.bg-auswahl-niveau button.an { background: var(--primary); color: #fff; }
+.bg-auswahl .bg-los { flex: none; padding: 12px 22px; }
+.bg-auswahl .bg-dauer { flex-basis: 100%; }
 .bg-form-felder { display: grid; gap: 10px; margin-top: 20px; }
 .bg-feldname { font-weight: 900; font-size: .9rem; }
 .bg-form-felder input, .bg-text textarea {
@@ -17244,6 +17262,12 @@ body.lektion-laeuft .lessons > :not(button),
 .bf3 { --c: #33c2a3; --k: #1d8f78; left: 182px; top: 74px; width: 44px; height: 60px; transform: rotate(-5deg); animation-delay: -.5s; }
 .bf4 { --c: #8a6cf5; --k: #5f43c9; right: 104px; top: 66px; width: 50px; height: 68px; transform: rotate(-8deg); animation-delay: -1.5s; }
 @media (prefers-reduced-motion: reduce) { .bg-flug { animation: none; } }
+/* Bücher als Video-Zeilen (10.11.2026): Cover statt Vorschaubild */
+.bg-zeile { position: relative; }
+.bg-zeile-bild { display: grid; place-items: center; background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
+.bg-zeile-bild .bg-cover-mini { width: 44px; }
+.bg-zeile-weg { position: absolute; top: 8px; right: 64px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: var(--card); color: var(--muted); font-weight: 900; font-size: .75rem; cursor: pointer; box-shadow: 0 0 0 1.5px var(--line) inset; }
+
 @media (max-width: 600px) { .bf3 { left: 172px; } .bf4 { right: 92px; } }
 
 @media (max-width: 600px) { .bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -17252,6 +17276,9 @@ body.lektion-laeuft .lessons > :not(button),
   .bg-karte { padding: 18px; }
   .bg-themen { margin: 0 -18px 14px; padding: 2px 18px 4px; }
   .bg-katalog { grid-template-columns: 1fr; }
+  .bg-auswahl { flex-direction: column; align-items: stretch; }
+  .bg-auswahl-niveau { justify-content: space-between; }
+  .bg-auswahl-niveau button { flex: 1; }
   .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .bl-karte { padding: 22px 18px; }
   .bl-held { grid-template-columns: 96px 1fr; gap: 16px; }
