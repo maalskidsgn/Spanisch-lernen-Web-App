@@ -16999,3 +16999,8 @@ body.lektion-laeuft .lessons > .player-top,
 }
 
 .art-toon .art-karte:nth-child(5) { --af: #ffb02e; --ak: #d98a00; }
+
+/* Toon-Embleme (10.11.2026): eigene Unterkante statt weicher Schatten */
+svg.level-emblem.emblem-toon,
+.rs-block svg.level-emblem.emblem-toon,
+.rs-kopf svg.level-emblem.emblem-toon { filter: none; }
