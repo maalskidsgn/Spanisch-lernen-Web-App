@@ -1,7 +1,7 @@
 import { istApp } from './api.js'
 import BILDER from './kassenBilder.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, GRATIS_LEKTIONEN_PROZENT, MAX_VOKABELN } from './limits.js'
+import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, GRATIS_LEKTIONEN_PROZENT, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
 
 /**
@@ -63,8 +63,11 @@ const TEXT = {
       video: 'Eigene YouTube-Videos',
       lektionen: 'Lektionen frei',
       sprechen: 'Sprach-Trainer im Monat',
+      vokabeln: 'Vokabeln im Trainer',
+      saetze: 'Sätze im Trainer',
+      texte: 'Texte im Trainer',
     },
-    prem: { ki: 'unbegrenzt', video: 'unbegrenzt', lektionen: 'alle', sprechen: '120 Min.' },
+    prem: { ki: 'unbegrenzt', video: 'unbegrenzt', lektionen: 'alle', sprechen: '120 Min.', vokabeln: 'unbegrenzt', saetze: 'unbegrenzt', texte: 'unbegrenzt' },
     alles: 'Alles freischalten',
   },
   en: {
@@ -89,14 +92,17 @@ const TEXT = {
       video: 'Your own YouTube videos',
       lektionen: 'Lessons unlocked',
       sprechen: 'Speaking practice per month',
+      vokabeln: 'Words in your trainer',
+      saetze: 'Sentences in your trainer',
+      texte: 'Texts in your trainer',
     },
-    prem: { ki: 'unlimited', video: 'unlimited', lektionen: 'all', sprechen: '120 min' },
+    prem: { ki: 'unlimited', video: 'unlimited', lektionen: 'all', sprechen: '120 min', vokabeln: 'unlimited', saetze: 'unlimited', texte: 'unlimited' },
     alles: 'Unlock everything',
   },
 }
 
 // Symbol je Bereich – Toon-Bild auf Podest (Leiste A3, 09.11.2026)
-const SYMBOL = { ki: 'zauber', video: 'video', lektionen: 'lektion', sprechen: 'mikro', vokabeln: 'buch' }
+const SYMBOL = { ki: 'zauber', video: 'video', lektionen: 'lektion', sprechen: 'mikro', vokabeln: 'buch', saetze: 'zauber', texte: 'buch' }
 
 export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
   const { zeigen } = useSichtbar()
@@ -116,17 +122,18 @@ export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
     titel = T.video()
     klein = T.videoKlein
     zahl = <><b>{T.mediathek}</b> {T.frei}</>
-  } else if (art === 'vokabeln') {
-    // Nur zeigen, wenn es eng wird: ab 80 % der Grenze
-    if (gesamt < MAX_VOKABELN * 0.8) return null
-    zaehlt = false
-    leer = gesamt > MAX_VOKABELN
+  } else if (art === 'vokabeln' || art === 'saetze' || art === 'texte') {
+    // Feste Obergrenze im Trainer (gratis): immer sichtbar, nicht erst kurz vor Schluss
+    const max = { vokabeln: MAX_VOKABELN, saetze: MAX_SAETZE, texte: MAX_TEXTE }[art]
     const en = sprache() === 'en'
+    const was = en ? { vokabeln: 'words', saetze: 'sentences', texte: 'texts' }[art] : { vokabeln: 'Vokabeln', saetze: 'Sätze', texte: 'Texte' }[art]
+    zaehlt = false
+    leer = gesamt > max
     titel = leer
-      ? (en ? `${gesamt - MAX_VOKABELN} words paused – Premium brings them all back` : `${gesamt - MAX_VOKABELN} Vokabeln pausiert – mit Premium wieder alle im Training`)
-      : (en ? `${gesamt} of ${MAX_VOKABELN} words in your trainer` : `${gesamt} von ${MAX_VOKABELN} Vokabeln im Trainer`)
-    klein = en ? `Free: up to ${MAX_VOKABELN} words are trained. Premium: unlimited.` : `Gratis werden bis zu ${MAX_VOKABELN} Vokabeln abgefragt. Premium: unbegrenzt.`
-    zahl = <><b>{Math.min(gesamt, MAX_VOKABELN)}</b>/{MAX_VOKABELN}</>
+      ? (en ? `${gesamt - max} ${was} paused – Premium brings them all back` : `${gesamt - max} ${was} pausiert – mit Premium wieder alle im Training`)
+      : (en ? `${gesamt} of ${max} ${was} in your trainer` : `${gesamt} von ${max} ${was} im Trainer`)
+    klein = en ? `Free: up to ${max} ${was} are trained. Premium: unlimited.` : `Gratis werden bis zu ${max} ${was} abgefragt. Premium: unbegrenzt.`
+    zahl = <><b>{Math.min(gesamt, max)}</b>/{max}</>
   } else if (art === 'lektionen') {
     zaehlt = false
     titel = T.lektionen
@@ -157,7 +164,7 @@ export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
 }
 
 /** Übersicht aller Gratis-Grenzen – für die Startseite. */
-export function GratisUebersicht() {
+export function GratisUebersicht({ trainer = null }) {
   const { zeigen } = useSichtbar()
   const k = useKontingent(false)
   if (!zeigen) return null
@@ -167,6 +174,11 @@ export function GratisUebersicht() {
     ['video', '–', 0, true],
     ['lektionen', `${GRATIS_LEKTIONEN_PROZENT} %`, GRATIS_LEKTIONEN_PROZENT / 100],
     ['sprechen', sprache() === 'en' ? '10 min' : '10 Min.', 10 / 120],
+    ...(trainer ? [
+      ['vokabeln', `${Math.min(trainer.woerter, MAX_VOKABELN)} / ${MAX_VOKABELN}`, Math.min(1, trainer.woerter / MAX_VOKABELN)],
+      ['saetze', `${Math.min(trainer.saetze, MAX_SAETZE)} / ${MAX_SAETZE}`, Math.min(1, trainer.saetze / MAX_SAETZE)],
+      ['texte', `${Math.min(trainer.texte, MAX_TEXTE)} / ${MAX_TEXTE}`, Math.min(1, trainer.texte / MAX_TEXTE)],
+    ] : []),
   ]
   return (
     <section className="gratis-uebersicht">

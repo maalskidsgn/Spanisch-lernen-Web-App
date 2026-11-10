@@ -105,6 +105,7 @@ const KASSEN_TEXTE = {
     vorteile: [
       ['lektion', 'Alle Lektionen', 'alles offen', '20 %'],
       ['mikro', 'Sprach-Trainer', '120 Min. / Monat', '10 Min.'],
+      ['karten', 'Vokabeltrainer', 'unbegrenzt', '500 Wörter · 50 Sätze · 10 Texte'],
       ['zauber', 'KI‑Wortlisten', 'unbegrenzt', '10 / Monat'],
       ['buch', 'Sätze, Texte & E‑Books', 'unbegrenzt', 'teilt sich die 10'],
       ['video', 'Eigene YouTube‑Videos', 'ohne Limit', 'nur Mediathek'],
@@ -123,6 +124,7 @@ const KASSEN_TEXTE = {
     vorteile: [
       ['lektion', 'All lessons', 'all unlocked', '20%'],
       ['mikro', 'Speaking trainer', '120 min / month', '10 min'],
+      ['karten', 'Vocabulary trainer', 'unlimited', '500 words · 50 sentences · 10 texts'],
       ['zauber', 'AI word lists', 'unlimited', '10 / month'],
       ['buch', 'Sentences, texts & e‑books', 'unlimited', 'shares the 10'],
       ['video', 'Your own YouTube videos', 'no limit', 'library only'],
@@ -293,7 +295,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
               </div>
               <ul className="ka-inseln">
                 {KT.vorteile.map(([icon, titel, prem, gratis], n) => (
-                  <li key={icon} className={'ka-insel' + (n > 2 ? ' ka-breit' : '')}>
+                  <li key={icon} className={'ka-insel' + (KT.vorteile.length === 5 && n > 2 ? ' ka-breit' : '')}>
                     <span className="ka-haken" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.haken }} />
                     <span className="ka-funkel ka-f1" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.funkel }} />
                     <span className="ka-funkel ka-f2" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.funkel }} />
