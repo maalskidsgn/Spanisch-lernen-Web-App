@@ -80,7 +80,8 @@ function naechsteTage(entry, bewertung) {
     if (bewertung === 'gut') return Math.max(2, m - 1) * MONAT
     return Math.min(MAX_MONATE, m + 1) * MONAT // einfach = „Gut“ auf der Leiter
   }
-  if (bewertung === 'schwer') return intervall === 0 ? 0.5 : intervall * 1.2
+  // Schwer bleibt unter der Leiter: höchstens 1 Monat (sonst stünde „2 Mon.“ auf Schwer UND Gut)
+  if (bewertung === 'schwer') return intervall === 0 ? 0.5 : Math.min(intervall * 1.2, intervall * 1.2 >= LEITER_AB ? MONAT : Infinity)
   const gut = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
   if (bewertung === 'gut') return gut >= LEITER_AB ? 2 * MONAT : gut
   const einfach = intervall === 0 ? ERSTES_INTERVALL * 3 : intervall * leichtigkeit * 1.3

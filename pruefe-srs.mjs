@@ -147,11 +147,14 @@ for (const bewertung of ['gut', 'einfach', 'schwer']) {
 // Alles, was vor dem 20.08. gelernt wurde, hat nur eine Stufe.
 for (let stufe = 0; stufe <= MAX_LEVEL; stufe++) {
   const alt = { status: 'lernen', translation: 'x', level: stufe, due: Date.now() }
-  const danach = review(alt, 'gut')
+  // Ab 2 Monaten gilt die Monatsleiter (10.11.2026): dort heißt „gut“ Mittel
+  // (darf kürzer werden), wachsen muss „einfach“ (= Gut) – bis zur Stufe 4 Monate.
+  const aufLeiter = INTERVALS_DAYS[stufe] >= 45
+  const danach = review(alt, aufLeiter ? 'einfach' : 'gut')
   if (!(danach.intervall > 0)) {
     meckern(`Ein alter Eintrag auf Stufe ${stufe} bekommt keinen Abstand (${danach.intervall}).`)
   }
-  if (stufe > 0 && danach.intervall <= INTERVALS_DAYS[stufe]) {
+  if (stufe > 0 && danach.intervall <= INTERVALS_DAYS[stufe] && danach.intervall < 120) {
     meckern(
       `Ein alter Eintrag auf Stufe ${stufe} waechst nicht: ` +
         `${INTERVALS_DAYS[stufe]} → ${danach.intervall} Tage.`
