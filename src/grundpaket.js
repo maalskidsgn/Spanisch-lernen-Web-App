@@ -519,3 +519,6 @@ export const GRUNDPAKET_TEXT = {
     }
   ]
 }
+
+// Startgeschenk (10.11.2026): nur die ERSTEN 50 – die Liste ist nach Wichtigkeit sortiert.
+export const STARTGESCHENK_WOERTER = GRUNDPAKET_WOERTER.slice(0, 50)

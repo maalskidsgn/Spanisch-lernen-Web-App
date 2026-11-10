@@ -874,7 +874,7 @@ export default function Trainer({
                   <tbody>
                     {gefiltert.slice(0, sichtbar).map((e) => (
                       <tr key={e.word} title={e.source ? t('tr9.aus', { quelle: e.source }) : undefined}>
-                        <td className="cell-word">{e.word}{e.gesperrt && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</td>
+                        <td className="cell-word">{e.word}{(e.source === 'Startgeschenk' || e.source === 'Grundpaket') && <span className="geschenk-chip">{sprache() === 'en' ? 'Gift' : 'Geschenk'}</span>}{e.gesperrt && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</td>
                         <td>{e.translation || '–'}</td>
                         <td>
                           <span className={'level-badge lvl-' + e.level}>

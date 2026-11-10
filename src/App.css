@@ -16959,3 +16959,23 @@ html, body { overflow-x: clip; }
   font-size: 11px; font-weight: 900; letter-spacing: .02em; white-space: nowrap;
   color: #7a5200; background: linear-gradient(135deg, #fff5c4, #ffd75a);
 }
+
+/* Startgeschenk (10.11.2026) */
+.geschenk-schleier { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; padding: 20px; background: rgba(20, 12, 40, .45); animation: geschenk-ein .25s ease-out; }
+.geschenk-karte {
+  position: relative; width: min(420px, 100%); padding: 28px 24px 18px; border-radius: 28px; text-align: center;
+  background: radial-gradient(120% 90% at 50% 0%, #fff 0%, #fffaf0 45%, color-mix(in srgb, var(--primary) 14%, #fff) 100%);
+  box-shadow: 0 0 0 2.5px #ffd27a inset, 0 6px 0 color-mix(in srgb, var(--primary) 30%, #fff), 0 30px 60px -20px rgba(0, 0, 0, .35);
+  animation: geschenk-hops .5s cubic-bezier(.2, 1.4, .4, 1);
+}
+.geschenk-bild { display: block; width: 96px; margin: -64px auto 0; filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .15)); }
+.geschenk-pill { display: inline-block; margin: 6px 0 10px; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: #7a5200; background: linear-gradient(135deg, #fff1a8, #ffc533); box-shadow: 0 2px 0 #e8a400; }
+.geschenk-karte h2 { margin: 0 0 8px; font-size: 22px; font-weight: 900; color: var(--navy); line-height: 1.2; text-wrap: balance; }
+.geschenk-karte p { margin: 0 0 18px; font-size: 15px; font-weight: 700; color: var(--muted); line-height: 1.5; }
+.geschenk-los { width: 100%; padding: 15px; border: 0; border-radius: 18px; cursor: pointer; font: inherit; font-size: 16px; font-weight: 900; color: #fff; background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 75%, #fff), var(--primary) 60%, var(--primary-dark)); box-shadow: 0 5px 0 var(--primary-press); }
+.geschenk-los:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--primary-press); }
+.geschenk-spaeter { margin-top: 8px; padding: 8px; border: 0; background: none; cursor: pointer; font: inherit; font-size: 14px; font-weight: 800; color: var(--muted); }
+.geschenk-chip { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 99px; vertical-align: middle; font-size: 11px; font-weight: 900; color: #7a5200; background: linear-gradient(135deg, #fff5c4, #ffd75a); }
+@keyframes geschenk-ein { from { opacity: 0; } }
+@keyframes geschenk-hops { from { transform: translateY(20px) scale(.92); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .geschenk-schleier, .geschenk-karte { animation: none; } }

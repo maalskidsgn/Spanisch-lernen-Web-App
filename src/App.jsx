@@ -27,7 +27,7 @@ import { BenutzernameWahl } from './Rangliste.jsx'
 import MeilensteinMeldung from './MeilensteinMeldung.jsx'
 import { neueMeilensteine, meilensteineGleichsetzen, meilensteineStillSetzen, MEILENSTEIN_XP } from './meilensteine.js'
 // Pakete, die man geschenkt bekommt – zählen nicht für Meilensteine
-const GESCHENKT = new Set(['Grundpaket', 'Startpaket'])
+const GESCHENKT = new Set(['Grundpaket', 'Startpaket', 'Startgeschenk'])
 import { summeWiederholungen } from './aktivitaet.js'
 import { ladeBenutzername } from './rangliste.js'
 import { zeigeMichAn, verschwinde } from './praesenz.js'
@@ -79,7 +79,8 @@ import {
   speichereTexte,
   neuerText,
 } from './lesetexte.js'
-import { GRUNDPAKET_VERSION, GRUNDPAKET_WOERTER, GRUNDPAKET_SAETZE, GRUNDPAKET_TEXT } from './grundpaket.js'
+import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE, GRUNDPAKET_TEXT } from './grundpaket.js'
+import StartGeschenk from './StartGeschenk.jsx'
 import {
   XP,
   loadProgress,
@@ -621,7 +622,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nutzer?.id, abgleichNr])
 
-  // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 10 Sätze und
+  // Startgeschenk (vorher Grundpaket): einmal je Konto (bzw. Gast) die 50 wichtigsten Wörter, 10 Sätze und
   // der Text „So lernst du mit Habloo“ – damit Trainer, Sätze und Texte
   // am ersten Tag nicht leer sind. Wer schon 50+ Wörter hat, bekommt
   // nur Sätze und Text. Doppeltes fällt über die Schlüssel weg.
@@ -639,9 +640,9 @@ export default function App() {
       setVocab((v) => {
         if (Object.keys(v).length >= 50) return v
         const copy = { ...v }
-        for (const w of GRUNDPAKET_WOERTER) {
+        for (const w of STARTGESCHENK_WOERTER) {
           const key = w.wort.toLowerCase()
-          if (!copy[key]) copy[key] = { ...newEntry(w.uebersetzung, 'Grundpaket'), status: 'lernen' }
+          if (!copy[key]) copy[key] = { ...newEntry(w.uebersetzung, 'Startgeschenk'), status: 'lernen' }
         }
         return copy
       })
@@ -649,11 +650,15 @@ export default function App() {
         const neu = { ...alt }
         for (const s of GRUNDPAKET_SAETZE) {
           const key = satzSchluessel(s.satz)
-          if (!neu[key]) neu[key] = neuerSatz(s, { thema: 'Grundpaket' })
+          if (!neu[key]) neu[key] = neuerSatz(s, { thema: 'Startgeschenk' })
         }
         return neu
       })
       setTexte((alt) => (alt['t-grundpaket'] ? alt : { ...alt, 't-grundpaket': neuerText(GRUNDPAKET_TEXT) }))
+      // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
+      // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
+      meilensteinAbgleichRef.current = null
+      if (nutzer) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
@@ -1358,6 +1363,7 @@ export default function App() {
   // ohne XP – sonst regnet es beim Update XP für alte Arbeit.
   const [neueAbzeichen, setNeueAbzeichen] = useState([])
   const meilensteinAbgleichRef = useRef(null)
+  const [startGeschenk, setStartGeschenk] = useState(false)
   useEffect(() => {
     const werte = {
       // Geschenkte Pakete (Grund-/Startpaket) zählen nicht: Sonst kam gleich
@@ -1376,8 +1382,8 @@ export default function App() {
     // Sitzung) und wird still eingetragen – sonst gab es nach jedem
     // Anmelden alle Meldungen samt XP noch einmal (09.11.).
     if (nutzer && syncStatus !== 'fertig') return
-    if (nutzer && meilensteinAbgleichRef.current !== nutzer.id) {
-      meilensteinAbgleichRef.current = nutzer.id
+    if (meilensteinAbgleichRef.current !== (nutzer?.id ?? 'gast')) {
+      meilensteinAbgleichRef.current = nutzer?.id ?? 'gast'
       meilensteineStillSetzen(werte)
       return
     }
@@ -1485,7 +1491,16 @@ export default function App() {
   }
 
   const meldung = (
-    <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+    <>
+      <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+      {startGeschenk && (
+        <StartGeschenk
+          woerter={STARTGESCHENK_WOERTER.length}
+          onZu={() => setStartGeschenk(false)}
+          onAnsehen={() => { setStartGeschenk(false); setView('trainer') }}
+        />
+      )}
+    </>
   )
 
   if (nutzer && nameFragen) {
