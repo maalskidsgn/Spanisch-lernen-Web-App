@@ -16882,3 +16882,7 @@ html, body { overflow-x: clip; }
 }
 .engine-suche.engine-zu .engine-lupe { color: #e0a200; position: static; transform: none; flex: none; }
 .engine-suche.engine-zu:disabled { cursor: default; }
+
+/* Streak-Kalender: softes Orange statt kräftigem Orange (Manuel, 09.11.2026) */
+.streak-toon .kal-tag.kal-aktiv { background: linear-gradient(160deg, #ffe7cf, #ffc996); box-shadow: 0 4px 0 #f2b27a; }
+.streak-toon .kal-tag.kal-aktiv .kal-zahl { color: #b94700; }

@@ -33,9 +33,19 @@ const GRUPPEN = [
   { wert: 'koerper', de: 'Gesundheit & Sport', en: 'Health & sport', kat: ['gesundheit', 'sport', 'ernaehrung'], icon: 'gesundheit' },
   { wert: 'kopf', de: 'Kopf & Alltag', en: 'Mind & everyday life', kat: ['psychologie', 'stoizismus', 'produktivitaet'], icon: 'psychologie' },
 ]
+// Feste Auswahl: je Gruppe abwechselnd aus jeder Unter-Kategorie (älteste
+// zuerst), bis MAX_JE_GRUPPE erreicht sind. Dieselbe Regel nutzt das
+// Übersetzungs-Skript – nur diese 12 Videos haben fertige Übersetzungen.
 function gruppiere(bibliothek) {
-  return GRUPPEN.map((g) => ({ ...g, videos: bibliothek.filter((v) => g.kat.includes(v.kategorie)).slice(0, MAX_JE_GRUPPE) }))
-    .filter((g) => g.videos.length)
+  const alt = (a, b) => String(a.erstelltAm ?? a.erstellt_am ?? '').localeCompare(String(b.erstelltAm ?? b.erstellt_am ?? '')) || String(a.videoId ?? a.youtube_id).localeCompare(String(b.videoId ?? b.youtube_id))
+  return GRUPPEN.map((g) => {
+    const toepfe = g.kat.map((k) => bibliothek.filter((v) => v.kategorie === k).sort(alt))
+    const videos = []
+    for (let i = 0; videos.length < MAX_JE_GRUPPE && toepfe.some((t) => t[i]); i++) {
+      for (const t of toepfe) if (t[i] && videos.length < MAX_JE_GRUPPE) videos.push(t[i])
+    }
+    return { ...g, videos }
+  }).filter((g) => g.videos.length)
 }
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
@@ -215,6 +225,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
             thumbnail: v.thumbnail,
             niveau: v.niveau,
             kategorie: v.kategorie,
+            erstelltAm: v.erstellt_am,
           }))
         )
       })

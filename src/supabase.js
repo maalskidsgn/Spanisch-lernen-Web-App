@@ -35,7 +35,7 @@ export const db = supabaseBereit
 export async function holeBibliothek(kategorie) {
   let abfrage = db
     .from('videos')
-    .select('id,youtube_id,titel,kanal,dauer_sek,thumbnail,niveau,kategorie')
+    .select('id,youtube_id,titel,kanal,dauer_sek,thumbnail,niveau,kategorie,erstellt_am')
     .eq('aktiv', true)
     // Songs liegen in derselben Tabelle, gehören aber in den
     // Songs-Bereich – hier also ausdrücklich ausklammern
