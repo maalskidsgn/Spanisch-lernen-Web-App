@@ -41,6 +41,8 @@ const TEXT_MAX = 300000
 
 const T = {
   de: {
+    buehne1: `Lerne ${LERN_DE} mit`, buehne2: 'echten Büchern',
+    vorteil1: 'Kapitel wie bei Blinkist', vorteil2: `${LERN_DE} & Deutsch`, vorteil3: 'Wort antippen = übersetzt', vorteilLaut: 'Lautschrift bei A1',
     titel: 'Eigenes Buch erstellen',
     unter: `Wähle ein echtes Buch – du liest es in 8 Kapiteln auf ${LERN_DE} und Deutsch.`,
     klassiker: 'Klassiker',
@@ -78,6 +80,8 @@ const T = {
     woerterImBuch: (n) => `${n} Wörter`,
   },
   en: {
+    buehne1: `Learn ${LERN_EN} with`, buehne2: 'real books',
+    vorteil1: 'Chapters like Blinkist', vorteil2: `${LERN_EN} & English`, vorteil3: 'Tap a word = translated', vorteilLaut: 'Latin letters at A1',
     titel: 'Create your own book',
     unter: `Pick a real book – you read it in 8 chapters in ${LERN_EN} and English.`,
     klassiker: 'Classics',
@@ -194,16 +198,26 @@ export function BuchFormular({ onFertig }) {
   if (!darf && istApp) return null
 
   return (
-    <section className={'bg-karte bg-entdecken' + (darf ? '' : ' bg-gesperrt')}>
-      <div className="bg-form-kopf">
-        <span className="bg-form-symbol" aria-hidden="true">
-          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5C7 4.3 10 4.6 12 6.5c2-1.9 5-2.2 8-1V19c-3-1.2-6-.9-8 1-2-1.9-5-2.2-8-1z" /><path d="M12 6.5V20" /></svg>
-        </span>
-        <div>
-          <h2>{L.titel}</h2>
-          <p>{L.unter}</p>
-        </div>
+    <section className={'engine engine-toon bg-buehne' + (darf ? '' : ' bg-gesperrt')}>
+      {/* Toon-Bühne wie bei den Videos (Entwurf A, 10.11.2026): schwebende Bücher */}
+      <div className="et-flug" aria-hidden="true">
+        {[0, 1, 2, 3, 4].map((i) => <span key={i} className={'bg-flug bf' + i} />)}
+        <i className="et-funke et-f1">✦</i>
+        <i className="et-funke et-f2">✦</i>
       </div>
+
+      <h2 className="engine-titel">
+        {L.buehne1} <span>{L.buehne2}</span>
+      </h2>
+      <p className="engine-text">{L.unter}</p>
+
+      <ul className="engine-features">
+        <li><b>8</b> {L.vorteil1}</li>
+        <li><b>{L1.toUpperCase()}</b> {L.vorteil2}</li>
+        {LAUTSCHRIFT ? <li><b>Aa</b> {L.vorteilLaut}</li> : <li><b>↻</b> {L.vorteil3}</li>}
+      </ul>
+
+      <GratisHinweis art="buecher" />
 
       <div className="bg-themen" role="tablist">
         {themen.map((t) => (
@@ -255,7 +269,6 @@ export function BuchFormular({ onFertig }) {
           </button>
         ) : (
           <>
-            <p className="bg-premium-hinweis">{L.nurPremium}</p>
             <button type="button" className="bg-los bg-los-premium" onClick={zurKasse}>
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
               {L.premiumKnopf}
@@ -265,7 +278,6 @@ export function BuchFormular({ onFertig }) {
         {laedt && <p className="bg-dauer">{L.dauer}</p>}
         {fehler && <p className="error">{fehler}</p>}
       </form>
-      {darf && <GratisHinweis art="ki" />}
     </section>
   )
 }

@@ -16005,7 +16005,7 @@ html, body { overflow-x: clip; }
 .et-f1 { left: 46%; top: 12px; }
 .et-f2 { right: 34%; top: 108px; color: #7d8bff; font-size: 14px; }
 .engine-toon .engine-titel { font-size: 1.6rem; }
-.engine-toon .engine-titel span { color: #ff3b30; display: block; }
+.engine-toon .engine-titel span { color: var(--primary); display: block; }
 .engine-toon .engine-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .engine-toon .engine-features li {
   display: flex;
@@ -17231,6 +17231,21 @@ body.lektion-laeuft .lessons > :not(button),
 .bg-los-premium { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #ffc800; color: #3a2a00; box-shadow: 0 4px 0 #d19b00; }
 .bg-los-premium:active { box-shadow: 0 1px 0 #d19b00; }
 @media (max-width: 900px) { .bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* Bücher-Bühne (Entwurf A, 10.11.2026): dieselbe Toon-Bühne wie die Videos */
+.bg-buehne { margin-bottom: 18px; }
+.bg-buehne .bg-themen { margin: 0 -18px 14px; padding: 2px 18px 4px; }
+.bg-buehne .bg-form-felder { margin-top: 18px; }
+.bg-flug { position: absolute; border-radius: 6px 12px 12px 6px; background: var(--c); box-shadow: 0 5px 0 var(--k), 0 8px 18px rgba(0, 0, 0, .08); animation: et-schweben 4s ease-in-out infinite; }
+.bg-flug::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 8px; border-radius: 6px 0 0 6px; background: var(--k); }
+.bg-flug::after { content: ''; position: absolute; left: 16px; right: 10px; top: 16px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .55); box-shadow: 0 9px 0 rgba(255, 255, 255, .35); }
+.bf0 { --c: #ffb02e; --k: #d98a00; left: 18px; top: 18px; width: 64px; height: 86px; transform: rotate(-9deg); }
+.bf1 { --c: #4d9cf5; --k: #2a6fc4; left: 94px; top: 32px; width: 72px; height: 96px; transform: rotate(4deg); animation-delay: -1s; }
+.bf2 { --c: #f06aa0; --k: #c24277; right: 22px; top: 14px; width: 64px; height: 86px; transform: rotate(8deg); animation-delay: -2s; }
+.bf3 { --c: #33c2a3; --k: #1d8f78; left: 182px; top: 74px; width: 44px; height: 60px; transform: rotate(-5deg); animation-delay: -.5s; }
+.bf4 { --c: #8a6cf5; --k: #5f43c9; right: 104px; top: 66px; width: 50px; height: 68px; transform: rotate(-8deg); animation-delay: -1.5s; }
+@media (prefers-reduced-motion: reduce) { .bg-flug { animation: none; } }
+@media (max-width: 600px) { .bf3 { left: 172px; } .bf4 { right: 92px; } }
+
 @media (max-width: 600px) { .bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 @media (max-width: 600px) {

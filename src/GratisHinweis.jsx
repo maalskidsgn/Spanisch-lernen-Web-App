@@ -45,6 +45,9 @@ const TEXT = {
     ki: (u, g) => (u > 0 ? `Noch ${u} von ${g} KI-Erstellungen diesen Monat` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
     kiKlein: 'Wortlisten, Sätze, Texte & E-Books teilen sich den Monatstopf',
     video: () => 'Eigene YouTube-Videos mit Premium',
+    buecher: 'Eigene Bücher mit Premium',
+    buecherKlein: 'Gratis: die 6 Bücher der Bibliothek. Premium: jedes Buch auf deinem Niveau – bis zu 50 im Monat.',
+    buecherFrei: '6 Bücher',
     videoKlein: 'Gratis: alle Videos aus der Mediathek. Suche und eigene Links schaltet Premium frei.',
     mediathek: 'Mediathek',
     lektionen: 'Alle Module und Lektionen mit Premium',
@@ -74,6 +77,9 @@ const TEXT = {
     ki: (u, g) => (u > 0 ? `${u} of ${g} AI creations left this month` : `You've used your ${g} free creations`),
     kiKlein: 'Lists, sentences, texts & e-books share the monthly pool',
     video: () => 'Your own YouTube videos with Premium',
+    buecher: 'Your own books with Premium',
+    buecherKlein: 'Free: the 6 library books. Premium: any book at your level – up to 50 a month.',
+    buecherFrei: '6 books',
     videoKlein: 'Free: every video in the library. Premium unlocks search and your own links.',
     mediathek: 'Library',
     lektionen: 'Every module and lesson with Premium',
@@ -102,7 +108,7 @@ const TEXT = {
 }
 
 // Symbol je Bereich – Toon-Bild auf Podest (Leiste A3, 09.11.2026)
-const SYMBOL = { ki: 'zauber', video: 'video', lektionen: 'lektion', sprechen: 'mikro', vokabeln: 'buch', saetze: 'zauber', texte: 'buch' }
+const SYMBOL = { ki: 'zauber', video: 'video', buecher: 'buch', lektionen: 'lektion', sprechen: 'mikro', vokabeln: 'buch', saetze: 'zauber', texte: 'buch' }
 
 export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
   const { zeigen } = useSichtbar()
@@ -116,6 +122,12 @@ export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
     titel = T.ki(k.ki.uebrig, KI_PRO_MONAT)
     klein = leer ? T.wieder(naechsteAuffuellung()) : T.kiKlein
     zahl = <><b>{k.ki.uebrig}</b>/{KI_PRO_MONAT} {T.frei}</>
+  } else if (art === 'buecher') {
+    // Seit 10.11.: eigene Bücher nur Premium, die 6 der Bibliothek sind frei
+    zaehlt = false
+    titel = T.buecher
+    klein = T.buecherKlein
+    zahl = <><b>{T.buecherFrei}</b> {T.frei}</>
   } else if (art === 'video') {
     // Seit 09.11.: eigene Videos nur Premium, die Mediathek ist frei
     zaehlt = false
