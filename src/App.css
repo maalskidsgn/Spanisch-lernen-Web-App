@@ -16886,3 +16886,69 @@ html, body { overflow-x: clip; }
 /* Streak-Kalender: softes Orange statt kräftigem Orange (Manuel, 09.11.2026) */
 .streak-toon .kal-tag.kal-aktiv { background: linear-gradient(160deg, #ffe7cf, #ffc996); box-shadow: 0 4px 0 #f2b27a; }
 .streak-toon .kal-tag.kal-aktiv .kal-zahl { color: #b94700; }
+
+/* ============================================================
+   Schnell-Übersetzer auf der Startseite (09.11.2026)
+   ============================================================ */
+.schnell {
+  margin: 0 0 20px;
+  padding: 18px 18px 16px;
+  border-radius: 24px;
+  background: var(--card, #fff);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 18%, #fff) inset, 0 5px 0 color-mix(in srgb, var(--primary) 22%, #fff);
+  text-align: left;
+}
+.schnell-kopf { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.schnell-symbol {
+  flex: none; display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 70%, #fff), var(--primary));
+  box-shadow: 0 3px 0 var(--primary-press);
+}
+.schnell-kopf h2 { margin: 0; font-size: 18px; font-weight: 900; color: var(--navy); }
+.schnell-kopf p { margin: 2px 0 0; font-size: 13.5px; font-weight: 700; color: var(--muted); }
+.schnell-form { display: flex; gap: 8px; }
+.schnell-form input {
+  flex: 1; min-width: 0; padding: 13px 16px; border-radius: 16px; border: 2px solid var(--line);
+  font: inherit; font-size: 16px; font-weight: 700; color: var(--navy); background: #fff; outline: none;
+}
+.schnell-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 14%, transparent); }
+.schnell-los {
+  flex: none; min-width: 112px; padding: 0 18px; border: 0; border-radius: 16px; cursor: pointer;
+  font: inherit; font-size: 15px; font-weight: 900; color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 75%, #fff), var(--primary) 60%, var(--primary-dark));
+  box-shadow: 0 4px 0 var(--primary-press);
+}
+.schnell-los:disabled { opacity: .5; cursor: default; }
+.schnell-los:not(:disabled):active { transform: translateY(2px); box-shadow: 0 2px 0 var(--primary-press); }
+.schnell-punkte { display: inline-block; width: 26px; height: 8px; background: radial-gradient(circle, #fff 45%, transparent 50%) 0 50% / 9px 8px repeat-x; animation: schnell-puls .9s ease-in-out infinite; }
+@keyframes schnell-puls { 50% { opacity: .4; } }
+.schnell-fehler { margin: 10px 2px 0; font-size: 14px; font-weight: 700; color: var(--red-press, #d33131); }
+.schnell-ergebnis { margin-top: 12px; display: grid; gap: 10px; }
+.schnell-ergebnis ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.schnell-ergebnis li {
+  display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 14px; border-radius: 16px;
+  background: color-mix(in srgb, var(--primary) 6%, #fff); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--primary) 16%, #fff) inset;
+}
+.schnell-wort { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.schnell-wort b { font-size: 17px; font-weight: 900; color: var(--navy); }
+.schnell-wort span { font-size: 14px; font-weight: 700; color: var(--muted); }
+.schnell-wort small {
+  justify-self: start; margin-top: 3px; padding: 2px 8px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 800; color: #7a5200; background: linear-gradient(135deg, #fff5c4, #ffd75a);
+}
+.schnell-rein {
+  flex: none; padding: 9px 14px; border: 0; border-radius: 999px; cursor: pointer; white-space: nowrap;
+  font: inherit; font-size: 13.5px; font-weight: 900; color: #fff; background: var(--success, #2aae5f); box-shadow: 0 3px 0 var(--success-press, #1f9450);
+}
+.schnell-rein.ist-drin { color: var(--success-press, #1f9450); background: #e5f7ec; box-shadow: none; cursor: default; }
+.schnell-beispiel { margin: 0; padding: 10px 14px; border-radius: 14px; background: var(--flaeche, #f5f1ea); display: grid; gap: 2px; }
+.schnell-beispiel b { font-size: 14.5px; font-weight: 800; color: var(--navy); }
+.schnell-beispiel span { font-size: 13px; font-weight: 700; color: var(--muted); }
+.schnell-neu { justify-self: start; border: 0; background: none; padding: 4px 2px; font: inherit; font-size: 14px; font-weight: 800; color: var(--primary-dark); cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .schnell-punkte { animation: none; } }
+@media (max-width: 520px) {
+  .schnell { padding: 16px 14px 14px; }
+  .schnell-los { min-width: 0; }
+  .schnell-ergebnis li { flex-wrap: wrap; }
+  .schnell-rein { margin-left: auto; }
+}

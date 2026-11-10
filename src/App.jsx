@@ -1670,6 +1670,7 @@ export default function App() {
             nutzerEmail={nutzer?.email}
             nutzerId={nutzer?.id}
             onAddVocab={addVocabWords}
+            vocab={vocab}
           />
         </main>
       )}

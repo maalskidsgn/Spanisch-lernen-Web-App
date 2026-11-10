@@ -1,3 +1,4 @@
+import SchnellUebersetzer from './SchnellUebersetzer.jsx'
 import { GratisUebersicht } from './GratisHinweis.jsx'
 import { API_URL, istApp } from './api.js'
 import ToonFlamme from './ToonFlamme.jsx'
@@ -60,6 +61,8 @@ export default function Home({
   onNavigate,
   nutzerEmail,
   nutzerId,
+  vocab = {},
+  onAddVocab,
 }) {
   const t = useTexte()
   // Serie (Woche + Kalender) oder Analyse (Lernkurve) – beides
@@ -135,6 +138,9 @@ export default function Home({
         </h1>
         <p className="start-zurueck">{t('si.frage')}</p>
       </header>
+
+      {/* Schnell-Übersetzer: Wort nachschlagen und direkt in den Trainer (09.11.) */}
+      <SchnellUebersetzer vocab={vocab} onAddVocab={onAddVocab} />
 
       {/* Die Funktionen als schwebende Inseln zum Durchwischen */}
       <StartInseln

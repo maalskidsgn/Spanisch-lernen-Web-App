@@ -2,6 +2,7 @@
 // Er benutzt dafür das Programm "yt-dlp" (per Homebrew installiert), weil das
 // zuverlässig an die YouTube-Untertitel kommt.
 import express from 'express'
+import { schnellUebersetzen, nachschlagenErlaubt } from './schnelluebersetzer.js'
 import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
 import { execFile } from 'child_process'
 import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
@@ -703,6 +704,24 @@ async function kiTuersteher(req, res) {
 async function kiVerbuchen(tuer) {
   if (!tuer.premium) await zaehleNutzung(tuer.nutzer.id, 'ki')
 }
+
+// Schnell-Übersetzer der Startseite: ein Wort in beliebiger Richtung (09.11.2026)
+app.get('/api/schnell', async (req, res) => {
+  const en = req.query.sprache === 'en'
+  const nutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', '')).catch(() => null)
+  if (!nutzer) return res.status(401).json({ error: en ? 'Please sign in first.' : 'Bitte zuerst anmelden.' })
+  if (!nachschlagenErlaubt(nutzer.id)) {
+    return res.status(429).json({ error: en ? 'That was a lot for one day – try again tomorrow.' : 'Das waren heute sehr viele – morgen geht es weiter.' })
+  }
+  try {
+    const daten = await schnellUebersetzen(req.query.q, en ? 'en' : 'de')
+    if (!daten?.treffer?.length) return res.status(404).json({ error: en ? 'No match found.' : 'Dazu habe ich nichts gefunden.' })
+    res.json(daten)
+  } catch (err) {
+    console.error('Schnell-Übersetzer:', err.message)
+    res.status(502).json({ error: en ? 'Translation failed, please try again.' : 'Übersetzen hat nicht geklappt, bitte nochmal.' })
+  }
+})
 
 // Stand der Gratis-Grenzen für die Anzeige
 app.get('/api/kontingent', async (req, res) => {
