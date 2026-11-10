@@ -37,7 +37,7 @@ const LAUTSCHRIFT = null // (text, sprache) => Text in lateinischen Buchstaben
 const LERN_DE = 'Spanisch', LERN_EN = 'Spanish'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2', 'C1']
-const TEXT_MAX = 300000
+const TEXT_MAX = 100000 // wie GRENZEN.buchtextZeichen im Server
 
 const T = {
   de: {
@@ -51,7 +51,7 @@ const T = {
     textAuf: '+ Text aus dem Buch einfügen (optional)',
     textZu: 'Text entfernen',
     textPlatz: 'Ein Kapitel, mehrere Seiten oder das ganze Buch einfügen …',
-    textInfo: (n) => `${n.toLocaleString('de-DE')} von 300.000 Zeichen · nur für die Zusammenfassung, wird nicht gespeichert`,
+    textInfo: (n) => `${n.toLocaleString('de-DE')} von 100.000 Zeichen · nur für die Zusammenfassung, wird nicht gespeichert`,
     niveau: 'Dein Niveau',
     los: 'Zusammenfassung erstellen',
     losTitel: (t) => `„${t}“ zusammenfassen`,
@@ -91,7 +91,7 @@ const T = {
     textAuf: '+ Paste text from the book (optional)',
     textZu: 'Remove text',
     textPlatz: 'Paste a chapter, several pages or the whole book …',
-    textInfo: (n) => `${n.toLocaleString('en-GB')} of 300,000 characters · only used for the summary, never stored`,
+    textInfo: (n) => `${n.toLocaleString('en-GB')} of 100,000 characters · only used for the summary, never stored`,
     niveau: 'Your level',
     los: 'Create summary',
     losTitel: (t) => `Summarise “${t}”`,
@@ -284,7 +284,7 @@ export function BuchFormular({ onFertig }) {
           {darf ? (
             <button type="submit" className="bg-los" disabled={laedt}>{laedt ? L.laedt : L.losKurz}</button>
           ) : (
-            <button type="button" className="bg-los bg-los-premium" onClick={zurKasse}>
+            <button type="button" className="gh-knopf bg-premium-knopf" onClick={zurKasse}>
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
               {L.premiumKnopf}
             </button>

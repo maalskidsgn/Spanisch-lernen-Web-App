@@ -17268,6 +17268,13 @@ body.lektion-laeuft .lessons > :not(button),
 .bg-zeile-bild .bg-cover-mini { width: 44px; }
 .bg-zeile-weg { position: absolute; top: 8px; right: 64px; width: 26px; height: 26px; border-radius: 50%; border: 0; background: var(--card); color: var(--muted); font-weight: 900; font-size: .75rem; cursor: pointer; box-shadow: 0 0 0 1.5px var(--line) inset; }
 
+/* Premium-Knopf wie „Freischalten“ (gh-knopf), nur größer und mit Gold-Schein */
+.bg-premium-knopf { padding: 13px 24px; font-size: 15px; box-shadow: 0 4px 0 #e0a200, 0 10px 24px -6px rgba(255, 190, 40, .55); }
+.bg-premium-knopf:active { box-shadow: 0 1px 0 #e0a200; }
+/* Kasse: Link zu den Obergrenzen, bewusst unauffällig */
+.kassen-grenzen { margin-top: 6px !important; }
+.kassen-grenzen a { color: var(--muted); font-size: 12px; text-decoration: underline; text-underline-offset: 2px; }
+
 @media (max-width: 600px) { .bf3 { left: 172px; } .bf4 { right: 92px; } }
 
 @media (max-width: 600px) { .bg-bibliothek .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -17277,6 +17284,7 @@ body.lektion-laeuft .lessons > :not(button),
   .bg-themen { margin: 0 -18px 14px; padding: 2px 18px 4px; }
   .bg-katalog { grid-template-columns: 1fr; }
   .bg-auswahl { flex-direction: column; align-items: stretch; }
+  .bg-auswahl .bg-premium-knopf { width: 100%; }
   .bg-auswahl-niveau { justify-content: space-between; }
   .bg-auswahl-niveau button { flex: 1; }
   .bg-regal-reihe { grid-template-columns: repeat(2, minmax(0, 1fr)); }

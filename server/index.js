@@ -1,3 +1,5 @@
+import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
+import { createHash } from 'node:crypto'
 import { kiKontext } from './ki.js'
 // Kleiner Server, der das Transkript (Untertitel) eines YouTube-Videos holt.
 // Er benutzt dafür das Programm "yt-dlp" (per Homebrew installiert), weil das
@@ -524,6 +526,9 @@ app.post('/api/tutoren-interesse', async (req, res) => {
 app.get('/api/translate', async (req, res) => {
   const word = (req.query.q || '').trim()
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
+  if (!imSpeicherErlaubt('wort', anfrager(req), GRENZEN.wortTag)) {
+    return res.status(429).json({ error: GRENZE_TEXT[req.query.sprache === 'en' ? 'en' : 'de'](req.query.sprache === 'en' ? 'word look-ups' : 'Wort-Übersetzungen', 'tag') })
+  }
   try {
     // Der Satz drumherum (optional) – damit mehrdeutige Wörter passend übersetzt werden
     const satz = String(req.query.satz || '').trim().slice(0, 300)
@@ -696,7 +701,14 @@ async function kiTuersteher(req, res) {
     res.status(401).json({ error: en ? 'Please sign in first.' : 'Bitte zuerst anmelden.' })
     return null
   }
-  if (await istPremium(nutzer.id)) return { nutzer, premium: true }
+  if (await istPremium(nutzer.id)) {
+    // Obergrenze auch für Premium (10.11.2026, siehe server/grenzen.js)
+    if ((await nutzungHeute(nutzer.id, 'ki')) >= GRENZEN.kiPremiumMonat) {
+      res.status(429).json({ error: GRENZE_TEXT[en ? 'en' : 'de'](en ? 'AI creations' : 'KI-Erstellungen', 'monat'), grund: 'obergrenze' })
+      return null
+    }
+    return { nutzer, premium: true }
+  }
   const genutzt = await nutzungHeute(nutzer.id, 'ki')
   if (genutzt >= KI_PRO_MONAT) {
     const nachricht = en
@@ -708,7 +720,7 @@ async function kiTuersteher(req, res) {
   return { nutzer, premium: false }
 }
 async function kiVerbuchen(tuer) {
-  if (!tuer.premium) await zaehleNutzung(tuer.nutzer.id, 'ki')
+  await zaehleNutzung(tuer.nutzer.id, 'ki') // auch Premium – für die Obergrenze
 }
 
 // Schnell-Übersetzer der Startseite: ein Wort in beliebiger Richtung (09.11.2026)
@@ -719,9 +731,18 @@ app.get('/api/schnell', async (req, res) => {
   if (!nachschlagenErlaubt(nutzer.id)) {
     return res.status(429).json({ error: en ? 'That was a lot for one day – try again tomorrow.' : 'Das waren heute sehr viele – morgen geht es weiter.' })
   }
+  // Monatsgrenze (10.11.2026): Gratis 20, Premium 300 – der Übersetzer läuft über Sonnet
+  const schnellPremium = await istPremium(nutzer.id)
+  const schnellMax = schnellPremium ? GRENZEN.schnellPremiumMonat : GRENZEN.schnellFreiMonat
+  if ((await nutzungHeute(nutzer.id, 'schnell')) >= schnellMax) {
+    return res.status(429).json({ error: schnellPremium
+      ? GRENZE_TEXT[en ? 'en' : 'de'](en ? 'quick translations' : 'den Schnell-Übersetzer', 'monat')
+      : (en ? `You've used your ${schnellMax} free look-ups this month – Premium has ${GRENZEN.schnellPremiumMonat}.` : `Deine ${schnellMax} Gratis-Nachschläge für diesen Monat sind aufgebraucht – mit Premium sind es ${GRENZEN.schnellPremiumMonat}.`) })
+  }
   try {
     const daten = await schnellUebersetzen(req.query.q, en ? 'en' : 'de')
     if (!daten?.treffer?.length) return res.status(404).json({ error: en ? 'No match found.' : 'Dazu habe ich nichts gefunden.' })
+    await zaehleNutzung(nutzer.id, 'schnell')
     res.json(daten)
   } catch (err) {
     console.error('Schnell-Übersetzer:', err.message)
@@ -767,12 +788,22 @@ app.post('/api/generate-vocab', async (req, res) => {
 // Übersetzt viele Transkript-Zeilen auf einmal ins Deutsche.
 // Trick: 25 Zeilen pro Anfrage mit Zeilenumbrüchen verbinden – kommt die
 // Antwort nicht sauber zeilenweise zurück, übersetzen wir einzeln nach.
+const UNTERTITEL = new Map() // Hash der Zeilen → Übersetzung
 app.post('/api/translate-batch', async (req, res) => {
   const lines = Array.isArray(req.body.lines) ? req.body.lines.slice(0, 500) : []
   if (lines.length === 0) return res.status(400).json({ error: 'Keine Zeilen übergeben.' })
 
+  // Schon einmal übersetzt? Dann kostet es nichts (10.11.2026)
+  const schluessel = createHash('sha1').update((req.body.sprache || 'de') + '\n' + lines.join('\n')).digest('hex')
+  if (UNTERTITEL.has(schluessel)) return res.json({ uebersetzungen: UNTERTITEL.get(schluessel) })
+  if (!imSpeicherErlaubt('untertitel', anfrager(req), GRENZEN.untertitelMonat, 'monat')) {
+    return res.status(429).json({ error: GRENZE_TEXT[req.body.sprache === 'en' ? 'en' : 'de'](req.body.sprache === 'en' ? 'subtitle translations' : 'Untertitel-Übersetzungen', 'monat') })
+  }
+
   try {
     const uebersetzungen = await uebersetzeZeilen(lines, req.body.sprache)
+    if (UNTERTITEL.size > 500) UNTERTITEL.delete(UNTERTITEL.keys().next().value)
+    UNTERTITEL.set(schluessel, uebersetzungen)
     res.json({ uebersetzungen })
   } catch (err) {
     console.error('Stapel-Übersetzung fehlgeschlagen:', err.message)
@@ -947,6 +978,9 @@ app.post('/api/gespraech', async (req, res) => {
     // antworten: Ein Aufruf, der ohnehin abgelehnt wird, soll kein
     // OpenAI-Geld kosten.
     const premium = await istPremium(nutzer.id)
+    if (premium && (await tutorNutzungHeute(nutzer.id)) >= GRENZEN.tutorPremiumTag) {
+      return res.status(429).json({ error: 'limit', nachricht: GRENZE_TEXT[req.body?.sprache === 'en' ? 'en' : 'de'](req.body?.sprache === 'en' ? 'tutor messages' : 'Tutor-Nachrichten', 'tag') })
+    }
     if (!premium) {
       const heute = await tutorNutzungHeute(nutzer.id)
       if (heute >= GESPRAECHE_PRO_TAG) {
@@ -964,10 +998,8 @@ app.post('/api/gespraech', async (req, res) => {
 
     // Erst nach erfolgreicher Antwort verbuchen.
     let frei = null
-    if (!premium) {
-      const genutzt = await zaehleTutorNutzung(nutzer.id)
-      frei = Math.max(0, GESPRAECHE_PRO_TAG - genutzt)
-    }
+    const genutzt = await zaehleTutorNutzung(nutzer.id) // auch Premium – für die Obergrenze
+    if (!premium) frei = Math.max(0, GESPRAECHE_PRO_TAG - genutzt)
     res.json({ ...antwortObj, frei })
   } catch (err) {
     console.error('Gespraech:', err.message)

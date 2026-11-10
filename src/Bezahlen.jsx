@@ -98,6 +98,7 @@ const KASSEN_TEXTE = {
     titel2: 'ohne Grenzen',
     lead: 'Alles freigeschaltet – sofort nach der Zahlung.',
     freiTitel: 'Das schaltest du frei',
+    obergrenzen: 'Monatliche Obergrenzen (faire Nutzung)',
     sofort: 'sofort aktiv',
     gratis: 'Gratis',
     jaehrlich: ' · jährlich',
@@ -106,10 +107,10 @@ const KASSEN_TEXTE = {
       ['lektion', 'Alle Lektionen', 'alles offen', '20 %'],
       ['mikro', 'Sprach-Trainer', '120 Min. / Monat', '10 Min.'],
       ['karten', 'Vokabeltrainer', 'unbegrenzt', '500 Wörter · 50 Sätze · 10 Texte'],
-      ['zauber', 'KI‑Wortlisten', 'unbegrenzt', '10 / Monat'],
-      ['buch', 'Sätze & Texte', 'unbegrenzt', 'teilt sich die 10'],
+      ['zauber', 'KI‑Wortlisten', '300 / Monat', '10 / Monat'],
+      ['buch', 'Sätze & Texte', 'teilen sich die 300', 'teilen sich die 10'],
       ['buch', 'Alle E‑Books + eigene', 'bis 50 neue / Monat', '6 in der Bibliothek'],
-      ['video', 'Eigene YouTube‑Videos', 'ohne Limit', 'nur Mediathek'],
+      ['video', 'Eigene YouTube‑Videos', '100 / Monat', 'nur Mediathek'],
     ],
   },
   en: {
@@ -118,6 +119,7 @@ const KASSEN_TEXTE = {
     titel2: 'without limits',
     lead: 'Everything unlocked – right after payment.',
     freiTitel: 'What you unlock',
+    obergrenzen: 'Monthly limits (fair use)',
     sofort: 'instantly',
     gratis: 'Free',
     jaehrlich: ' · yearly',
@@ -126,10 +128,10 @@ const KASSEN_TEXTE = {
       ['lektion', 'All lessons', 'all unlocked', '20%'],
       ['mikro', 'Speaking trainer', '120 min / month', '10 min'],
       ['karten', 'Vocabulary trainer', 'unlimited', '500 words · 50 sentences · 10 texts'],
-      ['zauber', 'AI word lists', 'unlimited', '10 / month'],
-      ['buch', 'Sentences & texts', 'unlimited', 'shares the 10'],
+      ['zauber', 'AI word lists', '300 / month', '10 / month'],
+      ['buch', 'Sentences & texts', 'share the 300', 'share the 10'],
       ['buch', 'All e‑books + your own', 'up to 50 new / month', '6 in the library'],
-      ['video', 'Your own YouTube videos', 'no limit', 'library only'],
+      ['video', 'Your own YouTube videos', '100 / month', 'library only'],
     ],
   },
 }
@@ -297,7 +299,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
               </div>
               <ul className="ka-inseln">
                 {KT.vorteile.map(([icon, titel, prem, gratis], n) => (
-                  <li key={icon} className={'ka-insel' + (KT.vorteile.length === 5 && n > 2 ? ' ka-breit' : '')}>
+                  <li key={titel} className={'ka-insel' + (KT.vorteile.length === 5 && n > 2 ? ' ka-breit' : '')}>
                     <span className="ka-haken" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.haken }} />
                     <span className="ka-funkel ka-f1" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.funkel }} />
                     <span className="ka-funkel ka-f2" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.funkel }} />
@@ -365,6 +367,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
             ? t('bzm.einmaligeZahlungKein')
             : t('bz9.jederzeitKuendbarIn')}
         </p>
+        <p className="kassen-grenzen"><a href={KT.obergrenzen.startsWith('Month') ? '/en/limits/' : '/obergrenzen/'} target="_blank" rel="noopener">{KT.obergrenzen}</a></p>
       </footer>
     </div>
   )

@@ -1,3 +1,4 @@
+import { GRENZEN } from './grenzen.js'
 import { kiChat, HAIKU, claudeFetch } from './ki.js'
 /**
  * Bilinguale E-Books für Habloo.
@@ -491,9 +492,9 @@ export async function speichereEbook(nutzerId, buch) {
 
 
 /** Premium: Fair-Use-Grenze im Monat. Gratis zählt in den KI-Topf. */
-export const BUECHER_PREMIUM_PRO_MONAT = 50
+export const BUECHER_PREMIUM_PRO_MONAT = GRENZEN.buecherPremiumMonat
 /** So viel eingefügter Text geht mit (≈150 Buchseiten). */
-export const BUCHTEXT_MAX = 300000
+export const BUCHTEXT_MAX = GRENZEN.buchtextZeichen
 
 const PAAR = (beschreibung, ziel) => ({
   type: 'object',

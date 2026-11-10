@@ -1,3 +1,4 @@
+import { GRENZEN } from './grenzen.js'
 /**
  * Der Sprach-Trainer: ein echtes Gespraech per Stimme, das den
  * Lernenden langfristig begleitet.
@@ -19,8 +20,8 @@ const AUSWERTUNG = 'gpt-4o-mini'
 
 /** Laenger laeuft ein Gespraech nicht. */
 export const MAX_MINUTEN_GESPRAECH = 10
-export const MINUTEN_FREI = 10
-export const MINUTEN_PREMIUM = 120
+export const MINUTEN_FREI = GRENZEN.sprechFreiMinuten
+export const MINUTEN_PREMIUM = GRENZEN.sprechPremiumMinuten
 /** So viel Spielraum bekommt die App, selbst aufzulegen und sich zu verabschieden. */
 const ZUGABE_SEKUNDEN = 20
 
