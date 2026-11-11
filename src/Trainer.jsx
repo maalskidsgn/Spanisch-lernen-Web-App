@@ -17,7 +17,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { merkeGelernt, heuteGelernt } from './lernkurve.js'
+import { merkeGelernt } from './lernkurve.js'
 import { erfolgston } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
@@ -739,7 +739,6 @@ export default function Trainer({
   }
 
   // ---------- Übersichts-Ansicht ----------
-  const heute = heuteGelernt('woerter')
   return (
     <div className="trainer">
       {schalter}
@@ -766,15 +765,8 @@ export default function Trainer({
           </p>
         </div>
         </div>
-        {/* Gratis (Web): statt Tagesziel der gelbe Kasten „473 / 500 im Trainer“ (11.11.) */}
-        <TrainerGrenze art="vokabeln" gesamt={entries.length}>
-          {/* Tagesziel (06.11.): eine Runde = {LEKTION_GROESSE} Karten */}
-          <div className={'wiederholen-ziel' + (heute >= LEKTION_GROESSE ? ' erreicht' : '')}>
-            <span>{t('tr.tagesziel')}</span>
-            <span className="wiederholen-balken"><span style={{ width: Math.min(100, (heute / LEKTION_GROESSE) * 100) + '%' }} /></span>
-            <b>{Math.min(heute, LEKTION_GROESSE)} / {LEKTION_GROESSE}{heute >= LEKTION_GROESSE ? ' ✓' : ''}</b>
-          </div>
-        </TrainerGrenze>
+        {/* Gratis (Web): gelber Kasten „473 / 500 im Trainer“. Tagesziel entfernt (11.11., Manuel) */}
+        <TrainerGrenze art="vokabeln" gesamt={entries.length} />
         <button
           className="btn wiederholen-los"
           onClick={() => setArtWahl(true)}
