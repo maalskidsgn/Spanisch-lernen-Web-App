@@ -1,6 +1,6 @@
 import SpielBild from './SpielBild.jsx'
 import { leiterName } from './srs.js'
-import GratisHinweis from './GratisHinweis.jsx'
+import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -509,6 +509,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               </p>
             </div>
             </div>
+            <TrainerGrenze art="saetze" gesamt={entries.length} faellig={faellig.length} />
             {/* Nichts fällig? Satzpaare gehen trotzdem – mit den übrigen Sätzen */}
             <button
               className="btn wiederholen-los"

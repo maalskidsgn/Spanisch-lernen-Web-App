@@ -1,7 +1,7 @@
 import { leiterName } from './srs.js'
 import { pausierteSchluessel, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import GratisHinweis from './GratisHinweis.jsx'
+import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { useEffect, useMemo, useState } from 'react'
 import { Pokal } from './Games.jsx'
 import { Sockel } from './StartInseln.jsx'
@@ -774,6 +774,8 @@ export default function Trainer({
           <span className="wiederholen-balken"><span style={{ width: Math.min(100, (heute / LEKTION_GROESSE) * 100) + '%' }} /></span>
           <b>{Math.min(heute, LEKTION_GROESSE)} / {LEKTION_GROESSE}{heute >= LEKTION_GROESSE ? ' ✓' : ''}</b>
         </div>
+        {/* Gratis-Obergrenze: was im Training ist, was pausiert ist (11.11.) */}
+        <TrainerGrenze art="vokabeln" gesamt={entries.length} faellig={dueEntries.length} />
         <button
           className="btn wiederholen-los"
           onClick={() => setArtWahl(true)}

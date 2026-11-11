@@ -175,6 +175,54 @@ export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
   )
 }
 
+/**
+ * Obergrenze im Trainer, direkt in der Karte „Heute wiederholen“ (11.11.2026).
+ * Zwei Zeilen: was gratis im Training ist (mit „heute fällig“) und – wenn es
+ * mehr sind als erlaubt – was pausiert ist und erst mit Premium wieder kommt.
+ * Fall: Premium mit 2000 Vokabeln kündigt → 500 lernen weiter, 1500 pausiert.
+ */
+export function TrainerGrenze({ art, gesamt = 0, faellig = 0 }) {
+  const { zeigen } = useSichtbar()
+  if (!zeigen || gesamt === 0) return null
+  const en = sprache() === 'en'
+  const max = { vokabeln: MAX_VOKABELN, saetze: MAX_SAETZE, texte: MAX_TEXTE }[art]
+  const was = en
+    ? { vokabeln: 'words', saetze: 'sentences', texte: 'texts' }[art]
+    : { vokabeln: 'Vokabeln', saetze: 'Sätze', texte: 'Texte' }[art]
+  const imTraining = Math.min(gesamt, max)
+  const pausiert = gesamt - imTraining
+  return (
+    <div className={'trainer-grenze' + (pausiert > 0 ? ' tg-voll' : '')}>
+      <div className="tg-zeile tg-frei">
+        <div className="tg-text">
+          <b>{en ? `${imTraining} of ${max} ${was} in training` : `${imTraining} von ${max} ${was} im Training`}</b>
+          <small>
+            {en ? `${faellig} due today` : `davon heute ${faellig} zu lernen`}
+            {pausiert > 0 ? (en ? ' · free limit reached' : ' · Gratis-Limit erreicht') : ''}
+          </small>
+        </div>
+        <span className="tg-balken"><span style={{ width: (imTraining / max) * 100 + '%' }} /></span>
+      </div>
+      {pausiert > 0 ? (
+        <div className="tg-zeile tg-pausiert">
+          <div className="tg-text">
+            <b>{en ? `${pausiert} ${was} paused` : `${pausiert} ${was} pausiert`}</b>
+            <small>{en ? 'Saved, but not practised. Premium brings them all back.' : 'Gespeichert, aber nicht im Training. Mit Premium wieder alle.'}</small>
+          </div>
+          <button type="button" className="tg-knopf" onClick={zurKasse}>
+            {KRONE}
+            <span>{en ? 'Unlock' : 'Freischalten'}</span>
+          </button>
+        </div>
+      ) : (
+        <small className="tg-hinweis">
+          {en ? `Free: up to ${max} ${was} are practised. Premium: unlimited.` : `Gratis werden bis zu ${max} ${was} abgefragt. Premium: unbegrenzt.`}
+        </small>
+      )}
+    </div>
+  )
+}
+
 /** Übersicht aller Gratis-Grenzen – für die Startseite. */
 export function GratisUebersicht({ trainer = null }) {
   const { zeigen } = useSichtbar()

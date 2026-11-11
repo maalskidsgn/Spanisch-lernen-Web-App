@@ -1,5 +1,5 @@
 import { leiterName } from './srs.js'
-import GratisHinweis from './GratisHinweis.jsx'
+import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { createPortal } from 'react-dom'
 import ZauberBild from './ZauberBild.jsx'
 import ThemaBild from './ThemaBild.jsx'
@@ -184,6 +184,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
               </p>
             </div>
             </div>
+            <TrainerGrenze art="texte" gesamt={entries.length} faellig={faellig.length} />
             <button
               className="btn wiederholen-los"
               onClick={() => setOffenerText(faellig[0].id)}
