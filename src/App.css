@@ -17334,12 +17334,22 @@ body.lektion-laeuft .lessons > :not(button),
    Weiße Seite, Kapitel ohne Kasten in Leseschrift, schlanke Kopfleiste,
    alles Bedienen unten in einer Fußleiste auf Daumenhöhe. */
 body.lese-modus, body.lese-modus main { background: var(--card); }
-.bl-leiste { margin-bottom: 10px; padding-top: 8px; box-shadow: 0 0 0 100vmax var(--card); }
-.bl-leiste-zeile { padding-bottom: 8px; }
-.bl-mitte b { font-size: .9rem; }
-.bl-mitte span { font-size: .72rem; }
-.bl-rund { display: grid; place-items: center; width: 40px; height: 40px; }
-.bl-fortschritt { height: 2px; }
+/* Kopfleiste (2. Fassung, 11.11.): schlichte Strich-Icons ohne Kreise, Titel klein und ruhig */
+.bl-leiste { margin-bottom: 6px; padding-top: 6px; box-shadow: 0 0 0 100vmax var(--card); clip-path: inset(0 -100vmax 0); }
+.bl-leiste-zeile { gap: 8px; padding-bottom: 6px; }
+.bl-icon {
+  flex: none; display: grid; place-items: center; width: 40px; height: 40px; min-width: 0; padding: 0; margin: 0;
+  border: 0; border-radius: 12px; background: none; box-shadow: none; color: var(--navy); cursor: pointer;
+  transition: background .15s ease;
+}
+.bl-icon:active { background: color-mix(in srgb, var(--primary) 8%, var(--card)); }
+@media (hover: hover) { .bl-icon:hover { background: color-mix(in srgb, var(--primary) 8%, var(--card)); } }
+.bl-platz { width: 40px; }
+.bl-mitte { gap: 1px; }
+.bl-mitte b { font-size: .86rem; font-weight: 800; letter-spacing: .005em; }
+.bl-mitte span { font-size: .7rem; font-weight: 700; letter-spacing: .02em; color: var(--muted); }
+.bl-fortschritt { height: 2px; border-radius: 0; background: color-mix(in srgb, var(--line) 70%, transparent); }
+.bl-fortschritt i { border-radius: 999px; }
 .bl-kapitel { padding: 18px 4px 8px; }
 .bl-kapitel .bl-label { font-size: .7rem; }
 .bl-kapitel h2 {

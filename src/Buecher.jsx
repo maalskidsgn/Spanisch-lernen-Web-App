@@ -493,16 +493,16 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
           Titel und Inhalt – alles Bedienen passiert unten auf Daumenhöhe */}
       <header className="bl-leiste">
         <div className="bl-leiste-zeile">
-          <button type="button" className="bl-rund" onClick={onClose} aria-label={L.schliessen} title={L.schliessen}>
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          <button type="button" className="bl-icon" onClick={onClose} aria-label={L.schliessen} title={L.schliessen}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
           </button>
           <div className="bl-mitte">
             <b>{buchTitel}</b>
             <span>{kopfZeile}</span>
           </div>
           {uebersicht ? <span className="bl-platz" /> : (
-            <button type="button" className="bl-rund" onClick={() => setNr(-1)} aria-label={L.inhalt} title={L.inhalt}>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" /><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none" /></svg>
+            <button type="button" className="bl-icon" onClick={() => setNr(-1)} aria-label={L.inhalt} title={L.inhalt}>
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2.5 5h6a3.5 3.5 0 0 1 3.5 3.5V20a2.5 2.5 0 0 0-2.5-2.5h-7z" /><path d="M21.5 5h-6A3.5 3.5 0 0 0 12 8.5V20a2.5 2.5 0 0 1 2.5-2.5h7z" /></svg>
             </button>
           )}
         </div>
