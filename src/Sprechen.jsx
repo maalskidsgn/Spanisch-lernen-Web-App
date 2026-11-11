@@ -20,6 +20,7 @@ import { db, supabaseBereit } from './supabase.js'
 import { useTexte, sprache, gebiet } from './sprache.js'
 import { spiele } from './audio.js'
 import Logo from './Logo.jsx'
+import { lebenszeichen } from './lernzeit.js'
 
 // -2: Seit das Protokoll gespeichert wird, braucht es eine neue Einwilligung.
 const EINWILLIGUNG = 'sprechen-einwilligung-2'
@@ -280,6 +281,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
       const l = leitung.current
       if (!l) return
       if (s % 5 === 0) miss()
+      lebenszeichen() // Gespräch zählt als Lernzeit, auch ohne Tippen
       const minute = Math.floor(s / 60)
       if (minute > letzteMinute) {
         letzteMinute = minute

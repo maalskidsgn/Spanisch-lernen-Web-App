@@ -11,6 +11,7 @@ import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
 import StartInseln, { Sockel } from './StartInseln.jsx'
 import Flamme from './Flamme.jsx'
+import { RueckblickKarte } from './Jahresrueckblick.jsx'
 import InstallKnopf from './InstallKnopf.jsx'
 import { zitatDesTages } from './zitate.js'
 import { stueckDesTages } from './landUndLeute.js'
@@ -138,6 +139,9 @@ export default function Home({
         </h1>
         <p className="start-zurueck">{t('si.frage')}</p>
       </header>
+
+      {/* Jahresrückblick: nur 27.12.–15.01. oder mit ?rueckblick (11.11.) */}
+      <RueckblickKarte />
 
       {/* Schnell-Übersetzer: Wort nachschlagen und direkt in den Trainer (09.11.) */}
       <SchnellUebersetzer vocab={vocab} onAddVocab={onAddVocab} />

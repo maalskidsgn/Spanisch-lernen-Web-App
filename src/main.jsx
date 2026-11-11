@@ -7,8 +7,10 @@ import './index.css'
 import App from './App.jsx'
 import Einwilligung from './Einwilligung.jsx'
 import { merkeEinladung } from './rangliste.js'
+import { starteLernzeit } from './lernzeit.js'
 
 merkeHerkunft()
+starteLernzeit()
 rueckkehrHoeren()
 merkePartnerLink()
 
@@ -26,3 +28,13 @@ createRoot(document.getElementById('root')).render(
     <Einwilligung onRecht={(s) => { window.dispatchEvent(new CustomEvent('recht', { detail: s })) }} />
   </StrictMode>,
 )
+
+// Start-Logo (index.html) sanft ausblenden – frühestens nach 0,9 s,
+// damit es auch bei schnellem Laden einmal kurz aufploppt.
+const startLogo = document.getElementById('start-logo')
+if (startLogo) {
+  setTimeout(() => {
+    startLogo.classList.add('weg')
+    setTimeout(() => startLogo.remove(), 500)
+  }, Math.max(0, 900 - performance.now()))
+}

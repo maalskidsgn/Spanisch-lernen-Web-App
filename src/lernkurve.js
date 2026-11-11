@@ -13,7 +13,8 @@ import { tagesSchluessel } from './datum.js'
 import { gebiet } from './sprache.js'
 
 const SCHLUESSEL = 'lernkurve'
-export const ARTEN = ['woerter', 'saetze', 'lektionen', 'texte', 'video', 'habla']
+// minuten = Lernzeit, gemessen in lernzeit.js (seit 11.11.2026)
+export const ARTEN = ['minuten', 'woerter', 'saetze', 'lektionen', 'texte', 'video', 'habla']
 
 function lade() {
   try {
@@ -50,7 +51,7 @@ export function heuteGelernt(art) {
 }
 
 function leer() {
-  return { woerter: 0, saetze: 0, lektionen: 0, texte: 0, video: 0, habla: 0 }
+  return { minuten: 0, woerter: 0, saetze: 0, lektionen: 0, texte: 0, video: 0, habla: 0 }
 }
 
 /**

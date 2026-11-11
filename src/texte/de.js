@@ -499,6 +499,7 @@ export default {
   "lk.texte": "Texte",
   "lk.videoMin": "Video-Min.",
   "lk.habla": "Habla-Min.",
+  "lk.lernzeit": "Lern-Min.",
   "lk.lernkurve": "Lernkurve",
   "lk.nichtsGelernt": "nichts gelernt",
 

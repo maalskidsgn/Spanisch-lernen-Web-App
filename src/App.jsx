@@ -95,6 +95,7 @@ import { erfolgston } from './erfolgston.js'
 import './App.css'
 import LevelEmblem from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
+import { lebenszeichen } from './lernzeit.js'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -966,6 +967,7 @@ export default function App() {
       } catch { /* Player schon abgebaut */ }
       if (!spielt || document.hidden) return
       videoSekunden.current += 1
+      lebenszeichen() // Video läuft: zählt als Lernzeit, auch ohne Tippen
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
         addXp(XP.VIDEO_MINUTE, 'Video-Minute')

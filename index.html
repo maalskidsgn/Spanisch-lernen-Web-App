@@ -34,8 +34,17 @@
     <meta property="og:url" content="https://habloo.de/" />
     <meta property="og:locale" content="de_DE" />
       <link rel="preconnect" href="https://okwegzwsjrxusmznohis.supabase.co" crossorigin />
+    <!-- Start-Logo: ploppt beim Öffnen kurz und weich auf, main.jsx blendet es aus -->
+    <style>
+      #start-logo { position: fixed; inset: 0; z-index: 99999; display: grid; place-items: center; background: #fdf7f1; transition: opacity .45s ease; }
+      #start-logo img { width: 92px; height: 92px; border-radius: 24px; box-shadow: 0 18px 40px -14px rgba(255, 108, 0, .45); animation: start-pop .75s cubic-bezier(.34, 1.4, .64, 1) both; }
+      #start-logo.weg { opacity: 0; pointer-events: none; }
+      @keyframes start-pop { 0% { opacity: 0; transform: scale(.7); } 55% { opacity: 1; } 100% { opacity: 1; transform: scale(1); } }
+      @media (prefers-reduced-motion: reduce) { #start-logo img { animation: none; } }
+    </style>
   </head>
   <body>
+    <div id="start-logo" aria-hidden="true"><img src="/favicon.svg" alt="" /></div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
