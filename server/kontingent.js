@@ -109,7 +109,7 @@ export async function addiereNutzung(nutzerId, art, menge) {
 
   if (tabelleDa) {
     try {
-      const antwort = await fetch(`${BASIS()}/nutzung`, {
+      const antwort = await fetch(`${BASIS()}/nutzung?on_conflict=nutzer_id,tag,art`, {
         method: 'POST',
         headers: { ...supabaseKopf(), Prefer: 'resolution=merge-duplicates' },
         body: JSON.stringify({
@@ -164,7 +164,7 @@ export async function gibNutzungZurueck(nutzerId, art) {
 
   if (tabelleDa) {
     try {
-      await fetch(`${BASIS()}/nutzung`, {
+      await fetch(`${BASIS()}/nutzung?on_conflict=nutzer_id,tag,art`, {
         method: 'POST',
         headers: { ...supabaseKopf(), Prefer: 'resolution=merge-duplicates' },
         body: JSON.stringify({ nutzer_id: nutzerId, tag: heuteTag(), art, anzahl: neu }),
