@@ -17334,7 +17334,6 @@ body.lektion-laeuft .lessons > :not(button),
    Weiße Seite, Kapitel ohne Kasten in Leseschrift, schlanke Kopfleiste,
    alles Bedienen unten in einer Fußleiste auf Daumenhöhe. */
 body.lese-modus, body.lese-modus main { background: var(--card); }
-.bl { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
 .bl-leiste { margin-bottom: 10px; padding-top: 8px; box-shadow: 0 0 0 100vmax var(--card); }
 .bl-leiste-zeile { padding-bottom: 8px; }
 .bl-mitte b { font-size: .9rem; }
@@ -17356,31 +17355,55 @@ body.lese-modus, body.lese-modus main { background: var(--card); }
 .bl-kapitel .bl-kern { margin-top: 34px; border-radius: 20px; }
 .bl-woerter { margin-top: 8px; }
 
+/* Fußleiste (2. Fassung, 11.11.): zwei ruhige Zeilen – Ansicht + Lautschrift, darunter blättern */
 .bl-fuss {
-  background: color-mix(in srgb, var(--card) 88%, transparent);
-  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
-  padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  border-top: 0; box-shadow: 0 -10px 30px -18px rgba(0, 0, 0, .18);
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
 }
-.bl-fuss-zeile { align-items: center; justify-content: center; gap: 8px; }
-.bl-fuss .bl-segment { flex: 0 1 auto; border-radius: 999px; }
-.bl-fuss .bl-segment button { border-radius: 999px; padding: 9px 13px; font-size: .84rem; white-space: nowrap; }
-.bl-pfeil-knopf {
-  flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%;
-  font: inherit; font-weight: 900; font-size: .95rem; cursor: pointer; color: var(--navy);
-  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+.bl-fuss-innen { display: grid; gap: 10px; max-width: 560px; margin: 0 auto; }
+.bl-fuss .bl-fuss-zeile { display: flex; align-items: center; gap: 8px; max-width: none; margin: 0; }
+.bl-fuss .bl-segment { flex: 1; width: auto; padding: 3px; border-radius: 12px; }
+.bl-fuss .bl-segment button { flex: 1; min-width: 0; padding: 0 6px; height: 34px; border-radius: 9px; font-size: .84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: none; }
+.bl-fuss .bl-segment button.an { box-shadow: 0 1px 3px rgba(0, 0, 0, .1); }
+.bl-fuss .bl-laut { height: 40px; padding: 0 12px 0 6px; font-size: .8rem; gap: 7px; box-shadow: 0 0 0 1.5px var(--line) inset; background: var(--card); }
+.bl-fuss .bl-laut.an { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--primary) 45%, var(--card)) inset; }
+.bl-fuss .bl-laut:disabled { opacity: .45; cursor: default; }
+.bl-fuss .bl-zurueck {
+  flex: none; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border-radius: 14px; box-shadow: none;
 }
-.bl-pfeil-knopf:disabled { opacity: .3; cursor: default; }
-.bl-vor { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-press); }
-.bl-vor:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--primary-press); }
-.bl-laut-knopf.an { background: color-mix(in srgb, var(--primary) 16%, var(--card)); color: var(--primary); box-shadow: 0 0 0 1.5px var(--primary) inset; }
+.bl-fuss .bl-weiter {
+  flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 48px; padding: 0 18px;
+  border-radius: 14px; font-size: 1rem;
+}
 @media (max-width: 400px) {
-  .bl-fuss-zeile { gap: 6px; }
-  .bl-pfeil-knopf { width: 40px; height: 40px; }
-  .bl-fuss .bl-segment button { padding: 8px 9px; font-size: .78rem; }
+  .bl-fuss .bl-segment button { font-size: .78rem; }
+  .bl-fuss .bl-laut { padding: 0 10px 0 5px; font-size: .74rem; }
   .bl-kapitel h2 { font-size: 1.55rem; }
   .bl-kapitel .bl-text { font-size: 1.16rem; }
 }
+.bl { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+
+/* Wörter einzeln in den Trainer (11.11.) */
+.bl-woerter-tipp { margin: -6px 0 12px; font-size: .82rem; font-weight: 700; color: var(--muted); }
+.bl-woerter li { padding: 0; background: none; box-shadow: none; }
+.bl-wort {
+  position: relative; display: grid; gap: 2px; width: 100%; height: 100%; padding: 12px 34px 12px 14px; border: 0; border-radius: 14px;
+  font: inherit; text-align: left; color: inherit; cursor: pointer;
+  background: color-mix(in srgb, var(--primary) 5%, var(--card)); box-shadow: 0 0 0 1px var(--line) inset;
+  transition: background .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+.bl-wort:active { transform: scale(.97); }
+.bl-wort b { font-size: 1rem; }
+.bl-wort i { font-size: .8rem; font-weight: 800; color: color-mix(in srgb, var(--primary) 75%, var(--navy)); }
+.bl-wort span { font-size: .82rem; font-weight: 700; color: var(--muted); }
+.bl-wort-zeichen {
+  position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  font-style: normal; font-weight: 900; font-size: .85rem; color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--card));
+}
+.bl-wort.drin { background: color-mix(in srgb, var(--success) 9%, var(--card)); box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--success) 45%, var(--card)) inset; cursor: default; }
+.bl-wort.drin .bl-wort-zeichen { background: var(--success); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .bl-seite { animation: none; } .bl-fortschritt i, .bl-schalter, .bl-schalter i { transition: none; } }
 
 /* ----- Jahresrückblick zu Silvester (11.11.2026) ----- */

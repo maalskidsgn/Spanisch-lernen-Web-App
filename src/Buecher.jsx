@@ -69,6 +69,7 @@ const T = {
     woerter: 'Wörter aus diesem Kapitel',
     alleRein: (n) => `${n} Wörter in den Trainer`,
     drin: 'Im Trainer ✓',
+    einzeln: 'Tippe ein Wort an, um es in den Trainer zu legen.',
     weiter: 'Weiter', zurueck: 'Zurück', schliessen: 'Schließen', fertig: 'Fertig', start: 'Lesen starten', inhalt: 'Inhalt', uebersicht: 'Übersicht',
     geschafft: 'Buch geschafft!',
     gesamt: (n) => `Alle ${n} Wörter in den Trainer`,
@@ -109,6 +110,7 @@ const T = {
     woerter: 'Words from this chapter',
     alleRein: (n) => `Add ${n} words to trainer`,
     drin: 'In trainer ✓',
+    einzeln: 'Tap a word to add it to your trainer.',
     weiter: 'Next', zurueck: 'Back', schliessen: 'Close', fertig: 'Done', start: 'Start reading', inhalt: "What's inside", uebersicht: 'Overview',
     geschafft: 'Book finished!',
     gesamt: (n) => `Add all ${n} words to trainer`,
@@ -410,6 +412,7 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
   const [laut, setLaut] = useState(kannLaut)
   const [wort, setWort] = useState(null)
   const [drin, setDrin] = useState({})
+  const [einzeln, setEinzeln] = useState(() => new Set()) // einzeln in den Trainer gelegt
   const [xp, setXp] = useState(null)
   const uebersicht = nr < 0
   const fertig = nr >= kapitel.length
@@ -446,9 +449,21 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
     feiere(XP.WORT_NEU)
     setWort(null)
   }
+  // Schon im Trainer? (eben hier angetippt oder vorher gesammelt)
+  const imTrainer = (w) => einzeln.has(w) || Boolean(vocab[wortSchluessel(w)])
+  function wortRein(v) {
+    if (imTrainer(v.wort)) return
+    onAddVocab?.([{ wort: v.wort, uebersetzung: v.uebersetzung, quelle: 'Buch: ' + buch.titel }])
+    feiere(XP.WORT_NEU)
+    setEinzeln((alt) => new Set(alt).add(v.wort))
+  }
   function woerterRein(liste, schluessel) {
-    onAddVocab?.(liste.map((v) => ({ wort: v.wort, uebersetzung: v.uebersetzung, quelle: 'Buch: ' + buch.titel })))
-    feiere(XP.WORT_NEU * liste.length)
+    const neu = liste.filter((v) => !imTrainer(v.wort))
+    if (neu.length) {
+      onAddVocab?.(neu.map((v) => ({ wort: v.wort, uebersetzung: v.uebersetzung, quelle: 'Buch: ' + buch.titel })))
+      feiere(XP.WORT_NEU * neu.length)
+    }
+    setEinzeln((alt) => { const n = new Set(alt); for (const v of liste) n.add(v.wort); return n })
     setDrin((d) => ({ ...d, [schluessel]: true }))
   }
   const alsWoerter = (satz = '') => satz.split(/(\s+)/).map((teil, i) => {
@@ -559,25 +574,35 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
             )}
           </article>
 
-          {k.vokabeln?.length > 0 && (
-            <section className="bl-karte bl-woerter">
-              <div className="bl-woerter-kopf">
-                <h3 className="bl-karten-titel">{L.woerter}</h3>
-                <button type="button" className="bl-rein" disabled={drin[nr]} onClick={() => woerterRein(k.vokabeln, nr)}>
-                  {drin[nr] ? L.drin : L.alleRein(k.vokabeln.length)}
-                </button>
-              </div>
-              <ul>
-                {k.vokabeln.map((v) => (
-                  <li key={v.wort}>
-                    <b>{v.wort}</b>
-                    {kannLaut && laut && <i>{lautVon(v.wort)}</i>}
-                    <span>{v.uebersetzung}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+          {k.vokabeln?.length > 0 && (() => {
+            const offen = k.vokabeln.filter((v) => !imTrainer(v.wort)).length
+            return (
+              <section className="bl-karte bl-woerter">
+                <div className="bl-woerter-kopf">
+                  <h3 className="bl-karten-titel">{L.woerter}</h3>
+                  <button type="button" className="bl-rein" disabled={offen === 0} onClick={() => woerterRein(k.vokabeln, nr)}>
+                    {offen === 0 ? L.drin : L.alleRein(offen)}
+                  </button>
+                </div>
+                <p className="bl-woerter-tipp">{L.einzeln}</p>
+                <ul>
+                  {k.vokabeln.map((v) => {
+                    const da = imTrainer(v.wort)
+                    return (
+                      <li key={v.wort}>
+                        <button type="button" className={'bl-wort' + (da ? ' drin' : '')} onClick={() => wortRein(v)} aria-pressed={da}>
+                          <b>{v.wort}</b>
+                          {kannLaut && laut && <i>{lautVon(v.wort)}</i>}
+                          <span>{v.uebersetzung}</span>
+                          <em className="bl-wort-zeichen" aria-hidden="true">{da ? '✓' : '+'}</em>
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </section>
+            )
+          })()}
         </div>
       )}
 
@@ -589,59 +614,44 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
             <h2>{L.geschafft}</h2>
             {buch.kurz && <div className="bl-kurz">{paar(buch.kurz, { klickbar: false })}</div>}
             {alleWoerter.length > 0 && (
-              <button type="button" className="bl-weiter bl-start" disabled={drin.alle} onClick={() => woerterRein(alleWoerter, 'alle')}>
-                {drin.alle ? L.drin : L.gesamt(alleWoerter.length)}
+              <button type="button" className="bl-weiter bl-start" disabled={alleWoerter.every((v) => imTrainer(v.wort))} onClick={() => woerterRein(alleWoerter, 'alle')}>
+                {alleWoerter.every((v) => imTrainer(v.wort)) ? L.drin : L.gesamt(alleWoerter.filter((v) => !imTrainer(v.wort)).length)}
               </button>
             )}
           </section>
         </div>
       )}
 
-      {/* Fußleiste: zurück · Sprache · (Lautschrift) · weiter */}
+      {/* Fußleiste auf Daumenhöhe: oben Ansicht + Lautschrift, unten blättern */}
       <nav className="bl-fuss">
-        <div className="bl-fuss-zeile">
-          <button
-            type="button"
-            className="bl-pfeil-knopf"
-            disabled={uebersicht}
-            onClick={() => setNr((n) => n - 1)}
-            aria-label={nr === 0 ? L.inhalt : L.zurueck}
-            title={nr === 0 ? L.inhalt : L.zurueck}
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-          </button>
-          <div className="bl-segment" role="tablist">
-            {[['lern', LERN_NAME], ['beide', L.beide], ['de', L.mutter]].map(([w, n]) => (
-              <button key={w} type="button" role="tab" aria-selected={ansicht === w} className={ansicht === w ? 'an' : ''} onClick={() => setAnsicht(w)}>{n}</button>
-            ))}
+        <div className="bl-fuss-innen">
+          <div className="bl-fuss-zeile">
+            <div className="bl-segment" role="tablist">
+              {[['lern', LERN_NAME], ['beide', L.beide], ['de', L.mutter]].map(([w, n]) => (
+                <button key={w} type="button" role="tab" aria-selected={ansicht === w} className={ansicht === w ? 'an' : ''} onClick={() => setAnsicht(w)}>{n}</button>
+              ))}
+            </div>
+            {kannLaut && (
+              <button type="button" className={'bl-laut' + (laut ? ' an' : '')} aria-pressed={laut} disabled={ansicht === 'de'} onClick={() => setLaut((v) => !v)}>
+                <span className="bl-schalter" aria-hidden="true"><i /></span>{L.laut}
+              </button>
+            )}
           </div>
-          {kannLaut && (
-            <button
-              type="button"
-              className={'bl-pfeil-knopf bl-laut-knopf' + (laut ? ' an' : '')}
-              aria-pressed={laut}
-              aria-label={L.laut}
-              title={L.laut}
-              onClick={() => setLaut((v) => !v)}
-            >
-              Aa
-            </button>
-          )}
-          {fertig ? (
-            <button type="button" className="bl-pfeil-knopf bl-vor" onClick={onClose} aria-label={L.fertig} title={L.fertig}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" /></svg>
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="bl-pfeil-knopf bl-vor"
-              onClick={() => setNr((n) => n + 1)}
-              aria-label={uebersicht ? L.start : nr === kapitel.length - 1 ? L.fertig : L.weiter}
-              title={uebersicht ? L.start : nr === kapitel.length - 1 ? L.fertig : L.weiter}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-            </button>
-          )}
+          <div className="bl-fuss-zeile">
+            {!uebersicht && (
+              <button type="button" className="bl-zurueck" onClick={() => setNr((n) => n - 1)} aria-label={nr === 0 ? L.inhalt : L.zurueck}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+              </button>
+            )}
+            {fertig ? (
+              <button type="button" className="bl-weiter" onClick={onClose}>{L.fertig} ✓</button>
+            ) : (
+              <button type="button" className="bl-weiter" onClick={() => setNr((n) => n + 1)}>
+                {uebersicht ? L.start : nr === kapitel.length - 1 ? L.fertig : L.weiter}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
