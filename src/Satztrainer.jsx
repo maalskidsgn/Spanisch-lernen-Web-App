@@ -509,7 +509,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               </p>
             </div>
             </div>
-            <TrainerGrenze art="saetze" gesamt={entries.length} faellig={faellig.length} />
+            <TrainerGrenze art="saetze" gesamt={entries.length} />
             {/* Nichts fällig? Satzpaare gehen trotzdem – mit den übrigen Sätzen */}
             <button
               className="btn wiederholen-los"

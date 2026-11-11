@@ -768,14 +768,15 @@ export default function Trainer({
           </p>
         </div>
         </div>
-        {/* Tagesziel (06.11.): eine Runde = {LEKTION_GROESSE} Karten */}
-        <div className={'wiederholen-ziel' + (heute >= LEKTION_GROESSE ? ' erreicht' : '')}>
-          <span>{t('tr.tagesziel')}</span>
-          <span className="wiederholen-balken"><span style={{ width: Math.min(100, (heute / LEKTION_GROESSE) * 100) + '%' }} /></span>
-          <b>{Math.min(heute, LEKTION_GROESSE)} / {LEKTION_GROESSE}{heute >= LEKTION_GROESSE ? ' ✓' : ''}</b>
-        </div>
-        {/* Gratis-Obergrenze: was im Training ist, was pausiert ist (11.11.) */}
-        <TrainerGrenze art="vokabeln" gesamt={entries.length} faellig={dueEntries.length} />
+        {/* Gratis (Web): statt Tagesziel der gelbe Kasten „473 / 500 im Trainer“ (11.11.) */}
+        <TrainerGrenze art="vokabeln" gesamt={entries.length}>
+          {/* Tagesziel (06.11.): eine Runde = {LEKTION_GROESSE} Karten */}
+          <div className={'wiederholen-ziel' + (heute >= LEKTION_GROESSE ? ' erreicht' : '')}>
+            <span>{t('tr.tagesziel')}</span>
+            <span className="wiederholen-balken"><span style={{ width: Math.min(100, (heute / LEKTION_GROESSE) * 100) + '%' }} /></span>
+            <b>{Math.min(heute, LEKTION_GROESSE)} / {LEKTION_GROESSE}{heute >= LEKTION_GROESSE ? ' ✓' : ''}</b>
+          </div>
+        </TrainerGrenze>
         <button
           className="btn wiederholen-los"
           onClick={() => setArtWahl(true)}

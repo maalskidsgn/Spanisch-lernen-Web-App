@@ -184,7 +184,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
               </p>
             </div>
             </div>
-            <TrainerGrenze art="texte" gesamt={entries.length} faellig={faellig.length} />
+            <TrainerGrenze art="texte" gesamt={entries.length} />
             <button
               className="btn wiederholen-los"
               onClick={() => setOffenerText(faellig[0].id)}
