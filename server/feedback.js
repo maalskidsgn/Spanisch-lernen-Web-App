@@ -9,7 +9,7 @@
 import { schicke, mailBereit } from './mail.js'
 
 const POSTFACH = process.env.FEEDBACK_AN || 'lernen@habloo.de'
-const ARTEN = { idee: 'Idee', kritik: 'Kritik', fehler: 'Fehler', sprechen: 'Sprach-Trainer', sonst: 'Sonstiges' }
+const ARTEN = { idee: 'Idee', kritik: 'Kritik', fehler: 'Fehler', sprechen: 'Sprach-Trainer', ki: 'KI-Inhalt gemeldet', sonst: 'Sonstiges' }
 const MAIL_MUSTER = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 // Hoechstens fuenf Nachrichten pro Stunde je Adresse, sonst wird das
@@ -49,6 +49,12 @@ export async function nimmRueckmeldung(eingabe, { nutzer, ip }) {
       text,
       '',
       '---',
+      ...(eingabe?.art === 'ki' ? [
+        `Bereich: ${String(eingabe?.bereich ?? '').slice(0, 40)}`,
+        'Gemeldeter Inhalt:',
+        String(eingabe?.inhalt ?? '').slice(0, 2000),
+        '',
+      ] : []),
       `Art: ${art}`,
       `Antwort an: ${antwort || 'keine Adresse angegeben'}`,
       `Konto: ${nutzer?.id || 'nicht angemeldet'}`,

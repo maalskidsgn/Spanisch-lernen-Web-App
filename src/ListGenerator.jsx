@@ -10,6 +10,7 @@ import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, loginK
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
 import { useTexte, sprache } from './sprache.js'
+import KiMelden from './KiMelden.jsx'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
@@ -296,6 +297,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
               {s.beispiel && <span className="gen-example">„{s.beispiel}“</span>}
             </label>
           ))}
+          <KiMelden bereich="wortliste" inhalt={liste.map((x) => `${x.wort} – ${x.uebersetzung}`).join('\n')} className="ki-melden-rechts" />
           <div className="gen-actions">
             <button onClick={uebernehmen}>
               {liste.filter((s) => s.checked).length} Vokabeln übernehmen

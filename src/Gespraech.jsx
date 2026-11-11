@@ -18,6 +18,7 @@ import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
 import { erfolgston } from './erfolgston.js'
 import { useTexte, sprache } from './sprache.js'
+import KiMelden from './KiMelden.jsx'
 
 const NIVEAU_SPEICHER = 'gespraechNiveau'
 const DEUTSCH_SPEICHER = 'gespraechDeutsch'
@@ -263,6 +264,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             {z.rolle === 'tutor' && z.korrektur && (
               <p className="gespr-korrektur">💡 {z.korrektur}</p>
             )}
+            {z.rolle === 'tutor' && <KiMelden bereich="tutor" inhalt={z.es} className="ki-melden-klein" />}
           </div>
         ))}
 

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { loginKopf } from './limits.js'
 import { sprache } from './sprache.js'
+import KiMelden from './KiMelden.jsx'
 
 /**
  * Schnell-Übersetzer auf der Startseite (09.11.2026).
@@ -147,6 +148,7 @@ export default function SchnellUebersetzer({ vocab = {}, onAddVocab }) {
               <span>{daten.beispiel_uebersetzung}</span>
             </p>
           )}
+          <KiMelden bereich="schnell" inhalt={[...daten.treffer.map((x) => `${x.wort} – ${x.uebersetzung}`), daten.beispiel || ''].join('\n')} className="ki-melden-rechts" />
           <button type="button" className="schnell-neu" onClick={neu}>{T.neu}</button>
         </div>
       )}

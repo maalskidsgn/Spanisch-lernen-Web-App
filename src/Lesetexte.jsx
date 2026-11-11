@@ -16,6 +16,7 @@ import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, loginKopf, kontingentLeer, 
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { IconFunken, IconListe, IconPfeil } from './icons.jsx'
 import { useTexte, sprache } from './sprache.js'
+import KiMelden from './KiMelden.jsx'
 
 // Dieselben Gebiete wie auf dem Server (server/lesetexte.js).
 // Die Beschriftungen stehen als Schlüssel hier, nicht als Text: t()
@@ -350,6 +351,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
             <p>{text.merksatz}</p>
           </div>
         )}
+        <KiMelden bereich="lesetext" inhalt={[text.titelDe ?? '', ...(text.absaetze ?? []).map((a) => Object.values(a).join(' / '))].join('\n')} className="ki-melden-rechts" />
       </article>
 
       {/* Der Sprachumschalter läuft unten mit: Beim Lesen braucht man

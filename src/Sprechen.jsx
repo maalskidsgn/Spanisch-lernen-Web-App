@@ -21,6 +21,7 @@ import { useTexte, sprache, gebiet } from './sprache.js'
 import { spiele } from './audio.js'
 import Logo from './Logo.jsx'
 import { lebenszeichen } from './lernzeit.js'
+import KiMelden from './KiMelden.jsx'
 
 // -2: Seit das Protokoll gespeichert wird, braucht es eine neue Einwilligung.
 const EINWILLIGUNG = 'sprechen-einwilligung-2'
@@ -647,6 +648,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
                 ) : (
                   zeigeZeilen.some((z) => z.von === 'ich') && <p className="spr-klein">{t('spr.keineFehler')}</p>
                 )}
+                <KiMelden bereich="sprechen" inhalt={[ergebnis.zuletzt, ...(ergebnis.fehler ?? []).map((f) => `${f.falsch} → ${f.richtig}: ${f.erklaerung}`)].filter(Boolean).join('\n')} className="ki-melden-rechts" />
               </section>
             )}
 
