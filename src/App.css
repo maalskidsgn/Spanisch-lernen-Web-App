@@ -17330,4 +17330,55 @@ body.lektion-laeuft .lessons > :not(button),
   .bl-laut { padding: 0 10px 0 6px; font-size: .78rem; }
   .bl-segment button { padding: 7px 12px; }
 }
+/* ----- Lese-Modus wie Blinkist/Headway (11.11.2026) -----
+   Weiße Seite, Kapitel ohne Kasten in Leseschrift, schlanke Kopfleiste,
+   alles Bedienen unten in einer Fußleiste auf Daumenhöhe. */
+body.lese-modus, body.lese-modus main { background: var(--card); }
+.bl { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+.bl-leiste { margin-bottom: 10px; padding-top: 8px; box-shadow: 0 0 0 100vmax var(--card); }
+.bl-leiste-zeile { padding-bottom: 8px; }
+.bl-mitte b { font-size: .9rem; }
+.bl-mitte span { font-size: .72rem; }
+.bl-rund { display: grid; place-items: center; width: 40px; height: 40px; }
+.bl-fortschritt { height: 2px; }
+.bl-kapitel { padding: 18px 4px 8px; }
+.bl-kapitel .bl-label { font-size: .7rem; }
+.bl-kapitel h2 {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-weight: 700; font-size: 1.75rem; line-height: 1.22; letter-spacing: -.005em;
+}
+.bl-kapitel .bl-absaetze { border-top: 0; padding-top: 4px; gap: 26px; }
+.bl-kapitel .bl-text {
+  font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  font-size: 1.24rem; line-height: 1.68; font-weight: 400; color: var(--navy);
+}
+.bl-kapitel .bl-uebers { font-size: 1.02rem; }
+.bl-kapitel .bl-kern { margin-top: 34px; border-radius: 20px; }
+.bl-woerter { margin-top: 8px; }
+
+.bl-fuss {
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+}
+.bl-fuss-zeile { align-items: center; justify-content: center; gap: 8px; }
+.bl-fuss .bl-segment { flex: 0 1 auto; border-radius: 999px; }
+.bl-fuss .bl-segment button { border-radius: 999px; padding: 9px 13px; font-size: .84rem; white-space: nowrap; }
+.bl-pfeil-knopf {
+  flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%;
+  font: inherit; font-weight: 900; font-size: .95rem; cursor: pointer; color: var(--navy);
+  background: color-mix(in srgb, var(--primary) 8%, var(--card));
+}
+.bl-pfeil-knopf:disabled { opacity: .3; cursor: default; }
+.bl-vor { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-press); }
+.bl-vor:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--primary-press); }
+.bl-laut-knopf.an { background: color-mix(in srgb, var(--primary) 16%, var(--card)); color: var(--primary); box-shadow: 0 0 0 1.5px var(--primary) inset; }
+@media (max-width: 400px) {
+  .bl-fuss-zeile { gap: 6px; }
+  .bl-pfeil-knopf { width: 40px; height: 40px; }
+  .bl-fuss .bl-segment button { padding: 8px 9px; font-size: .78rem; }
+  .bl-kapitel h2 { font-size: 1.55rem; }
+  .bl-kapitel .bl-text { font-size: 1.16rem; }
+}
 @media (prefers-reduced-motion: reduce) { .bl-seite { animation: none; } .bl-fortschritt i, .bl-schalter, .bl-schalter i { transition: none; } }

@@ -418,8 +418,8 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
   const lautVon = (t) => LAUTSCHRIFT(t || '', sprache())
 
   useEffect(() => {
-    document.body.classList.add('liest-buch')
-    return () => document.body.classList.remove('liest-buch')
+    document.body.classList.add('liest-buch', 'lese-modus')
+    return () => document.body.classList.remove('liest-buch', 'lese-modus')
   }, [])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [nr])
 
@@ -474,29 +474,20 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
 
   return (
     <div className="bl">
+      {/* Lese-Modus wie Blinkist/Headway (11.11.2026): oben nur Schließen,
+          Titel und Inhalt – alles Bedienen passiert unten auf Daumenhöhe */}
       <header className="bl-leiste">
         <div className="bl-leiste-zeile">
-          <button type="button" className="bl-rund" onClick={onClose} aria-label={L.schliessen} title={L.schliessen}>✕</button>
+          <button type="button" className="bl-rund" onClick={onClose} aria-label={L.schliessen} title={L.schliessen}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          </button>
           <div className="bl-mitte">
             <b>{buchTitel}</b>
             <span>{kopfZeile}</span>
           </div>
           {uebersicht ? <span className="bl-platz" /> : (
-            <button type="button" className="bl-inhalt-knopf" onClick={() => setNr(-1)}>
-              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" /><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none" /></svg>
-              {L.inhalt}
-            </button>
-          )}
-        </div>
-        <div className="bl-leiste-zeile bl-leiste-unten">
-          <div className="bl-segment" role="tablist">
-            {[['lern', LERN_NAME], ['beide', L.beide], ['de', L.mutter]].map(([w, n]) => (
-              <button key={w} type="button" role="tab" aria-selected={ansicht === w} className={ansicht === w ? 'an' : ''} onClick={() => setAnsicht(w)}>{n}</button>
-            ))}
-          </div>
-          {kannLaut && (
-            <button type="button" className={'bl-laut' + (laut ? ' an' : '')} aria-pressed={laut} onClick={() => setLaut((v) => !v)}>
-              <span className="bl-schalter" aria-hidden="true"><i /></span>{L.laut}
+            <button type="button" className="bl-rund" onClick={() => setNr(-1)} aria-label={L.inhalt} title={L.inhalt}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12" /><circle cx="4" cy="6" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="4" cy="18" r="1.4" fill="currentColor" stroke="none" /></svg>
             </button>
           )}
         </div>
@@ -549,7 +540,7 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
       {/* ---------- Ein Kapitel im weißen Lese-Container ---------- */}
       {!uebersicht && !fertig && k && (
         <div className="bl-seite" key={nr}>
-          <article className="bl-karte bl-kapitel">
+          <article className="bl-kapitel">
             <span className="bl-label">{label(nr)}</span>
             <h2>{ansicht === 'de' ? k.titel.de : k.titel[L1]}</h2>
             {zeigLaut && <p className="bl-lautzeile bl-laut-titel">{lautVon(k.titel[L1])}</p>}
@@ -606,18 +597,53 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
         </div>
       )}
 
-      {!uebersicht && (
-        <nav className="bl-fuss">
-          <div className="bl-fuss-zeile">
-            <button type="button" className="bl-zurueck" onClick={() => setNr((n) => n - 1)}>
-              <span aria-hidden="true">←</span> {nr === 0 ? L.inhalt : L.zurueck}
-            </button>
-            {fertig
-              ? <button type="button" className="bl-weiter" onClick={onClose}>{L.fertig}</button>
-              : <button type="button" className="bl-weiter" onClick={() => setNr((n) => n + 1)}>{nr === kapitel.length - 1 ? L.fertig : L.weiter} <span aria-hidden="true">→</span></button>}
+      {/* Fußleiste: zurück · Sprache · (Lautschrift) · weiter */}
+      <nav className="bl-fuss">
+        <div className="bl-fuss-zeile">
+          <button
+            type="button"
+            className="bl-pfeil-knopf"
+            disabled={uebersicht}
+            onClick={() => setNr((n) => n - 1)}
+            aria-label={nr === 0 ? L.inhalt : L.zurueck}
+            title={nr === 0 ? L.inhalt : L.zurueck}
+          >
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+          </button>
+          <div className="bl-segment" role="tablist">
+            {[['lern', LERN_NAME], ['beide', L.beide], ['de', L.mutter]].map(([w, n]) => (
+              <button key={w} type="button" role="tab" aria-selected={ansicht === w} className={ansicht === w ? 'an' : ''} onClick={() => setAnsicht(w)}>{n}</button>
+            ))}
           </div>
-        </nav>
-      )}
+          {kannLaut && (
+            <button
+              type="button"
+              className={'bl-pfeil-knopf bl-laut-knopf' + (laut ? ' an' : '')}
+              aria-pressed={laut}
+              aria-label={L.laut}
+              title={L.laut}
+              onClick={() => setLaut((v) => !v)}
+            >
+              Aa
+            </button>
+          )}
+          {fertig ? (
+            <button type="button" className="bl-pfeil-knopf bl-vor" onClick={onClose} aria-label={L.fertig} title={L.fertig}>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" /></svg>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="bl-pfeil-knopf bl-vor"
+              onClick={() => setNr((n) => n + 1)}
+              aria-label={uebersicht ? L.start : nr === kapitel.length - 1 ? L.fertig : L.weiter}
+              title={uebersicht ? L.start : nr === kapitel.length - 1 ? L.fertig : L.weiter}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
+          )}
+        </div>
+      </nav>
 
       {xp && <span key={xp.key} className="buch-xp" onAnimationEnd={() => setXp(null)}>+{xp.menge} XP</span>}
 
