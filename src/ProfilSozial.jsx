@@ -6,6 +6,7 @@ import { useAnwesend } from './praesenz.js'
 import { ladeDuelle, stand } from './duell.js'
 import InselEmblem from './InselEmbleme.jsx'
 import { useTexte } from './sprache.js'
+import { SprechenTuer } from './Sprechen.jsx'
 
 /**
  * Der soziale Teil des Profils (06.11.): wie bei Instagram & Co.
@@ -116,6 +117,9 @@ export default function ProfilSozial({ nutzerName, onSpiel, onAlleFreunde, onDue
           ))}
         </div>
       </section>
+
+      {/* ---------- Sprechen mit der KI-Trainerin (seit 11.11. hier statt im Trainer) ---------- */}
+      <SprechenTuer />
 
       {/* ---------- Duell-Bilanz ---------- */}
       <section className="ps-kasten ps-duell">
