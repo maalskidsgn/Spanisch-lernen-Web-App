@@ -17958,3 +17958,71 @@ body.lektion-laeuft .lessons > .spiel-xp {
 .pf-sozial.pf-lv .pf-pille-lvl { background: var(--lv-farbe); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--lv-farbe) 70%, #000); }
 .pf-kopf.pf-sozial.pf-lv { box-shadow: 0 14px 34px -24px color-mix(in srgb, var(--lv-farbe) 60%, transparent); }
 @media (prefers-reduced-motion: reduce) { .lvb * { animation: none !important; } }
+
+/* ===== Einheitlicher 3D-Comic-Stil (12.11.2026) =====
+   Keine weichen, farbig getönten Schatten mehr unter Containern –
+   stattdessen die feste 3D-Kante wie bei den Toon-Karten. */
+.abschluss-notiz,
+.bereich,
+.bereich-spiele .spiel-karte,
+.bereich.bereich-wiederholen,
+.buch-vokabel,
+.chat-bubble,
+.etappe-karte,
+.flashcard,
+.game-card,
+.game-card:active,
+.game-card:hover,
+.gen-list,
+.home-card,
+.home-card:active,
+.home-card:hover,
+.home-hero,
+.journey-card,
+.leitfaden-zeile,
+.leser-seite,
+.lesson-card,
+.lesson-card:active,
+.lesson-card:disabled,
+.modul-kachel,
+.ns-karte,
+.ob-blase,
+.ob-karte,
+.ob-option,
+.ob-option-aktiv,
+.ob-option:hover,
+.pf-kopf.pf-sozial,
+.plan-card,
+.player-wrap,
+.premium-werbung,
+.ps-kasten,
+.settings-card,
+.si-karte,
+.si-karte:hover,
+.sp-buehne,
+.spr-karte,
+.start-karte,
+.station,
+.studio,
+.text-warnung,
+.trainer .bereich,
+.video-card,
+.video-hero,
+.vocab-table,
+.weiter-hinweis,
+.weiterlernen,
+.werkzeuge,
+.wk-abschluss,
+.wk-kachel,
+.wk-punkt,
+.wk-schritt,
+.wk-tarif,
+.wk-tarif-beste,
+.word-card,
+body.liest-video .player-wrap,
+body.liest-video .video-kopf {
+  box-shadow: 0 6px 0 var(--line);
+}
+/* „Wort nachschlagen“: neutrale Kante statt Pfirsich-Rand */
+.schnell { box-shadow: 0 0 0 2px var(--line) inset, 0 6px 0 var(--line); }
+.pf-kopf.pf-sozial.pf-lv { box-shadow: 0 6px 0 var(--line); }
