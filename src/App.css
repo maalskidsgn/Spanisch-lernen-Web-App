@@ -17744,3 +17744,14 @@ body.lektion-laeuft .lessons > .spiel-xp {
 }
 .ansicht-schalter[role="tablist"] button.aktiv svg { color: #fff; }
 .deck[role="tablist"] button.deck-aktiv .deck-zahl { background: #fff; color: var(--primary); }
+
+/* Tab-Leisten: weißer Grund mit leichter Kante, wie Üben | Spielen (12.11.2026) */
+.deck[role="tablist"],
+.ansicht-schalter[role="tablist"],
+.kal-umschalter,
+.rang-kreis[role="tablist"],
+.lk-zeitraum[role="tablist"],
+.bl-segment[role="tablist"] {
+  background: var(--card);
+  box-shadow: 0 4px 0 var(--line);
+}

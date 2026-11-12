@@ -6,11 +6,12 @@
 // Am PC bleibt man in der Web-App. Gemerkt wird die Einladung vorher
 // trotzdem – wer später im Browser ein Konto anlegt, landet in der Liste.
 //
-// BEIM LAUNCH EINSCHALTEN: Solange Google Play und der EU-App-Store
-// noch nicht öffentlich sind, liefe die Weiterleitung ins Leere.
+// Je Store ein Schalter: App Store seit 12.11.2026 überall live (auch EU)
+// -> an. Google Play einschalten, sobald die Produktion öffentlich ist.
 import { istApp } from './api.js'
 
-export const STORE_WEITERLEITUNG = false
+export const STORE_IOS = true
+export const STORE_ANDROID = false
 
 const APP_STORE = 'https://apps.apple.com/app/id6828830288'
 const PLAY_STORE = 'https://play.google.com/store/apps/details?id=de.habloo.app'
@@ -19,16 +20,17 @@ const PLAY_STORE = 'https://play.google.com/store/apps/details?id=de.habloo.app'
 export function storeAdresse(einladung) {
   const ua = navigator.userAgent || ''
   if (/android/i.test(ua)) {
+    if (!STORE_ANDROID) return null
     return PLAY_STORE + (einladung ? '&referrer=' + encodeURIComponent('einladung=' + einladung) : '')
   }
   const ipad = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1
-  if (/iphone|ipad|ipod/i.test(ua) || ipad) return APP_STORE
+  if ((/iphone|ipad|ipod/i.test(ua) || ipad) && STORE_IOS) return APP_STORE
   return null
 }
 
 /** Mit Einladung am Handy direkt in den Store. true = wird weitergeleitet. */
 export function weiterZumStore(einladung) {
-  if (!STORE_WEITERLEITUNG || istApp) return false
+  if (istApp) return false
   try {
     const ziel = storeAdresse(einladung)
     if (!ziel) return false
