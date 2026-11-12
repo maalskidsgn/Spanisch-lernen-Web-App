@@ -22,7 +22,7 @@ export const XP = {
   RICHTIG: 10, // eine Vokabel im Training gewusst
   FALSCH: 2, // Karte nicht gewusst (Üben zählt trotzdem!)
   RUNDE: 20, // Bonus für eine komplett geschaffte Trainingsrunde
-  QUIZ_RICHTIG: 2, // richtige Antwort in einer Lektion oder einem Spiel
+  QUIZ_RICHTIG: 20, // richtige Antwort in einer Lektion oder einem Spiel (12.11.2026: 2 -> 20, Manuel)
   LEKTION: 30, // eine ganze Lektion geschafft – die längste Einheit
   SPIEL: 10, // Bonus für ein durchgespieltes Mini-Spiel
   SATZ_RICHTIG: 15, // ein Satz im Satz-Trainer gewusst
