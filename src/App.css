@@ -17529,3 +17529,11 @@ button.ki-melden.ki-melden-klein { padding: 2px 4px; font-size: 0.7rem; margin-t
 .ki-melden-karte .ki-melden-danke { color: var(--success); font-weight: 700; font-size: 0.95rem; padding: 8px 0; }
 @keyframes ki-melden-ein { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ki-melden-schleier { animation: none; } }
+
+/* XP-Meldung in den Spielen nicht auf volle Breite ziehen (12.11.2026):
+   Die Regel „.training-stage > :not(button) { width: 100% }“ traf auch
+   die schwebende Meldung, im Memory lief sie über den ganzen Bildschirm. */
+.training-stage > .spiel-xp,
+body.lektion-laeuft .lessons > .spiel-xp {
+  width: auto;
+}
