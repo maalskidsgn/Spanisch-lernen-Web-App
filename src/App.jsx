@@ -59,7 +59,7 @@ import VocabGenerator from './VocabGenerator.jsx'
 import Settings from './Settings.jsx'
 import Lessons from './Lessons.jsx'
 import Home, { Leitfaden } from './Home.jsx'
-import { naechsteLektion } from './lektionen.js'
+import { naechsteLektion, LEKTIONEN } from './lektionen.js'
 
 // Der Name der App – an dieser einen Stelle änderbar
 export const APP_NAME = 'Habloo'
@@ -81,6 +81,7 @@ import {
 } from './lesetexte.js'
 import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE, GRUNDPAKET_TEXT } from './grundpaket.js'
 import StartGeschenk from './StartGeschenk.jsx'
+import Einrichtung from './Einrichtung.jsx'
 import {
   XP,
   loadProgress,
@@ -663,7 +664,7 @@ export default function App() {
       // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
       // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
       meilensteinAbgleichRef.current = null
-      if (nutzer) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
+      if (nutzer && !einrichtungRef.current) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
@@ -1370,6 +1371,34 @@ export default function App() {
   const [neueAbzeichen, setNeueAbzeichen] = useState([])
   const meilensteinAbgleichRef = useRef(null)
   const [startGeschenk, setStartGeschenk] = useState(false)
+  // Einrichtungs-Animation: einmal direkt nach der Registrierung (Konto
+  // jünger als ein Tag), zum Ansehen jederzeit mit ?einrichtung (12.11.).
+  const [einrichtung, setEinrichtung] = useState(() => {
+    try { return new URLSearchParams(window.location.search).has('einrichtung') } catch { return false }
+  })
+  const einrichtungRef = useRef(false)
+  useEffect(() => {
+    if (!nutzer) return
+    try {
+      const k = 'einrichtung:' + nutzer.id
+      if (localStorage.getItem(k)) return
+      localStorage.setItem(k, 'ja')
+      if (Date.now() - new Date(nutzer.created_at).getTime() < 86400000) {
+        einrichtungRef.current = true
+        setEinrichtung(true)
+      }
+    } catch { /* ohne Speicher keine Animation */ }
+  }, [nutzer])
+  function einrichtungZu(trainer) {
+    einrichtungRef.current = true
+    setEinrichtung(false)
+    setStartGeschenk(false)
+    try {
+      const u = new URL(window.location.href)
+      if (u.searchParams.has('einrichtung')) { u.searchParams.delete('einrichtung'); window.history.replaceState(null, '', u) }
+    } catch { /* egal */ }
+    if (trainer) setView('trainer')
+  }
   useEffect(() => {
     const werte = {
       // Geschenkte Pakete (Grund-/Startpaket) zählen nicht: Sonst kam gleich
@@ -1499,7 +1528,17 @@ export default function App() {
   const meldung = (
     <>
       <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
-      {startGeschenk && (
+      {einrichtung && (
+        <Einrichtung
+          app="Habloo"
+          woerter={STARTGESCHENK_WOERTER}
+          saetze={GRUNDPAKET_SAETZE.length}
+          lektionen={LEKTIONEN.length}
+          onFertig={() => einrichtungZu(false)}
+          onTrainer={() => einrichtungZu(true)}
+        />
+      )}
+      {startGeschenk && !einrichtung && (
         <StartGeschenk
           woerter={STARTGESCHENK_WOERTER.length}
           onZu={() => setStartGeschenk(false)}
