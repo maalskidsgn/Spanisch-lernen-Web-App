@@ -21,6 +21,8 @@ export default function StartseiteB({ teil, onStarten, onAnmelden, onRecht }) {
     if (!h) return
     const root = h.shadowRoot || h.attachShadow({ mode: 'open' })
     root.innerHTML = `<style>:host{display:block}${CSS}</style><div class="sbx">${INHALT[sp][teil]}</div>`
+    // In der installierten App keine Store-Knöpfe (man hat die App ja schon)
+    if (istNativ()) root.querySelectorAll('.store-bereich').forEach((e) => e.remove())
     // Im Browser: Googles eigener Knopf statt Umweg über Supabase (zeigt unsere Domain)
     if (!istNativ()) {
       root.querySelectorAll('.kn-google').forEach((knopf) => {
