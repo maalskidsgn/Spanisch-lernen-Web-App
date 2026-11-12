@@ -17730,3 +17730,17 @@ body.lektion-laeuft .lessons > .spiel-xp {
 
 /* Satz bauen: nach einem Fehler selbst weiterklicken (12.11.2026) */
 .satzbau-weiter { display: block; width: 100%; margin-top: 16px; }
+
+/* Aktive Tabs überall in der App-Farbe gefüllt (12.11.2026) */
+.deck[role="tablist"] button.deck-aktiv,
+.ansicht-schalter[role="tablist"] button.aktiv,
+.kal-umschalter button.ist-aktiv,
+.rang-kreis[role="tablist"] .rang-kr.ist-aktiv,
+.lk-zeitraum[role="tablist"] .lk-zeit.lk-zeit-aktiv,
+.bl-segment[role="tablist"] button.an {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--primary-press);
+}
+.ansicht-schalter[role="tablist"] button.aktiv svg { color: #fff; }
+.deck[role="tablist"] button.deck-aktiv .deck-zahl { background: #fff; color: var(--primary); }
