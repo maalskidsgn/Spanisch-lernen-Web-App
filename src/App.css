@@ -17704,3 +17704,18 @@ body.lektion-laeuft .lessons > .spiel-xp {
 @media (prefers-reduced-motion: reduce) {
   .gitter-feld.feld-falsch { animation: none; }
 }
+
+/* ===== Üben | Spielen (12.11.2026) ===== */
+.ueb-tabs { display: flex; background: var(--card); border-radius: 20px; padding: 6px; box-shadow: 0 4px 0 var(--line); margin: 0 0 20px; }
+.ueb-tabs button {
+  flex: 1; border: 0; background: transparent; border-radius: 15px; padding: 12px 8px; font: inherit; font-weight: 900; font-size: 16px;
+  color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.ueb-tabs button.an { background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-press); }
+.ueb-tabs small { font-size: 12px; font-weight: 900; border-radius: 99px; padding: 1px 8px; background: color-mix(in srgb, var(--primary) 12%, #fff); color: var(--primary); }
+.ueb-tabs button.an small { background: rgba(255, 255, 255, .25); color: #fff; }
+.ueb-spiele { margin-top: 0; }
+.ueb-spiele .bereich-kopf p { margin-top: 0; }
+/* Satzpaare im Spiel-Look: ganze Sätze, links bündig */
+.sp-satzpaare .sp-paar { text-align: left; font-size: 15px; line-height: 1.3; min-height: 64px; }
+@media (max-width: 440px) { .sp-satzpaare .sp-paar { font-size: 14px; padding: 10px; } }

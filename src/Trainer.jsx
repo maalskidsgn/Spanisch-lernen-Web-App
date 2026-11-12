@@ -21,6 +21,7 @@ import { merkeGelernt } from './lernkurve.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
+import UebTabs, { useUebTab } from './UebTabs.jsx'
 import Bausteine from './Bausteine.jsx'
 import Gespraech from './Gespraech.jsx'
 import Nachschlag from './Nachschlag.jsx'
@@ -59,6 +60,8 @@ import {
   stimmtUeberein,
 } from './uebungen.js'
 import { useTexte, sprache } from './sprache.js'
+
+const SPIELE_ANZAHL = 5 // Karten im Tab „Spielen“ (12.11.2026)
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -128,6 +131,7 @@ export default function Trainer({
   // die Kacheln gesperrt, statt in eine leere Seite zu fuehren.
   const spielbar = useMemo(() => spielbareVokabeln(vocab).length >= 4, [vocab])
   const [artWahl, setArtWahl] = useState(false) // Auswahl der Uebungsart offen?
+  const [uebTab, setUebTab] = useUebTab() // 'ueben' | 'spielen' (12.11.2026)
   const [art, setArt] = useState('karten')      // gewaehlte Uebungsart
   const [position, setPosition] = useState(0)   // fuer "gemischt": welcher Durchgang
   const [eingabe, setEingabe] = useState('')    // Schreiben: getippter Text
@@ -679,6 +683,9 @@ export default function Trainer({
           </p>
         </div>
 
+        <UebTabs tab={uebTab} onTab={setUebTab} ueben={ARTEN.length} spielen={SPIELE_ANZAHL} />
+
+        {uebTab === 'ueben' && (
         <div className="art-liste art-toon">
           {ARTEN.map((a) => (
             <button key={a.id} className="art-karte" onClick={() => startTraining(a.id)}>
@@ -691,11 +698,12 @@ export default function Trainer({
                           </button>
           ))}
         </div>
+        )}
 
-        {/* Die Spiele als spielerische Alternative zur Abfrage */}
-      <section className="bereich bereich-spiele" id="trainer-spiele">
+        {/* Die Spiele als spielerische Alternative zur Abfrage – eigener Tab */}
+      {uebTab === 'spielen' && (
+      <section className="bereich bereich-spiele ueb-spiele" id="trainer-spiele">
         <div className="bereich-kopf">
-          <h2>{t('tr.lieberSpielen')}</h2>
           <p>
             {spielbar
               ? t('trm.alleSpieleNehmen')
@@ -731,6 +739,7 @@ export default function Trainer({
           </button>
         </div>
       </section>
+      )}
       </div>
     )
   }
