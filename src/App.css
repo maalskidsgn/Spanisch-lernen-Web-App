@@ -17933,3 +17933,28 @@ body.lektion-laeuft .lessons > .spiel-xp {
 @keyframes spa-plopp { 0% { transform: scale(.92); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
 @media (max-width: 520px) { .spa-karte { font-size: 14.5px; padding: 11px 12px; min-height: 58px; } .spa-gitter { gap: 8px 10px; } }
 @media (prefers-reduced-motion: reduce) { .spa-karte.paar, .spa-karte.falsch { animation: none; } }
+
+/* ===== Profil-Hintergrund nach Level (12.11.2026) ===== */
+.pf-banner .lvb { position: absolute; inset: 0; overflow: hidden; }
+.pf-banner .pf-zahnrad { z-index: 2; }
+.lvb-grund { position: absolute; inset: 0; background: linear-gradient(120deg, var(--v1), var(--v2) 60%, var(--v3)); }
+.lvb-bewegt .lvb-grund { background-size: 220% 220%; animation: lvb-wandern 9s ease-in-out infinite alternate; }
+@keyframes lvb-wandern { to { background-position: 100% 100%; } }
+.lvb-kreis { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, .28); }
+.lvb-k1 { width: 240px; height: 240px; left: -70px; top: -120px; }
+.lvb-k2 { width: 190px; height: 190px; right: -50px; bottom: -110px; background: rgba(255, 255, 255, .2); }
+.lvb-motiv { position: absolute; color: var(--lv-farbe); opacity: .22; animation: lvb-schweben 7s ease-in-out infinite alternate; }
+@keyframes lvb-schweben { to { transform: translateY(-8px) rotate(6deg); } }
+.lvb-funke { position: absolute; width: 14px; height: 14px; color: #fff; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .9)); animation: lvb-funkeln 1.8s ease-in-out infinite alternate; }
+@keyframes lvb-funkeln { from { opacity: .25; transform: scale(.7); } }
+.lvb-glanz { position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .55) 50%, transparent 65%); background-size: 250% 100%; mix-blend-mode: soft-light; animation: lvb-glanz 4.5s ease-in-out infinite; }
+@keyframes lvb-glanz { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+.lvb-strahlen { position: absolute; left: 50%; top: 130%; width: 900px; height: 900px; margin: -450px 0 0 -450px; border-radius: 50%; background: repeating-conic-gradient(rgba(255, 255, 255, .35) 0 6deg, transparent 6deg 18deg); animation: lvb-drehen 40s linear infinite; }
+@keyframes lvb-drehen { to { transform: rotate(360deg); } }
+.lvb-sonne { position: absolute; left: 50%; top: 92%; width: 220px; height: 220px; margin-left: -110px; border-radius: 50%; background: radial-gradient(circle, #fff7d6, #ffd75e 55%, rgba(255, 200, 60, 0) 70%); }
+/* Bildrahmen + Level-Pille in der Stufenfarbe */
+.pf-sozial.pf-lv .pf-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 9px 0 9px var(--lv-farbe), 0 22px 26px -8px color-mix(in srgb, var(--lv-farbe) 40%, transparent); }
+.pf-sozial.pf-lv .pf-bild:active { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 6px 0 9px var(--lv-farbe); }
+.pf-sozial.pf-lv .pf-pille-lvl { background: var(--lv-farbe); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--lv-farbe) 70%, #000); }
+.pf-kopf.pf-sozial.pf-lv { box-shadow: 0 14px 34px -24px color-mix(in srgb, var(--lv-farbe) 60%, transparent); }
+@media (prefers-reduced-motion: reduce) { .lvb * { animation: none !important; } }
