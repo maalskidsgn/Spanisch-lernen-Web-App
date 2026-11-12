@@ -16,7 +16,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { erfolgston } from './erfolgston.js'
+import { erfolgston, fehlerton } from './erfolgston.js'
 import { spiele, vorladen, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
@@ -316,6 +316,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     if (feedback) return // schon beantwortet
     const korrekt = option === richtig
     setFeedback({ gewaehlt: option, richtig })
+    if (korrekt) erfolgston()
+    else fehlerton()
     if (korrekt) {
       setRichtige((r) => r + 1)
       addXp(XP.QUIZ_RICHTIG)

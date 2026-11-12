@@ -8,9 +8,11 @@ import App from './App.jsx'
 import Einwilligung from './Einwilligung.jsx'
 import { merkeEinladung } from './rangliste.js'
 import { starteLernzeit } from './lernzeit.js'
+import { klicktoeneStarten } from './erfolgston.js'
 
 merkeHerkunft()
 starteLernzeit()
+klicktoeneStarten() // „Thock“-Klick auf allen Knöpfen
 rueckkehrHoeren()
 merkePartnerLink()
 

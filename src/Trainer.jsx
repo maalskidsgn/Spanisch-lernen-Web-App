@@ -18,7 +18,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { erfolgston } from './erfolgston.js'
+import { erfolgston, fehlerton } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
 import Bausteine from './Bausteine.jsx'
@@ -240,12 +240,13 @@ export default function Trainer({
   function answer(bewertung) {
     if (exiting) return // nicht doppelt klicken, während die Karte fliegt
     setExiting(bewertung)
+    if (bewertung !== 'nochmal') erfolgston() // sofort beim Tippen, nicht erst nach der Animation
+    else fehlerton()
 
     setTimeout(() => {
       const word = queue[0]
       const gewusst = bewertung !== 'nochmal'
       merkeGelernt('woerter') // für die Lernkurve: jede beantwortete Karte
-      if (gewusst) erfolgston() // kurzer Erfolgsklang bei richtig
 
       setVocab((v) => ({ ...v, [word]: review(withSrsDefaults(v[word]), bewertung) }))
       setResult((r) => ({

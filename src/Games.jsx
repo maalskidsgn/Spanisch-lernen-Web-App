@@ -5,6 +5,7 @@ import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 import { useTexte, vokabel } from './sprache.js'
 import SpielBild from './SpielBild.jsx'
+import { erfolgston, fehlerton } from './erfolgston.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare, Wortsuche,
 // Blitzrunde, Galgenmännchen und Buchstabensalat.
@@ -25,6 +26,7 @@ function useXpMeldung(addXp) {
 
   function belohne(punkte, text) {
     addXp(punkte)
+    if (punkte !== XP.SPIEL) erfolgston()
     // key sorgt dafuer, dass die Animation bei jedem Treffer neu startet
     setMeldung({ punkte, text, key: Date.now() + Math.random() })
   }
@@ -286,6 +288,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       if (alle.length === paare.length) belohne(XP.SPIEL, t('sp.geschafft'))
     } else {
       // kein Paar: kurz rot wackeln, dann wieder zudecken
+      fehlerton()
       setSperre(true)
       setTimeout(() => {
         setOffen([])
@@ -374,6 +377,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
       }
     } else {
       setFehler(p.es)
+      fehlerton()
       setTimeout(() => {
         setFehler(null)
         setWahlLinks(null)
@@ -526,6 +530,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
   })
   const [gefunden, setGefunden] = useState([])
   const [zug, setZug] = useState(null) // {start:[x,y], jetzt:[x,y]}
+  const [falschFelder, setFalschFelder] = useState([]) // kurz rot nach falschem Strich
 
   const alleGefunden = platziert.length > 0 && gefunden.length === platziert.length
 
@@ -584,6 +589,11 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
     if (treffer) {
       setGefunden((g) => [...g, treffer.es])
       belohne(XP.QUIZ_RICHTIG, t('sp.treffer'))
+    } else {
+      // Falsch gestrichen: Strecke kurz rot aufleuchten lassen
+      fehlerton()
+      setFalschFelder(gezogen.map(([x, y]) => x + ',' + y))
+      setTimeout(() => setFalschFelder([]), 650)
     }
   }
 
@@ -643,13 +653,15 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
             const schluessel = x + ',' + y
             const istAktiv = aktiveFelder.some(([ax, ay]) => ax === x && ay === y)
             const istGefunden = gefundeneFelder.has(schluessel)
+            const istFalsch = !istGefunden && falschFelder.includes(schluessel)
             return (
               <button
                 key={schluessel}
                 className={
                   'gitter-feld' +
                   (istGefunden ? ' feld-gefunden' : '') +
-                  (istAktiv ? ' feld-aktiv' : '')
+                  (istAktiv ? ' feld-aktiv' : '') +
+                  (istFalsch ? ' feld-falsch' : '')
                 }
                 data-pos={schluessel}
                 onPointerDown={(e) => beginne(e, x, y)}
@@ -734,8 +746,10 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
       setRichtig((x) => x + 1)
       gewusst.current.add(frage.es)
       addXp(XP.QUIZ_RICHTIG)
+      erfolgston()
     } else {
       setSerie(0)
+      fehlerton()
       setFalsch((x) => x + 1)
       daneben.current.add(frage.es)
     }
@@ -839,6 +853,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
     const neu = [...geraten, b]
     setGeraten(neu)
     if (!zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)) {
+      fehlerton()
       setWackelt(true)
       setTimeout(() => setWackelt(false), 380)
     }
@@ -1006,6 +1021,7 @@ function SalatWort({ wort, onFertig }) {
       setze(n, false)
     } else {
       setFehler((f) => f + 1)
+      fehlerton()
       setWackelt(n)
       setTimeout(() => setWackelt(null), 400)
     }

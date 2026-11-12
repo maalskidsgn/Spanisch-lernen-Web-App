@@ -25,6 +25,7 @@ import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import InfoKnopf from './InfoKnopf.jsx'
 import { useTexte, text as uebersetzt } from './sprache.js'
+import { erfolgston, fehlerton } from './erfolgston.js'
 
 // Der Grammatik-Trainer.
 //
@@ -77,6 +78,8 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
   function antworte(richtig) {
     if (rueckmeldung) return // die Rückmeldung läuft noch
     setRueckmeldung(richtig ? 'richtig' : 'falsch')
+    if (richtig) erfolgston()
+    else fehlerton()
     const verdient = richtig ? XP.RICHTIG : XP.FALSCH
     addXp(verdient)
     setXpPopup({ amount: verdient, key: Date.now() })
