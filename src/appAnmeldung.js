@@ -56,3 +56,20 @@ export async function rueckkehrHoeren() {
     }
   })
 }
+
+/**
+ * Blog-Links in der App (12.11.2026): Der Blog liegt nicht im App-Paket
+ * (zu groß), deshalb öffnet „Ratgeber“ habloo.de/blog im System-Browser.
+ * composedPath, weil die Startseite im Shadow DOM liegt.
+ */
+export function blogImBrowser() {
+  if (!istNativ()) return
+  document.addEventListener('click', async (e) => {
+    const a = e.composedPath().find((el) => el.tagName === 'A')
+    const ziel = a?.getAttribute('href')
+    if (!ziel || !/^\/blog(\/|$)/.test(ziel)) return
+    e.preventDefault()
+    const { Browser } = await import('@capacitor/browser')
+    await Browser.open({ url: 'https://habloo.de' + ziel })
+  }, true)
+}
