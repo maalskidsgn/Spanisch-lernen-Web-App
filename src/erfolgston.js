@@ -135,7 +135,7 @@ export function klickton() {
     weich.type = 'lowpass'
     weich.frequency.value = 7000
     const begrenzer = c.createDynamicsCompressor()
-    begrenzer.threshold.value = -12
+    begrenzer.threshold.value = -6
     begrenzer.ratio.value = 6
     begrenzer.attack.value = 0.001
     begrenzer.release.value = 0.05
@@ -148,7 +148,7 @@ export function klickton() {
     o.frequency.setValueAtTime(260, t)
     o.frequency.exponentialRampToValueAtTime(150, t + 0.027)
     g.gain.setValueAtTime(0.0001, t)
-    g.gain.exponentialRampToValueAtTime(0.45, t + 0.002)
+    g.gain.exponentialRampToValueAtTime(0.85, t + 0.002) // 12.11.: lauter (vorher 0.45)
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045)
     o.connect(g).connect(bus)
     o.start(t)
@@ -166,7 +166,7 @@ export function klickton() {
     f.frequency.value = 1200
     f.Q.value = 1.5
     const gk = c.createGain()
-    gk.gain.value = 0.35
+    gk.gain.value = 0.6
     quelle.connect(f).connect(gk).connect(bus)
     quelle.start(t)
   } catch {
