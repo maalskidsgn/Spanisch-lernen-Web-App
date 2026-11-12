@@ -226,74 +226,85 @@ export function BuchFormular({ onFertig }) {
 
       <GratisHinweis art="buecher" />
 
-      <div className="bg-themen" role="tablist">
-        {themen.map((t) => (
-          <button key={t.id} type="button" role="tab" aria-selected={thema === t.id} className={thema === t.id ? 'an' : ''} onClick={() => setThema(t.id)}>
-            {en ? t.en : t.de}
-          </button>
-        ))}
-      </div>
-
-      <div className="bg-katalog">
-        {aktuell.buecher.map((b) => {
-          const an = gewaehlt === b
-          const t = en ? b.en : b.de
-          return (
-            <button key={b.de} type="button" className={'bg-katalog-buch' + (an ? ' an' : '')} aria-pressed={an} onClick={() => { setGewaehlt(an ? null : b); setEigenesOffen(false) }} disabled={laedt}>
-              <BuchCover buch={{ titel: t, autor: b.autor }} mini />
-              <span className="bg-katalog-text"><b>{t}</b><small>{b.autor}</small></span>
-              <span className={'bg-haken' + (an ? ' an' : '')} aria-hidden="true">{an ? '✓' : '+'}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Eigenes Buch: erst auf Wunsch aufklappen – hält die Karte ruhig */}
-      {eigenesOffen ? (
-        <form className="bg-eigenes" onSubmit={erstellen}>
-          <div className="bg-eigenes-kopf">
-            <label className="bg-feldname" htmlFor="bg-titel">{L.eigenes}</label>
-            <button type="button" className="bg-link" onClick={() => { setEigenesOffen(false); setTitel(''); setText(''); setTextOffen(false) }}>{L.schliessen}</button>
-          </div>
-          <input id="bg-titel" type="text" value={titel} onChange={(e) => setTitel(e.target.value)} placeholder={L.platz} maxLength={160} disabled={laedt} autoFocus />
-          {textOffen ? (
-            <div className="bg-text">
-              <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, TEXT_MAX))} placeholder={L.textPlatz} rows={5} disabled={laedt} />
-              <div className="bg-text-fuss">
-                <small>{L.textInfo(text.length)}</small>
-                <button type="button" className="bg-link" onClick={() => { setText(''); setTextOffen(false) }}>{L.textZu}</button>
-              </div>
-            </div>
-          ) : (
-            <button type="button" className="bg-link" onClick={() => setTextOffen(true)}>{L.textAuf}</button>
-          )}
-        </form>
-      ) : (
-        <button type="button" className="bg-link bg-eigenes-link" onClick={() => { setEigenesOffen(true); setGewaehlt(null) }}>{L.eigenesLink}</button>
-      )}
-
-      {/* Auswahl-Leiste: erscheint erst, wenn ein Buch feststeht */}
-      {bereit && (
-        <form className="bg-auswahl" onSubmit={erstellen}>
-          <div className="bg-auswahl-buch">
-            <BuchCover buch={{ titel: katalogTitel || titel || '…', autor: '' }} mini />
-            <span><small>{L.ausgewaehlt}</small><b>{katalogTitel || titel.trim() || L.eigenerText}</b></span>
-          </div>
-          <div className="bg-auswahl-niveau" role="radiogroup" aria-label={L.niveau}>
-            {NIVEAUS.map((n) => (
-              <button key={n} type="button" role="radio" aria-checked={niveau === n} className={niveau === n ? 'an' : ''} onClick={() => setNiveau(n)} disabled={laedt}>{n}</button>
+      {/* Buchvorschläge + eigenes Buch nur mit Premium (12.11.2026) – gratis gibt es
+          die Bibliothek; hier dann nur der Weg zu Premium */}
+      {darf ? (
+        <>
+          <div className="bg-themen" role="tablist">
+            {themen.map((t) => (
+              <button key={t.id} type="button" role="tab" aria-selected={thema === t.id} className={thema === t.id ? 'an' : ''} onClick={() => setThema(t.id)}>
+                {en ? t.en : t.de}
+              </button>
             ))}
           </div>
-          {darf ? (
-            <button type="submit" className="bg-los" disabled={laedt}>{laedt ? L.laedt : L.losKurz}</button>
+
+          <div className="bg-katalog">
+            {aktuell.buecher.map((b) => {
+              const an = gewaehlt === b
+              const t = en ? b.en : b.de
+              return (
+                <button key={b.de} type="button" className={'bg-katalog-buch' + (an ? ' an' : '')} aria-pressed={an} onClick={() => { setGewaehlt(an ? null : b); setEigenesOffen(false) }} disabled={laedt}>
+                  <BuchCover buch={{ titel: t, autor: b.autor }} mini />
+                  <span className="bg-katalog-text"><b>{t}</b><small>{b.autor}</small></span>
+                  <span className={'bg-haken' + (an ? ' an' : '')} aria-hidden="true">{an ? '✓' : '+'}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Eigenes Buch: erst auf Wunsch aufklappen – hält die Karte ruhig */}
+          {eigenesOffen ? (
+            <form className="bg-eigenes" onSubmit={erstellen}>
+              <div className="bg-eigenes-kopf">
+                <label className="bg-feldname" htmlFor="bg-titel">{L.eigenes}</label>
+                <button type="button" className="bg-link" onClick={() => { setEigenesOffen(false); setTitel(''); setText(''); setTextOffen(false) }}>{L.schliessen}</button>
+              </div>
+              <input id="bg-titel" type="text" value={titel} onChange={(e) => setTitel(e.target.value)} placeholder={L.platz} maxLength={160} disabled={laedt} autoFocus />
+              {textOffen ? (
+                <div className="bg-text">
+                  <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, TEXT_MAX))} placeholder={L.textPlatz} rows={5} disabled={laedt} />
+                  <div className="bg-text-fuss">
+                    <small>{L.textInfo(text.length)}</small>
+                    <button type="button" className="bg-link" onClick={() => { setText(''); setTextOffen(false) }}>{L.textZu}</button>
+                  </div>
+                </div>
+              ) : (
+                <button type="button" className="bg-link" onClick={() => setTextOffen(true)}>{L.textAuf}</button>
+              )}
+            </form>
           ) : (
-            <button type="button" className="gh-knopf bg-premium-knopf" onClick={zurKasse}>
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
-              {L.premiumKnopf}
-            </button>
+            <button type="button" className="bg-link bg-eigenes-link" onClick={() => { setEigenesOffen(true); setGewaehlt(null) }}>{L.eigenesLink}</button>
           )}
-          {laedt && <p className="bg-dauer">{L.dauer}</p>}
-        </form>
+
+          {/* Auswahl-Leiste: erscheint erst, wenn ein Buch feststeht */}
+          {bereit && (
+            <form className="bg-auswahl" onSubmit={erstellen}>
+              <div className="bg-auswahl-buch">
+                <BuchCover buch={{ titel: katalogTitel || titel || '…', autor: '' }} mini />
+                <span><small>{L.ausgewaehlt}</small><b>{katalogTitel || titel.trim() || L.eigenerText}</b></span>
+              </div>
+              <div className="bg-auswahl-niveau" role="radiogroup" aria-label={L.niveau}>
+                {NIVEAUS.map((n) => (
+                  <button key={n} type="button" role="radio" aria-checked={niveau === n} className={niveau === n ? 'an' : ''} onClick={() => setNiveau(n)} disabled={laedt}>{n}</button>
+                ))}
+              </div>
+              {darf ? (
+                <button type="submit" className="bg-los" disabled={laedt}>{laedt ? L.laedt : L.losKurz}</button>
+              ) : (
+                <button type="button" className="gh-knopf bg-premium-knopf" onClick={zurKasse}>
+                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
+                  {L.premiumKnopf}
+                </button>
+              )}
+              {laedt && <p className="bg-dauer">{L.dauer}</p>}
+            </form>
+          )}
+        </>
+      ) : (
+        <button type="button" className="gh-knopf bg-premium-knopf bg-premium-allein" onClick={zurKasse}>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
+          {L.premiumKnopf}
+        </button>
       )}
       {fehler && <p className="error">{fehler}</p>}
     </section>

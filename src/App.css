@@ -17899,3 +17899,6 @@ body.lektion-laeuft .lessons > .spiel-xp {
 .pi-pillen { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .pi-pillen span { background: var(--card); border-radius: 99px; padding: 4px 10px; font-size: 12px; font-weight: 800; color: var(--muted); box-shadow: 0 2px 0 var(--line); }
 .pi-pillen b { color: var(--primary); }
+
+/* Buch-Generator gratis: nur der Premium-Knopf (12.11.2026) */
+.bg-premium-allein { display: flex; margin: 8px auto 0; }
