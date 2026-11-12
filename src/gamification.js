@@ -106,6 +106,16 @@ function dateString(daysAgo = 0) {
   return d.toLocaleDateString('sv-SE')
 }
 
+// Serie nur zeigen, solange sie lebt (12.11.2026): War der letzte
+// Lerntag weder heute noch gestern, ist die Serie gerissen -> 0.
+// Vorher blieb die alte Zahl stehen, bis man wieder lernte.
+export function serieAufraeumen(progress) {
+  if (!progress || !(progress.streak > 0)) return progress
+  const zuletzt = progress.lastActive
+  if (zuletzt === dateString(0) || zuletzt === dateString(1)) return progress
+  return { ...progress, streak: 0 }
+}
+
 // XP gutschreiben und die Tagesserie pflegen:
 // heute schon aktiv -> Serie bleibt; gestern aktiv -> Serie +1; sonst -> neu bei 1.
 // xpToday zählt die heute gesammelten XP (fürs Tagesziel) und startet
