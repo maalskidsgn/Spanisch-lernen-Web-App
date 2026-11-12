@@ -127,19 +127,6 @@ export function rueckblickJahr(d = new Date()) {
   return null
 }
 
-/**
- * Vorschau außerhalb der Zeit: nur solange ?rueckblick in der Adresse
- * steht (nicht mehr dauerhaft gemerkt – 12.11.2026, Start Ende Dezember).
- */
-export function rueckblickTester() {
-  try {
-    localStorage.removeItem('rb-tester')
-    return new URLSearchParams(window.location.search).has('rueckblick')
-  } catch {
-    return false
-  }
-}
-
 /** Lernzeit eines Tages – gemessen, sonst aus dem Gelernten geschätzt. */
 function minutenVonTag(e = {}) {
   if (e.minuten) return e.minuten
@@ -795,21 +782,53 @@ export function Jahresrueckblick({ jahr, onClose }) {
 
 /**
  * Karte „Dein Jahresrückblick ist da – teile ihn!“.
- * Startseite: 27.12.–15.01. (Tester immer). Profil (imProfil): immer
- * für Tester, sonst zur selben Zeit – vergangene Jahre bleiben im Profil.
+ *
+ * Startseite: nur EINMAL pro Jahr (27.12.–15.01.) – beim ersten Mal
+ * öffnet sich die Story von selbst, danach verschwindet die Karte von
+ * der Startseite und der Rückblick liegt nur noch im Profil.
+ * Profil (imProfil): immer, auch für vergangene Jahre ab 2026.
+ * Vorschau außerhalb der Zeit: Adresse mit ?rueckblick (einmalig).
  */
+const gesehenSchluessel = (jahr) => 'rb-gesehen-' + jahr
+function istGesehen(jahr) {
+  try { return localStorage.getItem(gesehenSchluessel(jahr)) === '1' } catch { return false }
+}
+function merkeGesehen(jahr) {
+  try { localStorage.setItem(gesehenSchluessel(jahr), '1') } catch { /* egal */ }
+}
+
 export function RueckblickKarte({ imProfil = false }) {
-  const tester = useMemo(() => rueckblickTester(), [])
-  const vorschau = useMemo(() => {
-    try { return new URLSearchParams(window.location.search).has('rueckblick') } catch { return false }
-  }, [])
+  // ?rueckblick einmal auslesen und aus der Adresse nehmen – sonst geht
+  // die Story bei jedem Wechsel auf „Start“ wieder auf
+  const [vorschau] = useState(() => {
+    try {
+      const url = new URL(window.location.href)
+      if (!url.searchParams.has('rueckblick')) return false
+      url.searchParams.delete('rueckblick')
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash)
+      return true
+    } catch {
+      return false
+    }
+  })
   const jetzt = new Date()
-  // Im Profil bleiben vergangene Jahre abrufbar – erst ab 2026 (vorher gab es keinen Rückblick)
   const vorjahr = jetzt.getFullYear() - 1
-  const jahr = rueckblickJahr() ?? (tester ? jetzt.getFullYear() : imProfil && vorjahr >= 2026 ? vorjahr : null)
-  const [offen, setOffen] = useState(vorschau && !imProfil)
+  const zeitJahr = rueckblickJahr()
+  const jahr = zeitJahr ?? (vorschau ? jetzt.getFullYear() : imProfil && vorjahr >= 2026 ? vorjahr : null)
   const hatDaten = useMemo(() => (jahr ? rueckblickDaten(jahr).lerntage > 0 : false), [jahr])
-  if (!jahr || (imProfil && !hatDaten && !tester)) return null
+  // Startseite: nur solange noch nicht gesehen; beim ersten Mal von selbst öffnen
+  const ersterBesuch = !imProfil && jahr != null && (vorschau || (zeitJahr != null && hatDaten && !istGesehen(jahr)))
+  const [offen, setOffen] = useState(ersterBesuch)
+  const [weg, setWeg] = useState(false)
+
+  useEffect(() => {
+    if (offen && jahr && !imProfil) merkeGesehen(jahr)
+  }, [offen, jahr, imProfil])
+
+  if (!jahr) return null
+  if (imProfil && !hatDaten && !vorschau) return null
+  if (!imProfil && !ersterBesuch && !offen) return null
+  if (!imProfil && weg) return null
   const t = T()
   return (
     <>
@@ -826,7 +845,15 @@ export function RueckblickKarte({ imProfil = false }) {
         </span>
         <span className="rb-karte-pfeil" aria-hidden="true">→</span>
       </button>
-      {offen && <Jahresrueckblick jahr={jahr} onClose={() => setOffen(false)} />}
+      {offen && (
+        <Jahresrueckblick
+          jahr={jahr}
+          onClose={() => {
+            setOffen(false)
+            if (!imProfil) setWeg(true) // Startseite: danach nur noch im Profil
+          }}
+        />
+      )}
     </>
   )
 }

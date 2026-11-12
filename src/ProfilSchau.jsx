@@ -6,6 +6,7 @@ import { levelFromXp } from './gamification.js'
 import { useTexte, gebiet, t } from './sprache.js'
 import { LevelPlakette } from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
+import ProfilInsights from './ProfilInsights.jsx'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
@@ -121,6 +122,9 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
               {t('ps9.dabeiSeit', { datum: seit(profil.dabei_seit) })}
               <small>{dauer(profil.dabei_seit)}</small>
             </p>
+
+            {/* Lern-Insights (12.11.2026) */}
+            <ProfilInsights benutzername={profil.benutzername} />
 
             {/* Melden und Blockieren - von Apple und Google verlangt,
                 sobald Nutzer Inhalte anderer Nutzer sehen. */}
