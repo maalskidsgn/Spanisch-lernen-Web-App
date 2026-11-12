@@ -95,7 +95,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
   }
 
   return (
-    <div className={'trainer training-stage spiel-toon spiel-' + spiel}>
+    <div className={'trainer training-stage spiel-toon spiel-' + spiel + (['memory', 'paare', 'galgen', 'salat'].includes(spiel) ? ' sp-neu' : '')}>
       {/* Toon-Kopf (06.11.): Spielfigur auf Mini-Trommel, Titel, Schließen rechts */}
       <div className="player-top sk-kopf">
         <span className="sk-bild"><SpielBild id={spiel} /></span>
@@ -220,6 +220,28 @@ export function Pokal() {
   )
 }
 
+/* ---------- Gemeinsame Bausteine im neuen Spiel-Look (12.11.2026) ---------- */
+function SpFortschritt({ anteil, text }) {
+  return (
+    <div className="sp-fortschritt">
+      <div className="sp-balken"><i style={{ width: Math.min(100, anteil * 100) + '%' }} /></div>
+      <span>{text}</span>
+    </div>
+  )
+}
+
+function SpHerz({ voll }) {
+  return (
+    <svg viewBox="0 0 24 24" className={voll ? '' : 'weg'} aria-hidden="true">
+      <path
+        d="M12 21s-7.5-4.6-9.4-9.3C1.3 8.5 3.2 5 6.6 5c2 0 3.4 1.1 4.2 2.4h2.4C14 6.1 15.4 5 17.4 5c3.4 0 5.3 3.5 4 6.7C19.5 16.4 12 21 12 21z"
+        fill={voll ? 'var(--sp-herz)' : 'var(--sp-linie)'}
+      />
+      {voll && <path d="M6.5 8.2c.6-.9 1.5-1.3 2.4-1.2" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity=".7" />}
+    </svg>
+  )
+}
+
 /* ---------- Spiel 1: Memory ---------- */
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
@@ -263,7 +285,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       // Ruhe lesen können – weiter geht es über den Knopf unten.
       if (alle.length === paare.length) belohne(XP.SPIEL, t('sp.geschafft'))
     } else {
-      // kein Paar: kurz zeigen, dann wieder zudecken
+      // kein Paar: kurz rot wackeln, dann wieder zudecken
       setSperre(true)
       setTimeout(() => {
         setOffen([])
@@ -286,33 +308,33 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <div className="lern-fortschritt">
-        <div className="lern-balken">
-          <div className="lern-balken-voll" style={{ width: (gefunden.length / anzahl) * 100 + '%' }} />
+      <div className="sp-buehne">
+        <SpFortschritt anteil={gefunden.length / anzahl} text={t('sp.paareVersuche', { gefunden: gefunden.length, anzahl, versuche })} />
+        <div className="sp-memory">
+          {karten.map((k) => {
+            const istGefunden = gefunden.includes(k.pairId)
+            const istOffen = offen.includes(k.id) || istGefunden
+            return (
+              <button
+                key={k.id}
+                className={
+                  'sp-mkarte' +
+                  (istGefunden ? ' gefunden' : istOffen ? ' offen' : '') +
+                  (sperre && offen.includes(k.id) ? ' falsch' : '')
+                }
+                onClick={() => klick(k)}
+              >
+                {istOffen ? k.text : <span className="sp-frage">?</span>}
+              </button>
+            )
+          })}
         </div>
-        <p className="training-progress">{t('sp.paareVersuche', { gefunden: gefunden.length, anzahl, versuche })}</p>
+        {gefunden.length === anzahl && (
+          <button className="btn sp-weiter" onClick={() => setFertig(true)}>
+            {t('sp2.alleGefundenWeiter')}
+          </button>
+        )}
       </div>
-      <div className="memory-grid">
-        {karten.map((k) => {
-          const istOffen = offen.includes(k.id) || gefunden.includes(k.pairId)
-          return (
-            <button
-              key={k.id}
-              className={
-                'memory-card' +
-                (istOffen ? ' memory-offen' : '') +
-                (gefunden.includes(k.pairId) ? ' memory-gefunden' : '')
-              }
-              onClick={() => klick(k)}
-            >
-              {istOffen ? k.text : <span className="memory-frage">?</span>}
-            </button>
-          )
-        })}
-      </div>
-      {gefunden.length === anzahl && (
-        <button className="btn memory-weiter" onClick={() => setFertig(true)}>{t('sp2.alleGefundenWeiter')}</button>
-      )}
       <RundenWoerter woerter={paare} gefunden={gefunden.map((i) => paare[i].es)} />
     </>
   )
@@ -330,13 +352,13 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
   // Mischung stehen, während links neue Wörter erschienen. Dann
   // gehörte kein Paar mehr zusammen.
   //
-  // Stattdessen wird nach der deutschen Übersetzung sortiert: Das
-  // ergibt eine andere Reihenfolge als links (also weiterhin ein
-  // Rätsel), leitet sich aber immer aus denselben Daten ab.
+  // Stattdessen wird nach der Übersetzung sortiert: Das ergibt eine
+  // andere Reihenfolge als links (also weiterhin ein Rätsel), leitet
+  // sich aber immer aus denselben Daten ab.
   const rechts = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
-  const [wahlLinks, setWahlLinks] = useState(null) // angetipptes spanisches Wort
+  const [wahlLinks, setWahlLinks] = useState(null) // angetipptes Wort links
   const [geloest, setGeloest] = useState([]) // die es-Wörter der gelösten Paare
-  const [fehler, setFehler] = useState(null) // kurz rot aufblinken
+  const [fehler, setFehler] = useState(null) // kurz rot wackeln
   const [fertig, setFertig] = useState(false)
 
   function klickRechts(p) {
@@ -373,49 +395,47 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <div className="lern-fortschritt">
-        <div className="lern-balken">
-          <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
-        </div>
-        <p className="training-progress">
-          {t('sp.verbundenHinweis', { zahl: geloest.length, gesamt: paare.length })}
+      <div className="sp-buehne">
+        <SpFortschritt anteil={geloest.length / paare.length} text={t('sp4.verbunden', { zahl: geloest.length, gesamt: paare.length })} />
+        <p className="sp-tipp">
+          {wahlLinks ? t('sp4.jetztRechts') : t('sp4.tippeLinks')}
         </p>
-      </div>
-      <div className="pairs-grid">
-        <div className="pairs-col">
-          {paare.map((p) => (
-            <button
-              key={p.es}
-              className={
-                'quiz-option' +
-                (geloest.includes(p.es) ? ' option-richtig' : '') +
-                (wahlLinks?.es === p.es ? ' pair-gewaehlt' : '')
-              }
-              disabled={geloest.includes(p.es)}
-              onClick={() => setWahlLinks(p)}
-            >
-              {p.es}
-            </button>
-          ))}
+        <div className="sp-paare">
+          <div className="sp-paare-spalte">
+            {paare.map((p) => (
+              <button
+                key={p.es}
+                className={
+                  'sp-paar sp-paar-links' +
+                  (geloest.includes(p.es) ? ' richtig' : '') +
+                  (wahlLinks?.es === p.es ? ' gewaehlt' : '')
+                }
+                disabled={geloest.includes(p.es)}
+                onClick={() => setWahlLinks(p)}
+              >
+                {p.es}
+              </button>
+            ))}
+          </div>
+          <div className="sp-paare-spalte">
+            {rechts.map((p) => (
+              <button
+                key={p.es}
+                className={
+                  'sp-paar' +
+                  (geloest.includes(p.es) ? ' richtig' : '') +
+                  (fehler === p.es ? ' falsch' : '') +
+                  (wahlLinks && !geloest.includes(p.es) ? ' bereit' : '')
+                }
+                disabled={geloest.includes(p.es)}
+                onClick={() => klickRechts(p)}
+              >
+                {p.de}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="pairs-col">
-          {rechts.map((p) => (
-            <button
-              key={p.es}
-              className={
-                'quiz-option' +
-                (geloest.includes(p.es) ? ' option-richtig' : '') +
-                (fehler === p.es ? ' option-falsch' : '')
-              }
-              disabled={geloest.includes(p.es)}
-              onClick={() => klickRechts(p)}
-            >
-              {p.de}
-            </button>
-          ))}
-        </div>
       </div>
-      <RundenWoerter woerter={paare} />
     </>
   )
 }
@@ -793,6 +813,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
   const [geraten, setGeraten] = useState([])
   const [geloest, setGeloest] = useState([])
   const [ende, setEnde] = useState(null) // null | 'geloest' | 'verloren'
+  const [wackelt, setWackelt] = useState(false)
 
   const wort = runde[nr]
   if (!wort) {
@@ -808,14 +829,23 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
 
   const zeichen = [...wort.es]
   const offen = (z) => !istBuchstabe(z) || geraten.includes(grundbuchstabe(z))
-  const fehler = geraten.filter((b) => !zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)).length
+  const fehler = geraten.filter(
+    (b) => !zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)
+  ).length
+  const uebrig = GALGEN_LEBEN - fehler
 
   function rate(b) {
     if (ende || geraten.includes(b)) return
     const neu = [...geraten, b]
     setGeraten(neu)
+    if (!zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)) {
+      setWackelt(true)
+      setTimeout(() => setWackelt(false), 380)
+    }
     const alleOffen = zeichen.every((z) => !istBuchstabe(z) || neu.includes(grundbuchstabe(z)))
-    const neueFehler = neu.filter((x) => !zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === x)).length
+    const neueFehler = neu.filter(
+      (x) => !zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === x)
+    ).length
     if (alleOffen) {
       setEnde('geloest')
       setGeloest((g) => [...g, wort.es])
@@ -835,49 +865,55 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <p className="training-progress">{t('sp.wortVon', { nr: nr + 1, gesamt: runde.length })}</p>
-      <div className="galgen-leben" aria-label={t('sp.versucheUebrig', { zahl: GALGEN_LEBEN - fehler })}>
-        {Array.from({ length: GALGEN_LEBEN }, (_, i) => (
-          <span key={i} className={'galgen-herz' + (i < GALGEN_LEBEN - fehler ? '' : ' weg')}>♥</span>
-        ))}
-      </div>
-      <p className="galgen-hinweis">{wort.de}</p>
-      <div className={'galgen-wort' + (ende ? ' galgen-' + ende : '')}>
-        {zeichen.map((z, i) =>
-          z === ' ' ? (
-            <span key={i} className="galgen-luecke" />
-          ) : (
-            <span key={i} className={'galgen-feld' + (offen(z) ? ' offen' : '')}>
-              {offen(z) || ende ? z : ''}
-            </span>
-          )
+      <div className="sp-buehne">
+        <SpFortschritt anteil={nr / runde.length} text={t('sp.wortVon', { nr: nr + 1, gesamt: runde.length })} />
+        <div className="sp-hinweis">
+          <small>{t('sp4.gesuchtWird')}</small>
+          <strong>{wort.de}</strong>
+        </div>
+        <div className="sp-leben" aria-label={t('sp.versucheUebrig', { zahl: uebrig })}>
+          {Array.from({ length: GALGEN_LEBEN }, (_, i) => (
+            <SpHerz key={i} voll={i < uebrig} />
+          ))}
+          <span>{t('sp4.leben', { zahl: uebrig })}</span>
+        </div>
+        <div className={'sp-wort' + (ende ? ' ' + ende : '') + (wackelt ? ' wackelt' : '')}>
+          {zeichen.map((z, i) =>
+            z === ' ' ? (
+              <span key={i} className="sp-luecke" />
+            ) : (
+              <span key={i} className={'sp-feld' + (offen(z) ? ' da' : '')}>
+                {offen(z) || ende ? z : ''}
+              </span>
+            )
+          )}
+        </div>
+        {ende ? (
+          <div className="sp-ergebnis">
+            <p>{ende === 'geloest' ? t('sp.richtig') : t('sp.leiderNicht')}</p>
+            <button className="btn" onClick={weiter}>
+              {nr + 1 >= runde.length ? t('sp.auswertung') : t('sp.naechstesWort')}
+            </button>
+          </div>
+        ) : (
+          <div className="sp-tastatur">
+            {TASTATUR.map((b) => {
+              const drin = geraten.includes(b)
+              const treffer = drin && zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)
+              return (
+                <button
+                  key={b}
+                  className={'sp-taste' + (drin ? (treffer ? ' treffer' : ' niete') : '')}
+                  disabled={drin}
+                  onClick={() => rate(b)}
+                >
+                  {b}
+                </button>
+              )
+            })}
+          </div>
         )}
       </div>
-      {ende ? (
-        <div className="galgen-ende">
-          <p>{ende === 'geloest' ? t('sp.richtig') : t('sp.leiderNicht')}</p>
-          <button className="btn" onClick={weiter}>
-            {nr + 1 >= runde.length ? t('sp.auswertung') : t('sp.naechstesWort')}
-          </button>
-        </div>
-      ) : (
-        <div className="galgen-tastatur">
-          {TASTATUR.map((b) => {
-            const drin = geraten.includes(b)
-            const treffer = drin && zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)
-            return (
-              <button
-                key={b}
-                className={'galgen-taste' + (drin ? (treffer ? ' treffer' : ' niete') : '')}
-                disabled={drin}
-                onClick={() => rate(b)}
-              >
-                {b}
-              </button>
-            )
-          })}
-        </div>
-      )}
     </>
   )
 }
@@ -917,24 +953,25 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <div className="lern-fortschritt">
-        <div className="lern-balken">
-          <div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} />
+      <div className="sp-buehne">
+        <div className="sp-punkte" aria-label={t('sp.wortVon', { nr: nr + 1, gesamt: runde.length })}>
+          {runde.map((_, i) => (
+            <i key={i} className={i < nr ? 'fertig' : i === nr ? 'jetzt' : ''} />
+          ))}
         </div>
-        <p className="training-progress">{t('sp.wortVon', { nr: nr + 1, gesamt: runde.length })}</p>
+        <SalatWort
+          key={wort.es}
+          wort={wort}
+          onFertig={(ohneFehler) => {
+            belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? t('sp.fehlerfrei') : t('sp.richtig'))
+            if (ohneFehler) setFertigWoerter((f) => [...f, wort.es])
+            setTimeout(() => {
+              if (nr + 1 >= runde.length) belohne(XP.SPIEL, t('sp.geschafft'))
+              setNr((n) => n + 1)
+            }, 900)
+          }}
+        />
       </div>
-      <SalatWort
-        key={wort.es}
-        wort={wort}
-        onFertig={(ohneFehler) => {
-          belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? t('sp.fehlerfrei') : t('sp.richtig'))
-          if (ohneFehler) setFertigWoerter((f) => [...f, wort.es])
-          setTimeout(() => {
-            if (nr + 1 >= runde.length) belohne(XP.SPIEL, t('sp.geschafft'))
-            setNr((n) => n + 1)
-          }, 900)
-        }}
-      />
     </>
   )
 }
@@ -956,13 +993,17 @@ function SalatWort({ wort, onFertig }) {
   const ziel = zeichen.filter(istBuchstabe)
   const fertig = gesetzt.length === ziel.length
 
+  function setze(n, mitFehler) {
+    const neu = [...gesetzt, n]
+    setGesetzt(neu)
+    if (neu.length === ziel.length) onFertig(!mitFehler && fehler === 0)
+  }
+
   function tippe(n) {
     if (fertig || gesetzt.includes(n)) return
     // Gleiche Buchstaben sind austauschbar – verglichen wird der Buchstabe
     if (grundbuchstabe(kacheln[n].z) === grundbuchstabe(ziel[gesetzt.length])) {
-      const neu = [...gesetzt, n]
-      setGesetzt(neu)
-      if (neu.length === ziel.length) onFertig(fehler === 0)
+      setze(n, false)
     } else {
       setFehler((f) => f + 1)
       setWackelt(n)
@@ -970,33 +1011,43 @@ function SalatWort({ wort, onFertig }) {
     }
   }
 
+  // Tipp: legt den nächsten richtigen Buchstaben – zählt nicht als fehlerfrei
+  function tipp() {
+    if (fertig) return
+    const soll = grundbuchstabe(ziel[gesetzt.length])
+    const n = kacheln.findIndex((k, j) => !gesetzt.includes(j) && grundbuchstabe(k.z) === soll)
+    if (n < 0) return
+    setFehler((f) => f + 1)
+    setze(n, true)
+  }
+
   // Anzeige: feste Zeichen + bisher gesetzte Buchstaben (in Original-Schreibung)
   let b = 0
   return (
-    <div className="salat">
-      <p className="galgen-hinweis">{wort.de}</p>
-      <div className={'galgen-wort' + (fertig ? ' galgen-geloest' : '')}>
+    <div className="sp-salat">
+      <div className="sp-hinweis">
+        <small>{t('sp4.bildeDasWort')}</small>
+        <strong>{wort.de}</strong>
+      </div>
+      <div className={'sp-ablage' + (fertig ? ' geloest' : '')}>
         {zeichen.map((z, i) => {
-          if (z === ' ') return <span key={i} className="galgen-luecke" />
-          if (!istBuchstabe(z)) return <span key={i} className="galgen-feld offen">{z}</span>
+          if (z === ' ') return <span key={i} className="sp-luecke" />
+          if (!istBuchstabe(z)) return <span key={i} className="sp-slot da">{z}</span>
           const da = b < gesetzt.length
+          const naechster = b === gesetzt.length
           b++
           return (
-            <span key={i} className={'galgen-feld' + (da ? ' offen' : '')}>
+            <span key={i} className={'sp-slot' + (da ? ' da' : naechster ? ' naechster' : '')}>
               {da ? z : ''}
             </span>
           )
         })}
       </div>
-      <div className="salat-kacheln">
+      <div className="sp-steine">
         {kacheln.map((k, n) => (
           <button
             key={n}
-            className={
-              'satzbau-kachel salat-kachel' +
-              (gesetzt.includes(n) ? ' verbaut' : '') +
-              (wackelt === n ? ' platz-falsch' : '')
-            }
+            className={'sp-stein' + (gesetzt.includes(n) ? ' weg' : '') + (wackelt === n ? ' falsch' : '')}
             disabled={gesetzt.includes(n)}
             onClick={() => tippe(n)}
           >
@@ -1004,7 +1055,16 @@ function SalatWort({ wort, onFertig }) {
           </button>
         ))}
       </div>
-      {fehler > 0 && !fertig && <p className="training-progress">{fehler} {fehler === 1 ? t('sp.fehler') : t('sp.fehler')}</p>}
+      {!fertig && (
+        <div className="sp-werkzeug">
+          <button type="button" disabled={!gesetzt.length} onClick={() => setGesetzt((g) => g.slice(0, -1))}>
+            ↶ {t('sp4.zurueck')}
+          </button>
+          <button type="button" onClick={tipp}>
+            ✦ {t('sp4.tipp')}
+          </button>
+        </div>
+      )}
     </div>
   )
 }

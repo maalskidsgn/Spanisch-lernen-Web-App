@@ -17537,3 +17537,153 @@ button.ki-melden.ki-melden-klein { padding: 2px 4px; font-size: 0.7rem; margin-t
 body.lektion-laeuft .lessons > .spiel-xp {
   width: auto;
 }
+
+/* ===== Spiele im neuen Look (12.11.2026, Entwurf freigegeben) =====
+   Memory, Wortpaare, Galgenraten, Buchstabensalat: weiße Spielkarte,
+   alles in der App-Farbe (--primary), große Felder, klare Zustände.
+   Farben je App über die --sp-*-Variablen. */
+.sp-neu {
+  --sp-p: var(--primary);
+  --sp-kante: var(--primary-press);
+  --sp-hell: color-mix(in srgb, var(--primary) 11%, #fff);
+  --sp-mittel: color-mix(in srgb, var(--primary) 42%, #fff);
+  --sp-grund: var(--bg);
+  --sp-linie: #e6ddf5;
+  --sp-taste-kante: #ddd2f0;
+  --sp-herz: #ff5c8a;
+  --sp-gruen: #2aae5f; --sp-gruen-kante: #1f9450; --sp-gruen-hell: #e3f6ea;
+  --sp-st1: #8b5cf6; --sp-st1k: #6d28d9;
+  --sp-st2: #ff7aa2; --sp-st2k: #c94f78;
+  --sp-st3: #4fa8ff; --sp-st3k: #2b7bd6;
+  --sp-st4: #ffc43d; --sp-st4k: #c27c00;
+}
+.training-stage.sp-neu { justify-content: flex-start; max-width: 640px; margin-left: auto; margin-right: auto; padding-top: 8px; }
+.sp-buehne {
+  background: #fff; border-radius: 26px; padding: 18px 18px 22px; margin-bottom: 18px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 18px 40px -22px rgba(60, 30, 110, .28);
+}
+
+.sp-fortschritt { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.sp-balken { flex: 1; height: 12px; border-radius: 99px; background: var(--sp-hell); overflow: hidden; }
+.sp-balken i { display: block; height: 100%; border-radius: 99px; background: var(--sp-p); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), inset 0 2px 0 rgba(255,255,255,.35); transition: width .4s cubic-bezier(.3,1.4,.5,1); }
+.sp-fortschritt span { font-size: 13px; font-weight: 900; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.sp-hinweis { background: var(--sp-hell); border-radius: 18px; padding: 12px 16px; text-align: center; margin-bottom: 14px; }
+.sp-hinweis small { display: block; font-size: 12px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: var(--sp-p); opacity: .85; }
+.sp-hinweis strong { display: block; font-size: 22px; font-weight: 900; margin-top: 2px; color: var(--navy); }
+.sp-tipp { text-align: center; font-size: 14px; font-weight: 800; color: var(--muted); margin: -4px 0 14px; }
+
+/* Memory */
+.sp-memory { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sp-mkarte {
+  min-height: 78px; border: 0; border-radius: 16px; cursor: pointer; font: inherit; font-weight: 900; font-size: 15px; padding: 8px 6px;
+  line-height: 1.2; overflow-wrap: anywhere; color: #fff; position: relative; display: grid; place-items: center;
+  background: var(--sp-p) repeating-linear-gradient(135deg, rgba(255,255,255,.09) 0 12px, transparent 12px 24px);
+  box-shadow: 0 5px 0 var(--sp-kante); transition: transform .12s, background .2s;
+}
+.sp-mkarte:hover { transform: translateY(-2px); }
+.sp-frage { width: 34px; height: 34px; border-radius: 11px; background: #fff; color: var(--sp-p); display: grid; place-items: center; font-size: 18px; box-shadow: 0 3px 0 rgba(0,0,0,.12); }
+.sp-mkarte.offen { background: #fff; color: var(--navy); box-shadow: 0 5px 0 var(--sp-mittel), inset 0 0 0 2.5px var(--sp-p); animation: sp-dreh .25s ease; }
+.sp-mkarte.gefunden { background: var(--sp-gruen-hell); color: #1d7a52; box-shadow: 0 5px 0 #a8e3c7; cursor: default; }
+.sp-mkarte.gefunden::after { content: "✓"; position: absolute; top: -8px; right: -8px; width: 24px; height: 24px; border-radius: 50%; background: var(--sp-gruen); color: #fff; font-size: 13px; display: grid; place-items: center; box-shadow: 0 2px 0 var(--sp-gruen-kante); }
+.sp-mkarte.falsch { animation: sp-wackel .35s ease; box-shadow: 0 5px 0 #f3a3b3, inset 0 0 0 2.5px #ff4b4b; }
+.sp-weiter { margin-top: 18px; width: 100%; }
+
+/* Wortpaare */
+.sp-paare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sp-paare-spalte { display: flex; flex-direction: column; gap: 9px; }
+.sp-paar {
+  border: 0; border-radius: 14px; padding: 13px 10px; min-height: 50px; cursor: pointer; font: inherit; font-size: 16px; font-weight: 900; color: var(--navy);
+  background: #fff; box-shadow: inset 0 0 0 2px var(--sp-linie), 0 4px 0 var(--sp-taste-kante); overflow-wrap: anywhere; transition: transform .08s, background .15s;
+}
+.sp-paar:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--sp-mittel), 0 4px 0 var(--sp-taste-kante); }
+.sp-paar:active:not(:disabled) { transform: translateY(3px); }
+.sp-paar-links { background: var(--sp-hell); box-shadow: 0 4px 0 var(--sp-taste-kante); }
+.sp-paar.gewaehlt { background: var(--sp-p); color: #fff; box-shadow: 0 4px 0 var(--sp-kante); }
+.sp-paar.bereit:not(.richtig) { box-shadow: inset 0 0 0 2px var(--sp-mittel), 0 4px 0 var(--sp-taste-kante); }
+.sp-paar.richtig, .sp-paar.richtig:disabled { background: var(--sp-gruen-hell); color: #1d7a52; box-shadow: none; opacity: .7; cursor: default; }
+.sp-paar.richtig::before { content: "✓ "; }
+.sp-paar.falsch { background: #ffe7ea; color: #c2334a; box-shadow: inset 0 0 0 2px #ff4b4b, 0 4px 0 #ffb3bd; animation: sp-wackel .35s ease; }
+
+/* Galgenraten */
+.sp-leben { display: flex; justify-content: center; align-items: center; gap: 5px; margin-bottom: 14px; }
+.sp-leben svg { width: 24px; height: 24px; transition: transform .3s; }
+.sp-leben svg.weg { transform: scale(.82); }
+.sp-leben span { margin-left: 8px; font-size: 13px; font-weight: 900; color: var(--muted); }
+.sp-wort { display: flex; justify-content: center; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+.sp-wort.wackelt { animation: sp-wackel .35s ease; }
+.sp-luecke { width: 14px; }
+.sp-feld { width: 44px; height: 54px; border-radius: 13px; background: var(--sp-grund); box-shadow: inset 0 -4px 0 var(--sp-linie); display: grid; place-items: center; font-size: 26px; font-weight: 900; color: var(--navy); }
+.sp-feld.da { background: var(--sp-p); color: #fff; box-shadow: 0 4px 0 var(--sp-kante); animation: sp-plopp .3s cubic-bezier(.3,1.6,.5,1); }
+.sp-wort.geloest .sp-feld { background: var(--sp-gruen); box-shadow: 0 4px 0 var(--sp-gruen-kante); color: #fff; }
+.sp-wort.verloren .sp-feld:not(.da) { background: #ffe3e6; color: #c42b3b; box-shadow: inset 0 -4px 0 #ffc2c9; }
+.sp-tastatur { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.sp-taste {
+  border: 0; font: inherit; font-weight: 900; font-size: 17px; color: var(--navy); background: #fff; border-radius: 11px; height: 44px; padding: 0; cursor: pointer;
+  box-shadow: inset 0 0 0 2px var(--sp-linie), 0 3px 0 var(--sp-taste-kante); transition: transform .06s;
+}
+.sp-taste:hover:not(:disabled) { box-shadow: inset 0 0 0 2px var(--sp-mittel), 0 3px 0 var(--sp-taste-kante); }
+.sp-taste:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 0 0 2px var(--sp-linie); }
+.sp-taste.treffer, .sp-taste.treffer:disabled { background: var(--sp-gruen); color: #fff; box-shadow: 0 3px 0 var(--sp-gruen-kante); opacity: 1; }
+.sp-taste.niete, .sp-taste.niete:disabled { background: var(--sp-grund); color: var(--muted); box-shadow: none; opacity: .5; text-decoration: line-through; text-decoration-thickness: 2px; }
+.sp-taste:disabled { cursor: default; }
+.sp-ergebnis { text-align: center; padding-top: 4px; }
+.sp-ergebnis p { margin: 0 0 12px; font-weight: 900; font-size: 17px; color: var(--navy); }
+.sp-ergebnis .btn { width: 100%; }
+
+/* Buchstabensalat */
+.sp-punkte { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
+.sp-punkte i { width: 10px; height: 10px; border-radius: 50%; background: var(--sp-hell); transition: width .3s; }
+.sp-punkte i.fertig { background: var(--sp-gruen); }
+.sp-punkte i.jetzt { background: var(--sp-p); width: 26px; border-radius: 99px; }
+.sp-ablage { background: var(--sp-grund); border-radius: 20px; padding: 16px 10px; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; min-height: 88px; }
+.sp-slot { width: 46px; height: 56px; border-radius: 13px; border: 2.5px dashed var(--sp-mittel); display: grid; place-items: center; font-size: 26px; font-weight: 900; color: #fff; }
+.sp-slot.naechster { border-color: var(--sp-p); background: #fff; animation: sp-puls 1.2s ease-in-out infinite; }
+.sp-slot.da { border: 0; background: var(--sp-p); box-shadow: 0 4px 0 var(--sp-kante); animation: sp-plopp .28s cubic-bezier(.3,1.6,.5,1); }
+.sp-ablage.geloest .sp-slot { background: var(--sp-gruen); box-shadow: 0 4px 0 var(--sp-gruen-kante); }
+.sp-steine { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.sp-stein {
+  width: 58px; height: 58px; padding: 0; border: 0; border-radius: 17px; font: inherit; font-size: 27px; font-weight: 900; color: #fff; cursor: pointer;
+  background: var(--sp-st1); box-shadow: 0 6px 0 var(--sp-st1k); transform: rotate(-4deg); transition: transform .12s; text-shadow: 0 2px 0 rgba(0,0,0,.15);
+}
+.sp-stein:nth-child(4n+2) { background: var(--sp-st2); box-shadow: 0 6px 0 var(--sp-st2k); transform: rotate(3deg); }
+.sp-stein:nth-child(4n+3) { background: var(--sp-st3); box-shadow: 0 6px 0 var(--sp-st3k); transform: rotate(-2deg); }
+.sp-stein:nth-child(4n+4) { background: var(--sp-st4); box-shadow: 0 6px 0 var(--sp-st4k); transform: rotate(4deg); }
+.sp-stein:hover:not(:disabled) { transform: rotate(0) translateY(-3px); }
+.sp-stein:active:not(:disabled) { transform: translateY(4px); }
+.sp-stein.weg { visibility: hidden; }
+.sp-stein.falsch { animation: sp-wackel .35s ease; filter: saturate(.4) brightness(1.1); }
+.sp-werkzeug { display: flex; gap: 10px; }
+.sp-werkzeug button {
+  flex: 1; font: inherit; font-weight: 900; font-size: 14px; border: 0; border-radius: 14px; padding: 11px 12px; cursor: pointer; background: #fff; color: var(--navy);
+  box-shadow: inset 0 0 0 2px var(--sp-linie), 0 3px 0 var(--sp-taste-kante);
+}
+.sp-werkzeug button:disabled { opacity: .4; cursor: default; }
+
+@keyframes sp-plopp { from { transform: scale(.5); } }
+@keyframes sp-wackel { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@keyframes sp-puls { 50% { box-shadow: 0 0 0 5px var(--sp-hell); } }
+@keyframes sp-dreh { from { transform: rotateY(90deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .sp-neu *, .sp-neu *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 440px) {
+  .sp-buehne { padding: 14px 12px 18px; border-radius: 22px; }
+  .sp-feld, .sp-slot { width: 36px; height: 46px; font-size: 21px; }
+  .sp-stein { width: 50px; height: 50px; font-size: 23px; }
+  .sp-taste { height: 40px; font-size: 15px; }
+  .sp-tastatur { gap: 5px; }
+  .sp-mkarte { font-size: 13px; min-height: 66px; }
+  .sp-paar { font-size: 14.5px; padding: 11px 8px; }
+}
+/* Habloo: warme Töne statt Davaigo-Violett */
+.sp-neu {
+  --sp-linie: #f0e6da;
+  --sp-taste-kante: #ecdfd0;
+  --sp-herz: #ff4b4b;
+  --sp-st1: #ff7a12; --sp-st1k: #c85200;
+  --sp-st2: #ffc43d; --sp-st2k: #c27c00;
+  --sp-st3: #2bb6a3; --sp-st3k: #1b8576;
+  --sp-st4: #ff7aa2; --sp-st4k: #c94f78;
+}
+.sp-buehne { box-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 18px 40px -22px rgba(110, 60, 20, .25); }
