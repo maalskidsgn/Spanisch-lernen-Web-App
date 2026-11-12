@@ -57,14 +57,14 @@ function context() {
   return ctx
 }
 
-// Harfen-Klangfarbe: Teiltöne [Faktor, Lautstärke, Anteil am Ausklang]
-const HARFE = [[1, 1, 1], [2, 0.4, 0.6], [3, 0.15, 0.35], [4, 0.06, 0.25]]
-// Gezupfter Lauf nach oben: C5 – E5 – G5 – C6 – E6
-const LAUF = [523.25, 659.25, 783.99, 1046.5, 1318.51]
+// Marimba-Klangfarbe: Teiltöne [Faktor, Lautstärke, Anteil am Ausklang]
+const MARIMBA = [[1, 1, 1], [3.93, 0.22, 0.18], [9.8, 0.04, 0.06]]
+// Dreiklang nach oben: C5 – E5 – G5 [Hz, Einsatz in s, Länge in s]
+const DREIKLANG = [[523.25, 0, 0.3], [659.25, 0.065, 0.3], [783.99, 0.13, 0.55]]
 
 /**
- * Spielt den Erfolgston „Harfen-Lauf“ (gewählt 12.11.2026): fünf
- * weich gezupfte Töne nach oben, gedämpft, mit kurzem Raum.
+ * Spielt den Erfolgston „Marimba-Dreiklang“ (gewählt 12.11.2026, ersetzt
+ * den Harfen-Lauf): C–E–G auf der Marimba, rund und fröhlich.
  * Tut nichts, wenn der Browser kein Web-Audio kann oder der Klang
  * (noch) nicht erlaubt ist – ein fehlender Ton darf nie eine Aktion
  * blockieren.
@@ -93,16 +93,16 @@ export function erfolgston() {
       samt.connect(hall).connect(hallLaut).connect(c.destination)
     }
 
-    LAUF.forEach((hz, i) => {
-      const a = t0 + i * 0.038
-      for (const [faktor, anteil, ausklang] of HARFE) {
+    DREIKLANG.forEach(([hz, ab, lang]) => {
+      const a = t0 + ab
+      for (const [faktor, anteil, ausklang] of MARIMBA) {
         const osc = c.createOscillator()
         const g = c.createGain()
         osc.type = 'sine'
         osc.frequency.value = hz * faktor
-        const dauer = Math.max(0.03, 0.5 * ausklang)
+        const dauer = Math.max(0.03, lang * ausklang)
         g.gain.setValueAtTime(0.0001, a)
-        g.gain.exponentialRampToValueAtTime(0.17 * anteil, a + 0.003)
+        g.gain.exponentialRampToValueAtTime(0.32 * anteil, a + 0.004)
         g.gain.exponentialRampToValueAtTime(0.0001, a + dauer)
         osc.connect(g).connect(bus)
         osc.start(a)
