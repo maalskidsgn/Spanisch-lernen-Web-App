@@ -295,7 +295,7 @@ export default {
   'yt.merkmal3': 'Vokabeln per KI',
   'yt.suchen': 'Suchen',
   'yt.suchePlatzhalter': 'Worüber willst du ein Video sehen?',
-  'yt.fuerDich': 'Für dich',
+  'yt.fuerDich': 'Kostenlose Videos',
   'yt.alle': 'Alle',
   'yt.mehrAnzeigen': 'Mehr anzeigen ({zahl} weitere)',
   'yt.zuDenVideos': '← Zu den Videos',

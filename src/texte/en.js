@@ -295,7 +295,7 @@ export default {
   'yt.merkmal3': 'Vocabulary by AI',
   'yt.suchen': 'Search',
   'yt.suchePlatzhalter': 'What do you want to watch a video about?',
-  'yt.fuerDich': 'For you',
+  'yt.fuerDich': 'Free videos',
   'yt.alle': 'All',
   'yt.mehrAnzeigen': 'Show more ({zahl} more)',
   'yt.zuDenVideos': '← Back to videos',

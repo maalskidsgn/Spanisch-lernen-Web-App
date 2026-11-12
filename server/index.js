@@ -547,16 +547,41 @@ app.get('/api/translate', async (req, res) => {
 // Prüft, ob ein Video in fremde Seiten eingebettet werden darf.
 // Manche Kanäle verbieten das – dann antwortet YouTubes oEmbed-Dienst
 // mit einem Fehler, und wir sortieren das Video aus.
+// Prüft, ob ein Video EINGEBETTET abspielbar ist (12.11.2026).
+// Vorher nur per oEmbed – das sagt aber nur, ob es das Video gibt. Kanäle
+// wie „Dreaming Spanish“ sperren das Abspielen auf fremden Seiten, oEmbed
+// meldet trotzdem OK, und in der App stand „Video nicht verfügbar“.
+// Die YouTube-Seite verrät es zuverlässig: "playableInEmbed":false.
+const einbettCache = new Map() // videoId -> { ok, bis }
 async function istEinbettbar(videoId) {
+  const gemerkt = einbettCache.get(videoId)
+  if (gemerkt && gemerkt.bis > Date.now()) return gemerkt.ok
+  let ok = true
   try {
-    const r = await fetch(
-      'https://www.youtube.com/oembed?format=json&url=' +
-        encodeURIComponent('https://www.youtube.com/watch?v=' + videoId)
-    )
-    return r.ok
+    const r = await fetch('https://www.youtube.com/watch?v=' + videoId, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36',
+        'Accept-Language': 'de',
+        Cookie: 'CONSENT=YES+1; SOCS=CAI',
+      },
+    })
+    const html = r.ok ? await r.text() : ''
+    const treffer = html.match(/"playableInEmbed":(true|false)/)
+    if (treffer) ok = treffer[1] === 'true'
+    else {
+      // Seite nicht lesbar? Dann wie früher per oEmbed
+      const o = await fetch(
+        'https://www.youtube.com/oembed?format=json&url=' +
+          encodeURIComponent('https://www.youtube.com/watch?v=' + videoId)
+      )
+      ok = o.ok
+    }
   } catch {
     return true // Netzwerkproblem? Dann im Zweifel nicht wegfiltern.
   }
+  einbettCache.set(videoId, { ok, bis: Date.now() + 24 * 3600 * 1000 })
+  if (einbettCache.size > 5000) einbettCache.delete(einbettCache.keys().next().value)
+  return ok
 }
 
 // Sucht Videos auf YouTube (über yt-dlp, ohne API-Schlüssel).

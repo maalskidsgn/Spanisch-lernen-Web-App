@@ -17845,3 +17845,10 @@ body.lektion-laeuft .lessons > .spiel-xp {
 .rbx-stores img { height: 36px; }
 .rbx-stores .rbx-play { height: 52px; margin: -8px -6px; }
 @media (prefers-reduced-motion: reduce) { .rbx-story * { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
+
+/* Kopfzeile (Desktop): Knöpfe im gleichen Stil wie die Tabs (12.11.2026) */
+@media (min-width: 801px) {
+  .tabs .tab { border-radius: 15px; }
+  .tabs .tab.tab-active { box-shadow: 0 4px 0 var(--primary-press); }
+  .tabs .tab.tab-active:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-press); }
+}
