@@ -203,7 +203,7 @@ export default function ProfilInsights({ benutzername }) {
         <h3>{T.letzte}</h3>
         <div className="pi-monat">
           {a.monat.map((m, i) => (
-            <i key={i} className={(m === 0 ? 'leer' : '') + (i === 29 ? ' heute' : '')} style={{ height: m === 0 ? '5%' : Math.max(10, (m / maxMonat) * 100) + '%' }} />
+            <i key={i} className={(m === 0 ? 'pi-tag-leer' : '') + (i === 29 ? ' pi-tag-heute' : '')} style={{ height: m === 0 ? '5%' : Math.max(10, (m / maxMonat) * 100) + '%' }} />
           ))}
         </div>
         <div className="pi-achse">

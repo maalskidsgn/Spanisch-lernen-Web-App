@@ -17893,8 +17893,8 @@ body.lektion-laeuft .lessons > .spiel-xp {
 .pi-mix span { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
 .pi-monat { display: flex; align-items: flex-end; gap: 2px; height: 60px; }
 .pi-monat i { flex: 1; border-radius: 3px 3px 1px 1px; background: color-mix(in srgb, var(--primary) 45%, #fff); }
-.pi-monat i.leer { background: var(--line); }
-.pi-monat i.heute { background: var(--primary); }
+.pi-monat i.pi-tag-leer { background: var(--line); }
+.pi-monat i.pi-tag-heute { background: var(--primary); }
 .pi-achse { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; font-weight: 800; color: var(--muted); }
 .pi-pillen { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .pi-pillen span { background: var(--card); border-radius: 99px; padding: 4px 10px; font-size: 12px; font-weight: 800; color: var(--muted); box-shadow: 0 2px 0 var(--line); }
@@ -18033,3 +18033,6 @@ body.liest-video .video-kopf {
 .ps-karte .ps-rahmen { position: relative; z-index: 1; }
 .ps-karte .ps-zu { z-index: 3; background: rgba(255, 255, 255, .75); }
 .ps-karte.ps-lv .ps-rahmen .ps-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 8px 0 9px var(--lv-farbe); }
+
+/* Insights: alle 30 Balken gleich breit (12.11.2026) – „heute“ kollidierte mit der Kalender-Klasse */
+.pi-monat i { flex: 1 1 0; min-width: 0; width: auto; padding: 0; margin: 0; }
