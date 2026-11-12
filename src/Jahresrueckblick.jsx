@@ -127,11 +127,14 @@ export function rueckblickJahr(d = new Date()) {
   return null
 }
 
-/** Tester sehen den Rückblick jederzeit: einmal ?rueckblick öffnen. */
+/**
+ * Vorschau außerhalb der Zeit: nur solange ?rueckblick in der Adresse
+ * steht (nicht mehr dauerhaft gemerkt – 12.11.2026, Start Ende Dezember).
+ */
 export function rueckblickTester() {
   try {
-    if (new URLSearchParams(window.location.search).has('rueckblick')) localStorage.setItem('rb-tester', '1')
-    return localStorage.getItem('rb-tester') === '1'
+    localStorage.removeItem('rb-tester')
+    return new URLSearchParams(window.location.search).has('rueckblick')
   } catch {
     return false
   }
@@ -801,7 +804,9 @@ export function RueckblickKarte({ imProfil = false }) {
     try { return new URLSearchParams(window.location.search).has('rueckblick') } catch { return false }
   }, [])
   const jetzt = new Date()
-  const jahr = rueckblickJahr() ?? (tester ? jetzt.getFullYear() : imProfil && jetzt.getMonth() < 11 ? jetzt.getFullYear() - 1 : null)
+  // Im Profil bleiben vergangene Jahre abrufbar – erst ab 2026 (vorher gab es keinen Rückblick)
+  const vorjahr = jetzt.getFullYear() - 1
+  const jahr = rueckblickJahr() ?? (tester ? jetzt.getFullYear() : imProfil && vorjahr >= 2026 ? vorjahr : null)
   const [offen, setOffen] = useState(vorschau && !imProfil)
   const hatDaten = useMemo(() => (jahr ? rueckblickDaten(jahr).lerntage > 0 : false), [jahr])
   if (!jahr || (imProfil && !hatDaten && !tester)) return null
