@@ -11,7 +11,7 @@
 import { istApp } from './api.js'
 
 export const STORE_IOS = true
-export const STORE_ANDROID = false
+export const STORE_ANDROID = true
 
 const APP_STORE = 'https://apps.apple.com/app/id6828830288'
 const PLAY_STORE = 'https://play.google.com/store/apps/details?id=de.habloo.app'
