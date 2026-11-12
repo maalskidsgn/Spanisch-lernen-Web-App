@@ -25,6 +25,7 @@ import { erfolgston, erfolgstoeneAn, setzeErfolgstoene, erfolgstoeneVerfuegbar }
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 import { useTexte, SPRACHEN, sprache, setzeSprache, gebiet } from './sprache.js'
 import Flamme from './Flamme.jsx'
+import { RueckblickKarte } from './Jahresrueckblick.jsx'
 
 // Der Profilbereich (Tab "Profil"): Konto, Abo, Lernziele und
 // Einstellungen. Hier kommen später die sozialen Sachen dazu –
@@ -426,6 +427,9 @@ export default function Settings({
           <div><dt>{t('st2.videos')}</dt><dd>{counts.videos}</dd></div>
         </dl>
       </header>
+
+      {/* Jahresrückblick im Profil – zum Ansehen und Teilen (12.11.2026) */}
+      <RueckblickKarte imProfil />
 
       {supabaseBereit && nutzer && (
         <ProfilSozial

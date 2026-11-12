@@ -17755,3 +17755,93 @@ body.lektion-laeuft .lessons > .spiel-xp {
   background: var(--card);
   box-shadow: 0 4px 0 var(--line);
 }
+/* ===== Jahresrückblick als Story (12.11.2026) ===== */
+.rb-karte-profil { margin: 16px 0; }
+.rbx { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: rgba(15, 8, 4, .86); }
+.rbx-story {
+  position: relative; width: min(100vw, calc(100dvh * 9 / 16)); height: min(100dvh, calc(100vw * 16 / 9)); overflow: hidden;
+  color: #fff; user-select: none; -webkit-user-select: none; cursor: pointer; background: var(--rb-tief); font-family: Nunito, system-ui, sans-serif;
+}
+@media (min-width: 600px) { .rbx-story { height: min(92dvh, 860px); width: calc(min(92dvh, 860px) * 9 / 16); border-radius: 28px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.6); } }
+.rbx-balken { position: absolute; top: calc(12px + env(safe-area-inset-top)); left: 12px; right: 12px; display: flex; gap: 4px; z-index: 5; }
+.rbx-balken i { flex: 1; height: 4px; border-radius: 4px; background: rgba(255,255,255,.3); overflow: hidden; }
+.rbx-balken i b { display: block; height: 100%; width: 0; background: #fff; }
+.rbx-balken i.fertig b { width: 100%; }
+.rbx-balken i.laeuft b { animation: rbx-fuellen var(--dauer) linear forwards; }
+@keyframes rbx-fuellen { to { width: 100%; } }
+.rbx-marke { position: absolute; top: calc(26px + env(safe-area-inset-top)); left: 16px; z-index: 5; display: flex; align-items: center; gap: 7px; font-weight: 900; font-size: 14px; opacity: .92; }
+.rbx-marke img { width: 22px; height: 22px; border-radius: 7px; }
+.rbx-zu { position: absolute; top: calc(22px + env(safe-area-inset-top)); right: 12px; z-index: 6; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.18); color: #fff; font: inherit; font-weight: 900; cursor: pointer; }
+.rbx-folie { position: absolute; inset: 0; padding: 80px 28px 34px; display: flex; flex-direction: column; justify-content: center; }
+.rbx-folie p { margin: 0; }
+.rbx-klein { font-size: 16px; font-weight: 800; opacity: .88; margin-bottom: 8px !important; }
+.rbx-riesig { font-size: clamp(56px, 19vw, 82px); font-weight: 900; line-height: .95; letter-spacing: -.03em; }
+.rbx-gross { font-size: clamp(30px, 9vw, 38px); font-weight: 900; line-height: 1.05; letter-spacing: -.01em; }
+.rbx-gross span { color: var(--rb-akzent); }
+.rbx-unter { font-size: 16px; font-weight: 800; opacity: .9; margin-top: 14px !important; line-height: 1.35; white-space: pre-line; }
+.rbx-folie .rein { animation: rbx-rein .7s cubic-bezier(.2,1.3,.4,1) both; }
+.rbx-folie .rein2 { animation: rbx-rein .7s .35s cubic-bezier(.2,1.3,.4,1) both; }
+.rbx-folie .rein3 { animation: rbx-rein .7s .7s cubic-bezier(.2,1.3,.4,1) both; }
+@keyframes rbx-rein { from { opacity: 0; transform: translateY(30px) scale(.94); } }
+@keyframes rbx-hops { from { transform: scale(.3) rotate(-12deg); opacity: 0; } }
+
+.rbx-start { background: radial-gradient(circle at 30% 20%, var(--rb-hell), var(--rb1) 45%, var(--rb2)); text-align: center; align-items: center; }
+.rbx-jahr { font-size: clamp(90px, 30vw, 128px); font-weight: 900; line-height: .85; letter-spacing: -.05em; color: var(--rb-akzent); text-shadow: 0 8px 0 rgba(0,0,0,.18); animation: rbx-hops 1s cubic-bezier(.2,1.6,.4,1) both; }
+.rbx-kreise span { position: absolute; border-radius: 50%; background: rgba(255,255,255,.12); animation: rbx-schweben 6s ease-in-out infinite alternate; }
+.rbx-kreise span:nth-child(1) { width: 180px; height: 180px; left: -50px; top: 60px; }
+.rbx-kreise span:nth-child(2) { width: 120px; height: 120px; right: -30px; top: 40%; }
+.rbx-kreise span:nth-child(3) { width: 90px; height: 90px; left: 40px; bottom: 60px; }
+@keyframes rbx-schweben { to { transform: translate(14px, -22px) scale(1.15); } }
+
+.rbx-zeit { background: linear-gradient(170deg, var(--rb-tief), var(--rb2)); }
+.rbx-zeit .rbx-riesig { color: var(--rb-akzent); }
+.rbx-uhr { position: absolute; right: -60px; bottom: -60px; width: 260px; height: 260px; border-radius: 50%; border: 18px solid rgba(255,255,255,.08); }
+.rbx-uhr::after { content: ""; position: absolute; left: 50%; top: 50%; width: 6px; height: 90px; background: rgba(255,255,255,.25); border-radius: 6px; transform-origin: top center; animation: rbx-zeiger 3s linear infinite; }
+@keyframes rbx-zeiger { from { transform: rotate(180deg); } to { transform: rotate(540deg); } }
+
+.rbx-woerter { background: var(--rb-akzent); color: var(--rb-tief); }
+.rbx-regen { position: absolute; inset: 0; overflow: hidden; }
+.rbx-regen span { position: absolute; top: -40px; font-weight: 900; font-size: 18px; color: var(--rb2); opacity: .45; white-space: nowrap; animation: rbx-fallen linear infinite; }
+@keyframes rbx-fallen { to { transform: translateY(110vh) rotate(8deg); } }
+.rbx-wortkarte { position: relative; z-index: 1; background: rgba(255,255,255,.88); border-radius: 26px; padding: 22px; box-shadow: 0 8px 0 rgba(0,0,0,.08); }
+.rbx-wortkarte .rbx-riesig { color: var(--rb1); }
+.rbx-wortkarte .rbx-unter b { display: block; font-size: 26px; color: var(--rb1); }
+
+.rbx-monat { background: linear-gradient(180deg, var(--rb1), var(--rb2)); }
+.rbx-monate { display: flex; align-items: flex-end; gap: 5px; height: 34%; margin-top: 22px; }
+.rbx-monate div { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+.rbx-monate i { width: 100%; border-radius: 6px 6px 3px 3px; background: rgba(255,255,255,.3); height: 0; animation: rbx-wachsen .9s cubic-bezier(.2,1.2,.4,1) forwards; animation-delay: calc(var(--n) * 60ms + .3s); }
+.rbx-monate .top i { background: var(--rb-akzent); }
+@keyframes rbx-wachsen { to { height: var(--h); } }
+.rbx-monate span { font-size: 10.5px; font-weight: 900; opacity: .8; }
+
+.rbx-serie { background: radial-gradient(circle at 50% 70%, #ff8a2b, #c2410c 50%, #3a1300); text-align: center; align-items: center; }
+.rbx-flammen { display: flex; gap: 6px; justify-content: center; margin: 18px 0 6px; flex-wrap: wrap; max-width: 300px; }
+.rbx-flammen span { width: 26px; height: 26px; opacity: 0; animation: rbx-flamme .4s cubic-bezier(.2,1.6,.4,1) forwards; animation-delay: calc(var(--n) * 70ms + .2s); }
+.rbx-flammen svg { width: 100%; height: 100%; display: block; }
+@keyframes rbx-flamme { from { opacity: 0; transform: scale(0) translateY(10px); } to { opacity: 1; transform: none; } }
+
+.rbx-typ { background: linear-gradient(160deg, #1b1446, #3b2a8a); text-align: center; align-items: center; }
+.rbx-mond { width: 120px; height: 120px; border-radius: 50%; background: var(--rb-akzent); box-shadow: 0 0 60px rgba(255,225,77,.45); margin: 0 auto 22px; animation: rbx-hops 1s cubic-bezier(.2,1.6,.4,1) both; }
+.rbx-sterne span { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; animation: rbx-funkeln 1.6s ease-in-out infinite alternate; }
+@keyframes rbx-funkeln { from { opacity: .2; } }
+
+.rbx-ende { background: radial-gradient(circle at 70% 10%, var(--rb-hell), var(--rb1) 45%, var(--rb2)); cursor: default; }
+.rbx-endkarte { background: rgba(255,255,255,.15); border-radius: 22px; padding: 18px; }
+.rbx-endkarte h3 { margin: 0 0 12px; font-size: 22px; font-weight: 900; }
+.rbx-raster { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.rbx-raster div { background: rgba(255,255,255,.15); border-radius: 14px; padding: 10px 12px; }
+.rbx-raster b { display: block; font-size: 24px; font-weight: 900; color: var(--rb-akzent); line-height: 1.1; }
+.rbx-raster span { font-size: 12px; font-weight: 800; opacity: .9; }
+.rbx-knoepfe { display: grid; gap: 8px; margin-top: 16px; }
+.rbx-knoepfe button { font: inherit; font-weight: 900; font-size: 15px; border: 0; border-radius: 14px; padding: 13px; cursor: pointer; }
+.rbx-weiss { background: #fff; color: var(--rb2); box-shadow: 0 4px 0 rgba(0,0,0,.2); }
+.rbx-weiss:disabled { opacity: .85; cursor: progress; }
+.rbx-hell { background: rgba(255,255,255,.18); color: #fff; }
+.rbx-branding { margin-top: 18px; text-align: center; }
+.rbx-branding p { display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 900; font-size: 14px; }
+.rbx-branding p img { width: 24px; height: 24px; border-radius: 7px; }
+.rbx-stores { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 10px; }
+.rbx-stores img { height: 36px; }
+.rbx-stores .rbx-play { height: 52px; margin: -8px -6px; }
+@media (prefers-reduced-motion: reduce) { .rbx-story * { animation-duration: .01s !important; animation-iteration-count: 1 !important; } }
