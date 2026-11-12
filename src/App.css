@@ -18026,3 +18026,10 @@ body.liest-video .video-kopf {
 /* „Wort nachschlagen“: neutrale Kante statt Pfirsich-Rand */
 .schnell { box-shadow: 0 0 0 2px var(--line) inset, 0 6px 0 var(--line); }
 .pf-kopf.pf-sozial.pf-lv { box-shadow: 0 6px 0 var(--line); }
+
+/* Profil anderer Nutzer: Level-Hintergrund oben (12.11.2026) */
+.ps-banner { position: relative; height: 128px; margin: -32px -24px -64px; overflow: hidden; border-radius: 26px 26px 0 0; }
+.ps-banner .lvb { position: absolute; inset: 0; overflow: hidden; }
+.ps-karte .ps-rahmen { position: relative; z-index: 1; }
+.ps-karte .ps-zu { z-index: 3; background: rgba(255, 255, 255, .75); }
+.ps-karte.ps-lv .ps-rahmen .ps-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 8px 0 9px var(--lv-farbe); }

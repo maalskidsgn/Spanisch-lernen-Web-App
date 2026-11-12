@@ -7,6 +7,7 @@ import { useTexte, gebiet, t } from './sprache.js'
 import { LevelPlakette } from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
 import ProfilInsights from './ProfilInsights.jsx'
+import LevelBanner, { stufeStil } from './LevelBanner.jsx'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
@@ -76,7 +77,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
 
   return (
     <div className="ps-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
-      <div className="ps-karte" onClick={(e) => e.stopPropagation()}>
+      <div className={'ps-karte' + (profil ? ' ps-lv' : '')} style={profil ? stufeStil(level) : undefined} onClick={(e) => e.stopPropagation()}>
         <button className="ps-zu" onClick={onSchliessen} aria-label={t('app.schliessen')}>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6"
@@ -90,6 +91,8 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
           <p className="ps-laedt">{t('ps.gibtsNicht')}</p>
         ) : (
           <>
+            {/* Level-Hintergrund wie im eigenen Profil (12.11.2026) */}
+            <div className="ps-banner"><LevelBanner level={level} /></div>
             <span className="ps-rahmen">
               <Bildnis name={profil.benutzername} bild={profil.bild} klasse="ps-bild" />
             </span>
