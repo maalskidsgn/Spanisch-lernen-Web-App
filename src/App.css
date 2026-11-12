@@ -17953,10 +17953,10 @@ body.lektion-laeuft .lessons > .spiel-xp {
 @keyframes lvb-drehen { to { transform: rotate(360deg); } }
 .lvb-sonne { position: absolute; left: 50%; top: 92%; width: 220px; height: 220px; margin-left: -110px; border-radius: 50%; background: radial-gradient(circle, #fff7d6, #ffd75e 55%, rgba(255, 200, 60, 0) 70%); }
 /* Bildrahmen + Level-Pille in der Stufenfarbe */
-.pf-sozial.pf-lv .pf-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 9px 0 9px var(--lv-farbe), 0 22px 26px -8px color-mix(in srgb, var(--lv-farbe) 40%, transparent); }
-.pf-sozial.pf-lv .pf-bild:active { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 6px 0 9px var(--lv-farbe); }
-.pf-sozial.pf-lv .pf-pille-lvl { background: var(--lv-farbe); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--lv-farbe) 70%, #000); }
-.pf-kopf.pf-sozial.pf-lv { box-shadow: 0 14px 34px -24px color-mix(in srgb, var(--lv-farbe) 60%, transparent); }
+.pf-sozial.pf-lv .pf-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--primary) 75%, #fff), 0 9px 0 9px var(--primary); }
+.pf-sozial.pf-lv .pf-bild:active { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--primary) 75%, #fff), 0 6px 0 9px var(--primary); }
+.pf-sozial.pf-lv .pf-pille-lvl { background: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-dark); }
+.pf-kopf.pf-sozial.pf-lv { box-shadow: 0 6px 0 var(--line); }
 @media (prefers-reduced-motion: reduce) { .lvb * { animation: none !important; } }
 
 /* ===== Einheitlicher 3D-Comic-Stil (12.11.2026) =====
@@ -18032,7 +18032,7 @@ body.liest-video .video-kopf {
 .ps-banner .lvb { position: absolute; inset: 0; overflow: hidden; }
 .ps-karte .ps-rahmen { position: relative; z-index: 1; }
 .ps-karte .ps-zu { z-index: 3; background: rgba(255, 255, 255, .75); }
-.ps-karte.ps-lv .ps-rahmen .ps-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--lv-farbe) 75%, #fff), 0 8px 0 9px var(--lv-farbe); }
+.ps-karte.ps-lv .ps-rahmen .ps-bild { box-shadow: 0 0 0 5px #fff, 0 0 0 9px color-mix(in srgb, var(--primary) 75%, #fff), 0 8px 0 9px var(--primary); }
 
 /* Insights: alle 30 Balken gleich breit (12.11.2026) – „heute“ kollidierte mit der Kalender-Klasse */
 .pi-monat i { flex: 1 1 0; min-width: 0; width: auto; padding: 0; margin: 0; }
@@ -18202,3 +18202,8 @@ body.liest-video .video-kopf {
 @media (prefers-reduced-motion: reduce) {
   .ps-schicht, .ps-karte, .ps-karte > *, .ps-karte .pi, .ps-schicht.ps-geht, .ps-schicht.ps-geht .ps-karte { animation-duration: .01s !important; }
 }
+
+/* ---------- 12.11. Nachtrag: keine farbigen Ränder/Glow mehr an Karten ---------- */
+.bereich.bereich-wiederholen,
+.weiterlernen { border-color: transparent; box-shadow: 0 6px 0 var(--line); }
+.engine.engine-toon.engine-toon { box-shadow: 0 6px 0 var(--line); }
