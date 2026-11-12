@@ -11,6 +11,7 @@ import { t } from './sprache.js'
 
 import { db, supabaseBereit } from './supabase.js'
 import { API_URL } from './api.js'
+import { weiterZumStore } from './storeLinks.js'
 
 // Gleiche Regel wie der CHECK in der Datenbank
 export const NAME_MUSTER = /^[A-Za-z0-9_.]{3,20}$/
@@ -338,6 +339,8 @@ export function merkeEinladung() {
     const wer = new URLSearchParams(location.search).get('einladung')
     if (!wer || !NAME_MUSTER.test(wer)) return
     localStorage.setItem(EINLADUNG, wer)
+    // Am Handy weiter in den Store (Schalter in storeLinks.js)
+    if (weiterZumStore(wer)) return
     // Den Parameter aus der Adresse nehmen – sonst steht die Einladung
     // noch beim fünften Besuch in der Zeile.
     const sauber = new URL(location.href)
