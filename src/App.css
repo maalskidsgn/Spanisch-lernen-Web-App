@@ -17727,3 +17727,6 @@ body.lektion-laeuft .lessons > .spiel-xp {
 .ueb-tabs button.an { animation: ueb-plopp .32s cubic-bezier(.3, 1.6, .5, 1); }
 @keyframes ueb-plopp { 0% { transform: scale(.92); } 55% { transform: scale(1.06); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .ueb-tabs button.an { animation: none; } }
+
+/* Satz bauen: nach einem Fehler selbst weiterklicken (12.11.2026) */
+.satzbau-weiter { display: block; width: 100%; margin-top: 16px; }

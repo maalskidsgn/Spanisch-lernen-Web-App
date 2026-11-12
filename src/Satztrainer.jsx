@@ -281,6 +281,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           onGeloest={paarGeloest}
           onFertig={() => merkeEinheit('wiederholung')}
           onClose={() => setQueue(null)}
+          onNochmal={() => starten('paare')}
         />
       </div>
     )
@@ -595,7 +596,7 @@ function SatzAuswahl({ loesung, alle, gewaehlt, onWahl }) {
  * Untereinander statt nebeneinander – zwei Spalten mit ganzen Sätzen
  * werden auf dem Handy zu schmal.
  */
-function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
+function SatzPaare({ paare, onGeloest, onFertig, onClose, onNochmal }) {
   const t = useTexte()
   // Die Reihenfolge leitet sich aus den Daten ab (wie bei den Wortpaaren),
   // damit sie bei einem Abgleich im Hintergrund nicht durcheinandergerät
@@ -627,18 +628,27 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
   }
 
   if (fertig) {
+    // Abschluss im Spiel-Look (12.11.2026): Pokal auf der Trommel wie bei den Spielen
     return (
-      <div className="flashcard done">
+      <div className="flashcard done sf-toon">
         <div className="confetti-burst" aria-hidden="true">
           {Array.from({ length: 14 }, (_, i) => (
             <span key={i} className="confetti" style={{ '--i': i }} />
           ))}
         </div>
-        <h2>{t('st9.alleSatzpaare', { zahl: paare.length })}</h2>
-        <p>
-          {t('st9.aufAnhieb', { erste: paare.length - daneben.length, zweite: daneben.length })}
-        </p>
-        <button onClick={onClose}>{t('app.fertig')}</button>
+        <span className="sf-bild" aria-hidden="true">
+          <Sockel />
+          <Pokal />
+        </span>
+        <h2>{t('sp.geschafftFeier').replace(/\s*🎉/, '')}</h2>
+        <p>{t('st9.alleSatzpaare', { zahl: paare.length }).replace(/\s*🎉/, '')}</p>
+        <div className="sf-pillen">
+          <span className="sf-pille sf-stufe">{t('st9.aufAnhieb', { erste: paare.length - daneben.length, zweite: daneben.length })}</span>
+        </div>
+        <div className="sf-knoepfe">
+          {onNochmal && <button className="sf-nochmal" onClick={onNochmal}>{t('st.nochmal')}</button>}
+          <button className="sf-zurueck" onClick={onClose}>{t('app.fertig')}</button>
+        </div>
       </div>
     )
   }
@@ -783,9 +793,10 @@ function SatzBauen({ satz, onFertig }) {
       else fehlerton()
       if (ok) setTimeout(() => onFertig(true), 900)
       else {
-        // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz schieben
+        // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz
+        // schieben. Danach bleibt die Korrektur stehen, bis man selbst
+        // auf „Weiter“ tippt (12.11.2026).
         setTimeout(() => korrigiere(neu), 900)
-        setTimeout(() => onFertig(false), 3600)
       }
     }
   }
@@ -816,6 +827,11 @@ function SatzBauen({ satz, onFertig }) {
         <p className="satzbau-loesung">
           {t('bs9.richtigWaere')} <b>{satz}</b>
         </p>
+      )}
+      {korrigiert && (
+        <button className="btn satzbau-weiter" onClick={() => onFertig(false)}>
+          {t('app.weiter')}
+        </button>
       )}
       <div className="satzbau-vorrat">
         {kacheln.map((k, n) => (
