@@ -86,11 +86,16 @@ export function erfolgston() {
     begrenzer.ratio.value = 4
     begrenzer.attack.value = 0.003
     begrenzer.release.value = 0.15
-    bus.connect(samt).connect(begrenzer).connect(c.destination)
+    // 13.11.2026 (Manuel): halb so laut – Gesamtpegel 0.5 hinter dem
+    // Begrenzer, damit Direktklang und Hall gleichmäßig leiser werden.
+    const pegel = c.createGain()
+    pegel.gain.value = 0.5
+    pegel.connect(c.destination)
+    bus.connect(samt).connect(begrenzer).connect(pegel)
     if (hall) {
       const hallLaut = c.createGain()
       hallLaut.gain.value = 0.22
-      samt.connect(hall).connect(hallLaut).connect(c.destination)
+      samt.connect(hall).connect(hallLaut).connect(pegel)
     }
 
     DREIKLANG.forEach(([hz, ab, lang]) => {
