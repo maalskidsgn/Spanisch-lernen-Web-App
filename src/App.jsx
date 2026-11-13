@@ -79,7 +79,8 @@ import {
   speichereTexte,
   neuerText,
 } from './lesetexte.js'
-import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE, GRUNDPAKET_TEXT } from './grundpaket.js'
+import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE } from './grundpaket.js'
+import { geschenkWoerter, geschenkSaetze, geschenkText, woerterInSprache, saetzeInSprache, textInSprache } from './geschenkSprache.js'
 import StartGeschenk from './StartGeschenk.jsx'
 import Einrichtung from './Einrichtung.jsx'
 import {
@@ -632,6 +633,7 @@ export default function App() {
   // der Text „So lernst du mit Habloo“ – damit Trainer, Sätze und Texte
   // am ersten Tag nicht leer sind. Wer schon 50+ Wörter hat, bekommt
   // nur Sätze und Text. Doppeltes fällt über die Schlüssel weg.
+  // Die Übersetzungen kommen in der Sprache der App (geschenkSprache.js).
   useEffect(() => {
     if (nutzer && syncStatus !== 'fertig') return
     const merker = 'grundpaket-' + GRUNDPAKET_VERSION + ':' + (nutzer?.id ?? 'gast')
@@ -643,10 +645,11 @@ export default function App() {
     // Kurz warten: Sätze und Texte aus der Datenbank kommen erst nach dem Abgleich
     const zeit = setTimeout(() => {
       try { localStorage.setItem(merker, 'ja') } catch { /* egal */ }
+      const sp = sprache()
       setVocab((v) => {
         if (Object.keys(v).length >= 50) return v
         const copy = { ...v }
-        for (const w of STARTGESCHENK_WOERTER) {
+        for (const w of geschenkWoerter(sp)) {
           const key = w.wort.toLowerCase()
           if (!copy[key]) copy[key] = { ...newEntry(w.uebersetzung, 'Startgeschenk'), status: 'lernen' }
         }
@@ -654,13 +657,13 @@ export default function App() {
       })
       setSaetze((alt) => {
         const neu = { ...alt }
-        for (const s of GRUNDPAKET_SAETZE) {
+        for (const s of geschenkSaetze(sp)) {
           const key = satzSchluessel(s.satz)
           if (!neu[key]) neu[key] = neuerSatz(s, { thema: 'Startgeschenk' })
         }
         return neu
       })
-      setTexte((alt) => (alt['t-grundpaket'] ? alt : { ...alt, 't-grundpaket': neuerText(GRUNDPAKET_TEXT) }))
+      setTexte((alt) => (alt['t-grundpaket'] ? alt : { ...alt, 't-grundpaket': neuerText(geschenkText(sp)) }))
       // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
       // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
       meilensteinAbgleichRef.current = null
@@ -668,6 +671,19 @@ export default function App() {
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
+
+  // Das Geschenk folgt der App-Sprache: Wer es noch mit deutscher
+  // Übersetzung im Trainer hat und die App auf Englisch nutzt, bekommt
+  // die englische – und umgekehrt. Läuft bei jeder Änderung mit, weil
+  // Sätze und Texte vom Konto erst nach dem Abgleich eintreffen; ohne
+  // Treffer kommt dasselbe Objekt zurück, es passiert also nichts.
+  const appSprache = sprache()
+  useEffect(() => {
+    if (nutzer && syncStatus !== 'fertig') return
+    setVocab((v) => woerterInSprache(v, appSprache))
+    setSaetze((s) => saetzeInSprache(s, appSprache))
+    setTexte((x) => textInSprache(x, appSprache))
+  }, [vocab, saetze, texte, nutzer, syncStatus, appSprache])
 
   // Beim Abmelden wieder auf reinen Browser-Betrieb umstellen
   useEffect(() => {

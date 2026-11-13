@@ -3,409 +3,513 @@
 // 5 Sätze und ein Text auf Spanisch mit Übersetzung, der erklärt, wie
 // man Habloo benutzt. Von Hand geschrieben, nicht von der KI erzeugt.
 // Eingeräumt in App.jsx (Suche nach "Grundpaket").
+//
+// Jede Übersetzung gibt es zweimal: deutsch ("uebersetzung", "de",
+// "titel_de") und englisch ("en", "titel_en"). Welche in den Trainer
+// kommt, entscheidet die App-Sprache – siehe geschenkSprache.js.
 
 export const GRUNDPAKET_VERSION = 1
 
 export const GRUNDPAKET_WOERTER = [
   {
     "wort": "yo",
-    "uebersetzung": "ich"
+    "uebersetzung": "ich",
+    "en": "I"
   },
   {
     "wort": "tú",
-    "uebersetzung": "du"
+    "uebersetzung": "du",
+    "en": "you (informal)"
   },
   {
     "wort": "él",
-    "uebersetzung": "er"
+    "uebersetzung": "er",
+    "en": "he"
   },
   {
     "wort": "ella",
-    "uebersetzung": "sie"
+    "uebersetzung": "sie",
+    "en": "she"
   },
   {
     "wort": "usted",
-    "uebersetzung": "Sie (höflich)"
+    "uebersetzung": "Sie (höflich)",
+    "en": "you (formal)"
   },
   {
     "wort": "nosotros",
-    "uebersetzung": "wir"
+    "uebersetzung": "wir",
+    "en": "we"
   },
   {
     "wort": "ellos",
-    "uebersetzung": "sie (Mehrzahl)"
+    "uebersetzung": "sie (Mehrzahl)",
+    "en": "they"
   },
   {
     "wort": "ser",
-    "uebersetzung": "sein (dauerhaft)"
+    "uebersetzung": "sein (dauerhaft)",
+    "en": "to be (lasting)"
   },
   {
     "wort": "estar",
-    "uebersetzung": "sein (Zustand, Ort)"
+    "uebersetzung": "sein (Zustand, Ort)",
+    "en": "to be (state, place)"
   },
   {
     "wort": "tener",
-    "uebersetzung": "haben"
+    "uebersetzung": "haben",
+    "en": "to have"
   },
   {
     "wort": "hacer",
-    "uebersetzung": "machen"
+    "uebersetzung": "machen",
+    "en": "to do, to make"
   },
   {
     "wort": "ir",
-    "uebersetzung": "gehen, fahren"
+    "uebersetzung": "gehen, fahren",
+    "en": "to go"
   },
   {
     "wort": "poder",
-    "uebersetzung": "können"
+    "uebersetzung": "können",
+    "en": "can, to be able to"
   },
   {
     "wort": "querer",
-    "uebersetzung": "wollen, mögen"
+    "uebersetzung": "wollen, mögen",
+    "en": "to want, to love"
   },
   {
     "wort": "decir",
-    "uebersetzung": "sagen"
+    "uebersetzung": "sagen",
+    "en": "to say"
   },
   {
     "wort": "saber",
-    "uebersetzung": "wissen"
+    "uebersetzung": "wissen",
+    "en": "to know"
   },
   {
     "wort": "ver",
-    "uebersetzung": "sehen"
+    "uebersetzung": "sehen",
+    "en": "to see"
   },
   {
     "wort": "venir",
-    "uebersetzung": "kommen"
+    "uebersetzung": "kommen",
+    "en": "to come"
   },
   {
     "wort": "hablar",
-    "uebersetzung": "sprechen"
+    "uebersetzung": "sprechen",
+    "en": "to speak"
   },
   {
     "wort": "comer",
-    "uebersetzung": "essen"
+    "uebersetzung": "essen",
+    "en": "to eat"
   },
   {
     "wort": "beber",
-    "uebersetzung": "trinken"
+    "uebersetzung": "trinken",
+    "en": "to drink"
   },
   {
     "wort": "vivir",
-    "uebersetzung": "wohnen, leben"
+    "uebersetzung": "wohnen, leben",
+    "en": "to live"
   },
   {
     "wort": "gustar",
-    "uebersetzung": "gefallen"
+    "uebersetzung": "gefallen",
+    "en": "to like"
   },
   {
     "wort": "necesitar",
-    "uebersetzung": "brauchen"
+    "uebersetzung": "brauchen",
+    "en": "to need"
   },
   {
     "wort": "trabajar",
-    "uebersetzung": "arbeiten"
+    "uebersetzung": "arbeiten",
+    "en": "to work"
   },
   {
     "wort": "aprender",
-    "uebersetzung": "lernen"
+    "uebersetzung": "lernen",
+    "en": "to learn"
   },
   {
     "wort": "entender",
-    "uebersetzung": "verstehen"
+    "uebersetzung": "verstehen",
+    "en": "to understand"
   },
   {
     "wort": "qué",
-    "uebersetzung": "was"
+    "uebersetzung": "was",
+    "en": "what"
   },
   {
     "wort": "quién",
-    "uebersetzung": "wer"
+    "uebersetzung": "wer",
+    "en": "who"
   },
   {
     "wort": "dónde",
-    "uebersetzung": "wo"
+    "uebersetzung": "wo",
+    "en": "where"
   },
   {
     "wort": "cuándo",
-    "uebersetzung": "wann"
+    "uebersetzung": "wann",
+    "en": "when"
   },
   {
     "wort": "cómo",
-    "uebersetzung": "wie"
+    "uebersetzung": "wie",
+    "en": "how"
   },
   {
     "wort": "por qué",
-    "uebersetzung": "warum"
+    "uebersetzung": "warum",
+    "en": "why"
   },
   {
     "wort": "cuánto",
-    "uebersetzung": "wie viel"
+    "uebersetzung": "wie viel",
+    "en": "how much"
   },
   {
     "wort": "sí",
-    "uebersetzung": "ja"
+    "uebersetzung": "ja",
+    "en": "yes"
   },
   {
     "wort": "no",
-    "uebersetzung": "nein, nicht"
+    "uebersetzung": "nein, nicht",
+    "en": "no, not"
   },
   {
     "wort": "hola",
-    "uebersetzung": "hallo"
+    "uebersetzung": "hallo",
+    "en": "hello"
   },
   {
     "wort": "adiós",
-    "uebersetzung": "tschüss"
+    "uebersetzung": "tschüss",
+    "en": "goodbye"
   },
   {
     "wort": "gracias",
-    "uebersetzung": "danke"
+    "uebersetzung": "danke",
+    "en": "thank you"
   },
   {
     "wort": "por favor",
-    "uebersetzung": "bitte"
+    "uebersetzung": "bitte",
+    "en": "please"
   },
   {
     "wort": "perdón",
-    "uebersetzung": "Entschuldigung"
+    "uebersetzung": "Entschuldigung",
+    "en": "sorry"
   },
   {
     "wort": "bien",
-    "uebersetzung": "gut"
+    "uebersetzung": "gut",
+    "en": "well, good"
   },
   {
     "wort": "mal",
-    "uebersetzung": "schlecht"
+    "uebersetzung": "schlecht",
+    "en": "badly, bad"
   },
   {
     "wort": "muy",
-    "uebersetzung": "sehr"
+    "uebersetzung": "sehr",
+    "en": "very"
   },
   {
     "wort": "más",
-    "uebersetzung": "mehr"
+    "uebersetzung": "mehr",
+    "en": "more"
   },
   {
     "wort": "también",
-    "uebersetzung": "auch"
+    "uebersetzung": "auch",
+    "en": "also, too"
   },
   {
     "wort": "pero",
-    "uebersetzung": "aber"
+    "uebersetzung": "aber",
+    "en": "but"
   },
   {
     "wort": "y",
-    "uebersetzung": "und"
+    "uebersetzung": "und",
+    "en": "and"
   },
   {
     "wort": "o",
-    "uebersetzung": "oder"
+    "uebersetzung": "oder",
+    "en": "or"
   },
   {
     "wort": "con",
-    "uebersetzung": "mit"
+    "uebersetzung": "mit",
+    "en": "with"
   },
   {
     "wort": "sin",
-    "uebersetzung": "ohne"
+    "uebersetzung": "ohne",
+    "en": "without"
   },
   {
     "wort": "para",
-    "uebersetzung": "für"
+    "uebersetzung": "für",
+    "en": "for"
   },
   {
     "wort": "aquí",
-    "uebersetzung": "hier"
+    "uebersetzung": "hier",
+    "en": "here"
   },
   {
     "wort": "allí",
-    "uebersetzung": "dort"
+    "uebersetzung": "dort",
+    "en": "there"
   },
   {
     "wort": "ahora",
-    "uebersetzung": "jetzt"
+    "uebersetzung": "jetzt",
+    "en": "now"
   },
   {
     "wort": "hoy",
-    "uebersetzung": "heute"
+    "uebersetzung": "heute",
+    "en": "today"
   },
   {
     "wort": "mañana",
-    "uebersetzung": "morgen"
+    "uebersetzung": "morgen",
+    "en": "tomorrow"
   },
   {
     "wort": "ayer",
-    "uebersetzung": "gestern"
+    "uebersetzung": "gestern",
+    "en": "yesterday"
   },
   {
     "wort": "siempre",
-    "uebersetzung": "immer"
+    "uebersetzung": "immer",
+    "en": "always"
   },
   {
     "wort": "nunca",
-    "uebersetzung": "nie"
+    "uebersetzung": "nie",
+    "en": "never"
   },
   {
     "wort": "mucho",
-    "uebersetzung": "viel"
+    "uebersetzung": "viel",
+    "en": "a lot, much"
   },
   {
     "wort": "poco",
-    "uebersetzung": "wenig"
+    "uebersetzung": "wenig",
+    "en": "little, not much"
   },
   {
     "wort": "todo",
-    "uebersetzung": "alles"
+    "uebersetzung": "alles",
+    "en": "everything"
   },
   {
     "wort": "nada",
-    "uebersetzung": "nichts"
+    "uebersetzung": "nichts",
+    "en": "nothing"
   },
   {
     "wort": "algo",
-    "uebersetzung": "etwas"
+    "uebersetzung": "etwas",
+    "en": "something"
   },
   {
     "wort": "la casa",
-    "uebersetzung": "das Haus"
+    "uebersetzung": "das Haus",
+    "en": "the house"
   },
   {
     "wort": "el agua",
-    "uebersetzung": "das Wasser"
+    "uebersetzung": "das Wasser",
+    "en": "the water"
   },
   {
     "wort": "la comida",
-    "uebersetzung": "das Essen"
+    "uebersetzung": "das Essen",
+    "en": "the food"
   },
   {
     "wort": "el día",
-    "uebersetzung": "der Tag"
+    "uebersetzung": "der Tag",
+    "en": "the day"
   },
   {
     "wort": "la noche",
-    "uebersetzung": "die Nacht"
+    "uebersetzung": "die Nacht",
+    "en": "the night"
   },
   {
     "wort": "el tiempo",
-    "uebersetzung": "die Zeit, das Wetter"
+    "uebersetzung": "die Zeit, das Wetter",
+    "en": "the time, the weather"
   },
   {
     "wort": "el año",
-    "uebersetzung": "das Jahr"
+    "uebersetzung": "das Jahr",
+    "en": "the year"
   },
   {
     "wort": "la semana",
-    "uebersetzung": "die Woche"
+    "uebersetzung": "die Woche",
+    "en": "the week"
   },
   {
     "wort": "la hora",
-    "uebersetzung": "die Stunde"
+    "uebersetzung": "die Stunde",
+    "en": "the hour"
   },
   {
     "wort": "el trabajo",
-    "uebersetzung": "die Arbeit"
+    "uebersetzung": "die Arbeit",
+    "en": "the work, the job"
   },
   {
     "wort": "el amigo",
-    "uebersetzung": "der Freund"
+    "uebersetzung": "der Freund",
+    "en": "the friend (male)"
   },
   {
     "wort": "la amiga",
-    "uebersetzung": "die Freundin"
+    "uebersetzung": "die Freundin",
+    "en": "the friend (female)"
   },
   {
     "wort": "la familia",
-    "uebersetzung": "die Familie"
+    "uebersetzung": "die Familie",
+    "en": "the family"
   },
   {
     "wort": "la ciudad",
-    "uebersetzung": "die Stadt"
+    "uebersetzung": "die Stadt",
+    "en": "the city"
   },
   {
     "wort": "el país",
-    "uebersetzung": "das Land"
+    "uebersetzung": "das Land",
+    "en": "the country"
   },
   {
     "wort": "la calle",
-    "uebersetzung": "die Straße"
+    "uebersetzung": "die Straße",
+    "en": "the street"
   },
   {
     "wort": "el dinero",
-    "uebersetzung": "das Geld"
+    "uebersetzung": "das Geld",
+    "en": "the money"
   },
   {
     "wort": "el nombre",
-    "uebersetzung": "der Name"
+    "uebersetzung": "der Name",
+    "en": "the name"
   },
   {
     "wort": "la persona",
-    "uebersetzung": "die Person"
+    "uebersetzung": "die Person",
+    "en": "the person"
   },
   {
     "wort": "el hombre",
-    "uebersetzung": "der Mann"
+    "uebersetzung": "der Mann",
+    "en": "the man"
   },
   {
     "wort": "la mujer",
-    "uebersetzung": "die Frau"
+    "uebersetzung": "die Frau",
+    "en": "the woman"
   },
   {
     "wort": "el niño",
-    "uebersetzung": "das Kind"
+    "uebersetzung": "das Kind",
+    "en": "the child"
   },
   {
     "wort": "la madre",
-    "uebersetzung": "die Mutter"
+    "uebersetzung": "die Mutter",
+    "en": "the mother"
   },
   {
     "wort": "el padre",
-    "uebersetzung": "der Vater"
+    "uebersetzung": "der Vater",
+    "en": "the father"
   },
   {
     "wort": "el café",
-    "uebersetzung": "der Kaffee"
+    "uebersetzung": "der Kaffee",
+    "en": "the coffee"
   },
   {
     "wort": "el pan",
-    "uebersetzung": "das Brot"
+    "uebersetzung": "das Brot",
+    "en": "the bread"
   },
   {
     "wort": "la cuenta",
-    "uebersetzung": "die Rechnung"
+    "uebersetzung": "die Rechnung",
+    "en": "the bill"
   },
   {
     "wort": "el baño",
-    "uebersetzung": "das Bad, die Toilette"
+    "uebersetzung": "das Bad, die Toilette",
+    "en": "the bathroom, the toilet"
   },
   {
     "wort": "la palabra",
-    "uebersetzung": "das Wort"
+    "uebersetzung": "das Wort",
+    "en": "the word"
   },
   {
     "wort": "grande",
-    "uebersetzung": "groß"
+    "uebersetzung": "groß",
+    "en": "big"
   },
   {
     "wort": "pequeño",
-    "uebersetzung": "klein"
+    "uebersetzung": "klein",
+    "en": "small"
   },
   {
     "wort": "bueno",
-    "uebersetzung": "gut"
+    "uebersetzung": "gut",
+    "en": "good"
   },
   {
     "wort": "nuevo",
-    "uebersetzung": "neu"
+    "uebersetzung": "neu",
+    "en": "new"
   },
   {
     "wort": "bonito",
-    "uebersetzung": "schön"
+    "uebersetzung": "schön",
+    "en": "pretty, nice"
   },
   {
     "wort": "fácil",
-    "uebersetzung": "leicht, einfach"
+    "uebersetzung": "leicht, einfach",
+    "en": "easy"
   }
 ]
 
@@ -413,51 +517,61 @@ export const GRUNDPAKET_SAETZE = [
   {
     "satz": "¿Cómo te llamas?",
     "uebersetzung": "Wie heißt du?",
+    "en": "What's your name?",
     "schluessel": "llamas"
   },
   {
     "satz": "Me llamo Ana y soy de Alemania.",
     "uebersetzung": "Ich heiße Ana und komme aus Deutschland.",
+    "en": "My name is Ana and I'm from Germany.",
     "schluessel": "soy"
   },
   {
     "satz": "¿Dónde está el baño?",
     "uebersetzung": "Wo ist die Toilette?",
+    "en": "Where is the bathroom?",
     "schluessel": "está"
   },
   {
     "satz": "Quiero un café, por favor.",
     "uebersetzung": "Ich möchte einen Kaffee, bitte.",
+    "en": "I'd like a coffee, please.",
     "schluessel": "quiero"
   },
   {
     "satz": "No entiendo, ¿puedes repetir?",
     "uebersetzung": "Ich verstehe nicht, kannst du das wiederholen?",
+    "en": "I don't understand, can you repeat that?",
     "schluessel": "entiendo"
   },
   {
     "satz": "¿Cuánto cuesta esto?",
     "uebersetzung": "Wie viel kostet das?",
+    "en": "How much does this cost?",
     "schluessel": "cuesta"
   },
   {
     "satz": "Estoy aprendiendo español.",
     "uebersetzung": "Ich lerne Spanisch.",
+    "en": "I'm learning Spanish.",
     "schluessel": "aprendiendo"
   },
   {
     "satz": "Gracias, todo bien.",
     "uebersetzung": "Danke, alles gut.",
+    "en": "Thanks, all good.",
     "schluessel": "bien"
   },
   {
     "satz": "¿Puedes hablar más despacio?",
     "uebersetzung": "Kannst du langsamer sprechen?",
+    "en": "Can you speak more slowly?",
     "schluessel": "despacio"
   },
   {
     "satz": "¡Hasta mañana!",
     "uebersetzung": "Bis morgen!",
+    "en": "See you tomorrow!",
     "schluessel": "mañana"
   }
 ]
@@ -465,57 +579,70 @@ export const GRUNDPAKET_SAETZE = [
 export const GRUNDPAKET_TEXT = {
   "titel_es": "Cómo aprender con Habloo",
   "titel_de": "So lernst du mit Habloo",
+  "titel_en": "How to learn with Habloo",
   "stufe": "a1",
   "absaetze": [
     {
       "es": "¡Hola! Bienvenido a Habloo. Aquí aprendes español un poco cada día.",
-      "de": "Hallo! Willkommen bei Habloo. Hier lernst du jeden Tag ein bisschen Spanisch."
+      "de": "Hallo! Willkommen bei Habloo. Hier lernst du jeden Tag ein bisschen Spanisch.",
+      "en": "Hello! Welcome to Habloo. Here you learn a little Spanish every day."
     },
     {
       "es": "Empieza con las lecciones. Son cortas y van paso a paso.",
-      "de": "Fang mit den Lektionen an. Sie sind kurz und gehen Schritt für Schritt."
+      "de": "Fang mit den Lektionen an. Sie sind kurz und gehen Schritt für Schritt.",
+      "en": "Start with the lessons. They are short and go step by step."
     },
     {
       "es": "Después mira un video en YouTube. Toca una palabra y la guardas en el entrenador.",
-      "de": "Danach schau ein Video auf YouTube. Tippe auf ein Wort, und du speicherst es im Trainer."
+      "de": "Danach schau ein Video auf YouTube. Tippe auf ein Wort, und du speicherst es im Trainer.",
+      "en": "Then watch a video on YouTube. Tap a word and you save it to the trainer."
     },
     {
       "es": "El entrenador te muestra las palabras otra vez, justo antes de olvidarlas.",
-      "de": "Der Trainer zeigt dir die Wörter wieder, kurz bevor du sie vergisst."
+      "de": "Der Trainer zeigt dir die Wörter wieder, kurz bevor du sie vergisst.",
+      "en": "The trainer shows you the words again, just before you forget them."
     },
     {
       "es": "¿Quieres hablar? Con Habla practicas una conversación de verdad, con tu voz.",
-      "de": "Willst du sprechen? Mit Habla übst du ein echtes Gespräch, mit deiner Stimme."
+      "de": "Willst du sprechen? Mit Habla übst du ein echtes Gespräch, mit deiner Stimme.",
+      "en": "Want to speak? With Habla you practice a real conversation, using your voice."
     },
     {
       "es": "Aprende un poco cada día y tu racha crece. ¡Vamos!",
-      "de": "Lerne jeden Tag ein bisschen, und deine Serie wächst. Los geht’s!"
+      "de": "Lerne jeden Tag ein bisschen, und deine Serie wächst. Los geht’s!",
+      "en": "Learn a little every day and your streak grows. Let's go!"
     }
   ],
   "woerter": [
     {
       "wort": "bienvenido",
-      "uebersetzung": "willkommen"
+      "uebersetzung": "willkommen",
+      "en": "welcome"
     },
     {
       "wort": "paso a paso",
-      "uebersetzung": "Schritt für Schritt"
+      "uebersetzung": "Schritt für Schritt",
+      "en": "step by step"
     },
     {
       "wort": "guardar",
-      "uebersetzung": "speichern"
+      "uebersetzung": "speichern",
+      "en": "to save"
     },
     {
       "wort": "el entrenador",
-      "uebersetzung": "der Trainer"
+      "uebersetzung": "der Trainer",
+      "en": "the trainer"
     },
     {
       "wort": "olvidar",
-      "uebersetzung": "vergessen"
+      "uebersetzung": "vergessen",
+      "en": "to forget"
     },
     {
       "wort": "la racha",
-      "uebersetzung": "die Serie"
+      "uebersetzung": "die Serie",
+      "en": "the streak"
     }
   ]
 }
