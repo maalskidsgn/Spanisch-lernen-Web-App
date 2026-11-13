@@ -16,6 +16,7 @@
  * wir vor, über das `appearance`-Objekt unten.
  */
 
+import { GRATIS_MODULE_ZAHL, MODULE_ZAHL } from './gratisModule.js'
 import { useRef, useEffect, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import {
@@ -104,7 +105,7 @@ const KASSEN_TEXTE = {
     jaehrlich: ' · jährlich',
     monatlich: ' · monatlich',
     vorteile: [
-      ['lektion', 'Alle Lektionen', 'alles offen', '20 %'],
+      ['lektion', 'Alle Lektionen', 'alles offen', `${GRATIS_MODULE_ZAHL} von ${MODULE_ZAHL} Modulen`],
       ['mikro', 'Sprach-Trainer', '120 Min. / Monat', '10 Min.'],
       ['karten', 'Vokabeltrainer', 'unbegrenzt', '500 Wörter · 50 Sätze · 10 Texte'],
       ['zauber', 'KI‑Wortlisten', '300 / Monat', '10 / Monat'],
@@ -125,7 +126,7 @@ const KASSEN_TEXTE = {
     jaehrlich: ' · yearly',
     monatlich: ' · monthly',
     vorteile: [
-      ['lektion', 'All lessons', 'all unlocked', '20%'],
+      ['lektion', 'All lessons', 'all unlocked', `${GRATIS_MODULE_ZAHL} of ${MODULE_ZAHL} modules`],
       ['mikro', 'Speaking trainer', '120 min / month', '10 min'],
       ['karten', 'Vocabulary trainer', 'unlimited', '500 words · 50 sentences · 10 texts'],
       ['zauber', 'AI word lists', '300 / month', '10 / month'],

@@ -1,7 +1,8 @@
 import { istApp } from './api.js'
 import BILDER from './kassenBilder.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, GRATIS_LEKTIONEN_PROZENT, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
+import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
+import { GRATIS_MODULE_ZAHL, MODULE_ZAHL } from './gratisModule.js'
 import { sprache, useTexte } from './sprache.js'
 
 /**
@@ -12,7 +13,7 @@ import { sprache, useTexte } from './sprache.js'
  *
  *   <GratisHinweis art="ki" />         10 KI-Erstellungen / Monat
  *   <GratisHinweis art="video" />      eigene YouTube-Videos nur Premium
- *   <GratisHinweis art="lektionen" />  20 % der Lektionen
+ *   <GratisHinweis art="lektionen" />  die ersten Module gratis (gratisModule.js)
  *   <GratisHinweis art="sprechen" />   10 Min. Sprach-Trainer / Monat
  *   <GratisUebersicht />               alles auf einen Blick (Startseite)
  */
@@ -50,8 +51,8 @@ const TEXT = {
     buecherFrei: '6 Bücher',
     videoKlein: 'Gratis: alle Videos aus der Mediathek. Suche und eigene Links schaltet Premium frei.',
     mediathek: 'Mediathek',
-    lektionen: 'Alle Module und Lektionen mit Premium',
-    lektionenKlein: `Gratis sind die ersten ${GRATIS_LEKTIONEN_PROZENT} % des Kurses`,
+    lektionen: 'Die letzten Module mit Premium',
+    lektionenKlein: `Gratis sind die ersten ${GRATIS_MODULE_ZAHL} von ${MODULE_ZAHL} Modulen`,
     sprechen: '120 Minuten Sprach-Trainer im Monat mit Premium',
     sprechenKlein: 'Gratis sind 10 Minuten im Monat',
     wieder: (w) => `Wieder frei ${w}`,
@@ -64,7 +65,7 @@ const TEXT = {
     zeilen: {
       ki: 'KI-Erstellungen diesen Monat',
       video: 'Eigene YouTube-Videos',
-      lektionen: 'Lektionen frei',
+      lektionen: 'Module frei',
       sprechen: 'Sprach-Trainer im Monat',
       vokabeln: 'Vokabeln im Trainer',
       saetze: 'Sätze im Trainer',
@@ -82,8 +83,8 @@ const TEXT = {
     buecherFrei: '6 books',
     videoKlein: 'Free: every video in the library. Premium unlocks search and your own links.',
     mediathek: 'Library',
-    lektionen: 'Every module and lesson with Premium',
-    lektionenKlein: `The first ${GRATIS_LEKTIONEN_PROZENT}% of the course is free`,
+    lektionen: 'The final modules with Premium',
+    lektionenKlein: `The first ${GRATIS_MODULE_ZAHL} of ${MODULE_ZAHL} modules are free`,
     sprechen: '120 minutes of speaking practice a month with Premium',
     sprechenKlein: '10 minutes a month are free',
     wieder: (w) => `Free again ${w}`,
@@ -96,7 +97,7 @@ const TEXT = {
     zeilen: {
       ki: 'AI creations this month',
       video: 'Your own YouTube videos',
-      lektionen: 'Lessons unlocked',
+      lektionen: 'Modules unlocked',
       sprechen: 'Speaking practice per month',
       vokabeln: 'Words in your trainer',
       saetze: 'Sentences in your trainer',
@@ -150,7 +151,7 @@ export default function GratisHinweis({ art = 'ki', gesamt = 0 }) {
     zaehlt = false
     titel = T.lektionen
     klein = T.lektionenKlein
-    zahl = <><b>{GRATIS_LEKTIONEN_PROZENT} %</b> {T.frei}</>
+    zahl = <><b>{GRATIS_MODULE_ZAHL}/{MODULE_ZAHL}</b> {T.frei}</>
   } else {
     zaehlt = false
     titel = T.sprechen
@@ -222,7 +223,7 @@ export function GratisUebersicht({ trainer = null }) {
   const zeilen = [
     ['ki', `${k.ki.uebrig} / ${KI_PRO_MONAT}`, k.ki.uebrig / KI_PRO_MONAT],
     ['video', '–', 0, true],
-    ['lektionen', `${GRATIS_LEKTIONEN_PROZENT} %`, GRATIS_LEKTIONEN_PROZENT / 100],
+    ['lektionen', `${GRATIS_MODULE_ZAHL} / ${MODULE_ZAHL}`, GRATIS_MODULE_ZAHL / MODULE_ZAHL],
     ['sprechen', sprache() === 'en' ? '10 min' : '10 Min.', 10 / 120],
     ...(trainer ? [
       ['vokabeln', `${Math.min(trainer.woerter, MAX_VOKABELN)} / ${MAX_VOKABELN}`, Math.min(1, trainer.woerter / MAX_VOKABELN)],

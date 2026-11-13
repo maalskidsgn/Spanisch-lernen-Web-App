@@ -1,5 +1,5 @@
 import GratisHinweis from './GratisHinweis.jsx'
-import { useState, useEffect } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import {
   MODULE,
   KURSFOLGE,
@@ -40,7 +40,8 @@ import {
 } from './mitgehoert.js'
 
 import { useTexte, vokabel, satz, text as uebersetzt } from './sprache.js'
-import { usePremium, LEKTIONEN_SPERRE, GRATIS_ANTEIL, TESTPHASE_ALLES_FREI } from './premium.js'
+import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
+import { usePremium, LEKTIONEN_SPERRE, TESTPHASE_ALLES_FREI } from './premium.js'
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
 function mitChips(text) {
@@ -187,8 +188,14 @@ function suchStelle(satz, ziel) {
 // Eine Übersicht mit freischaltbaren Lektionen und ein Player, der durch
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
 // Die Lektionen, die ohne Premium offen bleiben (siehe premium.js)
-const GRATIS = new Set(
-  KURSFOLGE.slice(0, Math.ceil(KURSFOLGE.length * GRATIS_ANTEIL)).map((l) => l.id)
+// Seit 13.11.2026 ganze Module (gratisModule.js): die ersten rund 80 %.
+const GRATIS = GRATIS_LEKTIONEN
+
+// Krone für Premium-Module (13.11.2026)
+const KRONE = (
+  <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="currentColor">
+    <path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" />
+  </svg>
 )
 
 export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse }) {
@@ -211,13 +218,15 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
   const { premium } = usePremium()
   // Gilt erst, wenn LEKTIONEN_SPERRE an ist – bis zum offiziellen Start aus.
   const sperreAn = LEKTIONEN_SPERRE && !TESTPHASE_ALLES_FREI && !premium
-  // Gratis: die ersten 20 % des Kurses; Station/Szene nur, wenn ihr
-  // ganzes Modul gratis ist.
+  // Gratis: die ersten Module (gratisModule.js); Station/Szene nur, wenn
+  // ihr ganzes Modul gratis ist.
   function gesperrt(l, station = null) {
     if (!sperreAn) return false
     if (station) return lektionenVon(modul).some((x) => !GRATIS.has(x.id))
     return !GRATIS.has(l.id)
   }
+  // Ganzes Modul hinter Premium? Nur für Gratis-Nutzer sichtbar markiert.
+  const modulGesperrt = (m) => sperreAn && istPremiumModul(m)
 
   // Waehrend einer laufenden Lektion ist die untere Menueleiste weg.
   // Vorher lag sie direkt unter den Antwortknoepfen: ein Fehltipp
@@ -673,6 +682,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
             <ModulBild modul={modul} />
           </span>
           <div className="modul-kopf-text">
+            {modulGesperrt(modul) && (
+              <span className="modul-premium-chip">{KRONE} {t('lek.premium')}</span>
+            )}
             <h1>{uebersetzt(modul.titel)}</h1>
             <p>{uebersetzt(modul.beschreibung)}</p>
           </div>
@@ -855,17 +867,26 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       <div className="modul-liste">
         {MODULE.map((m, i) => {
           if (m === laufendesModul) return null
+          const premiumModul = modulGesperrt(m)
+          // Vor dem ersten Premium-Modul eine Trennlinie: ab hier Premium
+          const ersterPremium = premiumModul && MODULE.findIndex((x) => x !== laufendesModul && modulGesperrt(x)) === i
           const offen = modulOffen(i, lessonProgress)
           const { fertig: f, gesamt } = modulFortschritt(m, lessonProgress)
           const komplett = gesamt > 0 && f === gesamt
           const bald = kommtBald(m)
           return (
+            <Fragment key={m.id}>
+            {ersterPremium && (
+              <div className="modul-premium-trenner">
+                {KRONE} <span>{t('lek.premiumAb')}</span>
+              </div>
+            )}
             <button
-              key={m.id}
               className={
                 'modul-kachel' +
                 (komplett ? ' modul-fertig' : '') +
-                (!offen ? ' modul-zu' : '')
+                (!offen ? ' modul-zu' : '') +
+                (premiumModul ? ' modul-premium' : '')
               }
               disabled={!offen}
               onClick={() => setModul(m)}
@@ -878,6 +899,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                 <span className="modul-titel">
                   {t('ls.modulNr', { nr: i + 1 })}: {uebersetzt(m.titel)}
                 </span>
+                {premiumModul && <span className="modul-premium-chip">{KRONE} {t('lek.premium')}</span>}
                 <span className="modul-sub">{bald ? t('ls.kommtBald') : uebersetzt(m.beschreibung)}</span>
                 {!bald && (
                   <span className="modul-bar">
@@ -902,6 +924,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                 </span>
               )}
             </button>
+            </Fragment>
           )
         })}
       </div>
