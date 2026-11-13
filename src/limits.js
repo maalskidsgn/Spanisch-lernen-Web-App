@@ -3,7 +3,7 @@
 //   - 10 KI-Erstellungen im Monat: Wortlisten, Wörter aus Video, Sätze,
 //     Lesetexte und E-Books teilen sich EINEN Topf
 //   - eigene YouTube-Videos nur mit Premium, die Mediathek ist frei
-//   - die ersten Module, zusammen höchstens 80 % der Lektionen (gratisModule.js)
+//   - die ersten 2 Module (gratisModule.js)
 //
 // Der Monat beginnt am 1. Die GRENZE zieht der Server
 // (server/kontingent.js) – der Zähler hier ist nur für die Anzeige
@@ -17,7 +17,7 @@ import { sprache } from './sprache.js'
 
 export const KI_PRO_MONAT = 10
 export const VIDEOS_PRO_WOCHE = 0 // eigene Videos nur mit Premium (09.11.)
-export const GRATIS_LEKTIONEN_PROZENT = 80 // ganze Module, siehe gratisModule.js
+export const GRATIS_LEKTIONEN_PROZENT = 20 // grob; maßgeblich sind die 2 Gratis-Module (gratisModule.js)
 
 /** Der 1. des laufenden Monats als "JJJJ-MM-TT" – Schlüssel des Zeitraums. */
 export function monatsSchluessel(d = new Date()) {

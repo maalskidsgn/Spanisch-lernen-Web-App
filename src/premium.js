@@ -29,16 +29,16 @@ export const TESTPHASE_ALLES_FREI = false
 /**
  * Lektionen hinter Premium.
  *
- * Gratis sind ganze Module: die ersten, solange sie zusammen höchstens
- * GRATIS_ANTEIL der Lektionen ausmachen (seit 13.11.2026 80 %, vorher
- * 20 % mitten im Modul). Alle Module danach öffnen die Kasse.
- * Berechnung in gratisModule.js.
+ * Gratis sind die ersten GRATIS_MODULE_ANZAHL ganzen Module (seit
+ * 13.11.2026: 2, Manuel – „die ersten beiden, Rest Premium“; vorher
+ * 20 % nach Kursnummer mitten im Modul). Alle Module danach öffnen
+ * die Kasse. Berechnung in gratisModule.js.
  *
  * Seit 06.11.2026 an (Manuel). Gleicher Schalter in der anderen App
  * (Habloo: spanisch-app, Davaigo: russisch-app).
  */
 export const LEKTIONEN_SPERRE = true
-export const GRATIS_ANTEIL = 0.8
+export const GRATIS_MODULE_ANZAHL = 2
 
 /**
  * Ausnahme von der Testphase – nur für dieses eine Gerät.

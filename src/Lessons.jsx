@@ -188,7 +188,7 @@ function suchStelle(satz, ziel) {
 // Eine Übersicht mit freischaltbaren Lektionen und ein Player, der durch
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
 // Die Lektionen, die ohne Premium offen bleiben (siehe premium.js)
-// Seit 13.11.2026 ganze Module (gratisModule.js): die ersten rund 80 %.
+// Seit 13.11.2026 ganze Module (gratisModule.js): die ersten 2.
 const GRATIS = GRATIS_LEKTIONEN
 
 // Krone für Premium-Module (13.11.2026)

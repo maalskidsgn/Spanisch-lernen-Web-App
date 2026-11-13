@@ -1,26 +1,17 @@
 // Welche Module sind ohne Premium offen? (13.11.2026, Manuel)
 //
-// Gratis sind GANZE Module: die ersten, solange sie zusammen höchstens
-// GRATIS_ANTEIL der Lektionen ausmachen (80 %). Alle Module danach –
-// samt Hörszene und Prüfstation – gehören zu Premium. Vorher galt
-// die Grenze mitten im Modul (20 % nach Kursnummer).
+// Gratis sind GANZE Module: die ersten GRATIS_MODULE_ANZAHL (2). Alle
+// Module danach – samt Hörszene und Prüfstation – gehören zu Premium.
+// Vorher galt die Grenze mitten im Modul (20 % nach Kursnummer).
 //
 // Abgeleitet aus MODULE, damit Anzeige (GratisHinweis, Kasse) und
 // Sperre (Lessons.jsx) nie auseinanderlaufen.
 import { MODULE, lektionenVon, kommtBald } from './lektionen.js'
-import { GRATIS_ANTEIL } from './premium.js'
+import { GRATIS_MODULE_ANZAHL } from './premium.js'
 
 const mitInhalt = MODULE.filter((m) => !kommtBald(m))
-const gesamt = mitInhalt.reduce((s, m) => s + lektionenVon(m).length, 0)
 
-export const GRATIS_MODULE = new Set()
-let summe = 0
-for (const m of mitInhalt) {
-  const n = lektionenVon(m).length
-  if (summe + n > gesamt * GRATIS_ANTEIL + 1e-9) break
-  summe += n
-  GRATIS_MODULE.add(m.id)
-}
+export const GRATIS_MODULE = new Set(mitInhalt.slice(0, GRATIS_MODULE_ANZAHL).map((m) => m.id))
 
 /** Kennungen aller Lektionen in den Gratis-Modulen */
 export const GRATIS_LEKTIONEN = new Set(
