@@ -1,4 +1,5 @@
 import { pausierteSchluessel, MAX_VOKABELN } from './limits.js'
+import { pushEinrichten } from './push.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
 import { sichereMerker } from './kontoMerker.js'
@@ -348,6 +349,16 @@ export default function App() {
 
   // ---------- Konto & Abgleich ----------
   const { nutzer, laedt: nutzerLaedt, passwortNeuSetzen, passwortGesetzt } = useNutzer()
+
+  // Push-Benachrichtigungen (14.11.2026): nach der Anmeldung Gerät beim
+  // Server anmelden. Bleibt aus, bis VITE_PUSH_AKTIV=1 (siehe push.js).
+  useEffect(() => {
+    if (!nutzer?.id) return
+    pushEinrichten(nutzer.id, (link) => {
+      window.history.pushState({}, '', link)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+  }, [nutzer?.id])
 
   // Das Onboarding laeuft genau EINMAL, und zwar je Konto. Der
   // Schluessel traegt die Nutzerkennung: Wer sich auf demselben

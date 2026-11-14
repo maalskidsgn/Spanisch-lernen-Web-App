@@ -1,4 +1,6 @@
 import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
+import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
+import { appVersion } from './appVersion.js'
 import { createHash } from 'node:crypto'
 import { kiKontext } from './ki.js'
 // Kleiner Server, der das Transkript (Untertitel) eines YouTube-Videos holt.
@@ -1244,6 +1246,22 @@ app.get('/api/sprechen/gespraeche', sprechRoute(sprechGespraeche))
 app.get('/api/sprechen/gespraech/:id', sprechRoute(sprechGespraech))
 app.post('/api/sprechen/gespraech/:id/loeschen', sprechRoute(sprechLoesche))
 app.post('/api/sprechen/suche', sprechRoute(sprechSuche))
+// Push-Benachrichtigungen & Mindestversion der Store-Apps (14.11.2026)
+app.get('/api/app/version', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.json(appVersion(req.query.plattform))
+})
+app.post('/api/push/anmelden', sprechRoute((nutzer, body) => pushAnmelden(nutzer, body)))
+app.post('/api/push/senden', async (req, res) => {
+  if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
+  try {
+    res.json(await pushSenden(req.body ?? {}))
+  } catch (fehler) {
+    console.error('[push]', fehler.message)
+    res.status(fehler.code || 500).json({ error: fehler.message })
+  }
+})
+
 sprechAufsicht()
 app.post('/api/sprechen/vergessen', sprechRoute(async (nutzer) => { await sprechVergiss(nutzer); return { ok: true } }))
 

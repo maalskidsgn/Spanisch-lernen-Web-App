@@ -2,6 +2,7 @@ import { merkePartnerLink } from './partnerCode.js'
 import { merkeHerkunft } from './herkunft.js'
 import { rueckkehrHoeren, blogImBrowser } from './appAnmeldung.js'
 import { StrictMode } from 'react'
+import UpdateHinweis from './UpdateHinweis.jsx'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
@@ -25,6 +26,8 @@ merkeEinladung()
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
+    {/* Store-Apps: „Bitte aktualisieren“, gesteuert über /api/app/version */}
+    <UpdateHinweis />
     {/* Neben der App, nicht darin: Der Hinweis muss auch auf der
         Startseite erscheinen, und die liegt in App hinter einer
         vorzeitigen Rueckgabe. */}
