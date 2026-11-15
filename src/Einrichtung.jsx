@@ -68,7 +68,7 @@ function texte(en, app, z) {
     saetze: en ? 'Preparing sentences' : 'Sätze vorbereiten',
     lektionen: en ? 'Building your lessons' : 'Lektionen aufbauen',
     plan: en ? 'Creating your learning plan' : 'Deinen Lernplan erstellen',
-    los: en ? "Let's go" : 'Los geht’s',
+    los: en ? 'Start my first lesson' : 'Erste Lektion starten',
     trainer: en ? 'Open my trainer' : 'Zum Vokabeltrainer',
   }
 }

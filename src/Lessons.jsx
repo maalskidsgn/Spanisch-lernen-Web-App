@@ -16,7 +16,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 import { spiele, vorladen, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
@@ -198,7 +198,7 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet }) {
   const t = useTexte()
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
@@ -235,6 +235,22 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     document.body.classList.toggle('lektion-laeuft', Boolean(lektion))
     return () => document.body.classList.remove('lektion-laeuft')
   }, [lektion])
+
+  // Direkt nach der Registrierung (15.11.2026, Manuel): sofort in die
+  // erste offene Lektion statt auf die Modul-Übersicht. Über die Hälfte
+  // der neuen Konten hat vorher gar nichts gelernt. Das Modul wird mit
+  // geöffnet, damit „✕“ in dessen Lektionsliste zurückführt.
+  useEffect(() => {
+    if (!sofortStart) return
+    onSofortGestartet?.()
+    const offen = (l) => !lessonProgress[l.id]?.fertig
+    const m = MODULE.find((x, i) => modulOffen(i, lessonProgress) && !kommtBald(x) && lektionenVon(x).some(offen))
+    const l = m && lektionenVon(m).find(offen)
+    if (!l || gesperrt(l)) return
+    setModul(m)
+    starten(l)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sofortStart])
 
   function brauchtOptionen(schritt) {
     return (
@@ -306,7 +322,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     if (next >= schritte.length) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
-      erfolgston() // die Lektion ist geschafft – das darf man hoeren
+      lektionTon() // die Lektion ist geschafft – eigener, größerer Klang (15.11.)
       hakeAb('lektion') // Schritt im Tagesplan erledigt
       merkeEinheit('lektion') // zaehlt als Lektion
       merkeGelernt('lektionen')

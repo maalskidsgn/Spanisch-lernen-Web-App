@@ -1,5 +1,6 @@
 import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
+import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
 import { appVersion } from './appVersion.js'
 import { createHash } from 'node:crypto'
 import { kiKontext } from './ki.js'
@@ -1252,6 +1253,16 @@ app.get('/api/app/version', (req, res) => {
   res.json(appVersion(req.query.plattform))
 })
 app.post('/api/push/anmelden', sprechRoute((nutzer, body) => pushAnmelden(nutzer, body)))
+// Erinnerungen Tag 1/Tag 3: Probelauf ohne Versand (15.11.2026)
+app.get('/api/push/erinnerungen', async (req, res) => {
+  if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
+  try {
+    res.json(await erinnerungenPruefen({ probe: true }))
+  } catch (fehler) {
+    res.status(500).json({ error: fehler.message })
+  }
+})
+erinnerungenStarten()
 app.post('/api/push/senden', async (req, res) => {
   if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
   try {

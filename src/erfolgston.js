@@ -247,3 +247,72 @@ export function fehlerton() {
     // Kein Ton ist kein Fehler.
   }
 }
+
+// ---------------------------------------------------------------------------
+// Lektion geschafft „Marimba-Fanfare“ (15.11.2026, Manuel): eigener,
+// größerer Klang für den Lektionsabschluss – damit sich das Ende anders
+// anfühlt als eine einzelne richtige Antwort. Lauf C5–E5–G5–C6, danach
+// ein ausklingender Akkord und zwei helle Glöckchen obendrauf, gut 1,5 s.
+// Gleicher Ton-Schalter und gleicher Gesamtpegel (0.5) wie der Erfolgston.
+
+const GLOCKE = [[1, 1, 1], [2.76, 0.18, 0.35], [5.4, 0.06, 0.15]]
+const FANFARE = [
+  // [Hz, Einsatz s, Länge s, Lautstärke, Klangfarbe]
+  [523.25, 0, 0.28, 0.3, MARIMBA],
+  [659.25, 0.09, 0.28, 0.3, MARIMBA],
+  [783.99, 0.18, 0.28, 0.3, MARIMBA],
+  [1046.5, 0.27, 0.5, 0.3, MARIMBA],
+  [659.25, 0.45, 1.1, 0.2, MARIMBA],
+  [783.99, 0.45, 1.1, 0.2, MARIMBA],
+  [1046.5, 0.45, 1.2, 0.22, MARIMBA],
+  [2093, 0.5, 0.9, 0.07, GLOCKE],
+  [2637, 0.62, 0.9, 0.06, GLOCKE],
+]
+
+export function lektionTon() {
+  try {
+    if (!erfolgstoeneAn()) return
+    const c = context()
+    if (!c) return
+    if (c.state === 'suspended') c.resume()
+
+    const t0 = c.currentTime + 0.003
+    const bus = c.createGain()
+    const samt = c.createBiquadFilter()
+    samt.type = 'lowpass'
+    samt.frequency.value = 7000
+    const begrenzer = c.createDynamicsCompressor()
+    begrenzer.threshold.value = -16
+    begrenzer.ratio.value = 4
+    begrenzer.attack.value = 0.003
+    begrenzer.release.value = 0.2
+    const pegel = c.createGain()
+    pegel.gain.value = 0.5
+    pegel.connect(c.destination)
+    bus.connect(samt).connect(begrenzer).connect(pegel)
+    if (hall) {
+      const hallLaut = c.createGain()
+      hallLaut.gain.value = 0.28
+      samt.connect(hall).connect(hallLaut).connect(pegel)
+    }
+
+    FANFARE.forEach(([hz, ab, lang, laut, farbe]) => {
+      const a = t0 + ab
+      for (const [faktor, anteil, ausklang] of farbe) {
+        const osc = c.createOscillator()
+        const g = c.createGain()
+        osc.type = 'sine'
+        osc.frequency.value = hz * faktor
+        const dauer = Math.max(0.03, lang * ausklang)
+        g.gain.setValueAtTime(0.0001, a)
+        g.gain.exponentialRampToValueAtTime(laut * anteil, a + 0.005)
+        g.gain.exponentialRampToValueAtTime(0.0001, a + dauer)
+        osc.connect(g).connect(bus)
+        osc.start(a)
+        osc.stop(a + dauer + 0.05)
+      }
+    })
+  } catch {
+    // Kein Ton ist kein Fehler.
+  }
+}
