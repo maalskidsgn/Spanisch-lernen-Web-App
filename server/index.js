@@ -840,6 +840,13 @@ app.post('/api/translate-batch', async (req, res) => {
 })
 
 // Erstellt eine Vokabelliste zu einem frei gewählten Thema (nur mit KI).
+// Einführungs-Lektion (15.11.2026): Die KI-Liste darin zählt nicht zu den
+// Gratis-Erstellungen – aber nur für neue Konten (jünger als 3 Tage).
+function einfuehrungFrei(req, tuer) {
+  const seit = Date.parse(tuer?.nutzer?.created_at || '')
+  return req.body?.einfuehrung === true && Number.isFinite(seit) && Date.now() - seit < 3 * 86400000
+}
+
 app.post('/api/vokabelliste', async (req, res) => {
   const thema = (req.body.thema || '').trim().slice(0, 80)
   // Die schon gesammelten Wörter: verhindern Dopplungen und verraten
@@ -863,7 +870,7 @@ app.post('/api/vokabelliste', async (req, res) => {
 
   try {
     const ergebnis = await erzeugeVokabelliste(thema, bekannt, wortart, req.body.sprache)
-    await kiVerbuchen(tuer)
+    if (!einfuehrungFrei(req, tuer)) await kiVerbuchen(tuer)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
