@@ -1870,7 +1870,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={starteRundgang} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={() => setEinfuehrungOffen(true)} />
         </main>
       )}
 
