@@ -1,9 +1,10 @@
+import { ohneKasse } from './kauf.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { zaehleNutzung, kontingentLeer } from './limits.js'
 import { createPortal } from 'react-dom'
 import { useState, useEffect, useRef } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
-import { API_URL, istApp } from './api.js'
+import { API_URL } from './api.js'
 import { db } from './supabase.js'
 import { useTexte, sprache } from './sprache.js'
 
@@ -176,7 +177,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
-              {istApp
+              {ohneKasse()
                 ? t('ebm.deinMonatskontingentIst')
                 : t('ebm.deinMonatskontingentIst2')}
             </p>
@@ -184,7 +185,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
         </form>
       </section>
 
-      {aufgebraucht && !istApp && (
+      {aufgebraucht && !ohneKasse() && (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
             Unbegrenzt lesen <span className="plan-badge badge-soon">{t('eb.premium')}</span>
