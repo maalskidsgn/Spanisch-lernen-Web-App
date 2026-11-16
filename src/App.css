@@ -18329,3 +18329,65 @@ body.liest-video .video-kopf {
 @media (prefers-reduced-motion: reduce) {
   .ef-buehne, .ef-start-bild, .ef-nav-hell, .ef-funke { animation: none; }
 }
+
+/* Wortsuche: Tipps (16.11.2026) */
+.gitter-feld.feld-tipp { background: #fff3c4; color: #7a5600; box-shadow: inset 0 0 0 2px #f5b400; animation: feld-tipp-puls 1.3s ease-in-out infinite; }
+@keyframes feld-tipp-puls { 50% { box-shadow: inset 0 0 0 2px #f5b400, 0 0 0 4px rgba(245, 180, 0, .25); } }
+.such-wort-tipp { cursor: pointer; }
+.spiel-tipp { align-self: center; margin: 12px auto 0; display: block; background: #fff8dc; color: #7a5600; border: 2px solid #f5d77a; border-radius: 999px; padding: 9px 18px; font-weight: 800; box-shadow: 0 3px 0 #f0cf6a; cursor: pointer; }
+.spiel-tipp:active { transform: translateY(2px); box-shadow: 0 1px 0 #f0cf6a; }
+.spiel-hinweis-klein { font-size: .85rem; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) { .gitter-feld.feld-tipp { animation: none; } }
+
+/* ===== Trainer-Karten im 3D-Toon-Stil (16.11.2026, Manuel) =====
+   Farbiger Kopf (links: Vokabel/Satz, rechts: die Frage), weißer Körper,
+   dicke dunkle Unterkante und ganz leicht schräg – wie die Quizkarte auf
+   der Startseite. `rotate` statt transform: verträgt sich mit den
+   Wegflieg-Animationen (die nutzen transform). */
+.training-stage .flashcard.karte-toon {
+  padding: 0 24px 30px;
+  border-radius: 30px;
+  border: 0;
+  background: var(--card);
+  box-shadow: 0 10px 0 var(--primary-dark), 0 24px 40px color-mix(in srgb, var(--primary) 16%, transparent);
+  rotate: -1.2deg;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+.training-stage .flashcard.karte-toon > .karten-kopf {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 -24px 34px;
+  padding: 16px 24px 14px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 76%, #fff), var(--primary));
+  color: #fff;
+  font-size: .82rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: right;
+  border-bottom: 5px solid var(--primary-dark);
+}
+.training-stage .flashcard.karte-toon > .karten-kopf::before { content: attr(data-art); text-align: left; }
+.training-stage .flashcard.karte-toon .flash-word,
+.training-stage .flashcard.karte-toon .flash-satz { color: var(--navy); font-weight: 900; }
+.training-stage .flashcard.karte-toon .flash-word { font-size: 2.7rem; letter-spacing: -.01em; }
+.training-stage .flashcard.karte-toon .laut-wort {
+  display: inline-block;
+  background: color-mix(in srgb, var(--primary) 12%, #fff);
+  color: var(--primary);
+  font-weight: 900;
+  font-style: italic;
+  border-radius: 999px;
+  padding: 7px 24px;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--primary) 24%, #fff);
+  margin: 0 auto 18px;
+}
+@media (max-width: 520px) {
+  .training-stage .flashcard.karte-toon { padding: 0 16px 24px; }
+  .training-stage .flashcard.karte-toon > .karten-kopf { margin: 0 -16px 26px; padding: 14px 16px 12px; font-size: .72rem; }
+  .training-stage .flashcard.karte-toon .flash-word { font-size: 2.2rem; }
+}
+@media (prefers-reduced-motion: reduce) { .training-stage .flashcard.karte-toon { rotate: 0deg; } }

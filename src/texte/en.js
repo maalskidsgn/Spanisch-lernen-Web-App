@@ -911,6 +911,11 @@ export default {
   "sp2.abVierGesammelten": "Once you've collected four words with translations, you're ready to go. Words come from lessons, videos, or the AI word list.",
   "sp2.zurueckZumTrainer": "Back to the trainer",
   "sp2.alleGefundenWeiter": "Found them all – let's move on",
+  "kt.vokabel": "Word",
+  "kt.satz": "Sentence",
+  "kt.weisstDu": "Do you know what this means?",
+  "sp3.tippKnopf": "Hint: show a letter",
+  "sp3.tippHinweis": "Stuck? Tap a word above – its first letter lights up, tap again for the next one.",
   "sp2.ziehMitDem": "Swipe your finger over the letters – horizontally, vertically, or diagonally.",
 
   /* ---------------- Lessons (mehrzeilig) ---------------- */

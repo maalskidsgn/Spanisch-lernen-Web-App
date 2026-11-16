@@ -123,7 +123,7 @@ export function erfolgston() {
 // Klickton „Thock“ (gewählt 12.11.2026, ersetzt „Watte sanft“): kurzer,
 // satter Tastenanschlag – tiefer Sinus 260 → 150 Hz plus ein winziger
 // Anschlag bei 1,2 kHz, zusammen unter 50 ms. Gilt universell: Navigation,
-// Übungen, Spiele, alle Knöpfe. Spielt beim Runterdrücken (pointerdown).
+// Übungen, Spiele, alle Knöpfe. Spielt beim Loslassen eines echten Tipps (nicht beim Scrollen, 16.11.).
 // Hängt am selben Ton-Schalter wie Erfolg und Fehler. Ein Knopf mit
 // data-kein-klick (oder darin) bleibt stumm.
 
@@ -185,12 +185,34 @@ const KNOPF = 'button, .btn, [role="button"], [role="tab"], .quiz-option'
 export function klicktoeneStarten() {
   if (typeof document === 'undefined' || klicktoeneStarten.laeuft) return
   klicktoeneStarten.laeuft = true
+  // 16.11.2026 (Manuel): Der Ton kam auch beim Scrollen, weil er schon beim
+  // Aufsetzen des Fingers spielte. Jetzt nur bei einem echten Tipp:
+  // Loslassen auf demselben Knopf, höchstens 10 px bewegt. Scrollt der
+  // Browser, kommt pointercancel statt pointerup – dann bleibt es still.
+  const knopfVon = (e) => {
+    const el = typeof e.target?.closest === 'function' ? e.target.closest(KNOPF) : null
+    if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-kein-klick]')) return null
+    return el
+  }
+  let start = null
   document.addEventListener(
     'pointerdown',
     (e) => {
-      if (e.button > 0) return
-      const el = typeof e.target?.closest === 'function' ? e.target.closest(KNOPF) : null
-      if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-kein-klick]')) return
+      start = e.button > 0 ? null : { el: knopfVon(e), x: e.clientX, y: e.clientY, id: e.pointerId }
+    },
+    { capture: true, passive: true },
+  )
+  document.addEventListener('pointercancel', () => { start = null }, { capture: true, passive: true })
+  document.addEventListener(
+    'pointerup',
+    (e) => {
+      const s = start
+      start = null
+      if (!s?.el || s.id !== e.pointerId) return
+      if (Math.hypot(e.clientX - s.x, e.clientY - s.y) > 10) return
+      // Knopf kann inzwischen weg sein (Ansicht gewechselt) – zählt trotzdem
+      const el = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(KNOPF)
+      if (el && el !== s.el) return
       klickton()
     },
     { capture: true, passive: true },
