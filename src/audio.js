@@ -303,3 +303,85 @@ export function dialogAbspielen(dialog, { beiZeile, nurDatei = false } = {}) {
     },
   }
 }
+
+/**
+ * Eine Dialogzeile abspielen – mit Fortschritt für die Karaoke-Markierung
+ * (Dialog-Szene, 16.11.2026).
+ *
+ * Nie die Computerstimme: Gibt es keine Aufnahme oder blockt das Gerät den
+ * Ton, läuft die Markierung still im Lesetempo weiter.
+ *
+ *   { art: 'datei' | 'still', fertig: Promise<'ende'|'fehler'|'unterbrochen'>, stop() }
+ *
+ * @param {(anteil: number) => void} [opt.beiFortschritt] – 0…1, pro Bildschirmtakt
+ */
+export async function spieleZeile(text, { stimme = STIMMEN.standard, tempo = 1, beiFortschritt } = {}) {
+  const name = await audioName(text, stimme)
+  const url = puffer.get(name) || `${ABLAGE}/${name}`
+  if (laufend) {
+    laufend.pause()
+    laufend = null
+  }
+
+  let vorhanden = sicherVertont(text, stimme) ? true : bekannt.get(name)
+  if (vorhanden === undefined) {
+    try {
+      vorhanden = (await fetch(url, { method: 'HEAD' })).ok
+      bekannt.set(name, vorhanden)
+    } catch {
+      vorhanden = false
+    }
+  }
+
+  let takt = 0
+  const mitTakt = (lies) => {
+    const schritt = () => {
+      beiFortschritt?.(lies())
+      takt = requestAnimationFrame(schritt)
+    }
+    takt = requestAnimationFrame(schritt)
+  }
+  const aufraeumen = (grund) => {
+    cancelAnimationFrame(takt)
+    if (grund === 'ende') beiFortschritt?.(1)
+    return grund
+  }
+
+  if (vorhanden) {
+    const ton = new Audio(url)
+    ton.playbackRate = tempo
+    ton.preservesPitch = true
+    laufend = ton
+    // Horcher VOR play(): kurze Schnipsel können sonst zu Ende sein, bevor sie stehen
+    const fertig = new Promise((aufloesen) => {
+      let erledigt = false
+      const melde = (grund) => {
+        if (erledigt) return
+        erledigt = true
+        aufloesen(aufraeumen(grund))
+      }
+      ton.addEventListener('ended', () => melde('ende'), { once: true })
+      ton.addEventListener('error', () => melde('fehler'), { once: true })
+      // Am natürlichen Ende feuert erst 'pause', dann 'ended'
+      ton.addEventListener('pause', () => { if (!ton.ended) melde('unterbrochen') }, { once: true })
+    })
+    try {
+      await ton.play()
+      mitTakt(() => (ton.duration ? Math.min(1, ton.currentTime / ton.duration) : 0))
+      return { art: 'datei', fertig, stop: () => ton.pause() }
+    } catch {
+      if (laufend === ton) laufend = null
+    }
+  }
+
+  // Still im Lesetempo
+  const dauer = (900 + String(text).length * 65) / tempo
+  const start = performance.now()
+  let abbrechen = () => {}
+  const fertig = new Promise((f) => {
+    const zeit = setTimeout(() => f(aufraeumen('ende')), dauer)
+    abbrechen = () => { clearTimeout(zeit); f(aufraeumen('unterbrochen')) }
+  })
+  mitTakt(() => Math.min(1, (performance.now() - start) / dauer))
+  return { art: 'still', fertig, stop: () => abbrechen() }
+}
