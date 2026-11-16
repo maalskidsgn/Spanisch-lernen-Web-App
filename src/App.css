@@ -18486,3 +18486,36 @@ body.liest-video .video-kopf {
   .ef-buehne, .ef-buehne > *, .ef-wortkarte.ef-gedreht, .ef-option.ef-richtig, .ef-option.ef-falsch,
   .ef-rueck, .ef-wo, .ef-hinweis, .ef-kachel-auf, .ef-liste li, .ef-trainerkarte .ef-bedeutung { animation: none; }
 }
+
+/* ===== Kasse: Zusammenfassung + Bezahlknopf im 3D-Toon-Stil (16.11.2026) ===== */
+.ka-karte .kassen-summe {
+  margin-top: 22px;
+  padding: 18px 20px;
+  border: 2px solid var(--line);
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: 0 5px 0 var(--line);
+}
+.ka-karte .kassen-summe .kassen-zeile { padding: 8px 0; font-size: .95rem; font-weight: 800; color: var(--navy); }
+.ka-karte .kassen-summe .kassen-zeile-klein { font-size: .82rem; font-weight: 700; color: var(--muted); }
+.ka-karte .kassen-summe .kassen-gesamt {
+  margin: 10px -20px -18px;
+  padding: 16px 20px;
+  border-top: 2px dashed var(--line);
+  border-radius: 0 0 20px 20px;
+  background: color-mix(in srgb, var(--primary) 7%, var(--card));
+  font-size: 1.1rem;
+  font-weight: 900;
+  align-items: center;
+}
+.ka-karte .kassen-summe .kassen-gesamt span:last-child { font-size: 1.6rem; letter-spacing: -.01em; color: var(--primary-dark); }
+.kasse-form .kasse-los {
+  min-height: 58px;
+  border-radius: 18px;
+  font-size: 1.08rem;
+  font-weight: 900;
+  box-shadow: 0 5px 0 var(--primary-dark);
+  transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+}
+.kasse-form .kasse-los:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--primary-dark); }
+.kasse-form .kasse-los:disabled { opacity: .5; }
