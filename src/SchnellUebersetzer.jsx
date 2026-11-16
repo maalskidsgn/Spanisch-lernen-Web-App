@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { useState, useRef, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { loginKopf } from './limits.js'
@@ -122,7 +123,7 @@ export default function SchnellUebersetzer({ vocab = {}, onAddVocab, onAddSatz }
           spellCheck={false}
         />
         <button type="submit" className="schnell-los" disabled={!q.trim() || laedt}>
-          {laedt ? <span className="schnell-punkte" aria-label="…" /> : T.los}
+          {laedt ? <LadeKreis art="uebersetzen" kurz /> : T.los}
         </button>
       </form>
 

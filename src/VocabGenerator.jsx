@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { ohneKasse } from './kauf.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { XP } from './gamification.js'
@@ -103,7 +104,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
         <>
           <GratisHinweis art="ki" />
           <button onClick={generate} disabled={loading}>
-            {loading ? t('vg.analysiere') : t('vg.generieren')}
+            {loading ? <>{t('vg.analysiere')}<LadeKreis art="vokabeln" /></> : t('vg.generieren')}
           </button>
           {/* Im Web zeigt GratisHinweis den Stand – hier nur in der App */}
           {ohneKasse() && !premium && (

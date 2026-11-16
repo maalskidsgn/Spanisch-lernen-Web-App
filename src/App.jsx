@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { pausierteSchluessel, MAX_VOKABELN, kontingentLeer, holeKontingent } from './limits.js'
 import { pushEinrichten } from './push.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
@@ -2003,7 +2004,7 @@ export default function App() {
                 />
               ))}
             </div>
-            <p className="lade-text">{t('apk.untertitelWerdenGeholt')}</p>
+            <p className="lade-text">{t('apk.untertitelWerdenGeholt')} <LadeKreis art="video" /></p>
           </div>
         )}
         {error && <p className="error">{error}</p>}

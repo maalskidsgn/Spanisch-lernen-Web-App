@@ -20,6 +20,7 @@
 //
 // Zum Ansehen jederzeit: Adresse mit ?einfuehrung
 
+import LadeKreis from './LadeKreis.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import NavBild from './NavBild.jsx'
 import Logo from './Logo.jsx'
@@ -497,6 +498,7 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
             <div className="ef-laedt">
               <span className="ef-funke" aria-hidden="true">✨</span>
               <p>{tx.listeLaedt}</p>
+              <LadeKreis art="liste" />
             </div>
           )}
           {liste && !laedt && (

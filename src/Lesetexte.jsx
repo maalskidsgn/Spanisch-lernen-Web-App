@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { leiterName } from './srs.js'
 import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { createPortal } from 'react-dom'
@@ -588,7 +589,7 @@ function TextGenerator({ texte, setTexte, onFertig, addXp }) {
             disabled={laden || (!thema.trim() && !gebiet)}
           >
             {laden ? (
-              <>{t('lt.schreibtDenText')}<span className="studio-punkte" /></>
+              <>{t('lt.schreibtDenText')}<LadeKreis art="text" /></>
             ) : (
               t('lt.textErzeugen')
             )}
