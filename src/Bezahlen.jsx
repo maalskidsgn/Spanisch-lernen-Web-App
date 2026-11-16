@@ -362,7 +362,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
               stripe={stripe}
               options={{ clientSecret, elementsOptions: { appearance: AUSSEHEN } }}
             >
-              <KassenFormular onFertig={onFertig} onAbbrechen={onAbbrechen} />
+              <KassenFormular onFertig={onFertig} onAbbrechen={onAbbrechen} tarif={tarif} />
             </CheckoutElementsProvider>
           )}
         </section>
@@ -382,7 +382,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
 }
 
 /** Das eigentliche Formular – braucht den Provider darüber. */
-function KassenFormular({ onFertig, onAbbrechen }) {
+function KassenFormular({ onFertig, onAbbrechen, tarif }) {
   const t = useTexte()
   const zustand = useCheckoutElements()
   const [laeuft, setLaeuft] = useState(false)
@@ -414,7 +414,8 @@ function KassenFormular({ onFertig, onAbbrechen }) {
   }
 
   const kasse = zustand.checkout
-  const summe = kasse.total?.total?.amount
+  // Stripe liefert „149,00 €“ – ganze Beträge ohne „,00“ (16.11.2026)
+  const summe = kasse.total?.total?.amount?.replace(/([.,])00(?!\d)/, '')
 
   const aktiverCode = kasse.discountAmounts?.[0]?.promotionCode
 
@@ -479,7 +480,7 @@ function KassenFormular({ onFertig, onAbbrechen }) {
         {laeuft ? (
           <>{t('bz.zahlungLaeuft')}<span className="studio-punkte" /></>
         ) : summe ? (
-          t('bzc.summeAbonnieren', { w0: summe })
+          tarif === 'lifetime' ? t('bzc.summeEinmalig', { w0: summe }) : t('bzc.summeAbonnieren', { w0: summe })
         ) : (
           t('bz9.zahlungspflichtigAbonnieren')
         )}

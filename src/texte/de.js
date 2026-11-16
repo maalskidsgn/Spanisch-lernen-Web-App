@@ -2136,6 +2136,7 @@ export default {
   "bzc.codeEntfernen": "Entfernen",
   "bzc.codeFehler": "Dieser Code gilt leider nicht.",
   "bzc.proMonatEtwa": "≈ {w0} / Monat",
+  "bzc.summeEinmalig": "{w0} einmalig bezahlen",
   "bzc.summeAbonnieren": "{w0} zahlungspflichtig abonnieren",
   "bzc.stripeHinweis": "Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu sehen.",
 }

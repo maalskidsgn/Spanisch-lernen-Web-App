@@ -2136,6 +2136,7 @@ export default {
   "bzc.codeEntfernen": "Remove",
   "bzc.codeFehler": "This code is not valid.",
   "bzc.proMonatEtwa": "≈ {w0} / month",
+  "bzc.summeEinmalig": "Pay {w0} once",
   "bzc.summeAbonnieren": "Subscribe for {w0}, payment required",
   "bzc.stripeHinweis": "Stripe handles the payment, we never see your card details.",
 }
