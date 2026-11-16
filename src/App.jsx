@@ -914,6 +914,21 @@ export default function App() {
     localStorage.setItem('lektionen', JSON.stringify(lessonProgress))
   }, [lessonProgress])
 
+  // Ein anderes Gerät hat mehr XP gespeichert (16.11.2026): übernehmen,
+  // statt beim nächsten Speichern wieder den kleineren Stand zu schicken.
+  useEffect(() => {
+    const hoeher = (e) => {
+      const d = e.detail || {}
+      setProgress((p) => {
+        if (!(d.xp > (p.xp ?? 0))) return p
+        const neuerTag = d.letzterTag && (!p.lastActive || d.letzterTag > p.lastActive)
+        return { ...p, xp: d.xp, ...(neuerTag ? { lastActive: d.letzterTag, streak: d.serie ?? p.streak } : {}) }
+      })
+    }
+    window.addEventListener('statistik-hoeher', hoeher)
+    return () => window.removeEventListener('statistik-hoeher', hoeher)
+  }, [])
+
   // Statistik (XP, Level, Serie) in der Datenbank nachziehen
   useEffect(() => {
     if (!nutzer || syncStatus !== 'fertig') return // erst nach erfolgreichem Abgleich – sonst überschreibt ein leerer Stand die Datenbank

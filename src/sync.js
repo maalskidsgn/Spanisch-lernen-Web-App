@@ -10,7 +10,6 @@
 import { db } from './supabase.js'
 import { lokalerVerlauf, vereineVerlauf, uebernimmVerlauf } from './verlauf.js'
 import { merkeTagesXp } from './rangliste.js'
-import { heute } from './datum.js'
 import { INTERVALS_DAYS } from './srs.js'
 
 /**
@@ -236,19 +235,35 @@ export async function speichereStatistik(nutzerId, stats) {
   // ergänzt, würden wir sie sonst überschreiben.
   const { data: alt } = await db
     .from('statistik')
-    .select('ki_nutzung')
+    .select('ki_nutzung, xp, serie, letzter_tag')
     .eq('nutzer_id', nutzerId)
     .maybeSingle()
+
+  // Zwei Geräte (16.11.2026): Bisher überschrieb das Gerät, das zuletzt
+  // speichert, einen HÖHEREN Stand vom anderen Gerät – die Gesamt-XP
+  // sanken. Jetzt bleibt der höhere Stand stehen, und die App übernimmt ihn
+  // (Ereignis 'statistik-hoeher', siehe App.jsx).
+  let xp = stats.xp ?? 0
+  let serie = stats.streak ?? 0
+  let letzterTag = stats.lastDay ?? null
+  if ((alt?.xp ?? 0) > xp) {
+    xp = alt.xp
+    if (alt.letzter_tag && (!letzterTag || alt.letzter_tag > letzterTag)) {
+      letzterTag = alt.letzter_tag
+      serie = alt.serie ?? serie
+    }
+    try { window.dispatchEvent(new CustomEvent('statistik-hoeher', { detail: { xp, serie, letzterTag } })) } catch { /* egal */ }
+  }
   const verlauf = vereineVerlauf(lokalerVerlauf(), alt?.ki_nutzung?.verlauf)
   uebernimmVerlauf(verlauf)
 
   const { error } = await db.from('statistik').upsert(
     {
       nutzer_id: nutzerId,
-      xp: stats.xp ?? 0,
+      xp,
       level: stats.level ?? 1,
-      serie: stats.streak ?? 0,
-      letzter_tag: stats.lastDay ?? null,
+      serie,
+      letzter_tag: letzterTag,
       xp_heute: stats.xpToday ?? 0,
       ki_nutzung: { ...(alt?.ki_nutzung ?? {}), verlauf },
       aktualisiert_am: new Date().toISOString(),
@@ -266,7 +281,10 @@ export async function speichereStatistik(nutzerId, stats) {
   // lastDay ist in der Praxis oft leer (die Spalte letzter_tag steht
   // bei allen auf NULL) – dann zählt der heutige Tag, denn xp_heute
   // bezieht sich genau darauf.
-  merkeTagesXp(stats.lastDay || heute(), stats.xpToday ?? 0)
+  // 16.11.2026: Nur noch mit bekanntem Lerntag. Ohne ihn wurde xp_heute
+  // vom LETZTEN Lerntag auf heute gebucht – derselbe Tag stand dann
+  // doppelt in xp_tage (Woche/Monat/Jahr größer als die Gesamt-XP).
+  if (stats.lastDay) merkeTagesXp(stats.lastDay, stats.xpToday ?? 0)
 }
 
 // ---------------------------------------------------------------
