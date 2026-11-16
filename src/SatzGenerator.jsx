@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { useState, useEffect } from 'react'
@@ -221,7 +222,7 @@ export default function SatzGenerator({ saetze, setSaetze, addXp }) {
             disabled={laden || (!thema.trim() && !zeitform)}
           >
             {laden ? (
-              <>{t('sgn.schreibtSaetze')}<span className="studio-punkte" /></>
+              <>{t('sgn.schreibtSaetze')}<LadeKreis art="saetze" /></>
             ) : zeitform && !thema.trim() ? (
               t('sg9.saetzeZum', { zeitform: t(ZEITFORMEN.find(([w]) => w === zeitform)?.[1] ?? '') })
             ) : (

@@ -18894,3 +18894,63 @@ body.liest-video .video-kopf {
 .gl-konj-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.15; text-align: left; }
 .gl-konj-chip b { font-weight: 900; }
 .gl-konj-chip i { font-style: normal; font-size: .72em; font-weight: 700; opacity: .65; }
+
+/* ===== Lade-Kreis (16.11.2026, Manuel): zeigt bei allem, worauf man wartet, wie lange es noch dauert ===== */
+.lade-kreis { display: inline-flex; align-items: center; gap: .4em; margin-left: .55em; vertical-align: middle; font-weight: 800; font-size: .86em; line-height: 1; white-space: nowrap; }
+.lade-kreis svg { width: 1.45em; height: 1.45em; flex: none; transform: rotate(-90deg); }
+.lade-kreis .lk-bahn { fill: none; stroke: currentColor; stroke-width: 3.2; opacity: .28; }
+.lade-kreis .lk-wert { fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; transition: stroke-dashoffset .22s linear; }
+.lade-kreis .lk-text { opacity: .92; font-variant-numeric: tabular-nums; }
+.lade-kreis.lade-kurz { margin-left: .35em; }
+.schnell-los .lade-kreis { margin-left: 0; }
+.lade-text .lade-kreis, .ef-laedt .lade-kreis, .suche-hinweis .lade-kreis { color: var(--primary); }
+.ef-laedt .lade-kreis { margin: 6px 0 0; font-size: 1rem; }
+
+/* ===== KI-Verbgenerator im Stil der anderen Generatoren (16.11.2026) ===== */
+.gl-konj .list-gen { margin: 0; }
+.sg-themen.gl-verben { grid-template-columns: repeat(4, 1fr); }
+.sg-thema.gl-verb { flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px; line-height: 1.15; text-align: left; min-width: 0; }
+.sg-thema.gl-verb b { font-weight: 900; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-thema.gl-verb i { font-style: normal; font-size: .74em; font-weight: 700; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sg-thema.gl-verb.ist-aktiv i { color: inherit; opacity: .8; }
+.gl-konj .gen-knoepfe .gen-los { flex: 1; }
+.gl-konj-ergebnis { scroll-margin-top: 90px; margin-top: 20px; padding-top: 18px; border-top: 2px dashed var(--line); }
+@media (max-width: 700px) { .sg-themen.gl-verben { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== Jahreskalender: gelernte Tage als kleine Toon-Münzen (16.11.2026, Manuel) =====
+   Vorher: flache Punkte, und die Zukunft trug durch button:disabled eine
+   dunkle Kante. Jetzt: je mehr gelernt, desto kräftiger die Münze (3 Stufen),
+   leere Tage klein und blass, Zukunft nur als zarter Ring. */
+.kal-mini { gap: 3px; }
+.kal-mini .kal-punkt {
+  border-radius: 50%; border: 0; opacity: 1; cursor: pointer;
+  background: color-mix(in srgb, var(--muted) 17%, var(--card));
+  box-shadow: none; scale: .72;
+  transition: scale .15s, background .15s;
+}
+.kal-mini .kal-punkt.kal-zukunft,
+.kal-mini .kal-punkt:disabled {
+  background: transparent; cursor: default; scale: .72;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--muted) 20%, var(--card));
+}
+.kal-mini .kal-punkt.kal-aktiv {
+  scale: 1;
+  background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--primary) 30%, #fff) 0 22%, transparent 23%), color-mix(in srgb, var(--primary) 45%, #fff);
+  box-shadow: inset 0 -2px 0 color-mix(in srgb, var(--primary) 70%, #fff);
+}
+.kal-mini .kal-punkt.kal-s2 {
+  background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--primary) 45%, #fff) 0 22%, transparent 23%), color-mix(in srgb, var(--primary) 78%, #fff);
+  box-shadow: inset 0 -2px 0 var(--primary-dark);
+}
+.kal-mini .kal-punkt.kal-s3 {
+  background: radial-gradient(circle at 34% 28%, color-mix(in srgb, var(--primary) 55%, #fff) 0 22%, transparent 23%), var(--primary);
+  box-shadow: inset 0 -2.5px 0 var(--primary-press), 0 1px 3px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+.kal-mini .kal-punkt.kal-heute { outline: 2px solid var(--navy); outline-offset: 1.5px; scale: 1; }
+.kal-mini .kal-punkt.kal-gewaehlt { outline: 2.5px solid var(--gold, #ffc800); outline-offset: 1.5px; scale: 1.12; }
+.kal-mini .kal-punkt:not(:disabled):hover { scale: 1.15; }
+.kal-monat-name span { box-shadow: 0 2px 0 color-mix(in srgb, var(--primary) 25%, #fff); }
+/* Legende */
+.kal-legende { display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin: 12px 2px 0; font-size: .74rem; font-weight: 700; color: var(--muted); }
+.kal-legende .kal-punkt { width: 13px; height: 13px; aspect-ratio: 1; pointer-events: none; }
+.kal-legende.kal-mini { display: flex; }

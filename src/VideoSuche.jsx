@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { API_URL } from './api.js'
 import { useTexte } from './sprache.js'
@@ -139,7 +140,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
             placeholder={t('vs.zBGesunde')}
           />
           <button type="submit" className="btn" disabled={laedt || !begriff.trim()}>
-            {laedt ? t('vs9.sucht') : 'Suchen'}
+            {laedt ? <>{t('vs9.sucht')}<LadeKreis art="suche" kurz /></> : 'Suchen'}
           </button>
         </form>
 

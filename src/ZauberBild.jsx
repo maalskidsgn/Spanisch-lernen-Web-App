@@ -56,6 +56,27 @@ const BILDER = {
       <path d="M46 32Q54 28 63 32M46 39Q54 35 63 39M46 46Q54 42 58 44" stroke={F.hell} strokeWidth="2.6" fill="none" strokeLinecap="round" />
     </>
   ),
+  // Verb-Generator (16.11.2026): Tabellenkarte mit Personen und Formen,
+  // davor die goldene „Wechsel“-Münze – hier wird durchkonjugiert
+  verben: (
+    <>
+      <rect x="12" y="24" width="50" height="42" rx="9" fill={F.dunkel} />
+      <rect x="12" y="21" width="50" height="42" rx="9" fill="#fff" />
+      <path d="M12 30a9 9 0 0 1 9-9h32a9 9 0 0 1 9 9v5H12z" fill={F.haupt} />
+      <text x="37" y="31.5" textAnchor="middle" fontFamily="Nunito, system-ui, sans-serif" fontWeight="900" fontSize="8.5" fill="#fff">yo · tú</text>
+      <rect x="17" y="39.5" width="11" height="5.5" rx="2.75" fill={F.haupt} />
+      <rect x="31" y="39.5" width="24" height="5.5" rx="2.75" fill={F.hell} />
+      <rect x="17" y="48" width="11" height="5.5" rx="2.75" fill={F.haupt} opacity=".65" />
+      <rect x="31" y="48" width="18" height="5.5" rx="2.75" fill={F.hell} />
+      <rect x="17" y="56.5" width="11" height="4" rx="2" fill={F.haupt} opacity=".35" />
+      <circle cx="61" cy="56" r="12.5" fill="#d19b00" />
+      <circle cx="61" cy="53.5" r="12.5" fill="#ffd34d" />
+      <path d="M54.6 52.6a6.6 6.6 0 0 1 11.3-3.4" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M67.9 45.6l-.3 5.4-5-1.9z" fill="#fff" />
+      <path d="M67.4 54.4a6.6 6.6 0 0 1-11.3 3.4" stroke="#fff" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M54.1 61.4l.3-5.4 5 1.9z" fill="#fff" />
+    </>
+  ),
 }
 
 export default function ZauberBild({ art }) {

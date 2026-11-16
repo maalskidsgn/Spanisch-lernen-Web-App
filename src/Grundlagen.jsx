@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import ZauberBild from './ZauberBild.jsx'
+import LadeKreis from './LadeKreis.jsx'
 import { LEKTIONEN } from './lektionen.js'
 import WISSEN_TABELLEN from './wissenTabellen.js'
 import { sprache } from './sprache.js'
@@ -53,6 +55,13 @@ const EN = {
   'Verb konjugieren': 'Conjugate a verb',
   'Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – in English or Spanish. You get all the important tenses as tables.',
   'z. B. {0}': 'e.g. {0}',
+  'KI-Verbgenerator': 'AI verb generator',
+  'Alle wichtigen Zeiten eines Verbs als Tabelle.': 'All the important tenses of a verb as tables.',
+  'Verb aus deinem Trainer wählen': 'Pick a verb from your trainer',
+  'Häufiges Verb wählen': 'Pick a common verb',
+  '… oder eigenes Verb, z. B. {0}': '… or your own verb, e.g. {0}',
+  'Erstellt die Tabelle': 'Building the table',
+  'Tabelle zeigen': 'Show table',
   'Zeigen': 'Show',
   'Aus deinem Trainer': 'From your trainer',
   'Häufige Verben': 'Common verbs',
@@ -177,6 +186,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
   const [haeufig, setHaeufig] = useState([])
+  const ergebnisRef = useRef(null)
   const [gespeichert, setGespeichert] = useState(() => new Set(lies(EIGENE, []).map((k) => k.verb)))
 
   useEffect(() => beiAbgleich(() => setGespeichert(new Set(lies(EIGENE, []).map((k) => k.verb)))), [])
@@ -208,6 +218,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
       if (!res.ok) throw new Error(d.error || 'Fehler')
       setDaten(d)
       setZeitNr(0)
+      setTimeout(() => ergebnisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
     } catch (f) {
       setDaten(null)
       setFehler(f.message)
@@ -233,34 +244,62 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
 
   return (
     <section className="bereich gl-konj">
-      <div className="gl-konj-kopf">
-        <span className="gl-konj-bild" aria-hidden="true">🔁</span>
-        <div>
-          <h2>{tx('Verb konjugieren')}</h2>
-          <p>{tx('Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.')}</p>
-        </div>
-      </div>
-      <form className="schnell-form" onSubmit={(e) => { e.preventDefault(); holen() }}>
-        <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder={tx('z. B. {0}', (sp === 'en' ? 'speak' : 'sprechen') + ' / ser')} maxLength={40} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
-        <button type="submit" className="schnell-los" disabled={!eingabe.trim() || laedt}>{laedt ? <span className="schnell-punkte" aria-label="…" /> : tx('Zeigen')}</button>
-      </form>
-      {vorschlaege.length > 0 && !daten && (
-        <div className="gl-konj-vorschlaege">
-          <small>{ausTrainer.length ? tx('Aus deinem Trainer') : tx('Häufige Verben')}</small>
-          <div>
-            {vorschlaege.map((v) => (
-              <button key={v.verb} type="button" className="gl-konj-chip" onClick={() => holen(v.verb, v.name)}>
-                <b>{v.name}</b>
-                {v.name !== v.verb && <i>{v.verb}</i>}
-              </button>
-            ))}
+      {/* Gleicher Aufbau wie Listen-, Satz- und Textgenerator (16.11.2026, Manuel) */}
+      <div className="list-gen">
+        <div className="gen-kopf">
+          <ZauberBild art="verben" />
+          <div className="gen-text">
+            <h2>{tx('KI-Verbgenerator')}</h2>
+            <p>{tx('Alle wichtigen Zeiten eines Verbs als Tabelle.')}</p>
           </div>
         </div>
-      )}
+
+        <form className="wort-form" onSubmit={(e) => { e.preventDefault(); holen() }}>
+          {vorschlaege.length > 0 && (
+            <>
+              <p className="sg-schritt"><span>1</span> {ausTrainer.length ? tx('Verb aus deinem Trainer wählen') : tx('Häufiges Verb wählen')}</p>
+              <div className="sg-themen gl-verben">
+                {vorschlaege.map((v) => (
+                  <button
+                    key={v.verb}
+                    type="button"
+                    className={'sg-thema gl-verb' + (eingabe === v.name ? ' ist-aktiv' : '')}
+                    disabled={laedt}
+                    onClick={() => holen(v.verb, v.name)}
+                  >
+                    <b>{v.name}</b>
+                    {v.name !== v.verb && <i>{v.verb}</i>}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="gen-feld sg-eigenes">
+            <input
+              type="text"
+              value={eingabe}
+              onChange={(e) => setEingabe(e.target.value)}
+              placeholder={tx('… oder eigenes Verb, z. B. {0}', (sp === 'en' ? 'speak' : 'sprechen') + ' / ser')}
+              maxLength={40}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              disabled={laedt}
+            />
+          </div>
+
+          <div className="gen-knoepfe">
+            <button type="submit" className="btn gen-los" disabled={!eingabe.trim() || laedt}>
+              {laedt ? <>{tx('Erstellt die Tabelle')}<LadeKreis art="konjugation" /></> : tx('Tabelle zeigen')}
+            </button>
+          </div>
+        </form>
+      </div>
       {fehler && <p className="schnell-fehler">{fehler}</p>}
 
       {daten && zeit && (
-        <div className="gl-konj-ergebnis">
+        <div className="gl-konj-ergebnis" ref={ergebnisRef}>
           <div className="gl-konj-verb">
             {chips(`*${daten.verb}*`, laut)}
             <span>{daten.bedeutung[sp] ?? daten.bedeutung.de}</span>

@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { ohneKasse } from './kauf.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { zaehleNutzung, kontingentLeer } from './limits.js'
@@ -169,7 +170,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
           <button type="submit" className="btn wort-los" disabled={laedt || aufgebraucht}>
             {laedt ? (
-              <>{t('eb.schreibtDeinBuch')}<span className="studio-punkte" /></>
+              <>{t('eb.schreibtDeinBuch')}<LadeKreis art="ebook" /></>
             ) : (
               t('eb9.buchErstellen')
             )}

@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { ohneKasse } from './kauf.js'
 // Buch-Generator im Blinkist-Stil (Manuel, 10.11.2026):
 // Echte Bücher nach Themen wählen (oder eigenen Titel / Text) → 8 Kapitel,
@@ -293,7 +294,7 @@ export function BuchFormular({ onFertig }) {
                 ))}
               </div>
               {darf ? (
-                <button type="submit" className="bg-los" disabled={laedt}>{laedt ? L.laedt : L.losKurz}</button>
+                <button type="submit" className="bg-los" disabled={laedt}>{laedt ? <>{L.laedt}<LadeKreis art="buch" /></> : L.losKurz}</button>
               ) : (
                 <button type="button" className="gh-knopf bg-premium-knopf" onClick={zurKasse}>
                   <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>

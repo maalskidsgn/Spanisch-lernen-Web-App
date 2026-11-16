@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react'
 import { ladeBenutzername } from './rangliste.js'
 import { FeedTuer } from './Feed.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
-import { useTexte, gebiet, text as inhaltsText, t } from './sprache.js'
+import { useTexte, gebiet, text as inhaltsText, t, sprache } from './sprache.js'
 import { IconPfeil, IconLandkarte, IconSprache, IconBuch } from './icons.jsx'
 
 // Die Startseite.
@@ -484,7 +484,8 @@ function Kalender() {
                       aria-label={kalDatum(t.schluessel)}
                       className={
                         'kal-punkt' +
-                        (t.gesamt > 0 ? ' kal-aktiv' : '') +
+                        // Stufe nach Lernmenge (16.11.2026): je mehr gelernt, desto kräftiger
+                        (t.gesamt > 0 ? ' kal-aktiv kal-s' + (t.gesamt >= 25 ? 3 : t.gesamt >= 8 ? 2 : 1) : '') +
                         (t.istHeute ? ' kal-heute' : '') +
                         (t.zukunft ? ' kal-zukunft' : '') +
                         (gewaehlt?.schluessel === t.schluessel ? ' kal-gewaehlt' : '')
@@ -495,6 +496,15 @@ function Kalender() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {ansicht === 'jahr' && (
+          <div className="kal-legende kal-mini" aria-hidden="true">
+            {(sprache() === 'en' ? 'less' : 'wenig')}
+            <span className="kal-punkt kal-aktiv kal-s1" />
+            <span className="kal-punkt kal-aktiv kal-s2" />
+            <span className="kal-punkt kal-aktiv kal-s3" />
+            {(sprache() === 'en' ? 'more' : 'viel')}
           </div>
         )}
       </div>
