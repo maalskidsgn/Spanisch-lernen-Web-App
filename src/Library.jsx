@@ -1,4 +1,5 @@
 import GratisHinweis, { zurKasse } from './GratisHinweis.jsx'
+import { useKontingent } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { API_URL, istApp } from './api.js'
 import { ladeListen, neueListe } from './videoListen.js'
@@ -144,7 +145,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // Eigene YouTube-Videos: nur Premium (09.11.).
   const { premium: istPremium } = usePremium()
   // Gesperrt schon während des Ladens (Stand aus dem Speicher) – sonst blitzt das Formular auf
-  const videosGesperrt = !istPremium && !TESTPHASE_ALLES_FREI
+  // Seit 16.11.: 1 eigenes Video pro Monat gratis – gesperrt erst, wenn es verbraucht ist
+  const kontingent = useKontingent(istPremium)
+  const videosGesperrt = !istPremium && !TESTPHASE_ALLES_FREI && kontingent.video.uebrig <= 0
   const t = useTexte()
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
@@ -805,7 +808,7 @@ function VideoEngine({ wert, onWert, onSuche, bilder = [], gesperrt = false }) {
             <rect x="5" y="10" width="14" height="10" rx="3" fill="currentColor" />
             <path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" strokeWidth="2.6" fill="none" />
           </svg>
-          <span>{sprache() === 'en' ? 'Search your own YouTube videos – with Premium' : 'Eigene YouTube-Videos suchen – mit Premium'}</span>
+          <span>{sprache() === 'en' ? 'Free video used up – more with Premium' : 'Gratis-Video verbraucht – mehr mit Premium'}</span>
         </button>
       ) : (
         <>

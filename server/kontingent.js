@@ -20,9 +20,11 @@
  * Der Monat beginnt am 1. Premium hat keine Grenze.
  * Gleiche Werte in src/limits.js (nur Anzeige) und in der anderen App.
  */
-export const KI_PRO_MONAT = 10
+export const KI_PRO_MONAT = 12 // seit 16.11.2026 (Manuel), vorher 10
 // 09.11.2026: eigene Videos nur mit Premium – gratis 0, Mediathek frei
-export const VIDEOS_PRO_WOCHE = 0
+export const VIDEOS_PRO_WOCHE = 1 // seit 16.11.2026: 1 eigenes YouTube-Video pro MONAT gratis (Name historisch)
+export const VIDEOS_FREI_MONAT = 1
+export const BUECHER_FREI_MONAT = 1 // 1 eigenes E-Book pro Monat gratis (16.11.2026)
 // Alte Namen, damit bestehender Code weiterläuft
 export const VIDEOS_PRO_TAG = VIDEOS_PRO_WOCHE
 
@@ -144,7 +146,8 @@ export async function monatsStand(nutzerId) {
   const ki = await nutzungHeute(nutzerId, 'ki')
   return {
     ki: { genutzt: ki, gesamt: KI_PRO_MONAT },
-    video: { genutzt: 0, gesamt: VIDEOS_PRO_WOCHE }, // eigene Videos nur Premium
+    video: { genutzt: await nutzungHeute(nutzerId, 'video'), gesamt: VIDEOS_FREI_MONAT },
+    buch: { genutzt: await nutzungHeute(nutzerId, 'buch'), gesamt: BUECHER_FREI_MONAT },
     auffuellung: naechsterMonat().toISOString(),
   }
 }

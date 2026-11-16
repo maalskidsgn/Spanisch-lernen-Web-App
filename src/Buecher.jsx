@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import GratisHinweis, { zurKasse } from './GratisHinweis.jsx'
 import { API_URL, istApp } from './api.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { loginKopf, kontingentLeer, zaehleNutzung } from './limits.js'
+import { loginKopf, kontingentLeer, zaehleNutzung, useKontingent, holeKontingent } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
 import { XP } from './gamification.js'
 import { erfolgston } from './erfolgston.js'
@@ -166,7 +166,9 @@ export function BuchFormular({ onFertig }) {
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
   const { premium } = usePremium()
-  const darf = premium || TESTPHASE_ALLES_FREI
+  // Seit 16.11.: 1 eigenes E-Book pro Monat gratis (eigener Zähler, nicht der KI-Topf)
+  const kontingent = useKontingent(premium)
+  const darf = premium || TESTPHASE_ALLES_FREI || kontingent.buch.uebrig > 0
 
   const aktuell = themen.find((t) => t.id === thema) ?? themen[0]
   const katalogTitel = gewaehlt ? (en ? gewaehlt.en : gewaehlt.de) : ''
@@ -185,9 +187,10 @@ export function BuchFormular({ onFertig }) {
         body: JSON.stringify({ titel: anfrageTitel, text: eigenesOffen && textOffen ? text : '', niveau, sprache: sprache() }),
       })
       const daten = await res.json()
-      if (res.status === 402) kontingentLeer()
+      if (res.status === 402) kontingentLeer(premium ? 'ki' : 'buch')
       if (!res.ok) throw new Error(daten.nachricht || daten.error)
-      zaehleNutzung()
+      if (premium) zaehleNutzung()
+      else holeKontingent()
       setTitel('')
       setText('')
       setTextOffen(false)

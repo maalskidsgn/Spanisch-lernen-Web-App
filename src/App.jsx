@@ -1,4 +1,4 @@
-import { pausierteSchluessel, MAX_VOKABELN } from './limits.js'
+import { pausierteSchluessel, MAX_VOKABELN, kontingentLeer, holeKontingent } from './limits.js'
 import { pushEinrichten } from './push.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { IconSprache, IconFunken, IconLesezeichen, IconMediathek } from './icons.jsx'
@@ -1223,8 +1223,10 @@ export default function App() {
           t('apm.transkriptDienstIst')
         )
       }
+      if (res.status === 402) kontingentLeer('video')
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
+      holeKontingent() // 1 Gratis-Video/Monat: Anzeige angleichen
     } catch (err) {
       setError(err.message)
     } finally {

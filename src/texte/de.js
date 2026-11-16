@@ -1120,7 +1120,7 @@ export default {
 
   /* ---------------- Ebooks (Meldungen) ---------------- */
   "ebm.deinMonatskontingentIst": "Deine Gratis-Erstellungen für diesen Monat sind aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.",
-  "ebm.deinMonatskontingentIst2": "Deine 10 Gratis-Erstellungen für diesen Monat sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.",
+  "ebm.deinMonatskontingentIst2": "Dein Gratis-E-Book für diesen Monat ist verbraucht – mit Premium schreibst du bis zu 50 Bücher im Monat.",
   "ebm.dieWichtigstenWoerter": "Die wichtigsten Wörter",
   "ebm.alleInDen": "＋ Alle in den Vokabeltrainer",
   "ebm.keineUebersetzungGefunden": "Keine Übersetzung gefunden",
