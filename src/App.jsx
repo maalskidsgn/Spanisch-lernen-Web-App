@@ -678,7 +678,7 @@ export default function App() {
       // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
       // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
       meilensteinAbgleichRef.current = null
-      if (nutzer && !einrichtungRef.current) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
+      if (nutzer && !einrichtungRef.current && Date.now() - new Date(nutzer.created_at).getTime() < 2 * 86400000) setStartGeschenk(true) // nur neue Konten – der Merker liegt nur im Browser, auf neuen Geräten kam es sonst wieder (16.11.) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
