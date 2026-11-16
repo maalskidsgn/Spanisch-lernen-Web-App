@@ -41,7 +41,15 @@ const TEXT = {
 const FARBEN = { woerter: 'var(--primary)', saetze: '#4fa8ff', lektionen: '#2bb6a3', texte: '#8b5cf6', video: '#ff7aa2', habla: '#ffc43d' }
 // Aufwand je Einheit in Minuten – so werden Wörter, Lektionen und Video vergleichbar
 const GEWICHT = { woerter: 0.2, saetze: 0.4, lektionen: 4, texte: 3, video: 1, habla: 1 }
-const TAGE_ZEITRAUM = { woche: 7, monat: 30, jahr: 365 }
+// Kalender-Zeiträume wie die Kacheln „Diese Woche“/„Dieser Monat“ (16.11.2026):
+// Woche ab Montag, Monat ab dem 1., Jahr ab dem 1. Januar – vorher waren es
+// 7/30/365 Tage, und die Zahlen passten nicht zu den Kacheln darüber.
+function tageImZeitraum(z) {
+  const d = new Date()
+  if (z === 'woche') return ((d.getDay() + 6) % 7) + 1
+  if (z === 'monat') return d.getDate()
+  return Math.floor((d - new Date(d.getFullYear(), 0, 1)) / 86400000) + 1
+}
 
 const tag = (d) => d.toLocaleDateString('sv-SE')
 const vor = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return d }
@@ -83,7 +91,7 @@ function laengsteSerie(daten) {
   return best
 }
 
-export default function ProfilInsights({ benutzername }) {
+export default function ProfilInsights({ benutzername, gesamtXp, seit }) {
   const T = TEXT[sprache() === 'en' ? 'en' : 'de']
   const [roh, setRoh] = useState(undefined) // undefined = lädt, null = nicht verfügbar
   const [zeitraum, setZeitraum] = useState('woche')
@@ -105,8 +113,19 @@ export default function ProfilInsights({ benutzername }) {
 
   const auswertung = useMemo(() => {
     if (!daten) return null
-    const n = TAGE_ZEITRAUM[zeitraum]
+    const n = tageImZeitraum(zeitraum)
     const jetzt = summe(daten, n)
+    // Tages-XP gibt es erst seit dem 28.10.2026. Was davor gesammelt wurde,
+    // steckt nur in der Gesamtzahl – liegt der Start im laufenden Jahr,
+    // gehört es ins Jahr. Und kein Zeitraum zeigt mehr als insgesamt
+    // (vor dem 16.11. wurden manche Tage doppelt gebucht).
+    if (Number.isFinite(gesamtXp)) {
+      if (zeitraum === 'jahr' && seit && new Date(seit).getFullYear() === new Date().getFullYear()) {
+        const alle = Object.values(daten.xp).reduce((s, v) => s + (Number(v) || 0), 0)
+        jetzt.xp += Math.max(0, gesamtXp - alle)
+      }
+      jetzt.xp = Math.min(jetzt.xp, gesamtXp)
+    }
     const davor = summe(daten, n, n)
     const trend = davor.xp > 0 ? Math.round(((jetzt.xp - davor.xp) / davor.xp) * 100) : null
     // Wochentage + Bereiche im Zeitraum
@@ -134,7 +153,7 @@ export default function ProfilInsights({ benutzername }) {
       serie: laengsteSerie(daten),
       leer: jetzt.minuten === 0 && jetzt.xp === 0,
     }
-  }, [daten, zeitraum])
+  }, [daten, zeitraum, gesamtXp, seit])
 
   if (!auswertung) return null
   const a = auswertung
