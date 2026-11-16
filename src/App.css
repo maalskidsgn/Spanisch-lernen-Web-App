@@ -18519,3 +18519,44 @@ body.liest-video .video-kopf {
 }
 .kasse-form .kasse-los:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 2px 0 var(--primary-dark); }
 .kasse-form .kasse-los:disabled { opacity: .5; }
+
+/* ===== Einführung: Bühne mit schwebendem Bild + Hinweis-Sprechblase (16.11.2026) ===== */
+.ef { background:
+  radial-gradient(60% 40% at 50% 0%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 70%),
+  var(--bg); }
+.ef-kopf { display: flex; flex-direction: column; align-items: center; gap: 14px; margin: 6px 0 20px; }
+.ef-held { position: relative; width: 170px; height: 138px; animation: ef-auftritt .6s cubic-bezier(.22, 1.2, .36, 1) both; }
+.ef-held-glanz { position: absolute; left: 50%; top: 4px; width: 150px; height: 110px; margin-left: -75px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--primary) 34%, transparent), transparent 68%); filter: blur(4px);
+  animation: ef-glanz 3.4s ease-in-out infinite; }
+.ef-held-podest { position: absolute; left: 50%; bottom: 10px; width: 128px; height: 36px; margin-left: -64px; border-radius: 50%;
+  background: linear-gradient(180deg, var(--card) 0%, color-mix(in srgb, var(--primary) 16%, var(--card)) 100%);
+  box-shadow: 0 9px 0 color-mix(in srgb, var(--primary) 32%, var(--card)), 0 20px 26px color-mix(in srgb, var(--primary) 22%, transparent); }
+.ef-held-bild { position: absolute; left: 50%; bottom: 28px; width: 96px; height: 96px; margin-left: -48px; z-index: 1;
+  filter: drop-shadow(0 12px 10px rgba(0, 0, 0, .14)); animation: ef-schweben 3.4s ease-in-out infinite; }
+.ef-held-bild .nav-bild { display: block; width: 100%; height: 100%; }
+.ef-held i { position: absolute; font-style: normal; color: var(--primary); font-size: 18px; opacity: 0; animation: ef-funkeln 2.6s ease-in-out infinite; }
+.ef-funke-a { left: 12px; top: 26px; }
+.ef-funke-b { right: 14px; top: 8px; font-size: 13px !important; animation-delay: 1.2s !important; }
+.ef-coach { display: flex; align-items: flex-start; gap: 10px; width: 100%; }
+.ef-coach-bild { flex: none; width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: var(--card);
+  box-shadow: 0 4px 0 var(--line); animation: ef-auftritt .5s .1s cubic-bezier(.22, 1.2, .36, 1) both; }
+.ef-coach-bild svg, .ef-coach-bild img { width: 32px; height: 32px; }
+.ef-coach-blase { position: relative; flex: 1; margin: 0; padding: 14px 16px; background: var(--card); border: 2px solid var(--line);
+  border-radius: 6px 20px 20px 20px; box-shadow: 0 4px 0 var(--line); color: var(--navy); font-weight: 700; font-size: 1rem; line-height: 1.5;
+  animation: ef-auftritt .45s .15s cubic-bezier(.22, 1.2, .36, 1) both; }
+.ef-coach-blase span { opacity: 0; animation: ef-wort .35s ease forwards; }
+.ef-mitte { text-align: center; align-items: center; }
+.ef-mitte h1 { font-size: 1.8rem; }
+.ef-fertig .ef-xp { animation: ef-auftritt .6s .4s cubic-bezier(.22, 1.4, .36, 1) both; }
+@keyframes ef-auftritt { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes ef-schweben { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes ef-glanz { 0%, 100% { opacity: .75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes ef-funkeln { 0%, 100% { opacity: 0; transform: scale(.6); } 40%, 60% { opacity: .9; transform: scale(1); } }
+@keyframes ef-wort { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .ef-held, .ef-held-bild, .ef-held-glanz, .ef-held i, .ef-coach-bild, .ef-coach-blase, .ef-fertig .ef-xp { animation: none; }
+  .ef-coach-blase span { opacity: 1; animation: none; }
+}
+/* Gesperrter Knopf über die Farbe statt opacity – die Einblend-Animation setzt opacity zurück */
+.ef .ef-knopf:disabled { opacity: 1; background: color-mix(in srgb, var(--primary) 38%, #fff); box-shadow: 0 4px 0 color-mix(in srgb, var(--primary) 50%, #fff); color: rgba(255, 255, 255, .9); }
