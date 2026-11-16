@@ -70,6 +70,17 @@ function lies(k, leer) {
 }
 function schreib(k, wert) {
   try { localStorage.setItem(k, JSON.stringify(wert)) } catch { /* egal */ }
+  // Im Konto sichern (geraeteSync.js) und Zähler im Trainer auffrischen
+  try { window.dispatchEvent(new CustomEvent('grundlagen-geaendert')) } catch { /* egal */ }
+}
+
+/** Ruft `neu` auf, wenn der Abgleich Grundlagen-Daten vom Konto geholt hat. */
+function beiAbgleich(neu) {
+  const horcher = (e) => {
+    if ((e.detail || []).some((k) => k === SPEICHER || k === EIGENE)) neu()
+  }
+  window.addEventListener('geraetedaten', horcher)
+  return () => window.removeEventListener('geraetedaten', horcher)
 }
 
 /** *Wörter* als Chips – auf Wunsch mit Lautschrift darunter. */
@@ -167,6 +178,8 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
   const [fehler, setFehler] = useState('')
   const [haeufig, setHaeufig] = useState([])
   const [gespeichert, setGespeichert] = useState(() => new Set(lies(EIGENE, []).map((k) => k.verb)))
+
+  useEffect(() => beiAbgleich(() => setGespeichert(new Set(lies(EIGENE, []).map((k) => k.verb)))), [])
 
   useEffect(() => {
     fetch(API_URL + '/api/konjugation/vorschlaege').then((r) => r.json()).then((d) => setHaeufig((d.verben ?? []).slice(0, 12))).catch(() => {})
@@ -304,6 +317,12 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
   const [listeOffen, setListeOffen] = useState(false)
   const [laut, lautUmschalten] = useLautschrift()
 
+  // Stand vom Konto (anderes Gerät) übernehmen, sobald der Abgleich ihn bringt
+  useEffect(() => beiAbgleich(() => {
+    setStand(lies(SPEICHER, {}))
+    setVersion((v) => v + 1)
+  }), [])
+
   const faellig = alle.filter((k) => isDue(eintrag(stand, k.id)))
   const sitzen = alle.filter((k) => (eintrag(stand, k.id).intervall ?? 0) >= 21).length
 
@@ -324,7 +343,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
 
   function bewerten(wert) {
     const karte = runde[nr]
-    const neu = { ...stand, [karte.id]: review(eintrag(stand, karte.id), wert) }
+    // `am`: wann bewertet – damit beim Abgleich zweier Geräte der neuere Stand gewinnt
+    const neu = { ...lies(SPEICHER, stand), [karte.id]: { ...review(eintrag(stand, karte.id), wert), am: Date.now() } }
     setStand(neu)
     schreib(SPEICHER, neu)
     if (nr + 1 >= runde.length) { setRunde(null); return }

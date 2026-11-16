@@ -195,7 +195,19 @@ export default function Trainer({
   // drüben in Satztrainer.jsx.
   // Wie viele Texte warten auf das Wiederlesen?
   // Grundlagen-Trainer (16.11.2026): fällige Regeln aus abgeschlossenen Lektionen + eigene Konjugationen
-  const faelligeRegeln = useMemo(() => faelligeGrundlagen(lessonProgress).length, [lessonProgress, deck])
+  // Zähler sofort auffrischen: nach jeder Bewertung und nach dem Abgleich mit dem Konto
+  const [regelTakt, setRegelTakt] = useState(0)
+  useEffect(() => {
+    const neu = () => setRegelTakt((t) => t + 1)
+    window.addEventListener('grundlagen-geaendert', neu)
+    window.addEventListener('geraetedaten', neu)
+    return () => {
+      window.removeEventListener('grundlagen-geaendert', neu)
+      window.removeEventListener('geraetedaten', neu)
+    }
+  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const faelligeRegeln = useMemo(() => faelligeGrundlagen(lessonProgress).length, [lessonProgress, deck, regelTakt])
   const faelligeTexte = useMemo(
     () => { const p = pausierteSchluessel(texte, MAX_TEXTE, allesFrei, 'erstelltAm'); return Object.entries(texte).filter(([k, x]) => !p.has(k) && isDue(withSrsDefaults(x))).length },
     [texte, allesFrei]
