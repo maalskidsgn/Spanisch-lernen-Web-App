@@ -51,7 +51,7 @@ const EN = {
   'Schließ deine erste Lektion ab – dann landen ihre Grundlagen hier.': 'Finish your first lesson – its basics will land here.',
   'neu': 'new', 'fällig': 'due', 'Stufe {0}': 'Level {0}',
   'Verb konjugieren': 'Conjugate a verb',
-  'Tippe ein Verb ein – du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – you get all the important tenses as tables.',
+  'Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – in English or Spanish. You get all the important tenses as tables.',
   'z. B. {0}': 'e.g. {0}',
   'Zeigen': 'Show',
   'Aus deinem Trainer': 'From your trainer',
@@ -178,14 +178,15 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
       .filter(([w]) => ZIEL_ENDUNG.test(w.trim()) && !w.includes(' '))
       .sort((a, b) => (b[1]?.addedAt ?? 0) - (a[1]?.addedAt ?? 0))
       .slice(0, 8)
-      .map(([w]) => w),
+      .map(([w, e]) => ({ verb: w, name: String(e?.translation || '').split(/[,;(/]/)[0].trim() })),
     [vocab],
   )
 
-  async function holen(verb) {
+  // `anzeige`: was im Feld stehen soll – bei Vorschlägen das Wort in der eigenen Sprache
+  async function holen(verb, anzeige) {
     const v = String(verb ?? eingabe).trim()
     if (!v || laedt) return
-    setEingabe(v)
+    setEingabe(anzeige || v)
     setLaedt(true)
     setFehler('')
     try {
@@ -212,7 +213,10 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
   }
 
   const zeit = daten?.zeiten?.[zeitNr]
-  const vorschlaege = ausTrainer.length ? ausTrainer : haeufig
+  // Vorschläge in der Sprache des Lernenden (17.11.2026, Manuel): groß die
+  // Bedeutung, klein das Verb – Anfänger können die Zielsprache noch nicht lesen
+  const vorschlaege = (ausTrainer.length ? ausTrainer : haeufig.map((h) => ({ verb: h.verb, name: h[sp] || h.de })))
+    .map((v) => ({ verb: v.verb, name: v.name || v.verb }))
 
   return (
     <section className="bereich gl-konj">
@@ -220,17 +224,24 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
         <span className="gl-konj-bild" aria-hidden="true">🔁</span>
         <div>
           <h2>{tx('Verb konjugieren')}</h2>
-          <p>{tx('Tippe ein Verb ein – du bekommst alle wichtigen Zeiten als Tabelle.')}</p>
+          <p>{tx('Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.')}</p>
         </div>
       </div>
       <form className="schnell-form" onSubmit={(e) => { e.preventDefault(); holen() }}>
-        <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder={tx('z. B. {0}', 'ser')} maxLength={40} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+        <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder={tx('z. B. {0}', (sp === 'en' ? 'speak' : 'sprechen') + ' / ser')} maxLength={40} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
         <button type="submit" className="schnell-los" disabled={!eingabe.trim() || laedt}>{laedt ? <span className="schnell-punkte" aria-label="…" /> : tx('Zeigen')}</button>
       </form>
       {vorschlaege.length > 0 && !daten && (
         <div className="gl-konj-vorschlaege">
           <small>{ausTrainer.length ? tx('Aus deinem Trainer') : tx('Häufige Verben')}</small>
-          <div>{vorschlaege.map((v) => <button key={v} type="button" className="gl-konj-chip" onClick={() => holen(v)}>{v}</button>)}</div>
+          <div>
+            {vorschlaege.map((v) => (
+              <button key={v.verb} type="button" className="gl-konj-chip" onClick={() => holen(v.verb, v.name)}>
+                <b>{v.name}</b>
+                {v.name !== v.verb && <i>{v.verb}</i>}
+              </button>
+            ))}
+          </div>
         </div>
       )}
       {fehler && <p className="schnell-fehler">{fehler}</p>}

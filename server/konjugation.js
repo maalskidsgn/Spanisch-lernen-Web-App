@@ -11,7 +11,7 @@ import { claudeFetch } from './ki.js'
  * Dieselbe Vorgabe wie scratchpad/konjugation_prompt.py (Vorab-Erzeugung).
  */
 
-const SYSTEM = "Du erstellst Konjugationstabellen für eine Spanisch-Lern-App (Lernende mit Deutsch oder Englisch als Muttersprache).\nEingabe: ein spanisches Verb (Infinitiv, evtl. mit Tippfehler oder konjugiert). Ist es kein Verb: ist_verb = false und sonst leere Felder.\nLiefere den korrekten Infinitiv, die Bedeutung (de/en) und einen kurzen Hinweis (de/en, max. 15 Wörter, z. B. „stark unregelmäßig“, „Stammwechsel e→ie“, „regelmäßig auf -ar“).\nZeiten in GENAU dieser Reihenfolge und mit diesen ids: presente, indefinido, imperfecto, perfecto, futuro, condicional, subjuntivo (Presente de subjuntivo), imperativo (bejaht).\nPersonen (außer imperativo): „yo“, „tú“, „él/ella/usted“, „nosotros/as“, „vosotros/as“, „ellos/ellas/ustedes“.\nimperativo: „tú“, „usted“, „nosotros/as“, „vosotros/as“, „ustedes“.\nname: deutscher und englischer Zeitname (z. B. „Präsens (presente)“ / „Present (presente)“).\nunregelmaessig = true, wenn die Form NICHT dem Muster eines regelmäßigen Verbs ihrer Gruppe folgt (auch Stammwechsel, Akzent-/Schreibänderung).\nbeispiel: ein kurzer Alltagssatz mit einer Form dieser Zeit + Übersetzung de/en.\nAlles muss zu 100 % korrekt sein (Akzente!)."
+const SYSTEM = "Du erstellst Konjugationstabellen für eine Spanisch-Lern-App (Lernende mit Deutsch oder Englisch als Muttersprache).\nEingabe: ein spanisches Verb (Infinitiv, evtl. mit Tippfehler oder konjugiert) ODER ein deutsches bzw. englisches Verb – dann nimm das gebräuchlichste spanische Verb dafür (z. B. „sprechen“ oder „to speak“ → hablar). Ist es kein Verb: ist_verb = false und sonst leere Felder.\nLiefere den korrekten Infinitiv, die Bedeutung (de/en) und einen kurzen Hinweis (de/en, max. 15 Wörter, z. B. „stark unregelmäßig“, „Stammwechsel e→ie“, „regelmäßig auf -ar“).\nZeiten in GENAU dieser Reihenfolge und mit diesen ids: presente, indefinido, imperfecto, perfecto, futuro, condicional, subjuntivo (Presente de subjuntivo), imperativo (bejaht).\nPersonen (außer imperativo): „yo“, „tú“, „él/ella/usted“, „nosotros/as“, „vosotros/as“, „ellos/ellas/ustedes“.\nimperativo: „tú“, „usted“, „nosotros/as“, „vosotros/as“, „ustedes“.\nname: deutscher und englischer Zeitname (z. B. „Präsens (presente)“ / „Present (presente)“).\nunregelmaessig = true, wenn die Form NICHT dem Muster eines regelmäßigen Verbs ihrer Gruppe folgt (auch Stammwechsel, Akzent-/Schreibänderung).\nbeispiel: ein kurzer Alltagssatz mit einer Form dieser Zeit + Übersetzung de/en.\nAlles muss zu 100 % korrekt sein (Akzente!)."
 
 const ZWEI = { type: 'object', properties: { de: { type: 'string' }, en: { type: 'string' } }, required: ['de', 'en'], additionalProperties: false }
 const SCHEMA = {
@@ -60,13 +60,40 @@ try {
 }
 const GEMERKT = new Map()
 
-export function konjugationNachschlagen(verb) {
-  const k = verbSchluessel(verb)
-  return VORAB[k] ?? GEMERKT.get(k) ?? null
+// Anfänger tippen das Verb in ihrer Sprache (17.11.2026, Manuel): „sprechen“
+// oder „to speak“ findet dasselbe Verb. Das häufigere Verb gewinnt bei
+// gleicher Bedeutung (die Datei ist nach Häufigkeit sortiert).
+const ohneKlammern = (text) => String(text || '').replace(/\(.*?\)/g, '')
+const erste = (text) => ohneKlammern(text).split(/[,;/]/)[0].trim()
+const NACH_BEDEUTUNG = new Map()
+{
+  // Rang: Hauptbedeutung vor Nebenbedeutung, Grundform (imperfektiv) vor Aspektpartner
+  const rang = new Map()
+  for (const e of Object.values(VORAB)) {
+    const grundform = /^imperfe[ck]tiv/i.test(e.hinweis?.de || '') ? 0 : 1
+    const namen = [
+      ...ohneKlammern(e.bedeutung?.de).split(/[,;]/).map((t, i) => [t, i]),
+      ...ohneKlammern(e.bedeutung?.en).split(/[,;]/).map((t, i) => [t.trim().replace(/^to\s+/i, ''), i]),
+    ]
+    for (const [n, stelle] of namen) {
+      const k = verbSchluessel(n)
+      const r = Math.min(stelle, 1) * 2 + grundform
+      if (k && !VORAB[k] && (rang.get(k) ?? 9) > r) {
+        rang.set(k, r)
+        NACH_BEDEUTUNG.set(k, e)
+      }
+    }
+  }
 }
 
+export function konjugationNachschlagen(verb) {
+  const k = verbSchluessel(verb)
+  return VORAB[k] ?? GEMERKT.get(k) ?? NACH_BEDEUTUNG.get(k) ?? NACH_BEDEUTUNG.get(k.replace(/^to\s+/, '')) ?? null
+}
+
+/** Vorschläge mit Bedeutung – die App zeigt sie in der Sprache des Lernenden. */
 export function vorschlagsVerben() {
-  return Object.values(VORAB).map((e) => e.verb)
+  return Object.values(VORAB).map((e) => ({ verb: e.verb, de: erste(e.bedeutung?.de), en: erste(e.bedeutung?.en) }))
 }
 
 export async function konjugationErzeugen(verb) {
