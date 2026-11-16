@@ -139,6 +139,8 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
   const [mitDe, setMitDe] = useState(() => lies('dialog-uebersetzung', true))
   const lauf = useRef(0)
   const wiedergabe = useRef(null)
+  const lebt = useRef(true) // Szene noch offen? Danach darf nichts mehr sprechen
+  const spaeter = useRef(0) // verzögert geplante Zeile (Rollenspiel)
   const chatRef = useRef(null)
 
   const tempo = langsam ? 0.75 : 1
@@ -147,6 +149,8 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
   useEffect(() => { vorladen(dialog) }, [dialog])
 
   async function abspielen(ab = 0, nurEine = false) {
+    if (!lebt.current) return
+    clearTimeout(spaeter.current)
     const token = ++lauf.current
     wiedergabe.current?.stop()
     setSpielt(true)
@@ -169,7 +173,9 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
       if (lauf.current !== token) { w.stop(); return }
       wiedergabe.current = w
       const grund = await w.fertig
-      if (lauf.current !== token || grund === 'unterbrochen') return
+      if (lauf.current !== token) return
+      // Ein anderer Ton hat übernommen: Anzeige zurücksetzen, nicht weiterreden
+      if (grund === 'unterbrochen') { setAktiv(null); setSpielt(false); return }
       if (nurEine) break
       await new Promise((f) => setTimeout(f, 520 / tempo))
     }
@@ -181,6 +187,7 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
   }
 
   function stoppen() {
+    clearTimeout(spaeter.current)
     lauf.current++
     wiedergabe.current?.stop()
     setAktiv(null)
@@ -190,8 +197,17 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
   // Von selbst starten (Manuel, 16.11.) – blockt das Gerät den Ton, läuft
   // die Markierung still im Lesetempo
   useEffect(() => {
+    lebt.current = true
     const zeit = setTimeout(() => abspielen(0), 500)
-    return () => { clearTimeout(zeit); lauf.current++; wiedergabe.current?.stop() }
+    // Beim Verlassen: alles aus – auch Zeilen, die erst noch geplant waren.
+    // Sonst sprach die Szene nach dem Weiterklicken noch weiter (Manuel, 16.11.).
+    return () => {
+      lebt.current = false
+      clearTimeout(zeit)
+      clearTimeout(spaeter.current)
+      lauf.current++
+      wiedergabe.current?.stop()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -245,7 +261,8 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
     } else {
       fehlerton()
     }
-    setTimeout(() => abspielen(r.i, true), 450)
+    clearTimeout(spaeter.current)
+    spaeter.current = setTimeout(() => abspielen(r.i, true), 450)
   }
 
   function naechsteRunde() {

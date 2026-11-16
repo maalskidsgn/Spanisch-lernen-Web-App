@@ -216,6 +216,9 @@ export async function vorladen(quelle) {
 }
 
 export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDatei = false } = {}) {
+  // Gleiche Zählung wie spieleZeile: Wer zuletzt gerufen wurde, spricht – eine
+  // ältere Anfrage, die noch auf ihre Datei wartet, bleibt still (16.11., doppelte Stimmen).
+  const meinZug = ++zeilenZug
   const name = await audioName(text, stimme)
   const url = puffer.get(name) || `${ABLAGE}/${name}`
 
@@ -239,7 +242,10 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDa
     }
   }
 
+  if (meinZug !== zeilenZug) return 'still'
+
   if (vorhanden) {
+    if (laufend) laufend.pause()
     const ton = new Audio(url)
     ton.playbackRate = tempo
     // Browser halten beim Verlangsamen die Tonhöhe – klingt also
@@ -248,6 +254,7 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDa
     laufend = ton
     try {
       await ton.play()
+      if (meinZug !== zeilenZug) ton.pause()
       return 'datei'
     } catch {
       // Abspielen blockiert (z.B. Autoplay-Regel) – Browser-Stimme
@@ -256,6 +263,7 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDa
 
   // Automatisch abgespielte Dialoge (16.11.2026): nie die Computerstimme
   if (nurDatei) return 'still'
+  if (meinZug !== zeilenZug) return 'still'
   sprich(sprechText(text))
   return 'browser'
 }
@@ -315,13 +323,33 @@ export function dialogAbspielen(dialog, { beiZeile, nurDatei = false } = {}) {
  *
  * @param {(anteil: number) => void} [opt.beiFortschritt] – 0…1, pro Bildschirmtakt
  */
+// Jede neue Zeile bekommt eine Nummer. Eine ältere Anfrage, die noch auf
+// ihre Datei wartet, darf danach NICHT mehr loslegen – sonst sprechen zwei
+// Stimmen gleichzeitig (Manuel, 16.11.: „Stimmen doppelt“).
+let zeilenZug = 0
+const verworfen = () => ({ art: 'still', fertig: Promise.resolve('unterbrochen'), stop() {} })
+
+// Tab im Hintergrund: sofort still sein
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      zeilenZug++
+      if (laufend) { laufend.pause(); laufend = null }
+      try { speechSynthesis.cancel() } catch { /* kein Ton */ }
+    }
+  })
+}
+
 export async function spieleZeile(text, { stimme = STIMMEN.standard, tempo = 1, beiFortschritt } = {}) {
-  const name = await audioName(text, stimme)
-  const url = puffer.get(name) || `${ABLAGE}/${name}`
+  const meinZug = ++zeilenZug
   if (laufend) {
     laufend.pause()
     laufend = null
   }
+  try { speechSynthesis.cancel() } catch { /* keine Gerätestimme */ }
+  const name = await audioName(text, stimme)
+  if (meinZug !== zeilenZug) return verworfen()
+  const url = puffer.get(name) || `${ABLAGE}/${name}`
 
   let vorhanden = sicherVertont(text, stimme) ? true : bekannt.get(name)
   if (vorhanden === undefined) {
@@ -332,6 +360,7 @@ export async function spieleZeile(text, { stimme = STIMMEN.standard, tempo = 1, 
       vorhanden = false
     }
   }
+  if (meinZug !== zeilenZug) return verworfen()
 
   let takt = 0
   const mitTakt = (lies) => {
@@ -348,6 +377,7 @@ export async function spieleZeile(text, { stimme = STIMMEN.standard, tempo = 1, 
   }
 
   if (vorhanden) {
+    if (laufend) laufend.pause()
     const ton = new Audio(url)
     ton.playbackRate = tempo
     ton.preservesPitch = true
@@ -367,6 +397,8 @@ export async function spieleZeile(text, { stimme = STIMMEN.standard, tempo = 1, 
     })
     try {
       await ton.play()
+      // Während play() wartete, kam schon die nächste Zeile? Dann diese sofort aus.
+      if (meinZug !== zeilenZug) { ton.pause(); return verworfen() }
       mitTakt(() => (ton.duration ? Math.min(1, ton.currentTime / ton.duration) : 0))
       return { art: 'datei', fertig, stop: () => ton.pause() }
     } catch {
