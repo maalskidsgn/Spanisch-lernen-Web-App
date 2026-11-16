@@ -89,12 +89,12 @@ function woerter(text) {
 function Figur({ name, seite, spricht, du }) {
   return (
     <div className={'dlg-figur dlg-' + seite + (spricht ? ' spricht' : '') + (du ? ' du' : '')}>
-      <span className="dlg-kopf" aria-hidden="true">
-        <i className="dlg-auge" /><i className="dlg-auge" />
-        <i className="dlg-mund" />
-      </span>
-      <span className="dlg-wellen" aria-hidden="true"><i /><i /><i /></span>
-      <b className="dlg-name">{name}</b>
+      {/* Ohne Gesichter (Manuel, 16.11.: „hässliche Smileys raus“) – nur Namensschild,
+          beim Sprechen farbig mit kleinen Schallwellen */}
+      <b className="dlg-name">
+        {name}
+        <span className="dlg-wellen" aria-hidden="true"><i /><i /><i /></span>
+      </b>
     </div>
   )
 }

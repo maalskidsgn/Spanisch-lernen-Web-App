@@ -18866,3 +18866,26 @@ body.liest-video .video-kopf {
 @media (prefers-reduced-motion: reduce) {
   .dlg-auge, .dlg-wellen i, .dlg-figur.spricht .dlg-mund { animation: none; }
 }
+
+/* Bühne ohne Smiley-Köpfe (16.11.2026, Manuel): nur Namensschilder */
+.dlg-buehne { padding: 16px 18px 14px; }
+.dlg-buehne .dlg-name {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .95rem; padding: 8px 16px; border-radius: 99px;
+  background: var(--card); color: var(--dlg-a-kante);
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--dlg-a) 30%, #fff), 0 3px 0 color-mix(in srgb, var(--dlg-a) 30%, #fff);
+  transition: background .2s, color .2s, transform .25s cubic-bezier(.34, 1.4, .64, 1);
+}
+.dlg-buehne .dlg-rechts .dlg-name {
+  color: var(--dlg-b-kante);
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--dlg-b) 32%, #fff), 0 3px 0 color-mix(in srgb, var(--dlg-b) 32%, #fff);
+}
+.dlg-buehne .dlg-figur.spricht .dlg-name { background: var(--dlg-a); color: #fff; box-shadow: 0 4px 0 var(--dlg-a-kante); transform: translateY(-3px); }
+.dlg-buehne .dlg-rechts.spricht .dlg-name,
+.dlg-buehne .dlg-figur.du .dlg-name { background: var(--dlg-b); color: #fff; box-shadow: 0 4px 0 var(--dlg-b-kante); }
+.dlg-buehne .dlg-wellen { position: static; display: none; gap: 2px; opacity: 1; align-items: center; height: 14px; }
+.dlg-buehne .dlg-figur.spricht .dlg-wellen { display: inline-flex; }
+.dlg-buehne .dlg-wellen i, .dlg-buehne .dlg-rechts .dlg-wellen i { width: 3px; background: currentColor; }
+.dlg-buehne .dlg-wellen i:nth-child(1) { height: 7px; }
+.dlg-buehne .dlg-wellen i:nth-child(2) { height: 13px; }
+.dlg-buehne .dlg-wellen i:nth-child(3) { height: 9px; }
