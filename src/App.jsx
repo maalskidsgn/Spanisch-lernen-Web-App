@@ -685,7 +685,7 @@ export default function App() {
       // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
       // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
       meilensteinAbgleichRef.current = null
-      if (nutzer && !einrichtungRef.current) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
+      if (nutzer && !einrichtungRef.current && Date.now() - new Date(nutzer.created_at).getTime() < 2 * 86400000) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
@@ -1433,21 +1433,25 @@ export default function App() {
   })
   const einrichtungRef = useRef(false)
   const [ersteLektion, setErsteLektion] = useState(0) // > 0: Lektionen öffnen sofort die erste offene Lektion
-  // Einführungs-Lektion (15.11.2026): nach der Einrichtung einmal durch die
-  // ganze App. Zum Ansehen jederzeit mit ?einfuehrung.
+  // Einführungs-Lektion (15.11.2026): Neue Konten gehen ZUERST einmal durch
+  // die ganze App, danach kommt die Einrichtungs-Animation mit dem
+  // Startgeschenk und dann Lektion 1 (Reihenfolge 16.11., Manuel).
+  // 'neu' = dieser Ablauf (auch ?einfuehrung zum Testen), 'rundgang' = aus
+  // dem Leitfaden erneut angesehen → danach zurück zum Start.
   const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
-    try { return new URLSearchParams(window.location.search).has('einfuehrung') } catch { return false }
+    try { return new URLSearchParams(window.location.search).has('einfuehrung') ? 'neu' : false } catch { return false }
   })
-  function einfuehrungZu(weiterLektion) {
+  function einfuehrungZu() {
+    const warNeu = einfuehrungOffen === 'neu'
     setEinfuehrungOffen(false)
     try {
       if (nutzer) localStorage.setItem('einfuehrung:' + nutzer.id, 'fertig')
       const u = new URL(window.location.href)
       if (u.searchParams.has('einfuehrung')) { u.searchParams.delete('einfuehrung'); window.history.replaceState(null, '', u) }
     } catch { /* egal */ }
-    if (weiterLektion) {
-      setView('lektionen')
-      setErsteLektion(Date.now())
+    if (warNeu) {
+      einrichtungRef.current = true
+      setEinrichtung(true) // die Animation mit dem Startgeschenk
     } else setView('start')
   }
   useEffect(() => {
@@ -1458,7 +1462,7 @@ export default function App() {
       localStorage.setItem(k, 'ja')
       if (Date.now() - new Date(nutzer.created_at).getTime() < 86400000) {
         einrichtungRef.current = true
-        setEinrichtung(true)
+        setEinfuehrungOffen('neu') // erst die Einführung, dann die Einrichtung
       }
     } catch { /* ohne Speicher keine Animation */ }
   }, [nutzer])
@@ -1470,9 +1474,12 @@ export default function App() {
       const u = new URL(window.location.href)
       if (u.searchParams.has('einrichtung')) { u.searchParams.delete('einrichtung'); window.history.replaceState(null, '', u) }
     } catch { /* egal */ }
-    // Ohne Trainer-Wahl geht es in die Einführungs-Lektion, danach in Lektion 1 (15.11.2026)
+    // Nach der Einrichtung direkt in die erste Lektion (Einführung lief davor)
     if (trainer) setView('trainer')
-    else setEinfuehrungOffen(true)
+    else {
+      setView('lektionen')
+      setErsteLektion(Date.now())
+    }
   }
   useEffect(() => {
     const werte = {
@@ -1530,6 +1537,21 @@ export default function App() {
     if (rechtSeite === 'konto-loeschen') return <KontoLoeschen onZurueck={zu} />
   }
 
+  // Test ohne Konto (?einfuehrung): Die Einrichtung danach auch vor dem
+  // Zugangs-Tor zeigen – mit Konto läuft sie normal über die App.
+  if (einrichtung && !nutzer && !nutzerLaedt) {
+    return (
+        <Einrichtung
+          app="Habloo"
+          woerter={STARTGESCHENK_WOERTER}
+          saetze={GRUNDPAKET_SAETZE.length}
+          lektionen={LEKTIONEN.length}
+          onFertig={() => einrichtungZu(false)}
+          onTrainer={() => einrichtungZu(true)}
+        />
+    )
+  }
+
   // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
   // Steht VOR dem Zugangs-Tor: Mit ?einfuehrung lässt sie sich auch ohne
   // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
@@ -1539,6 +1561,7 @@ export default function App() {
         <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
         <Einfuehrung
           onFertig={einfuehrungZu}
+          rundgang={einfuehrungOffen === 'rundgang'}
           onAddVocab={addVocabWords}
           addXp={addXp}
           vocab={vocab}
@@ -1895,7 +1918,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={() => setEinfuehrungOffen(true)} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={() => setEinfuehrungOffen('rundgang')} />
         </main>
       )}
 

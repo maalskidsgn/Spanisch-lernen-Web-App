@@ -2,7 +2,9 @@
 // geht einmal spielerisch durch die ganze App – und macht jeden Schritt
 // selbst, statt nur zuzuschauen:
 //
-//   1. erste Wörter antippen (mit Ton)     → so laufen Lektionen
+//   1. erste Wörter antippen               → so laufen Lektionen
+//      (bewusst OHNE Ton: Wörter ohne echte Aufnahme klangen nach
+//      Computerstimme – 16.11., Manuel)
 //   2. zwei kurze Quizfragen
 //   3. eine KI-Wortliste bauen lassen       → „liegt jetzt im Trainer“
 //   4. drei Karten im Mini-Trainer
@@ -23,7 +25,6 @@ import NavBild from './NavBild.jsx'
 import { API_URL } from './api.js'
 import { loginKopf } from './limits.js'
 import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
-import { spiele } from './audio.js'
 import { sprache } from './sprache.js'
 import { XP } from './gamification.js'
 
@@ -72,7 +73,7 @@ const TEXT = {
     ueberspringen: 'Überspringen',
     ganzUeberspringen: 'Einführung überspringen',
     woerterTitel: 'Deine ersten Wörter',
-    woerterUnter: 'Tippe jede Karte an: Du hörst das Wort und siehst die Bedeutung.',
+    woerterUnter: 'Tippe jede Karte an und sieh dir die Bedeutung an.',
     woerterHinweis: 'Genau so starten alle Lektionen.',
     quizTitel: 'Kurzer Check',
     quizFrage: (w) => `Was heißt „${w}“?`,
@@ -105,9 +106,8 @@ const TEXT = {
     profil: 'Unter dem letzten Punkt findest du Liga, Freunde und Einstellungen.',
     flamme: 'Lern jeden Tag ein bisschen – dann wächst deine Flamme.',
     fertigTitel: 'Geschafft!',
-    fertigUnter: 'Du kennst jetzt die ganze App. Am besten machst du direkt mit der ersten echten Lektion weiter.',
-    lektion1: 'Mit Lektion 1 weitermachen',
-    zumStart: 'Zum Start',
+    fertigUnter: 'Du kennst jetzt die ganze App. Gleich packen wir dir dein Startgeschenk ein – dann geht es mit der ersten echten Lektion los.',
+    fertigRundgang: 'Du kennst jetzt die ganze App. Viel Spaß beim Lernen!',
     xp: 'Einführung geschafft',
   },
   en: {
@@ -118,7 +118,7 @@ const TEXT = {
     ueberspringen: 'Skip',
     ganzUeberspringen: 'Skip the tour',
     woerterTitel: 'Your first words',
-    woerterUnter: 'Tap each card: you’ll hear the word and see what it means.',
+    woerterUnter: 'Tap each card to see what it means.',
     woerterHinweis: 'Every lesson starts just like this.',
     quizTitel: 'Quick check',
     quizFrage: (w) => `What does “${w}” mean?`,
@@ -151,9 +151,8 @@ const TEXT = {
     profil: 'The last tab holds your league, friends and settings.',
     flamme: 'Learn a little every day – and your streak flame grows.',
     fertigTitel: 'Done!',
-    fertigUnter: 'You now know the whole app. Best keep going with your first real lesson.',
-    lektion1: 'Continue with lesson 1',
-    zumStart: 'Go to home',
+    fertigUnter: 'You now know the whole app. Next we’ll pack your welcome gift – then your first real lesson starts.',
+    fertigRundgang: 'You now know the whole app. Have fun learning!',
     xp: 'Tour completed',
   },
 }
@@ -167,6 +166,15 @@ function mischen(liste) {
     ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
+}
+
+// Außerhalb der Komponente: Innen definiert würden sie bei jedem Tipp neu
+// erzeugt – und mit der Einblend-Animation jedes Mal neu hereinfliegen.
+function Knopf({ an = true, children, onClick }) {
+  return <button className="ef-knopf" disabled={!an} onClick={onClick}>{children}</button>
+}
+function Ueberspringen({ onClick, children }) {
+  return <button className="ef-leise" onClick={onClick}>{children}</button>
 }
 
 /** Kleine Nachbildung der Menüleiste: zeigt, wo etwas später liegt. */
@@ -192,13 +200,13 @@ function NavMini({ hell, labels }) {
 
 /**
  * @param {object} props
- * @param {(weiterLektion: boolean) => void} props.onFertig
+ * @param {() => void} props.onFertig – danach entscheidet App.jsx (Einrichtung oder Start)
  * @param {(woerter: {wort, uebersetzung, quelle}[]) => void} props.onAddVocab
  * @param {(xp: number, text?: string) => void} props.addXp
  * @param {object} props.vocab – um Dopplungen zu vermeiden
  * @param {{start, lektionen, trainer, mediathek, profil}} props.navLabels
  */
-export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, navLabels }) {
+export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, navLabels, rundgang = false }) {
   const sp = sprache() === 'en' ? 'en' : 'de'
   const tx = TEXT[sp]
   const bed = (w) => w[sp] ?? w.de
@@ -217,7 +225,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
   /* ---- 1. Wörter ---- */
   const [gesehen, setGesehen] = useState([])
   function karteAntippen(w) {
-    spiele(w.wort).catch?.(() => {})
     setGesehen((g) => (g.includes(w.wort) ? g : [...g, w.wort]))
   }
 
@@ -311,7 +318,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
   function kachel(k) {
     const auf = aufRef.current
     if (auf.length === 2 || auf.includes(k) || gefundenRef.current.includes(k.paar)) return
-    if (k.ziel) spiele(k.text).catch?.(() => {})
     const neu = [...auf, k]
     aufRef.current = neu
     setAufgedeckt(neu)
@@ -332,7 +338,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
   const [satzWort, setSatzWort] = useState(null)
   function satzTippen(teil) {
     setSatzWort(teil)
-    spiele(teil.wort).catch?.(() => {})
   }
 
   /* ---- Abschluss ---- */
@@ -344,18 +349,12 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
   }, [schritt])
 
   const fortschritt = (nr / (SCHRITTE.length - 1)) * 100
-  const Knopf = ({ an = true, children, onClick = weiter }) => (
-    <button className="ef-knopf" disabled={!an} onClick={onClick}>{children}</button>
-  )
-  const Ueberspringen = () => (
-    <button className="ef-leise" onClick={weiter}>{tx.ueberspringen}</button>
-  )
 
   return (
     <div className="ef">
       {schritt !== 'start' && schritt !== 'fertig' && (
         <div className="player-top">
-          <button className="btn-plain" onClick={() => onFertig(false)} aria-label={tx.ganzUeberspringen}>✕</button>
+          <button className="btn-plain" onClick={() => onFertig()} aria-label={tx.ganzUeberspringen}>✕</button>
           <div className="xp-bar player-bar">
             <div className="xp-bar-fill" style={{ width: fortschritt + '%' }} />
           </div>
@@ -363,17 +362,17 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
       )}
 
       {schritt === 'start' && (
-        <section className="ef-buehne ef-start">
+        <section key={schritt} className="ef-buehne ef-start">
           <div className="ef-start-bild" aria-hidden="true">👋</div>
           <h1>{tx.titel}</h1>
           <p className="ef-unter">{tx.unter}</p>
-          <Knopf>{tx.los}</Knopf>
-          <button className="ef-leise" onClick={() => onFertig(false)}>{tx.ganzUeberspringen}</button>
+          <Knopf onClick={weiter}>{tx.los}</Knopf>
+          <button className="ef-leise" onClick={() => onFertig()}>{tx.ganzUeberspringen}</button>
         </section>
       )}
 
       {schritt === 'woerter' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.woerterTitel}</h2>
           <p className="ef-unter">{tx.woerterUnter}</p>
           <div className="ef-woerter">
@@ -383,19 +382,19 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                 <button key={w.wort} className={'ef-wortkarte' + (da ? ' ef-gedreht' : '')} onClick={() => karteAntippen(w)}>
                   <b>{w.wort}</b>
                   
-                  <span className="ef-bedeutung">{da ? bed(w) : '🔊'}</span>
+                  <span className="ef-bedeutung">{da ? bed(w) : '👆'}</span>
                 </button>
               )
             })}
           </div>
           <p className="ef-hinweis">{tx.woerterHinweis}</p>
-          <Knopf an={gesehen.length >= WOERTER.length}>{tx.weiter}</Knopf>
-          <Ueberspringen />
+          <Knopf an={gesehen.length >= WOERTER.length} onClick={weiter}>{tx.weiter}</Knopf>
+          <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>
         </section>
       )}
 
       {schritt === 'quiz' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.quizTitel}</h2>
           {frageNr < fragen.length ? (
             <>
@@ -412,7 +411,7 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                 ))}
               </div>
               {antwort && <p className={'ef-rueck' + (antwort.richtig ? ' ef-gut' : '')}>{antwort.richtig ? tx.richtig : tx.falsch}</p>}
-              <Ueberspringen />
+              <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>
             </>
           ) : (
             <>
@@ -421,14 +420,14 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                 <p>{tx.lektionenWo} <b>{navLabels.lektionen}</b>.</p>
                 <NavMini hell="lektionen" labels={navLabels} />
               </div>
-              <Knopf>{tx.weiter}</Knopf>
+              <Knopf onClick={weiter}>{tx.weiter}</Knopf>
             </>
           )}
         </section>
       )}
 
       {schritt === 'liste' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.listeTitel}</h2>
           {!liste && !laedt && (
             <>
@@ -440,7 +439,7 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                   </button>
                 ))}
               </div>
-              <Ueberspringen />
+              <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>
             </>
           )}
           {laedt && (
@@ -470,7 +469,7 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                     <p>{tx.listeWo} <b>{navLabels.trainer}</b>.</p>
                     <NavMini hell="trainer" labels={navLabels} />
                   </div>
-                  <Knopf>{tx.weiter}</Knopf>
+                  <Knopf onClick={weiter}>{tx.weiter}</Knopf>
                 </>
               )}
             </>
@@ -479,7 +478,7 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
       )}
 
       {schritt === 'trainer' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.trainerTitel}</h2>
           {karteNr < karten.length ? (
             <>
@@ -491,27 +490,27 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                 {offen ? <span className="ef-bedeutung">{karten[karteNr].bedeutung}</span> : <span className="ef-bedeutung ef-zu">?</span>}
               </div>
               {!offen ? (
-                <Knopf onClick={() => { setOffen(true); spiele(karten[karteNr].wort).catch?.(() => {}) }}>{tx.aufdecken}</Knopf>
+                <Knopf onClick={() => setOffen(true)}>{tx.aufdecken}</Knopf>
               ) : (
                 <div className="ef-zwei">
                   <button className="ef-knopf ef-knopf-hell" onClick={() => bewerten(false)}>{tx.nochNicht}</button>
                   <button className="ef-knopf" onClick={() => bewerten(true)}>{tx.wusste}</button>
                 </div>
               )}
-              <Ueberspringen />
+              <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>
             </>
           ) : (
             <>
               <p className="ef-hinweis">{tx.trainerHinweis}</p>
               <NavMini hell="trainer" labels={navLabels} />
-              <Knopf>{tx.weiter}</Knopf>
+              <Knopf onClick={weiter}>{tx.weiter}</Knopf>
             </>
           )}
         </section>
       )}
 
       {schritt === 'spiel' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.spielTitel}</h2>
           <p className="ef-unter">{spielFertig ? tx.spielFertig : tx.spielUnter}</p>
           <div className="ef-memory">
@@ -534,16 +533,16 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
                 <p>{tx.spielWo}</p>
                 <NavMini hell="trainer" labels={navLabels} />
               </div>
-              <Knopf>{tx.weiter}</Knopf>
+              <Knopf onClick={weiter}>{tx.weiter}</Knopf>
             </>
           ) : (
-            <Ueberspringen />
+            <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>
           )}
         </section>
       )}
 
       {schritt === 'media' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.mediaTitel}</h2>
           <p className="ef-unter">{tx.mediaUnter}</p>
           <div className="ef-video">
@@ -572,13 +571,13 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
               </div>
             </>
           )}
-          <Knopf an={Boolean(satzWort)}>{tx.weiter}</Knopf>
-          {!satzWort && <Ueberspringen />}
+          <Knopf an={Boolean(satzWort)} onClick={weiter}>{tx.weiter}</Knopf>
+          {!satzWort && <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>}
         </section>
       )}
 
       {schritt === 'ueberblick' && (
-        <section className="ef-buehne">
+        <section key={schritt} className="ef-buehne">
           <h2>{tx.ueberblickTitel}</h2>
           <ul className="ef-ueberblick">
             <li><span aria-hidden="true">🏠</span><p>{tx.start}</p></li>
@@ -586,18 +585,17 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
             <li><span aria-hidden="true">🔥</span><p>{tx.flamme}</p></li>
           </ul>
           <NavMini hell="start" labels={navLabels} />
-          <Knopf>{tx.weiter}</Knopf>
+          <Knopf onClick={weiter}>{tx.weiter}</Knopf>
         </section>
       )}
 
       {schritt === 'fertig' && (
-        <section className="ef-buehne ef-start ef-fertig">
+        <section key={schritt} className="ef-buehne ef-start ef-fertig">
           <div className="ef-start-bild" aria-hidden="true">🎉</div>
           <h1>{tx.fertigTitel}</h1>
-          <p className="ef-unter">{tx.fertigUnter}</p>
+          <p className="ef-unter">{rundgang ? tx.fertigRundgang : tx.fertigUnter}</p>
           <div className="ef-xp">+{XP.LEKTION} XP</div>
-          <Knopf onClick={() => onFertig(true)}>{tx.lektion1}</Knopf>
-          <button className="ef-leise" onClick={() => onFertig(false)}>{tx.zumStart}</button>
+          <Knopf onClick={() => onFertig()}>{tx.weiter}</Knopf>
         </section>
       )}
     </div>
