@@ -271,24 +271,23 @@ export function fehlerton() {
 }
 
 // ---------------------------------------------------------------------------
-// Lektion geschafft „Marimba-Fanfare“ (15.11.2026, Manuel): eigener,
-// größerer Klang für den Lektionsabschluss – damit sich das Ende anders
-// anfühlt als eine einzelne richtige Antwort. Lauf C5–E5–G5–C6, danach
-// ein ausklingender Akkord und zwei helle Glöckchen obendrauf, gut 1,5 s.
-// Gleicher Ton-Schalter und gleicher Gesamtpegel (0.5) wie der Erfolgston.
+// Lektion geschafft „Kalimba-Melodie“ (16.11.2026, Manuel – aus 5 Varianten
+// gewählt, ersetzt die Marimba-Fanfare): kleine Melodie G–C–E–D–C auf der
+// Kalimba, danach ein ausklingender C-Dur-Akkord, knapp 2 s. Eigener Klang
+// für das Lektionsende, damit es sich anders anfühlt als eine richtige
+// Antwort. Gleicher Ton-Schalter und Gesamtpegel (0.5) wie der Erfolgston.
 
-const GLOCKE = [[1, 1, 1], [2.76, 0.18, 0.35], [5.4, 0.06, 0.15]]
+const KALIMBA_LEKTION = [[1, 1, 1], [3.01, 0.14, 0.25], [5.9, 0.05, 0.12]]
 const FANFARE = [
   // [Hz, Einsatz s, Länge s, Lautstärke, Klangfarbe]
-  [523.25, 0, 0.28, 0.3, MARIMBA],
-  [659.25, 0.09, 0.28, 0.3, MARIMBA],
-  [783.99, 0.18, 0.28, 0.3, MARIMBA],
-  [1046.5, 0.27, 0.5, 0.3, MARIMBA],
-  [659.25, 0.45, 1.1, 0.2, MARIMBA],
-  [783.99, 0.45, 1.1, 0.2, MARIMBA],
-  [1046.5, 0.45, 1.2, 0.22, MARIMBA],
-  [2093, 0.5, 0.9, 0.07, GLOCKE],
-  [2637, 0.62, 0.9, 0.06, GLOCKE],
+  [783.99, 0, 0.55, 0.28, KALIMBA_LEKTION],
+  [1046.5, 0.13, 0.55, 0.28, KALIMBA_LEKTION],
+  [1318.5, 0.26, 0.55, 0.28, KALIMBA_LEKTION],
+  [1174.66, 0.42, 0.55, 0.28, KALIMBA_LEKTION],
+  [1046.5, 0.52, 0.55, 0.28, KALIMBA_LEKTION],
+  [1046.5, 0.7, 1.3, 0.14, KALIMBA_LEKTION],
+  [1318.5, 0.7, 1.3, 0.14, KALIMBA_LEKTION],
+  [1567.98, 0.7, 1.3, 0.14, KALIMBA_LEKTION],
 ]
 
 export function lektionTon() {

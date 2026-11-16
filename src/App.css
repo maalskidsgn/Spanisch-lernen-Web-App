@@ -18398,3 +18398,11 @@ body.liest-video .video-kopf {
 .schnell-satz .schnell-wort b { font-size: 1.1rem; line-height: 1.35; white-space: normal; }
 .schnell-satz .schnell-wort span { white-space: normal; }
 .schnell-satz .schnell-rein { margin-top: 8px; }
+
+/* Lernpfad (16.11.2026): Hover/Tippen darf den seitlichen Versatz nicht
+   verlieren – die allgemeine Regel button:hover { transform: scale() }
+   setzte transform zurück, und der Punkt sprang hinter die Schrift. */
+.tpfad .tp-knopf:hover:not(:disabled),
+.tpfad .tp-knopf:active,
+.tpfad .tp-knopf:focus-visible { transform: translateX(var(--versatz)); }
+.tpfad .tp-knopf:hover:not(:disabled) .tp-kugel { translate: 0 -2px; }
