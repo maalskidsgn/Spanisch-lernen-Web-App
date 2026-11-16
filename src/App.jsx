@@ -1297,6 +1297,12 @@ export default function App() {
   // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen.
   // status: standardmäßig "lernen"; aus dem Chat kann ein Wort auch gleich
   // als "gewusst" abgelegt werden ("Kenne ich").
+  // Schnell-Übersetzer (16.11.2026): ein übersetzter Satz landet im Satztrainer
+  function addSatz({ satz, uebersetzung }) {
+    const key = satzSchluessel(satz)
+    setSaetze((alt) => (alt[key] ? alt : { ...alt, [key]: neuerSatz({ satz, uebersetzung }, { thema: sprache() === 'en' ? 'Looked up' : 'Nachgeschlagen' }) }))
+  }
+
   function addVocabWords(woerter, status = 'lernen') {
     // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
     const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
@@ -1806,6 +1812,7 @@ export default function App() {
             nutzerEmail={nutzer?.email}
             nutzerId={nutzer?.id}
             onAddVocab={addVocabWords}
+            onAddSatz={addSatz}
             vocab={vocab}
           />
         </main>

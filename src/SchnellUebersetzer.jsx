@@ -15,21 +15,25 @@ import KiMelden from './KiMelden.jsx'
  */
 const TEXT = {
   de: {
-    titel: 'Wort nachschlagen',
-    unter: 'Deutsch oder Spanisch eintippen – ein Tipp, und es liegt im Trainer.',
+    titel: 'Wort oder Satz übersetzen',
+    unter: 'Wort oder ganzen Satz auf Deutsch oder Spanisch eintippen – ein Tipp, und es liegt im Trainer.',
     platz: 'z. B. Strohhalm oder la pileta',
     los: 'Übersetzen',
     rein: 'In den Trainer',
+    reinSatz: 'In den Satztrainer',
     drin: 'Im Trainer',
+    drinSatz: 'Im Satztrainer',
     neu: 'Neues Wort',
   },
   en: {
-    titel: 'Look up a word',
-    unter: 'Type English or Spanish – one tap and it’s in your trainer.',
+    titel: 'Translate a word or sentence',
+    unter: 'Type a word or a whole sentence in English or Spanish – one tap and it’s in your trainer.',
     platz: 'e.g. straw or la pileta',
     los: 'Translate',
     rein: 'Add to trainer',
+    reinSatz: 'Add to sentence trainer',
     drin: 'In trainer',
+    drinSatz: 'In sentence trainer',
     neu: 'New word',
   },
 }
@@ -41,7 +45,7 @@ const LUPE = (
   </svg>
 )
 
-export default function SchnellUebersetzer({ vocab = {}, onAddVocab }) {
+export default function SchnellUebersetzer({ vocab = {}, onAddVocab, onAddSatz }) {
   const T = TEXT[sprache() === 'en' ? 'en' : 'de']
   const [q, setQ] = useState('')
   const [laedt, setLaedt] = useState(false)
@@ -77,6 +81,12 @@ export default function SchnellUebersetzer({ vocab = {}, onAddVocab }) {
   }
 
   function hinzufuegen(t) {
+    // Ganzer Satz → Satztrainer (16.11.2026)
+    if (daten?.art === 'satz' && onAddSatz) {
+      onAddSatz({ satz: t.wort, uebersetzung: t.uebersetzung })
+      setFrisch((s) => new Set(s).add(t.wort.toLowerCase()))
+      return
+    }
     const uebersetzung = t.hinweis ? `${t.uebersetzung} (${t.hinweis})` : t.uebersetzung
     onAddVocab?.([{ wort: t.wort, uebersetzung, quelle: sprache() === 'en' ? 'Looked up' : 'Nachgeschlagen' }])
     setFrisch((s) => new Set(s).add(t.wort.toLowerCase()))
@@ -105,7 +115,7 @@ export default function SchnellUebersetzer({ vocab = {}, onAddVocab }) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={T.platz}
-          maxLength={60}
+          maxLength={200}
           enterKeyHint="search"
           autoCapitalize="none"
           autoCorrect="off"
@@ -122,9 +132,9 @@ export default function SchnellUebersetzer({ vocab = {}, onAddVocab }) {
         <div className="schnell-ergebnis">
           <ul>
             {daten.treffer.map((t) => {
-              const drin = Boolean(vocab[t.wort.toLowerCase()]) || frisch.has(t.wort.toLowerCase())
+              const drin = (daten.art !== 'satz' && Boolean(vocab[t.wort.toLowerCase()])) || frisch.has(t.wort.toLowerCase())
               return (
-                <li key={t.wort}>
+                <li key={t.wort} className={daten.art === 'satz' ? 'schnell-satz' : undefined}>
                   <div className="schnell-wort">
                     <b>{t.wort}</b>
                     <span>{t.uebersetzung}</span>
@@ -136,7 +146,9 @@ export default function SchnellUebersetzer({ vocab = {}, onAddVocab }) {
                     disabled={drin}
                     onClick={() => hinzufuegen(t)}
                   >
-                    {drin ? '✓ ' + T.drin : '+ ' + T.rein}
+                    {daten.art === 'satz' && onAddSatz
+                      ? (drin ? '✓ ' + T.drinSatz : '+ ' + T.reinSatz)
+                      : (drin ? '✓ ' + T.drin : '+ ' + T.rein)}
                   </button>
                 </li>
               )

@@ -19,6 +19,7 @@ const PRO_TAG = 150
 const SCHEMA = {
   type: 'object',
   properties: {
+    art: { type: 'string', enum: ['wort', 'satz'], description: 'wort = Wort/Wendung, satz = ganzer Satz' },
     treffer: {
       type: 'array',
       items: {
@@ -35,7 +36,7 @@ const SCHEMA = {
     beispiel: { type: 'string', description: 'Ein kurzer, alltäglicher Beispielsatz auf Spanisch mit dem ersten Treffer' },
     beispiel_uebersetzung: { type: 'string' },
   },
-  required: ['treffer', 'beispiel', 'beispiel_uebersetzung'],
+  required: ['art', 'treffer', 'beispiel', 'beispiel_uebersetzung'],
   additionalProperties: false,
 }
 
@@ -56,7 +57,8 @@ export function nachschlagenErlaubt(nutzerId) {
  * @param {'de'|'en'} sprache – Sprache des Lernenden
  */
 export async function schnellUebersetzen(text, sprache = 'de') {
-  const sauber = String(text || '').trim().slice(0, 60)
+  // Seit 16.11.2026 auch ganze Sätze (Manuel) – daher 200 statt 60 Zeichen
+  const sauber = String(text || '').trim().slice(0, 200)
   if (!sauber) return null
   const mutter = sprache === 'en' ? 'Englisch' : 'Deutsch'
   const schluessel = `${sprache}|${sauber.toLowerCase()}`
@@ -78,7 +80,8 @@ export async function schnellUebersetzen(text, sprache = 'de') {
             `oder auf Spanisch (dann erkläre es auf ${mutter}). Tippfehler stillschweigend korrigieren. ` +
             `Gib 1 bis 3 Treffer, den gebräuchlichsten zuerst; "wort" ist IMMER das Spanische Wort, "uebersetzung" IMMER ${mutter}. ` +
             `Nomen IMMER mit bestimmtem Artikel (el/la). Zuerst das Wort, das überall verstanden wird. Nur wenn ein Wort in einer Region wirklich anders heißt, nenne diese Variante als eigenen Treffer mit der richtigen Region in \"hinweis\" (z. B. Argentinien: el colectivo, la pileta, la frutilla). Erfinde keine Regionen – im Zweifel weglassen. ` +
-            `"hinweis" auf ${mutter}, höchstens 8 Wörter, sonst leer. Beispielsatz kurz und alltäglich, Übersetzung auf ${mutter}.`,
+            `Ist die Eingabe ein GANZER SATZ oder eine Frage (ab etwa 4 Wörtern oder mit Satzzeichen am Ende), dann art = "satz" und GENAU EIN Treffer: "wort" = der ganze Satz natürlich und alltagstauglich auf Spanisch, "uebersetzung" = der Satz auf ${{mutter}}, "hinweis" leer oder ein kurzer Hinweis zur Grammatik; "beispiel" und "beispiel_uebersetzung" leer. Sonst art = "wort". ` +
+            `"hinweis" auf ${{mutter}}, höchstens 8 Wörter, sonst leer. Beispielsatz kurz und alltäglich, Übersetzung auf ${mutter}.`,
         },
         { role: 'user', content: sauber },
       ],

@@ -18340,12 +18340,12 @@ body.liest-video .video-kopf {
 @media (prefers-reduced-motion: reduce) { .gitter-feld.feld-tipp { animation: none; } }
 
 /* ===== Trainer-Karten im 3D-Toon-Stil (16.11.2026, Manuel) =====
-   Farbiger Kopf (links: Vokabel/Satz, rechts: die Frage), weißer Körper,
+   Weißer Körper (der farbige Kopf ist am 16.11. auf Manuels Wunsch wieder raus),
    dicke dunkle Unterkante und ganz leicht schräg – wie die Quizkarte auf
    der Startseite. `rotate` statt transform: verträgt sich mit den
    Wegflieg-Animationen (die nutzen transform). */
 .training-stage .flashcard.karte-toon {
-  padding: 0 24px 30px;
+  padding: 40px 24px 30px;
   border-radius: 30px;
   border: 0;
   background: var(--card);
@@ -18386,8 +18386,15 @@ body.liest-video .video-kopf {
   margin: 0 auto 18px;
 }
 @media (max-width: 520px) {
-  .training-stage .flashcard.karte-toon { padding: 0 16px 24px; }
+  .training-stage .flashcard.karte-toon { padding: 32px 16px 24px; }
   .training-stage .flashcard.karte-toon > .karten-kopf { margin: 0 -16px 26px; padding: 14px 16px 12px; font-size: .72rem; }
   .training-stage .flashcard.karte-toon .flash-word { font-size: 2.2rem; }
 }
 @media (prefers-reduced-motion: reduce) { .training-stage .flashcard.karte-toon { rotate: 0deg; } }
+
+/* Schnell-Übersetzer: ganze Sätze (16.11.2026) */
+.schnell-satz { flex-wrap: wrap; }
+.schnell-satz .schnell-wort { flex: 1 1 100%; }
+.schnell-satz .schnell-wort b { font-size: 1.1rem; line-height: 1.35; white-space: normal; }
+.schnell-satz .schnell-wort span { white-space: normal; }
+.schnell-satz .schnell-rein { margin-top: 8px; }

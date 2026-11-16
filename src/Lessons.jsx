@@ -872,7 +872,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
           modul={laufendesModul}
           nummer={MODULE.indexOf(laufendesModul) + 1}
           fortschritt={modulFortschritt(laufendesModul, lessonProgress)}
-          onOeffnen={() => setModul(laufendesModul)}
+          onOeffnen={() => (modulGesperrt(laufendesModul) ? onKasse?.() : setModul(laufendesModul))}
         />
       )}
 
@@ -905,7 +905,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                 (premiumModul ? ' modul-premium' : '')
               }
               disabled={!offen}
-              onClick={() => setModul(m)}
+              // Premium-Modul ohne Premium: direkt zur Kasse, nicht in die Lektionsliste (16.11.2026)
+              onClick={() => (modulGesperrt(m) ? onKasse?.() : setModul(m))}
             >
               <span className="modul-ring" aria-hidden="true">
                 {bald ? '🔜' : offen ? <ModulBild modul={m} /> : '🔒'}

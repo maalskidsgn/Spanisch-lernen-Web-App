@@ -540,7 +540,6 @@ export default function Trainer({
             className={'flashcard karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={t('kt.vokabel')}>{t('kt.weisstDu')}</p>
             {/* Bewusst OHNE Lautsprecher: Nur Lektionswoerter sind
                 vertont, gesammelte nicht – mal Ton, mal keiner wirkte
                 im Trainer uneinheitlich (Manuels Punkt vom 24.08.). */}
@@ -581,7 +580,7 @@ export default function Trainer({
             className={'flashcard karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={t('kt.vokabel')}>{t('tr.wasHeisst')}</p>
+            <p className="lesson-hint">{t('tr.wasHeisst')}</p>
             <div className="word-row">
               <div className="flash-word">{wort}</div>
             </div>
@@ -606,7 +605,7 @@ export default function Trainer({
             className={'flashcard karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={t('kt.vokabel')}>{t('trk.wieSagtMan')}</p>
+            <p className="lesson-hint">{t('trk.wieSagtMan')}</p>
             {/* Bewusst OHNE Lautsprecher: Gesucht ist hier das
                 spanische Wort. Es vorzusprechen waere die Loesung. */}
             <div className="flash-word">{loesung}</div>
