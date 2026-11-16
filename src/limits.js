@@ -15,8 +15,9 @@ import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { sprache } from './sprache.js'
 
-export const KI_PRO_MONAT = 10
-export const VIDEOS_PRO_WOCHE = 0 // eigene Videos nur mit Premium (09.11.)
+export const KI_PRO_MONAT = 12 // seit 16.11.2026, vorher 10
+export const VIDEOS_PRO_WOCHE = 1 // 1 eigenes Video pro MONAT gratis (16.11.2026, Name historisch)
+export const BUECHER_FREI_MONAT = 1 // 1 eigenes E-Book pro Monat gratis
 export const GRATIS_LEKTIONEN_PROZENT = 20 // grob; maßgeblich sind die 2 Gratis-Module (gratisModule.js)
 
 /** Der 1. des laufenden Monats als "JJJJ-MM-TT" – Schlüssel des Zeitraums. */
@@ -27,10 +28,10 @@ export function monatsSchluessel(d = new Date()) {
 function lies() {
   try {
     const g = JSON.parse(localStorage.getItem('nutzung')) ?? {}
-    if (g.woche !== monatsSchluessel()) return { woche: monatsSchluessel(), listen: 0, video: 0 }
-    return { woche: g.woche, listen: g.listen ?? 0, video: g.video ?? 0 }
+    if (g.woche !== monatsSchluessel()) return { woche: monatsSchluessel(), listen: 0, video: 0, buch: 0 }
+    return { woche: g.woche, listen: g.listen ?? 0, video: g.video ?? 0, buch: g.buch ?? 0 }
   } catch {
-    return { woche: monatsSchluessel(), listen: 0, video: 0 }
+    return { woche: monatsSchluessel(), listen: 0, video: 0, buch: 0 }
   }
 }
 
@@ -63,6 +64,7 @@ export function zaehleVideo() {
 export function kontingentLeer(art = 'ki') {
   const stand = lies()
   if (art === 'video') stand.video = VIDEOS_PRO_WOCHE
+  else if (art === 'buch') stand.buch = BUECHER_FREI_MONAT
   else stand.listen = KI_PRO_MONAT
   schreib(stand)
 }
@@ -114,7 +116,7 @@ export async function holeKontingent() {
     if (!res.ok) return
     const d = await res.json()
     if (d.premium) return
-    schreib({ woche: monatsSchluessel(), listen: d.ki?.genutzt ?? 0, video: d.video?.genutzt ?? 0 })
+    schreib({ woche: monatsSchluessel(), listen: d.ki?.genutzt ?? 0, video: d.video?.genutzt ?? 0, buch: d.buch?.genutzt ?? 0 })
   } catch {
     /* offline – lokaler Stand bleibt */
   }
@@ -132,6 +134,7 @@ export function useKontingent(premium = false) {
   return {
     ki: { uebrig: premium ? Infinity : Math.max(0, KI_PRO_MONAT - stand.listen), gesamt: KI_PRO_MONAT },
     video: { uebrig: premium ? Infinity : Math.max(0, VIDEOS_PRO_WOCHE - stand.video), gesamt: VIDEOS_PRO_WOCHE },
+    buch: { uebrig: premium ? Infinity : Math.max(0, BUECHER_FREI_MONAT - (stand.buch ?? 0)), gesamt: BUECHER_FREI_MONAT },
   }
 }
 

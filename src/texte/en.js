@@ -1128,7 +1128,7 @@ export default {
 
   /* ---------------- Ebooks (Meldungen) ---------------- */
   "ebm.deinMonatskontingentIst": "You've used this month's free creations – next month you can write new books again.",
-  "ebm.deinMonatskontingentIst2": "You've used your 10 free creations this month – with Premium, write unlimited books.",
+  "ebm.deinMonatskontingentIst2": "You've used this month's free e-book – with Premium, write up to 50 books a month.",
   "ebm.dieWichtigstenWoerter": "Key Words",
   "ebm.alleInDen": "＋ Add all to Vocab Trainer",
   "ebm.keineUebersetzungGefunden": "No translation found",
@@ -1491,7 +1491,7 @@ export default {
   "rtl.benutzernameUndProfilbild": "Username and profile picture are visible to other users – in the leaderboard, in search, and in duels. Choose both so that no one is disturbed by them: no insults, no violence, nothing sexual, no depiction of other people without their consent, no advertising, and no foreign trademarks or copyrights.",
   "rtl.jederKannEin": "Anyone can report or block a profile via the 'Problem with this profile?' button. We review reported profiles. If something violates these rules, we remove the image or name – for repeated or serious violations, we block the account. A blocked person will no longer appear anywhere for the person who blocked them.",
   "rtl.wennDuMeinst": "If you believe we have unjustly removed something, write to us at lernen@habloo.de. We will respond and explain our decision.",
-  "rtl.alleLernfunktionenSind": "Free: the first 2 of 7 modules, 10 AI creations per month and every video in the library. Premium unlocks everything without limits: all lessons, unlimited vocab lists, sentences, texts and e-books, your own videos and 120 minutes of speaking practice per month.",
+  "rtl.alleLernfunktionenSind": "Free: the first 2 of 7 modules, 12 AI creations per month, 1 YouTube video and 1 e-book of your own per month and every video in the library. Premium unlocks everything without limits: all lessons, unlimited vocab lists, sentences, texts and e-books, your own videos and 120 minutes of speaking practice per month.",
   "rtl.dieJeweilsGeltenden": "The applicable prices are listed in the application. At the time of this version: €9.99 monthly or €89.99 annually. All prices include statutory VAT.",
   "rtl.mitDemAnlegen": "By creating an account, a free usage contract is concluded. A premium contract is concluded when you complete the order process via our payment service provider Stripe. We confirm the contract to you by email.",
   "rtl.dasMonatsaboLaeuft": "The monthly subscription runs for one month and is extended by another month if you do not cancel it by the end of the term. The annual subscription runs for one year and is extended by one month after the first year (§ 312k BGB). The one-time purchase has no term.",
