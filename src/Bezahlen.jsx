@@ -219,7 +219,8 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
   }, [tarif]) // anderer Tarif = neuer Bezahlvorgang
 
   const geld = (p) =>
-    p ? p.betrag.toLocaleString(gebiet(), { style: 'currency', currency: p.waehrung }) : null
+    // Ganze Beträge ohne „,00“ (149 € statt 149,00 €, 16.11.2026)
+    p ? p.betrag.toLocaleString(gebiet(), { style: 'currency', currency: p.waehrung, minimumFractionDigits: Number.isInteger(p.betrag) ? 0 : 2 }) : null
   const preis = preise?.[tarif] ?? null
   const preisText = geld(preis)
   const zeitraum = { monat: t('bz9.proMonat'), jahr: t('bz9.proJahr'), lifetime: t('bz9.einmalig') }[tarif]
@@ -240,6 +241,12 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       name: t('bz.jaehrlich'),
       unter: preise?.jahr ? t('bzc.proMonatEtwa', { w0: geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 }) }) : t('bz9.proJahr'),
       marke: ersparnis > 0 ? `−${ersparnis} %` : 'Beliebt',
+    },
+    {
+      id: 'lifetime',
+      name: t('bz9.lifetime'),
+      unter: t('bz9.einmalig'),
+      marke: t('bz9.fuerImmer'),
     },
   ].filter((k) => preise?.[k.id])
 
@@ -279,7 +286,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
                     type="button"
                     role="radio"
                     aria-checked={tarif === k.id}
-                    className={'kassen-tarif' + (tarif === k.id ? ' ist-aktiv' : '')}
+                    className={'kassen-tarif tarif-' + k.id + (tarif === k.id ? ' ist-aktiv' : '')}
                     onClick={() => setTarif(k.id)}
                   >
                     {k.marke && <span className="kassen-tarif-marke">{k.marke}</span>}

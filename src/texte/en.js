@@ -1612,6 +1612,8 @@ export default {
   "bz9.bitteZuerstAnmelden": "Please sign in first.",
   "bz9.monatlichJederzeitKuendbar": "monthly, cancel anytime",
   "bz9.jaehrlichJederzeitKuendbar": "yearly, cancel anytime",
+  "bz9.lifetime": "Lifetime",
+  "bz9.fuerImmer": "Forever",
   "bz9.proMonat": "per month",
   "bz9.proJahr": "per year",
   "bz9.einmalig": "one-off",
