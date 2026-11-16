@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import crypto from 'node:crypto'
 import { claudeFetch } from './ki.js'
 
 /**
@@ -50,6 +51,9 @@ const SCHEMA = {
 
 /** Schlüssel ohne Betonungszeichen und Großschreibung */
 export const verbSchluessel = (v) => String(v || '').normalize('NFD').replace(/\u0301/g, '').normalize('NFC').trim().toLowerCase()
+
+/** Merker im Zähler: Dieses Verb hat der Nutzer in diesem Monat schon erstellt. */
+export const verbMarke = (v) => 'konj:' + crypto.createHash('sha1').update(verbSchluessel(v)).digest('hex').slice(0, 12)
 
 let VORAB = {}
 try {

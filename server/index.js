@@ -1,7 +1,7 @@
 import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
 import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
-import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben } from './konjugation.js'
+import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben, verbMarke } from './konjugation.js'
 import { appVersion } from './appVersion.js'
 import { createHash } from 'node:crypto'
 import { kiKontext } from './ki.js'
@@ -852,21 +852,30 @@ app.post('/api/translate-batch', async (req, res) => {
 })
 
 // Erstellt eine Vokabelliste zu einem frei gewählten Thema (nur mit KI).
-// KI-Konjugationstabellen (16.11.2026): vorab erzeugte Verben gratis,
-// neue Verben erzeugt die KI (zählt als KI-Erstellung).
+// KI-Konjugationstabellen (16.11.2026): Jede Tabelle zählt als KI-Erstellung –
+// vorab erzeugte Verben kommen nur schneller (kein KI-Aufruf).
 app.get('/api/konjugation/vorschlaege', (req, res) => res.json({ verben: vorschlagsVerben() }))
 app.get('/api/konjugation', async (req, res) => {
   const en = req.query.sprache === 'en'
   const verb = String(req.query.verb || '').trim().slice(0, 40)
   if (!verb) return res.status(400).json({ error: en ? 'Please enter a verb.' : 'Bitte ein Verb eingeben.' })
+  // Seit 16.11.2026 (Manuel): Der Verbgenerator zählt wie Listen, Sätze und
+  // Texte zum KI-Kontingent – auch bei den vorab erzeugten Verben. Dasselbe
+  // Verb zählt im selben Monat nur einmal (Merker verbMarke).
+  const verbNutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', '')).catch(() => null)
+  if (!verbNutzer) return res.status(401).json({ error: en ? 'Please sign in first.' : 'Bitte zuerst anmelden.' })
   const fertig = konjugationNachschlagen(verb)
-  if (fertig) return res.json(fertig)
+  if (fertig && (await nutzungHeute(verbNutzer.id, verbMarke(fertig.verb))) > 0) return res.json(fertig)
   const tuer = await kiTuersteher(req, res)
   if (!tuer) return
   try {
-    const daten = await konjugationErzeugen(verb)
+    const daten = fertig ?? (await konjugationErzeugen(verb))
     if (!daten) return res.status(404).json({ error: en ? "That doesn't look like a verb." : 'Das sieht nicht nach einem Verb aus.' })
-    await kiVerbuchen(tuer)
+    const marke = verbMarke(daten.verb)
+    if ((await nutzungHeute(tuer.nutzer.id, marke)) === 0) {
+      await kiVerbuchen(tuer)
+      await zaehleNutzung(tuer.nutzer.id, marke)
+    }
     res.json(daten)
   } catch (err) {
     console.error('Konjugation:', err.message)

@@ -47,7 +47,10 @@ const T = {
     buehne1: `Lerne ${LERN_DE} mit`, buehne2: 'echten Büchern',
     vorteil1: 'Kapitel wie bei Blinkist', vorteil2: `${LERN_DE} & Deutsch`, vorteil3: 'Wort antippen = übersetzt', vorteilLaut: 'Lautschrift bei A1',
     titel: 'Eigenes Buch erstellen',
-    unter: `Wähle ein echtes Buch – du liest es in 8 Kapiteln auf ${LERN_DE} und Deutsch.`,
+    unter: `Tippe einen Buchtitel ein – die KI schreibt dir das Buch in 8 Kapiteln auf ${LERN_DE} und Deutsch.`,
+    frage: 'Buchtitel, z. B. „Ikigai“',
+    erstellen: 'E-Book erstellen',
+    ideen: 'Ideen – antippen und dann erstellen',
     klassiker: 'Klassiker',
     eigenes: 'Oder ein anderes Buch',
     platz: 'Titel und Autor, z. B. „Ikigai – Héctor García“',
@@ -88,7 +91,10 @@ const T = {
     buehne1: `Learn ${LERN_EN} with`, buehne2: 'real books',
     vorteil1: 'Chapters like Blinkist', vorteil2: `${LERN_EN} & English`, vorteil3: 'Tap a word = translated', vorteilLaut: 'Latin letters at A1',
     titel: 'Create your own book',
-    unter: `Pick a real book – you read it in 8 chapters in ${LERN_EN} and English.`,
+    unter: `Type a book title – the AI writes the book for you in 8 chapters in ${LERN_EN} and English.`,
+    frage: 'Book title, e.g. “Ikigai”',
+    erstellen: 'Create e-book',
+    ideen: 'Ideas – tap one, then create',
     klassiker: 'Classics',
     eigenes: 'Or another book',
     platz: 'Title and author, e.g. “Ikigai – Héctor García”',
@@ -157,13 +163,13 @@ export function BuchFormular({ onFertig }) {
   useTexte()
   const L = txt()
   const en = sprache() === 'en'
-  const themen = [{ id: 'klassiker', de: L.klassiker, en: L.klassiker, buecher: KLASSIKER[L1] ?? [] }, ...THEMEN]
-  const [thema, setThema] = useState('gewohnheiten')
-  const [gewaehlt, setGewaehlt] = useState(null) // Buch aus dem Katalog
+  // Ein Feld statt Katalog (16.11.2026, Manuel: „Formular einfacher“): Ideen
+  // sind nur noch antippbare Titel – zwei Klassiker und je der bekannteste
+  // Titel aus jedem Themenkreis.
+  const vorschlaege = [...(KLASSIKER[L1] ?? []).slice(0, 2), ...THEMEN.map((t) => t.buecher[0])].filter(Boolean).slice(0, 9)
   const [titel, setTitel] = useState('')
   const [text, setText] = useState('')
   const [textOffen, setTextOffen] = useState(false)
-  const [eigenesOffen, setEigenesOffen] = useState(false)
   const [niveau, setNiveau] = useState('A2')
   const [laedt, setLaedt] = useState(false)
   const [fehler, setFehler] = useState('')
@@ -172,10 +178,8 @@ export function BuchFormular({ onFertig }) {
   const kontingent = useKontingent(premium)
   const darf = premium || TESTPHASE_ALLES_FREI || kontingent.buch.uebrig > 0
 
-  const aktuell = themen.find((t) => t.id === thema) ?? themen[0]
-  const katalogTitel = gewaehlt ? (en ? gewaehlt.en : gewaehlt.de) : ''
-  const anfrageTitel = gewaehlt ? `${katalogTitel} – ${gewaehlt.autor}` : eigenesOffen ? titel.trim() : ''
-  const bereit = Boolean(anfrageTitel) || (eigenesOffen && textOffen && text.trim().length >= 400)
+  const anfrageTitel = titel.trim()
+  const bereit = Boolean(anfrageTitel) || (textOffen && text.trim().length >= 400)
 
   async function erstellen(e) {
     e.preventDefault()
@@ -186,7 +190,7 @@ export function BuchFormular({ onFertig }) {
       const res = await fetch(API_URL + '/api/buch', {
         method: 'POST',
         headers: await loginKopf({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ titel: anfrageTitel, text: eigenesOffen && textOffen ? text : '', niveau, sprache: sprache() }),
+        body: JSON.stringify({ titel: anfrageTitel, text: textOffen ? text : '', niveau, sprache: sprache() }),
       })
       const daten = await res.json()
       if (res.status === 402) kontingentLeer(premium ? 'ki' : 'buch')
@@ -196,8 +200,6 @@ export function BuchFormular({ onFertig }) {
       setTitel('')
       setText('')
       setTextOffen(false)
-      setGewaehlt(null)
-      setEigenesOffen(false)
       onFertig({ ...daten, id: 'b' + Date.now(), erstellt: Date.now() })
     } catch (err) {
       setFehler(err.message)
@@ -234,77 +236,57 @@ export function BuchFormular({ onFertig }) {
       {/* Buchvorschläge + eigenes Buch nur mit Premium (12.11.2026) – gratis gibt es
           die Bibliothek; hier dann nur der Weg zu Premium */}
       {darf ? (
-        <>
-          <div className="bg-themen" role="tablist">
-            {themen.map((t) => (
-              <button key={t.id} type="button" role="tab" aria-selected={thema === t.id} className={thema === t.id ? 'an' : ''} onClick={() => setThema(t.id)}>
-                {en ? t.en : t.de}
-              </button>
-            ))}
+        <form className="bg-einfach" onSubmit={erstellen}>
+          {/* Aufbau wie bei den Videos: ein Feld, Ideen zum Antippen, ein Knopf.
+              Bewusst ohne Buchcover – die sahen aus wie fertige E-Books zum Lesen. */}
+          <label className="engine-suche bg-feld">
+            <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+              <path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5" />
+            </svg>
+            <input type="text" value={titel} onChange={(e) => setTitel(e.target.value)} placeholder={L.frage} maxLength={160} disabled={laedt} enterKeyHint="go" />
+          </label>
+
+          <div className="bg-ideen">
+            <small>{L.ideen}</small>
+            <div className="engine-themen">
+              {vorschlaege.map((b) => {
+                const t = en ? b.en : b.de
+                const voll = `${t} – ${b.autor}`
+                return (
+                  <button key={b.de} type="button" className={titel === voll ? 'an' : ''} disabled={laedt} onClick={() => setTitel(titel === voll ? '' : voll)}>
+                    {t}
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
-          <div className="bg-katalog">
-            {aktuell.buecher.map((b) => {
-              const an = gewaehlt === b
-              const t = en ? b.en : b.de
-              return (
-                <button key={b.de} type="button" className={'bg-katalog-buch' + (an ? ' an' : '')} aria-pressed={an} onClick={() => { setGewaehlt(an ? null : b); setEigenesOffen(false) }} disabled={laedt}>
-                  <BuchCover buch={{ titel: t, autor: b.autor }} mini />
-                  <span className="bg-katalog-text"><b>{t}</b><small>{b.autor}</small></span>
-                  <span className={'bg-haken' + (an ? ' an' : '')} aria-hidden="true">{an ? '✓' : '+'}</span>
-                </button>
-              )
-            })}
+          <div className="bg-niveau-zeile">
+            <span>{L.niveau}</span>
+            <div className="bg-auswahl-niveau" role="radiogroup" aria-label={L.niveau}>
+              {NIVEAUS.map((n) => (
+                <button key={n} type="button" role="radio" aria-checked={niveau === n} className={niveau === n ? 'an' : ''} onClick={() => setNiveau(n)} disabled={laedt}>{n}</button>
+              ))}
+            </div>
           </div>
 
-          {/* Eigenes Buch: erst auf Wunsch aufklappen – hält die Karte ruhig */}
-          {eigenesOffen ? (
-            <form className="bg-eigenes" onSubmit={erstellen}>
-              <div className="bg-eigenes-kopf">
-                <label className="bg-feldname" htmlFor="bg-titel">{L.eigenes}</label>
-                <button type="button" className="bg-link" onClick={() => { setEigenesOffen(false); setTitel(''); setText(''); setTextOffen(false) }}>{L.schliessen}</button>
+          {textOffen ? (
+            <div className="bg-text">
+              <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, TEXT_MAX))} placeholder={L.textPlatz} rows={5} disabled={laedt} />
+              <div className="bg-text-fuss">
+                <small>{L.textInfo(text.length)}</small>
+                <button type="button" className="bg-link" onClick={() => { setText(''); setTextOffen(false) }}>{L.textZu}</button>
               </div>
-              <input id="bg-titel" type="text" value={titel} onChange={(e) => setTitel(e.target.value)} placeholder={L.platz} maxLength={160} disabled={laedt} autoFocus />
-              {textOffen ? (
-                <div className="bg-text">
-                  <textarea value={text} onChange={(e) => setText(e.target.value.slice(0, TEXT_MAX))} placeholder={L.textPlatz} rows={5} disabled={laedt} />
-                  <div className="bg-text-fuss">
-                    <small>{L.textInfo(text.length)}</small>
-                    <button type="button" className="bg-link" onClick={() => { setText(''); setTextOffen(false) }}>{L.textZu}</button>
-                  </div>
-                </div>
-              ) : (
-                <button type="button" className="bg-link" onClick={() => setTextOffen(true)}>{L.textAuf}</button>
-              )}
-            </form>
+            </div>
           ) : (
-            <button type="button" className="bg-link bg-eigenes-link" onClick={() => { setEigenesOffen(true); setGewaehlt(null) }}>{L.eigenesLink}</button>
+            <button type="button" className="bg-link bg-text-link" onClick={() => setTextOffen(true)}>{L.textAuf}</button>
           )}
 
-          {/* Auswahl-Leiste: erscheint erst, wenn ein Buch feststeht */}
-          {bereit && (
-            <form className="bg-auswahl" onSubmit={erstellen}>
-              <div className="bg-auswahl-buch">
-                <BuchCover buch={{ titel: katalogTitel || titel || '…', autor: '' }} mini />
-                <span><small>{L.ausgewaehlt}</small><b>{katalogTitel || titel.trim() || L.eigenerText}</b></span>
-              </div>
-              <div className="bg-auswahl-niveau" role="radiogroup" aria-label={L.niveau}>
-                {NIVEAUS.map((n) => (
-                  <button key={n} type="button" role="radio" aria-checked={niveau === n} className={niveau === n ? 'an' : ''} onClick={() => setNiveau(n)} disabled={laedt}>{n}</button>
-                ))}
-              </div>
-              {darf ? (
-                <button type="submit" className="bg-los" disabled={laedt}>{laedt ? <>{L.laedt}<LadeKreis art="buch" /></> : L.losKurz}</button>
-              ) : (
-                <button type="button" className="gh-knopf bg-premium-knopf" onClick={zurKasse}>
-                  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>
-                  {L.premiumKnopf}
-                </button>
-              )}
-              {laedt && <p className="bg-dauer">{L.dauer}</p>}
-            </form>
-          )}
-        </>
+          <button type="submit" className="engine-los" disabled={!bereit || laedt}>
+            {laedt ? <>{L.laedt}<LadeKreis art="buch" /></> : <>✦ {L.erstellen}</>}
+          </button>
+        </form>
       ) : (
         <button type="button" className="gh-knopf bg-premium-knopf bg-premium-allein" onClick={zurKasse}>
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M3 8l4.5 3.5L12 5l4.5 6.5L21 8l-2 11H5L3 8z" /></svg>

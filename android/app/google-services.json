@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "735153004125",
+    "project_id": "spanisch-lernen-app",
+    "storage_bucket": "spanisch-lernen-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735153004125:android:cea5ae95afbfe3b246b7b4",
+        "android_client_info": {
+          "package_name": "de.davaigo.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "735153004125-aq4cfdaqtuslf4tgos2gdgpnvp1aspvu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxKMRUp7AyoZ0FS33ytI-ud7oPmjwZHB0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "735153004125-aq4cfdaqtuslf4tgos2gdgpnvp1aspvu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:735153004125:android:a81864b1dcd7110146b7b4",
+        "android_client_info": {
+          "package_name": "de.habloo.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "735153004125-aq4cfdaqtuslf4tgos2gdgpnvp1aspvu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxKMRUp7AyoZ0FS33ytI-ud7oPmjwZHB0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "735153004125-aq4cfdaqtuslf4tgos2gdgpnvp1aspvu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

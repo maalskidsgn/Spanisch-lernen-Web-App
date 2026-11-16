@@ -7,7 +7,10 @@ import { sprache } from './sprache.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
 import { newEntry, review, vorschau, isDue, withSrsDefaults } from './srs.js'
 import { API_URL } from './api.js'
-import { loginKopf } from './limits.js'
+import { loginKopf, useKontingent, kontingentLeer, holeKontingent } from './limits.js'
+import { usePremium } from './premium.js'
+import GratisHinweis from './GratisHinweis.jsx'
+import PremiumWerbung from './PremiumWerbung.jsx'
 
 // Spanisch braucht keine Lautschrift – dieselbe Oberfläche wie bei Davaigo, nur ohne Schalter
 const MIT_LAUT = false
@@ -56,6 +59,7 @@ const EN = {
   'Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – in English or Spanish. You get all the important tenses as tables.',
   'z. B. {0}': 'e.g. {0}',
   'KI-Verbgenerator': 'AI verb generator',
+  'Verb-Tabellen': 'verb tables',
   'Alle wichtigen Zeiten eines Verbs als Tabelle.': 'All the important tenses of a verb as tables.',
   'Verb aus deinem Trainer wählen': 'Pick a verb from your trainer',
   'Häufiges Verb wählen': 'Pick a common verb',
@@ -187,6 +191,10 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
   const [fehler, setFehler] = useState('')
   const [haeufig, setHaeufig] = useState([])
   const ergebnisRef = useRef(null)
+  // Zählt zum KI-Kontingent wie die anderen Generatoren (16.11.2026, Manuel)
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const kontingent = useKontingent(premium)
+  const aufgebraucht = !premium && kontingent.ki.uebrig <= 0
   const [gespeichert, setGespeichert] = useState(() => new Set(lies(EIGENE, []).map((k) => k.verb)))
 
   useEffect(() => beiAbgleich(() => setGespeichert(new Set(lies(EIGENE, []).map((k) => k.verb)))), [])
@@ -215,7 +223,9 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
     try {
       const res = await fetch(`${API_URL}/api/konjugation?verb=${encodeURIComponent(v)}&sprache=${sp}`, { headers: await loginKopf() })
       const d = await res.json().catch(() => ({}))
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(d.error || 'Fehler')
+      holeKontingent() // Zähler angleichen (dasselbe Verb zählt im Monat nur einmal)
       setDaten(d)
       setZeitNr(0)
       setTimeout(() => ergebnisRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
@@ -254,47 +264,53 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
           </div>
         </div>
 
-        <form className="wort-form" onSubmit={(e) => { e.preventDefault(); holen() }}>
-          {vorschlaege.length > 0 && (
-            <>
-              <p className="sg-schritt"><span>1</span> {ausTrainer.length ? tx('Verb aus deinem Trainer wählen') : tx('Häufiges Verb wählen')}</p>
-              <div className="sg-themen gl-verben">
-                {vorschlaege.map((v) => (
-                  <button
-                    key={v.verb}
-                    type="button"
-                    className={'sg-thema gl-verb' + (eingabe === v.name ? ' ist-aktiv' : '')}
-                    disabled={laedt}
-                    onClick={() => holen(v.verb, v.name)}
-                  >
-                    <b>{v.name}</b>
-                    {v.name !== v.verb && <i>{v.verb}</i>}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+        <GratisHinweis art="ki" />
 
-          <div className="gen-feld sg-eigenes">
-            <input
-              type="text"
-              value={eingabe}
-              onChange={(e) => setEingabe(e.target.value)}
-              placeholder={tx('… oder eigenes Verb, z. B. {0}', (sp === 'en' ? 'speak' : 'sprechen') + ' / ser')}
-              maxLength={40}
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              disabled={laedt}
-            />
-          </div>
+        {aufgebraucht && !daten ? (
+          premiumLaedt ? null : <PremiumWerbung was={tx('Verb-Tabellen')} />
+        ) : (
+          <form className="wort-form" onSubmit={(e) => { e.preventDefault(); holen() }}>
+            {vorschlaege.length > 0 && (
+              <>
+                <p className="sg-schritt"><span>1</span> {ausTrainer.length ? tx('Verb aus deinem Trainer wählen') : tx('Häufiges Verb wählen')}</p>
+                <div className="sg-themen gl-verben">
+                  {vorschlaege.map((v) => (
+                    <button
+                      key={v.verb}
+                      type="button"
+                      className={'sg-thema gl-verb' + (eingabe === v.name ? ' ist-aktiv' : '')}
+                      disabled={laedt}
+                      onClick={() => holen(v.verb, v.name)}
+                    >
+                      <b>{v.name}</b>
+                      {v.name !== v.verb && <i>{v.verb}</i>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
 
-          <div className="gen-knoepfe">
-            <button type="submit" className="btn gen-los" disabled={!eingabe.trim() || laedt}>
-              {laedt ? <>{tx('Erstellt die Tabelle')}<LadeKreis art="konjugation" /></> : tx('Tabelle zeigen')}
-            </button>
-          </div>
-        </form>
+            <div className="gen-feld sg-eigenes">
+              <input
+                type="text"
+                value={eingabe}
+                onChange={(e) => setEingabe(e.target.value)}
+                placeholder={tx('… oder eigenes Verb, z. B. {0}', (sp === 'en' ? 'speak' : 'sprechen') + ' / ser')}
+                maxLength={40}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                disabled={laedt}
+              />
+            </div>
+
+            <div className="gen-knoepfe">
+              <button type="submit" className="btn gen-los" disabled={!eingabe.trim() || laedt}>
+                {laedt ? <>{tx('Erstellt die Tabelle')}<LadeKreis art="konjugation" /></> : tx('Tabelle zeigen')}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
       {fehler && <p className="schnell-fehler">{fehler}</p>}
 

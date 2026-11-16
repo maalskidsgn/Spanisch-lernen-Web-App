@@ -44,7 +44,7 @@ function useSichtbar() {
 const TEXT = {
   de: {
     ki: (u, g) => (u > 0 ? `Noch ${u} von ${g} KI-Erstellungen diesen Monat` : `Deine ${g} Gratis-Erstellungen sind aufgebraucht`),
-    kiKlein: 'Wortlisten, Sätze, Texte & E-Books teilen sich den Monatstopf',
+    kiKlein: 'Wortlisten, Sätze, Texte & Verb-Tabellen teilen sich den Monatstopf',
     video: (u) => (u > 0 ? '1 eigenes YouTube-Video gratis diesen Monat' : 'Gratis-Video für diesen Monat verbraucht'),
     buecher: (u) => (u > 0 ? '1 eigenes E-Book gratis diesen Monat' : 'Gratis-E-Book für diesen Monat verbraucht'),
     buecherKlein: 'Gratis: die 6 Bücher der Bibliothek und 1 eigenes Buch im Monat. Premium: alle E-Books und bis zu 50 eigene im Monat.',
@@ -76,7 +76,7 @@ const TEXT = {
   },
   en: {
     ki: (u, g) => (u > 0 ? `${u} of ${g} AI creations left this month` : `You've used your ${g} free creations`),
-    kiKlein: 'Lists, sentences, texts & e-books share the monthly pool',
+    kiKlein: 'Lists, sentences, texts & verb tables share the monthly pool',
     video: (u) => (u > 0 ? '1 free YouTube video of your own this month' : "This month's free video is used"),
     buecher: (u) => (u > 0 ? '1 free e-book of your own this month' : "This month's free e-book is used"),
     buecherKlein: 'Free: the 6 library books and 1 book of your own a month. Premium: all e-books and up to 50 of your own a month.',
