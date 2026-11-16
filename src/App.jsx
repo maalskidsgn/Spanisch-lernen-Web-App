@@ -84,6 +84,7 @@ import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE } from './
 import { geschenkWoerter, geschenkSaetze, geschenkText, woerterInSprache, saetzeInSprache, textInSprache } from './geschenkSprache.js'
 import StartGeschenk from './StartGeschenk.jsx'
 import Einrichtung from './Einrichtung.jsx'
+import Einfuehrung from './Einfuehrung.jsx'
 import {
   XP,
   loadProgress,
@@ -355,6 +356,12 @@ export default function App() {
   useEffect(() => {
     if (!nutzer?.id) return
     pushEinrichten(nutzer.id, (link) => {
+      // Erinnerung Tag 1/Tag 3 (15.11.2026): direkt in die nächste offene Lektion
+      if (link === '/lektionen') {
+        setView('lektionen')
+        setErsteLektion(Date.now())
+        return
+      }
       window.history.pushState({}, '', link)
       window.dispatchEvent(new PopStateEvent('popstate'))
     })
@@ -678,7 +685,7 @@ export default function App() {
       // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
       // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
       meilensteinAbgleichRef.current = null
-      if (nutzer && !einrichtungRef.current && Date.now() - new Date(nutzer.created_at).getTime() < 2 * 86400000) setStartGeschenk(true) // nur neue Konten – der Merker liegt nur im Browser, auf neuen Geräten kam es sonst wieder (16.11.) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
+      if (nutzer && !einrichtungRef.current && Date.now() - new Date(nutzer.created_at).getTime() < 2 * 86400000) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
@@ -1307,6 +1314,12 @@ export default function App() {
   // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen.
   // status: standardmäßig "lernen"; aus dem Chat kann ein Wort auch gleich
   // als "gewusst" abgelegt werden ("Kenne ich").
+  // Schnell-Übersetzer (16.11.2026): ein übersetzter Satz landet im Satztrainer
+  function addSatz({ satz, uebersetzung }) {
+    const key = satzSchluessel(satz)
+    setSaetze((alt) => (alt[key] ? alt : { ...alt, [key]: neuerSatz({ satz, uebersetzung }, { thema: sprache() === 'en' ? 'Looked up' : 'Nachgeschlagen' }) }))
+  }
+
   function addVocabWords(woerter, status = 'lernen') {
     // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
     const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
@@ -1421,6 +1434,28 @@ export default function App() {
     try { return new URLSearchParams(window.location.search).has('einrichtung') } catch { return false }
   })
   const einrichtungRef = useRef(false)
+  const [ersteLektion, setErsteLektion] = useState(0) // > 0: Lektionen öffnen sofort die erste offene Lektion
+  // Einführungs-Lektion (15.11.2026): Neue Konten gehen ZUERST einmal durch
+  // die ganze App, danach kommt die Einrichtungs-Animation mit dem
+  // Startgeschenk und dann Lektion 1 (Reihenfolge 16.11., Manuel).
+  // 'neu' = dieser Ablauf (auch ?einfuehrung zum Testen), 'rundgang' = aus
+  // dem Leitfaden erneut angesehen → danach zurück zum Start.
+  const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
+    try { return new URLSearchParams(window.location.search).has('einfuehrung') ? 'neu' : false } catch { return false }
+  })
+  function einfuehrungZu() {
+    const warNeu = einfuehrungOffen === 'neu'
+    setEinfuehrungOffen(false)
+    try {
+      if (nutzer) localStorage.setItem('einfuehrung:' + nutzer.id, 'fertig')
+      const u = new URL(window.location.href)
+      if (u.searchParams.has('einfuehrung')) { u.searchParams.delete('einfuehrung'); window.history.replaceState(null, '', u) }
+    } catch { /* egal */ }
+    if (warNeu) {
+      einrichtungRef.current = true
+      setEinrichtung(true) // die Animation mit dem Startgeschenk
+    } else setView('start')
+  }
   useEffect(() => {
     if (!nutzer) return
     try {
@@ -1429,7 +1464,7 @@ export default function App() {
       localStorage.setItem(k, 'ja')
       if (Date.now() - new Date(nutzer.created_at).getTime() < 86400000) {
         einrichtungRef.current = true
-        setEinrichtung(true)
+        setEinfuehrungOffen('neu') // erst die Einführung, dann die Einrichtung
       }
     } catch { /* ohne Speicher keine Animation */ }
   }, [nutzer])
@@ -1441,7 +1476,12 @@ export default function App() {
       const u = new URL(window.location.href)
       if (u.searchParams.has('einrichtung')) { u.searchParams.delete('einrichtung'); window.history.replaceState(null, '', u) }
     } catch { /* egal */ }
+    // Nach der Einrichtung direkt in die erste Lektion (Einführung lief davor)
     if (trainer) setView('trainer')
+    else {
+      setView('lektionen')
+      setErsteLektion(Date.now())
+    }
   }
   useEffect(() => {
     const werte = {
@@ -1497,6 +1537,40 @@ export default function App() {
     if (rechtSeite === 'datenschutz') return <Datenschutz onZurueck={zu} />
     if (rechtSeite === 'agb') return <AGB onZurueck={zu} />
     if (rechtSeite === 'konto-loeschen') return <KontoLoeschen onZurueck={zu} />
+  }
+
+  // Test ohne Konto (?einfuehrung): Die Einrichtung danach auch vor dem
+  // Zugangs-Tor zeigen – mit Konto läuft sie normal über die App.
+  if (einrichtung && !nutzer && !nutzerLaedt) {
+    return (
+        <Einrichtung
+          app="Habloo"
+          woerter={STARTGESCHENK_WOERTER}
+          saetze={GRUNDPAKET_SAETZE.length}
+          lektionen={LEKTIONEN.length}
+          onFertig={() => einrichtungZu(false)}
+          onTrainer={() => einrichtungZu(true)}
+        />
+    )
+  }
+
+  // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
+  // Steht VOR dem Zugangs-Tor: Mit ?einfuehrung lässt sie sich auch ohne
+  // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
+  if (einfuehrungOffen && !nutzerLaedt) {
+    return (
+      <>
+        <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+        <Einfuehrung
+          onFertig={einfuehrungZu}
+          rundgang={einfuehrungOffen === 'rundgang'}
+          onAddVocab={addVocabWords}
+          addXp={addXp}
+          vocab={vocab}
+          navLabels={{ start: t('nav.start'), lektionen: t('nav.lektionen'), trainer: t('nav.trainer'), mediathek: t('nav.youtube'), profil: t('nav.profil') }}
+        />
+      </>
+    )
   }
 
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
@@ -1595,6 +1669,7 @@ export default function App() {
   if (nutzer && nameFragen) {
     return <BenutzernameWahl nutzerId={nutzer.id} onFertig={nameGefragt} />
   }
+
 
   // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
   // Eine Karte je Bildschirm – da störte eine Menüleiste am unteren
@@ -1780,6 +1855,7 @@ export default function App() {
             nutzerEmail={nutzer?.email}
             nutzerId={nutzer?.id}
             onAddVocab={addVocabWords}
+            onAddSatz={addSatz}
             vocab={vocab}
           />
         </main>
@@ -1844,7 +1920,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={starteRundgang} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={() => setEinfuehrungOffen('rundgang')} />
         </main>
       )}
 
@@ -1855,6 +1931,8 @@ export default function App() {
             addXp={addXp}
             onLessonComplete={lektionGeschafft}
             onKasse={() => setKasseOffen(true)}
+            sofortStart={ersteLektion}
+            onSofortGestartet={() => setErsteLektion(0)}
           />
         </main>
       )}

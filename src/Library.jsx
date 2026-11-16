@@ -1,7 +1,8 @@
+import { ohneKasse } from './kauf.js'
 import GratisHinweis, { zurKasse } from './GratisHinweis.jsx'
 import { useKontingent } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { API_URL, istApp } from './api.js'
+import { API_URL } from './api.js'
 import { ladeListen, neueListe } from './videoListen.js'
 import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
 import VideoSuche from './VideoSuche.jsx'
@@ -803,7 +804,7 @@ function VideoEngine({ wert, onWert, onSuche, bilder = [], gesperrt = false }) {
       {/* Eigene YouTube-Videos nur mit Premium (Manuel, 09.11.): Gratis
           gibt es die Mediathek, Suche und Link sind gesperrt. */}
       {gesperrt ? (
-        <button type="button" className="engine-suche engine-zu" onClick={() => !istApp && zurKasse()} disabled={istApp}>
+        <button type="button" className="engine-suche engine-zu" onClick={() => !ohneKasse() && zurKasse()} disabled={ohneKasse()}>
           <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
             <rect x="5" y="10" width="14" height="10" rx="3" fill="currentColor" />
             <path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" strokeWidth="2.6" fill="none" />

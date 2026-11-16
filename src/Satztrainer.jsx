@@ -339,7 +339,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         {/* ---------- Karten ---------- */}
         {art === 'karten' && (
           <div
-            className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
+            className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
             <div className="flash-satz">{satz}</div>
@@ -378,7 +378,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         {/* ---------- Multiple Choice ---------- */}
         {art === 'auswahl' && (
           <div
-            className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
+            className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
             <p className="lesson-hint">{t('st.wasHeisst')}</p>
@@ -400,7 +400,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         {/* ---------- Satz bauen ---------- */}
         {art === 'bauen' && (
           <div
-            className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
+            className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
             <p className="lesson-hint">{t('st.bauDenSatz')}</p>
@@ -416,7 +416,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         {/* ---------- Lückensatz ---------- */}
         {art === 'luecke' && (
           <div
-            className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
+            className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
             <p className="lesson-hint">{t('st.welchesWortFehlt')}</p>

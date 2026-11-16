@@ -1,3 +1,4 @@
+import { ohneKasse } from './kauf.js'
 import { useEffect, useState } from 'react'
 import { istApp } from './api.js'
 import { bezahlungBereit } from './premium.js'
@@ -18,13 +19,14 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
   const [bezahlbar, setBezahlbar] = useState(false)
 
   useEffect(() => {
-    if (istApp) return
+    if (ohneKasse()) return
+    if (istApp) { setBezahlbar(true); return } // Kauf über Apple/Google
     bezahlungBereit().then(setBezahlbar).catch(() => setBezahlbar(false))
   }, [])
 
   // In der Store-App kein Wort über Premium: Apple und Google werten
   // das als Hinweis, ausserhalb des Stores zu kaufen.
-  if (istApp) {
+  if (ohneKasse()) {
     return (
       <div className="premium-werbung">
         <div className="pw-kopf">
@@ -82,7 +84,7 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
         <li>{t('pwk.zweisprachigeEBooks')}</li>
       </ul>
 
-      {!istApp &&
+      {!ohneKasse() &&
         (bezahlbar ? (
           <button className="pw-knopf" onClick={zurKasse}>
             {sprache() === 'en' ? 'Unlock Premium' : 'Premium freischalten'}

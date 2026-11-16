@@ -56,7 +56,7 @@ export async function anmelden(nutzer, { token, plattform, version, sprache }) {
   return { ok: true }
 }
 
-async function alleKonten() {
+export async function alleKonten() {
   let alle = []
   for (let seite = 1; seite < 200; seite++) {
     const r = await fetch(`${AUTH()}?per_page=500&page=${seite}`, { headers: kopf() })
@@ -86,7 +86,7 @@ function apnsToken() {
   apnsJwt = { wert: daten + '.' + sig.toString('base64url'), zeit: Date.now() }
   return apnsJwt.wert
 }
-const apnsBereit = () => Boolean(process.env.APNS_KEY_ID && process.env.APNS_KEY)
+export const apnsBereit = () => Boolean(process.env.APNS_KEY_ID && process.env.APNS_KEY)
 
 function apnsSenden(sitzung, token, nachricht) {
   return new Promise((fertig) => {
@@ -111,7 +111,7 @@ function apnsSenden(sitzung, token, nachricht) {
 
 let fcmZugang = { wert: null, bis: 0 }
 const fcmKonto = () => { try { return JSON.parse(process.env.FCM_SERVICE_ACCOUNT || '') } catch { return null } }
-const fcmBereit = () => Boolean(fcmKonto()?.private_key)
+export const fcmBereit = () => Boolean(fcmKonto()?.private_key)
 
 async function fcmToken() {
   if (fcmZugang.wert && Date.now() < fcmZugang.bis) return fcmZugang.wert
@@ -149,9 +149,10 @@ async function fcmSenden(token, nachricht) {
  * Texte dürfen je Sprache kommen: titel: { de, en }, text: { de, en }.
  * probe: zählt nur, schickt nichts.
  */
-export async function senden({ titel, text, link, ziel = {}, probe = false }) {
+export async function senden({ titel, text, link, ziel = {}, probe = false }, vorgegeben = null) {
   if (!titel || !text) throw new PushFehler(400, 'Titel und Text fehlen.')
-  const konten = await alleKonten()
+  // vorgegeben: schon geladene Konten (Erinnerungen) – spart den Abruf aller Konten
+  const konten = vorgegeben ?? await alleKonten()
   const premium = ziel.nur ? await premiumIds() : null
   const auswahl = konten.filter((k) => {
     if (!k.app_metadata?.push_geraete?.length) return false

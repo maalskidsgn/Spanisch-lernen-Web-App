@@ -911,6 +911,14 @@ export default {
   "sp2.abVierGesammelten": "Ab vier gesammelten Wörtern mit Übersetzung geht es los. Wörter kommen aus den Lektionen, aus Videos oder von der KI-Wortliste.",
   "sp2.zurueckZumTrainer": "Zurück zum Trainer",
   "sp2.alleGefundenWeiter": "Alle gefunden – weiter",
+  "tr.grundlagen": "Grundlagen",
+  "tr.titelGrundlagen": "Grundlagen-Trainer",
+  "tr.introGrundlagen": "Die Regeln aus deinen Lektionen – so lange, bis sie sitzen.",
+  "kt.vokabel": "Vokabel",
+  "kt.satz": "Satz",
+  "kt.weisstDu": "Weißt du, was das heißt?",
+  "sp3.tippKnopf": "Tipp: einen Buchstaben zeigen",
+  "sp3.tippHinweis": "Hängst du fest? Tippe ein Wort oben an – dann leuchtet sein erster Buchstabe auf, beim zweiten Mal auch der nächste.",
   "sp2.ziehMitDem": "Zieh mit dem Finger über die Buchstaben – waagerecht, senkrecht oder diagonal.",
 
   /* ---------------- Lessons (mehrzeilig) ---------------- */

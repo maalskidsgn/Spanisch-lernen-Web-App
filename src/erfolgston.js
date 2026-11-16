@@ -123,7 +123,7 @@ export function erfolgston() {
 // Klickton „Thock“ (gewählt 12.11.2026, ersetzt „Watte sanft“): kurzer,
 // satter Tastenanschlag – tiefer Sinus 260 → 150 Hz plus ein winziger
 // Anschlag bei 1,2 kHz, zusammen unter 50 ms. Gilt universell: Navigation,
-// Übungen, Spiele, alle Knöpfe. Spielt beim Runterdrücken (pointerdown).
+// Übungen, Spiele, alle Knöpfe. Spielt beim Loslassen eines echten Tipps (nicht beim Scrollen, 16.11.).
 // Hängt am selben Ton-Schalter wie Erfolg und Fehler. Ein Knopf mit
 // data-kein-klick (oder darin) bleibt stumm.
 
@@ -185,12 +185,34 @@ const KNOPF = 'button, .btn, [role="button"], [role="tab"], .quiz-option'
 export function klicktoeneStarten() {
   if (typeof document === 'undefined' || klicktoeneStarten.laeuft) return
   klicktoeneStarten.laeuft = true
+  // 16.11.2026 (Manuel): Der Ton kam auch beim Scrollen, weil er schon beim
+  // Aufsetzen des Fingers spielte. Jetzt nur bei einem echten Tipp:
+  // Loslassen auf demselben Knopf, höchstens 10 px bewegt. Scrollt der
+  // Browser, kommt pointercancel statt pointerup – dann bleibt es still.
+  const knopfVon = (e) => {
+    const el = typeof e.target?.closest === 'function' ? e.target.closest(KNOPF) : null
+    if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-kein-klick]')) return null
+    return el
+  }
+  let start = null
   document.addEventListener(
     'pointerdown',
     (e) => {
-      if (e.button > 0) return
-      const el = typeof e.target?.closest === 'function' ? e.target.closest(KNOPF) : null
-      if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-kein-klick]')) return
+      start = e.button > 0 ? null : { el: knopfVon(e), x: e.clientX, y: e.clientY, id: e.pointerId }
+    },
+    { capture: true, passive: true },
+  )
+  document.addEventListener('pointercancel', () => { start = null }, { capture: true, passive: true })
+  document.addEventListener(
+    'pointerup',
+    (e) => {
+      const s = start
+      start = null
+      if (!s?.el || s.id !== e.pointerId) return
+      if (Math.hypot(e.clientX - s.x, e.clientY - s.y) > 10) return
+      // Knopf kann inzwischen weg sein (Ansicht gewechselt) – zählt trotzdem
+      const el = document.elementFromPoint(e.clientX, e.clientY)?.closest?.(KNOPF)
+      if (el && el !== s.el) return
       klickton()
     },
     { capture: true, passive: true },
@@ -239,6 +261,74 @@ export function fehlerton() {
         g.gain.exponentialRampToValueAtTime(laut * anteil, a + 0.01)
         g.gain.exponentialRampToValueAtTime(0.0001, a + dauer)
         osc.connect(g).connect(dumpf)
+        osc.start(a)
+        osc.stop(a + dauer + 0.05)
+      }
+    })
+  } catch {
+    // Kein Ton ist kein Fehler.
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Lektion geschafft „Kalimba-Melodie“ (16.11.2026, Manuel – aus 5 Varianten
+// gewählt, ersetzt die Marimba-Fanfare): kleine Melodie G–C–E–D–C auf der
+// Kalimba, danach ein ausklingender C-Dur-Akkord, knapp 2 s. Eigener Klang
+// für das Lektionsende, damit es sich anders anfühlt als eine richtige
+// Antwort. Gleicher Ton-Schalter und Gesamtpegel (0.5) wie der Erfolgston.
+
+const KALIMBA_LEKTION = [[1, 1, 1], [3.01, 0.14, 0.25], [5.9, 0.05, 0.12]]
+const FANFARE = [
+  // [Hz, Einsatz s, Länge s, Lautstärke, Klangfarbe]
+  [783.99, 0, 0.55, 0.28, KALIMBA_LEKTION],
+  [1046.5, 0.13, 0.55, 0.28, KALIMBA_LEKTION],
+  [1318.5, 0.26, 0.55, 0.28, KALIMBA_LEKTION],
+  [1174.66, 0.42, 0.55, 0.28, KALIMBA_LEKTION],
+  [1046.5, 0.52, 0.55, 0.28, KALIMBA_LEKTION],
+  [1046.5, 0.7, 1.3, 0.14, KALIMBA_LEKTION],
+  [1318.5, 0.7, 1.3, 0.14, KALIMBA_LEKTION],
+  [1567.98, 0.7, 1.3, 0.14, KALIMBA_LEKTION],
+]
+
+export function lektionTon() {
+  try {
+    if (!erfolgstoeneAn()) return
+    const c = context()
+    if (!c) return
+    if (c.state === 'suspended') c.resume()
+
+    const t0 = c.currentTime + 0.003
+    const bus = c.createGain()
+    const samt = c.createBiquadFilter()
+    samt.type = 'lowpass'
+    samt.frequency.value = 7000
+    const begrenzer = c.createDynamicsCompressor()
+    begrenzer.threshold.value = -16
+    begrenzer.ratio.value = 4
+    begrenzer.attack.value = 0.003
+    begrenzer.release.value = 0.2
+    const pegel = c.createGain()
+    pegel.gain.value = 0.5
+    pegel.connect(c.destination)
+    bus.connect(samt).connect(begrenzer).connect(pegel)
+    if (hall) {
+      const hallLaut = c.createGain()
+      hallLaut.gain.value = 0.28
+      samt.connect(hall).connect(hallLaut).connect(pegel)
+    }
+
+    FANFARE.forEach(([hz, ab, lang, laut, farbe]) => {
+      const a = t0 + ab
+      for (const [faktor, anteil, ausklang] of farbe) {
+        const osc = c.createOscillator()
+        const g = c.createGain()
+        osc.type = 'sine'
+        osc.frequency.value = hz * faktor
+        const dauer = Math.max(0.03, lang * ausklang)
+        g.gain.setValueAtTime(0.0001, a)
+        g.gain.exponentialRampToValueAtTime(laut * anteil, a + 0.005)
+        g.gain.exponentialRampToValueAtTime(0.0001, a + dauer)
+        osc.connect(g).connect(bus)
         osc.start(a)
         osc.stop(a + dauer + 0.05)
       }

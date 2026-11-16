@@ -215,7 +215,10 @@ export async function vorladen(quelle) {
   }
 }
 
-export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}) {
+export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDatei = false } = {}) {
+  // Gleiche Zählung wie spieleZeile: Wer zuletzt gerufen wurde, spricht – eine
+  // ältere Anfrage, die noch auf ihre Datei wartet, bleibt still (16.11., doppelte Stimmen).
+  const meinZug = ++zeilenZug
   const name = await audioName(text, stimme)
   const url = puffer.get(name) || `${ABLAGE}/${name}`
 
@@ -239,7 +242,10 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     }
   }
 
+  if (meinZug !== zeilenZug) return 'still'
+
   if (vorhanden) {
+    if (laufend) laufend.pause()
     const ton = new Audio(url)
     ton.playbackRate = tempo
     // Browser halten beim Verlangsamen die Tonhöhe – klingt also
@@ -248,12 +254,16 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     laufend = ton
     try {
       await ton.play()
+      if (meinZug !== zeilenZug) ton.pause()
       return 'datei'
     } catch {
       // Abspielen blockiert (z.B. Autoplay-Regel) – Browser-Stimme
     }
   }
 
+  // Automatisch abgespielte Dialoge (16.11.2026): nie die Computerstimme
+  if (nurDatei) return 'still'
+  if (meinZug !== zeilenZug) return 'still'
   sprich(sprechText(text))
   return 'browser'
 }
@@ -269,17 +279,17 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
  *   statt nach eigenem Takt zu blättern: Eine lange Zeile bleibt
  *   dann so lange stehen, wie sie gesprochen wird.
  */
-export function dialogAbspielen(dialog, { beiZeile } = {}) {
+export function dialogAbspielen(dialog, { beiZeile, nurDatei = false } = {}) {
   let gestoppt = false
 
   const lauf = (async () => {
     for (const [index, zeile] of dialog.entries()) {
       if (gestoppt) return
       beiZeile?.(index)
-      await spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher) })
+      const art = await spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher), nurDatei })
       // Auf das Ende der Datei bzw. der Browser-Stimme warten
       await new Promise((fertig) => {
-        if (laufend) {
+        if (art === 'datei' && laufend) {
           laufend.onended = fertig
           laufend.onerror = fertig
         } else {
@@ -300,4 +310,110 @@ export function dialogAbspielen(dialog, { beiZeile } = {}) {
       try { speechSynthesis.cancel() } catch { /* kein Ton da */ }
     },
   }
+}
+
+/**
+ * Eine Dialogzeile abspielen – mit Fortschritt für die Karaoke-Markierung
+ * (Dialog-Szene, 16.11.2026).
+ *
+ * Nie die Computerstimme: Gibt es keine Aufnahme oder blockt das Gerät den
+ * Ton, läuft die Markierung still im Lesetempo weiter.
+ *
+ *   { art: 'datei' | 'still', fertig: Promise<'ende'|'fehler'|'unterbrochen'>, stop() }
+ *
+ * @param {(anteil: number) => void} [opt.beiFortschritt] – 0…1, pro Bildschirmtakt
+ */
+// Jede neue Zeile bekommt eine Nummer. Eine ältere Anfrage, die noch auf
+// ihre Datei wartet, darf danach NICHT mehr loslegen – sonst sprechen zwei
+// Stimmen gleichzeitig (Manuel, 16.11.: „Stimmen doppelt“).
+let zeilenZug = 0
+const verworfen = () => ({ art: 'still', fertig: Promise.resolve('unterbrochen'), stop() {} })
+
+// Tab im Hintergrund: sofort still sein
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      zeilenZug++
+      if (laufend) { laufend.pause(); laufend = null }
+      try { speechSynthesis.cancel() } catch { /* kein Ton */ }
+    }
+  })
+}
+
+export async function spieleZeile(text, { stimme = STIMMEN.standard, tempo = 1, beiFortschritt } = {}) {
+  const meinZug = ++zeilenZug
+  if (laufend) {
+    laufend.pause()
+    laufend = null
+  }
+  try { speechSynthesis.cancel() } catch { /* keine Gerätestimme */ }
+  const name = await audioName(text, stimme)
+  if (meinZug !== zeilenZug) return verworfen()
+  const url = puffer.get(name) || `${ABLAGE}/${name}`
+
+  let vorhanden = sicherVertont(text, stimme) ? true : bekannt.get(name)
+  if (vorhanden === undefined) {
+    try {
+      vorhanden = (await fetch(url, { method: 'HEAD' })).ok
+      bekannt.set(name, vorhanden)
+    } catch {
+      vorhanden = false
+    }
+  }
+  if (meinZug !== zeilenZug) return verworfen()
+
+  let takt = 0
+  const mitTakt = (lies) => {
+    const schritt = () => {
+      beiFortschritt?.(lies())
+      takt = requestAnimationFrame(schritt)
+    }
+    takt = requestAnimationFrame(schritt)
+  }
+  const aufraeumen = (grund) => {
+    cancelAnimationFrame(takt)
+    if (grund === 'ende') beiFortschritt?.(1)
+    return grund
+  }
+
+  if (vorhanden) {
+    if (laufend) laufend.pause()
+    const ton = new Audio(url)
+    ton.playbackRate = tempo
+    ton.preservesPitch = true
+    laufend = ton
+    // Horcher VOR play(): kurze Schnipsel können sonst zu Ende sein, bevor sie stehen
+    const fertig = new Promise((aufloesen) => {
+      let erledigt = false
+      const melde = (grund) => {
+        if (erledigt) return
+        erledigt = true
+        aufloesen(aufraeumen(grund))
+      }
+      ton.addEventListener('ended', () => melde('ende'), { once: true })
+      ton.addEventListener('error', () => melde('fehler'), { once: true })
+      // Am natürlichen Ende feuert erst 'pause', dann 'ended'
+      ton.addEventListener('pause', () => { if (!ton.ended) melde('unterbrochen') }, { once: true })
+    })
+    try {
+      await ton.play()
+      // Während play() wartete, kam schon die nächste Zeile? Dann diese sofort aus.
+      if (meinZug !== zeilenZug) { ton.pause(); return verworfen() }
+      mitTakt(() => (ton.duration ? Math.min(1, ton.currentTime / ton.duration) : 0))
+      return { art: 'datei', fertig, stop: () => ton.pause() }
+    } catch {
+      if (laufend === ton) laufend = null
+    }
+  }
+
+  // Still im Lesetempo
+  const dauer = (900 + String(text).length * 65) / tempo
+  const start = performance.now()
+  let abbrechen = () => {}
+  const fertig = new Promise((f) => {
+    const zeit = setTimeout(() => f(aufraeumen('ende')), dauer)
+    abbrechen = () => { clearTimeout(zeit); f(aufraeumen('unterbrochen')) }
+  })
+  mitTakt(() => Math.min(1, (performance.now() - start) / dauer))
+  return { art: 'still', fertig, stop: () => abbrechen() }
 }

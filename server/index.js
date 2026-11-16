@@ -1,5 +1,7 @@
 import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
+import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
+import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben } from './konjugation.js'
 import { appVersion } from './appVersion.js'
 import { createHash } from 'node:crypto'
 import { kiKontext } from './ki.js'
@@ -850,6 +852,35 @@ app.post('/api/translate-batch', async (req, res) => {
 })
 
 // Erstellt eine Vokabelliste zu einem frei gewählten Thema (nur mit KI).
+// KI-Konjugationstabellen (16.11.2026): vorab erzeugte Verben gratis,
+// neue Verben erzeugt die KI (zählt als KI-Erstellung).
+app.get('/api/konjugation/vorschlaege', (req, res) => res.json({ verben: vorschlagsVerben() }))
+app.get('/api/konjugation', async (req, res) => {
+  const en = req.query.sprache === 'en'
+  const verb = String(req.query.verb || '').trim().slice(0, 40)
+  if (!verb) return res.status(400).json({ error: en ? 'Please enter a verb.' : 'Bitte ein Verb eingeben.' })
+  const fertig = konjugationNachschlagen(verb)
+  if (fertig) return res.json(fertig)
+  const tuer = await kiTuersteher(req, res)
+  if (!tuer) return
+  try {
+    const daten = await konjugationErzeugen(verb)
+    if (!daten) return res.status(404).json({ error: en ? "That doesn't look like a verb." : 'Das sieht nicht nach einem Verb aus.' })
+    await kiVerbuchen(tuer)
+    res.json(daten)
+  } catch (err) {
+    console.error('Konjugation:', err.message)
+    res.status(502).json({ error: en ? 'That did not work, please try again.' : 'Das hat nicht geklappt, bitte nochmal.' })
+  }
+})
+
+// Einführungs-Lektion (15.11.2026): Die KI-Liste darin zählt nicht zu den
+// Gratis-Erstellungen – aber nur für neue Konten (jünger als 3 Tage).
+function einfuehrungFrei(req, tuer) {
+  const seit = Date.parse(tuer?.nutzer?.created_at || '')
+  return req.body?.einfuehrung === true && Number.isFinite(seit) && Date.now() - seit < 3 * 86400000
+}
+
 app.post('/api/vokabelliste', async (req, res) => {
   const thema = (req.body.thema || '').trim().slice(0, 80)
   // Die schon gesammelten Wörter: verhindern Dopplungen und verraten
@@ -873,7 +904,7 @@ app.post('/api/vokabelliste', async (req, res) => {
 
   try {
     const ergebnis = await erzeugeVokabelliste(thema, bekannt, wortart, req.body.sprache)
-    await kiVerbuchen(tuer)
+    if (!einfuehrungFrei(req, tuer)) await kiVerbuchen(tuer)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
@@ -1273,6 +1304,16 @@ app.get('/api/app/version', (req, res) => {
   res.json(appVersion(req.query.plattform))
 })
 app.post('/api/push/anmelden', sprechRoute((nutzer, body) => pushAnmelden(nutzer, body)))
+// Erinnerungen Tag 1/Tag 3: Probelauf ohne Versand (15.11.2026)
+app.get('/api/push/erinnerungen', async (req, res) => {
+  if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
+  try {
+    res.json(await erinnerungenPruefen({ probe: true }))
+  } catch (fehler) {
+    res.status(500).json({ error: fehler.message })
+  }
+})
+erinnerungenStarten()
 app.post('/api/push/senden', async (req, res) => {
   if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
   try {

@@ -47,6 +47,16 @@ function schluessel() {
 }
 
 /** Ist der Kaufweg überhaupt eingerichtet? */
+/**
+ * Keine Kasse erreichbar? Nur dann bleiben Premium-Hinweise versteckt:
+ * im Browser zahlt man per Stripe, in der Store-App per Apple/Google
+ * (kaufMoeglich). Vor dem In-App-Kauf (bis 12.11.2026) waren die Hinweise
+ * in der App ganz aus – das hatte sich mit dem Kauf nicht mitgeändert (15.11.).
+ */
+export function ohneKasse() {
+  return istApp() && !kaufMoeglich()
+}
+
 export function kaufMoeglich() {
   return istApp() && Boolean(schluessel())
 }

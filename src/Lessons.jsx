@@ -1,4 +1,6 @@
 import GratisHinweis from './GratisHinweis.jsx'
+import DialogSzene from './DialogSzene.jsx'
+import WISSEN_TABELLEN from './wissenTabellen.js'
 import { Fragment, useState, useEffect } from 'react'
 import {
   MODULE,
@@ -16,7 +18,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 import { spiele, vorladen, dialogAbspielen, stimmeImDialog, tonVonSelbst } from './audio.js'
 import HoerKnopf, { VonSelbst } from './HoerKnopf.jsx'
 import Reiseroute from './Reiseroute.jsx'
@@ -39,11 +41,23 @@ import {
   nochBisSzene,
 } from './mitgehoert.js'
 
-import { useTexte, vokabel, satz, text as uebersetzt } from './sprache.js'
+import { useTexte, vokabel, satz, text as uebersetzt, sprache } from './sprache.js'
 import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
 import { usePremium, LEKTIONEN_SPERRE, TESTPHASE_ALLES_FREI } from './premium.js'
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
+/** Tabellenzelle: „*hola* – Hallo“ → Wort-Chip und darunter klein die Bedeutung. */
+function tabellenZelle(text) {
+  const [wort, bedeutung] = text.split(' – ')
+  if (!bedeutung) return mitChips(text)
+  return (
+    <span className="info-zelle">
+      <span>{mitChips(wort)}</span>
+      <small>{bedeutung}</small>
+    </span>
+  )
+}
+
 function mitChips(text) {
   return text.split('*').map((teil, i) =>
     i % 2 === 1 ? (
@@ -198,7 +212,7 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet }) {
   const t = useTexte()
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
@@ -235,6 +249,22 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     document.body.classList.toggle('lektion-laeuft', Boolean(lektion))
     return () => document.body.classList.remove('lektion-laeuft')
   }, [lektion])
+
+  // Direkt nach der Registrierung (15.11.2026, Manuel): sofort in die
+  // erste offene Lektion statt auf die Modul-Übersicht. Über die Hälfte
+  // der neuen Konten hat vorher gar nichts gelernt. Das Modul wird mit
+  // geöffnet, damit „✕“ in dessen Lektionsliste zurückführt.
+  useEffect(() => {
+    if (!sofortStart) return
+    onSofortGestartet?.()
+    const offen = (l) => !lessonProgress[l.id]?.fertig
+    const m = MODULE.find((x, i) => modulOffen(i, lessonProgress) && !kommtBald(x) && lektionenVon(x).some(offen))
+    const l = m && lektionenVon(m).find(offen)
+    if (!l || gesperrt(l)) return
+    setModul(m)
+    starten(l)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sofortStart])
 
   function brauchtOptionen(schritt) {
     return (
@@ -306,7 +336,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     if (next >= schritte.length) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
-      erfolgston() // die Lektion ist geschafft – das darf man hoeren
+      lektionTon() // die Lektion ist geschafft – eigener, größerer Klang (15.11.)
       hakeAb('lektion') // Schritt im Tagesplan erledigt
       merkeEinheit('lektion') // zaehlt als Lektion
       merkeGelernt('lektionen')
@@ -503,6 +533,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
           <WissensKarte
             key={'s' + index}
             karten={lektion.wissen}
+            lektionId={lektion.id}
             nummer={schritt.karte ?? 0}
             istStation={lektion.istStation}
             onWeiter={weiter}
@@ -511,7 +542,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
 
         {/* --- Dialog als animierter Chat --- */}
         {schritt.typ === 'dialog' && (
-          <DialogChat key={'s' + index} dialog={lektion.dialog} onWeiter={weiter} />
+          <DialogSzene key={'s' + index} dialog={lektion.dialog} onWeiter={weiter} />
         )}
 
         {/* --- Übung: richtige Übersetzung auswählen --- */}
@@ -978,6 +1009,20 @@ function DialogChat({ dialog, onWeiter }) {
     steuerung.fertig.then(() => setLaeuft(null))
   }
 
+  // Dialoge spielen von selbst ab (16.11.2026, Manuel): Man hört sie sofort,
+  // ohne den Knopf zu suchen. Nur echte Aufnahmen – fehlt eine oder blockt
+  // das Gerät den Ton, laufen die Blasen im Lesetakt weiter, ohne
+  // Computerstimme.
+  useEffect(() => {
+    const zeit = setTimeout(() => {
+      const steuerung = dialogAbspielen(dialog, { beiZeile: (i) => setAnzahl(i + 1), nurDatei: true })
+      setLaeuft(steuerung)
+      steuerung.fertig.then(() => setLaeuft(null))
+    }, 450)
+    return () => clearTimeout(zeit)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Beim Verlassen der Lektion nicht weiterreden
   useEffect(() => () => laeuft?.stop(), [laeuft])
 
@@ -1293,9 +1338,11 @@ function Szenenkarte({ szene, offen, geschafft, fehlend, onStart }) {
  * Die Punkte unten sind nicht nur Zierde: Ohne sie wuesste niemand,
  * ob nach dieser Karte noch zwei kommen oder ob es weitergeht.
  */
-function WissensKarte({ karten, nummer, istStation, onWeiter }) {
+function WissensKarte({ karten, nummer, istStation, onWeiter, lektionId }) {
   const t = useTexte()
   const tipp = karten[nummer]
+  // Lerntabelle zur Karte (16.11.2026, erzeugt in wissenTabellen.js) – in der App-Sprache
+  const tabelle = tipp.tabelle ?? WISSEN_TABELLEN[`${lektionId}:${nummer}`]?.[sprache() === 'en' ? 'en' : 'de']
   const letzte = nummer === karten.length - 1
 
   return (
@@ -1306,6 +1353,21 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
       <div className="info-einzeln">
         <h3 className="info-title">{uebersetzt(tipp.titel)}</h3>
         <p className="info-text">{mitChips(uebersetzt(tipp.text))}</p>
+        {/* Lerntabelle (16.11.2026): der Tipp auf einen Blick – für Anfänger viel leichter als Fließtext */}
+        {tabelle && (
+          <div className="info-tabelle-rahmen">
+            <table className="info-tabelle">
+              <thead>
+                <tr>{tabelle.kopf.map((k) => <th key={k}>{k}</th>)}</tr>
+              </thead>
+              <tbody>
+                {tabelle.zeilen.map((z, i) => (
+                  <tr key={i}>{z.map((zelle, j) => <td key={j}>{tabellenZelle(zelle)}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {karten.length > 1 && (

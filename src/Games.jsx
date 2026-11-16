@@ -529,6 +529,16 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
     return baueGitter(passend.slice(0, 5))
   })
   const [gefunden, setGefunden] = useState([])
+  // Tipps (16.11.2026, Manuel): je Wort erst der erste, beim zweiten Mal
+  // auch der zweite Buchstabe – der verrät die Richtung. Antippen eines
+  // Wortes in der Liste oder der Tipp-Knopf (nimmt das nächste offene Wort).
+  const [tipps, setTipps] = useState({})
+  function tipp(wort) {
+    const offen = platziert.filter((p) => !gefunden.includes(p.es))
+    const w = wort ?? offen.find((p) => (tipps[p.es] ?? 0) < 2) ?? offen[0]
+    if (!w || gefunden.includes(w.es)) return
+    setTipps((tp) => ({ ...tp, [w.es]: Math.min(2, (tp[w.es] ?? 0) + 1) }))
+  }
   const [zug, setZug] = useState(null) // {start:[x,y], jetzt:[x,y]}
   const [falschFelder, setFalschFelder] = useState([]) // kurz rot nach falschem Strich
 
@@ -597,6 +607,12 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
     }
   }
 
+  const tippFelder = new Set(
+    platziert
+      .filter((w) => !gefunden.includes(w.es))
+      .flatMap((w) => w.felder.slice(0, tipps[w.es] ?? 0).map(([x, y]) => x + ',' + y))
+  )
+
   const gefundeneFelder = new Set(
     platziert
       .filter((w) => gefunden.includes(w.es))
@@ -630,7 +646,14 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
           {platziert.map((w) => {
             const fertig = gefunden.includes(w.es)
             return (
-              <span key={w.es} className={'such-wort' + (fertig ? ' wort-gefunden' : '')}>
+              <span
+                key={w.es}
+                className={'such-wort' + (fertig ? ' wort-gefunden' : ' such-wort-tipp')}
+                role={fertig ? undefined : 'button'}
+                tabIndex={fertig ? undefined : 0}
+                onClick={fertig ? undefined : () => tipp(w)}
+                onKeyDown={fertig ? undefined : (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tipp(w) } }}
+              >
                 <b>{w.es}</b>
                 {fertig && <em> – {w.de}</em>}
               </span>
@@ -661,7 +684,8 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
                   'gitter-feld' +
                   (istGefunden ? ' feld-gefunden' : '') +
                   (istAktiv ? ' feld-aktiv' : '') +
-                  (istFalsch ? ' feld-falsch' : '')
+                  (istFalsch ? ' feld-falsch' : '') +
+                  (!istGefunden && tippFelder.has(schluessel) ? ' feld-tipp' : '')
                 }
                 data-pos={schluessel}
                 onPointerDown={(e) => beginne(e, x, y)}
@@ -672,6 +696,11 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
           })
         )}
       </div>
+
+      <button type="button" className="spiel-tipp" onClick={() => tipp()}>
+        💡 {t('sp3.tippKnopf')}
+      </button>
+      <p className="spiel-hinweis spiel-hinweis-klein">{t('sp3.tippHinweis')}</p>
 
       <RundenWoerter woerter={platziert} />
 

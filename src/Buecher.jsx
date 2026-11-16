@@ -1,3 +1,4 @@
+import { ohneKasse } from './kauf.js'
 // Buch-Generator im Blinkist-Stil (Manuel, 10.11.2026):
 // Echte Bücher nach Themen wählen (oder eigenen Titel / Text) → 8 Kapitel,
 // jeder Absatz in der Lernsprache und in der Muttersprache. Übersichtsseite
@@ -7,7 +8,7 @@
 // „Was je App anders ist“ unterscheidet sich.
 import { useEffect, useState } from 'react'
 import GratisHinweis, { zurKasse } from './GratisHinweis.jsx'
-import { API_URL, istApp } from './api.js'
+import { API_URL } from './api.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import { loginKopf, kontingentLeer, zaehleNutzung, useKontingent, holeKontingent } from './limits.js'
 import { sprache, useTexte } from './sprache.js'
@@ -205,7 +206,7 @@ export function BuchFormular({ onFertig }) {
   }
 
   // Gratis in den Store-Apps: kein Verweis auf eine Kasse – nur die Bibliothek
-  if (!darf && istApp) return null
+  if (!darf && ohneKasse()) return null
 
   return (
     <section className={'engine engine-toon bg-buehne' + (darf ? '' : ' bg-gesperrt')}>

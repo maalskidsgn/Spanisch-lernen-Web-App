@@ -1,6 +1,7 @@
+import { ohneKasse } from './kauf.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { XP } from './gamification.js'
-import { API_URL, istApp } from './api.js'
+import { API_URL } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
@@ -105,7 +106,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
             {loading ? t('vg.analysiere') : t('vg.generieren')}
           </button>
           {/* Im Web zeigt GratisHinweis den Stand – hier nur in der App */}
-          {istApp && !premium && (
+          {ohneKasse() && !premium && (
             <p className="free-hint">
               {t('vg.nochHeute', { uebrig, gesamt: LISTEN_PRO_TAG })}
             </p>
