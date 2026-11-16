@@ -215,7 +215,7 @@ export async function vorladen(quelle) {
   }
 }
 
-export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}) {
+export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDatei = false } = {}) {
   const name = await audioName(text, stimme)
   const url = puffer.get(name) || `${ABLAGE}/${name}`
 
@@ -254,6 +254,8 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     }
   }
 
+  // Automatisch abgespielte Dialoge (16.11.2026): nie die Computerstimme
+  if (nurDatei) return 'still'
   sprich(sprechText(text))
   return 'browser'
 }
@@ -269,17 +271,17 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
  *   statt nach eigenem Takt zu blättern: Eine lange Zeile bleibt
  *   dann so lange stehen, wie sie gesprochen wird.
  */
-export function dialogAbspielen(dialog, { beiZeile } = {}) {
+export function dialogAbspielen(dialog, { beiZeile, nurDatei = false } = {}) {
   let gestoppt = false
 
   const lauf = (async () => {
     for (const [index, zeile] of dialog.entries()) {
       if (gestoppt) return
       beiZeile?.(index)
-      await spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher) })
+      const art = await spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher), nurDatei })
       // Auf das Ende der Datei bzw. der Browser-Stimme warten
       await new Promise((fertig) => {
-        if (laufend) {
+        if (art === 'datei' && laufend) {
           laufend.onended = fertig
           laufend.onerror = fertig
         } else {

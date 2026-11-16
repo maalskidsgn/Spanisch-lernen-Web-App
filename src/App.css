@@ -18560,3 +18560,19 @@ body.liest-video .video-kopf {
 }
 /* Gesperrter Knopf über die Farbe statt opacity – die Einblend-Animation setzt opacity zurück */
 .ef .ef-knopf:disabled { opacity: 1; background: color-mix(in srgb, var(--primary) 38%, #fff); box-shadow: 0 4px 0 color-mix(in srgb, var(--primary) 50%, #fff); color: rgba(255, 255, 255, .9); }
+
+/* ===== Gut zu wissen: Lerntabellen im Toon-Stil (16.11.2026, Entwurf) ===== */
+.info-tabelle-rahmen { margin: 16px 0 4px; border: 2px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 4px 0 var(--line); background: var(--card); }
+.info-tabelle { width: 100%; border-collapse: collapse; font-size: .95rem; }
+.info-tabelle th { padding: 10px 12px; text-align: left; font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--primary-dark); background: color-mix(in srgb, var(--primary) 10%, var(--card)); border-bottom: 2px solid var(--line); }
+.info-tabelle td { padding: 10px 12px; color: var(--navy); font-weight: 700; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.info-tabelle tr:last-child td { border-bottom: 0; }
+.info-tabelle tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--primary) 3%, var(--card)); }
+.info-tabelle td:first-child .wort-chip { font-size: 1.15rem; min-width: 2.2em; text-align: center; }
+.info-tabelle .wort-chip { margin: 0; }
+@media (max-width: 480px) { .info-tabelle { font-size: .85rem; } .info-tabelle th, .info-tabelle td { padding: 8px 8px; } .info-tabelle th { font-size: .62rem; } }
+.info-zelle { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.info-zelle small { font-size: .78rem; font-weight: 700; color: var(--muted); line-height: 1.2; }
+.info-zelle { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+.info-zelle small { font-size: .78rem; font-weight: 700; color: var(--muted); line-height: 1.2; }
