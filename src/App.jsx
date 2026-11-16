@@ -885,10 +885,20 @@ export default function App() {
       if (e.detail.includes('bausteine')) setBausteinStand(loadBausteine())
     }
     window.addEventListener('geraetedaten', neuEinlesen)
+    // Grundlagen-Trainer (16.11.2026): nach einer Bewertung nicht bis zur
+    // nächsten Minute warten, sondern kurz darauf ins Konto sichern
+    let bald
+    const grundlagenNeu = () => {
+      clearTimeout(bald)
+      bald = setTimeout(abgleich, 3000)
+    }
+    window.addEventListener('grundlagen-geaendert', grundlagenNeu)
     return () => {
       clearInterval(takt)
+      clearTimeout(bald)
       document.removeEventListener('visibilitychange', weg)
       window.removeEventListener('geraetedaten', neuEinlesen)
+      window.removeEventListener('grundlagen-geaendert', grundlagenNeu)
     }
   }, [nutzer])
 
