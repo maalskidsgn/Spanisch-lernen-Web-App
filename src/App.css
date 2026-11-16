@@ -18954,3 +18954,14 @@ body.liest-video .video-kopf {
 .kal-legende { display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin: 12px 2px 0; font-size: .74rem; font-weight: 700; color: var(--muted); }
 .kal-legende .kal-punkt { width: 13px; height: 13px; aspect-ratio: 1; pointer-events: none; }
 .kal-legende.kal-mini { display: flex; }
+
+/* ===== E-Book-Formular vereinfacht (16.11.2026, Manuel): ein Feld, Ideen, Niveau, Knopf ===== */
+.bg-einfach { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.bg-einfach .bg-feld { margin: 0; cursor: text; }
+.bg-ideen small { display: block; margin: 0 0 6px 2px; font-size: .74rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.bg-einfach .engine-themen { margin-top: 0; flex-wrap: wrap; overflow: visible; }
+.bg-einfach .engine-themen button.an { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--card)); color: var(--primary-dark); }
+.bg-niveau-zeile { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bg-niveau-zeile > span { font-weight: 800; font-size: .92rem; color: var(--navy); }
+.bg-einfach .bg-text-link { align-self: flex-start; margin: -2px 0 0; }
+.bg-einfach .engine-los { margin-top: 2px; }
