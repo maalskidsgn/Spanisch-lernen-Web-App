@@ -213,7 +213,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
   }
 
   const zeit = daten?.zeiten?.[zeitNr]
-  // Vorschläge in der Sprache des Lernenden (17.11.2026, Manuel): groß die
+  // Vorschläge in der Sprache des Lernenden (16.11.2026, Manuel): groß die
   // Bedeutung, klein das Verb – Anfänger können die Zielsprache noch nicht lesen
   const vorschlaege = (ausTrainer.length ? ausTrainer : haeufig.map((h) => ({ verb: h.verb, name: h[sp] || h.de })))
     .map((v) => ({ verb: v.verb, name: v.name || v.verb }))

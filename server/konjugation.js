@@ -60,7 +60,7 @@ try {
 }
 const GEMERKT = new Map()
 
-// Anfänger tippen das Verb in ihrer Sprache (17.11.2026, Manuel): „sprechen“
+// Anfänger tippen das Verb in ihrer Sprache (16.11.2026, Manuel): „sprechen“
 // oder „to speak“ findet dasselbe Verb. Das häufigere Verb gewinnt bei
 // gleicher Bedeutung (die Datei ist nach Häufigkeit sortiert).
 const ohneKlammern = (text) => String(text || '').replace(/\(.*?\)/g, '')
