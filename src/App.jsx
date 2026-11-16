@@ -1515,6 +1515,24 @@ export default function App() {
     if (rechtSeite === 'konto-loeschen') return <KontoLoeschen onZurueck={zu} />
   }
 
+  // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
+  // Steht VOR dem Zugangs-Tor: Mit ?einfuehrung lässt sie sich auch ohne
+  // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
+  if (einfuehrungOffen && !nutzerLaedt) {
+    return (
+      <>
+        <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+        <Einfuehrung
+          onFertig={einfuehrungZu}
+          onAddVocab={addVocabWords}
+          addXp={addXp}
+          vocab={vocab}
+          navLabels={{ start: t('nav.start'), lektionen: t('nav.lektionen'), trainer: t('nav.trainer'), mediathek: t('nav.youtube'), profil: t('nav.profil') }}
+        />
+      </>
+    )
+  }
+
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
   if (supabaseBereit && !nutzer) {
     // Solange noch geprüft wird, ob eine Sitzung besteht: nichts zeigen,
@@ -1612,21 +1630,6 @@ export default function App() {
     return <BenutzernameWahl nutzerId={nutzer.id} onFertig={nameGefragt} />
   }
 
-  // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
-  if (einfuehrungOffen) {
-    return (
-      <>
-        {meldung}
-        <Einfuehrung
-          onFertig={einfuehrungZu}
-          onAddVocab={addVocabWords}
-          addXp={addXp}
-          vocab={vocab}
-          navLabels={{ start: t('nav.start'), lektionen: t('nav.lektionen'), trainer: t('nav.trainer'), mediathek: t('nav.youtube'), profil: t('nav.profil') }}
-        />
-      </>
-    )
-  }
 
   // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
   // Eine Karte je Bildschirm – da störte eine Menüleiste am unteren
