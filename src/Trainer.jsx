@@ -30,7 +30,6 @@ import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
 import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
-import Grundlagen, { faelligeGrundlagen } from './Grundlagen.jsx'
 import { IconKarten, IconAuswahl, IconSchreiben, IconGemischt, IconListe, IconPfeil } from './icons.jsx'
 
 // Zuordnung der Uebungsarten zu ihren Icons
@@ -194,20 +193,6 @@ export default function Trainer({
   // Wie viele Sätze warten? Nur für die Zahl am Reiter – geübt wird
   // drüben in Satztrainer.jsx.
   // Wie viele Texte warten auf das Wiederlesen?
-  // Grundlagen-Trainer (16.11.2026): fällige Regeln aus abgeschlossenen Lektionen + eigene Konjugationen
-  // Zähler sofort auffrischen: nach jeder Bewertung und nach dem Abgleich mit dem Konto
-  const [regelTakt, setRegelTakt] = useState(0)
-  useEffect(() => {
-    const neu = () => setRegelTakt((t) => t + 1)
-    window.addEventListener('grundlagen-geaendert', neu)
-    window.addEventListener('geraetedaten', neu)
-    return () => {
-      window.removeEventListener('grundlagen-geaendert', neu)
-      window.removeEventListener('geraetedaten', neu)
-    }
-  }, [])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const faelligeRegeln = useMemo(() => faelligeGrundlagen(lessonProgress).length, [lessonProgress, deck, regelTakt])
   const faelligeTexte = useMemo(
     () => { const p = pausierteSchluessel(texte, MAX_TEXTE, allesFrei, 'erstelltAm'); return Object.entries(texte).filter(([k, x]) => !p.has(k) && isDue(withSrsDefaults(x))).length },
     [texte, allesFrei]
@@ -336,8 +321,6 @@ export default function Trainer({
               ? t('tr.titelSaetze')
               : deck === 'lesen'
                 ? t('tr.titelLesen')
-                : deck === 'grundlagen'
-                ? t('tr.titelGrundlagen')
                 : deck === 'grammatik'
                   ? t('tr.titelGrammatik')
                   : t('tr.titelKi')}
@@ -350,8 +333,6 @@ export default function Trainer({
             ? t('tr.introSaetze')
             : deck === 'lesen'
               ? t('tr.introLesen')
-              : deck === 'grundlagen'
-              ? t('tr.introGrundlagen')
               : deck === 'grammatik'
                 ? t('tr.introGrammatik')
                 : t('tr.introKi')}
@@ -383,15 +364,6 @@ export default function Trainer({
         >
           {t('tr.texte')}
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
-        </button>
-        <button
-          role="tab"
-          aria-selected={deck === 'grundlagen'}
-          className={deck === 'grundlagen' ? 'deck-aktiv' : ''}
-          onClick={() => setDeck('grundlagen')}
-        >
-          {t('tr.grundlagen')}
-          {faelligeRegeln > 0 && <span className="deck-zahl">{faelligeRegeln}</span>}
         </button>
         {GRAMMATIK_ZEIGEN && (
           <button
@@ -427,15 +399,6 @@ export default function Trainer({
     return (
       <div className="wechsel" key="saetze">
         <Satztrainer kopf={schalter} saetze={saetze} setSaetze={setSaetze} addXp={addXp} />
-      </div>
-    )
-  }
-
-  // ---------- Grundlagen: Regeln aus „Gut zu wissen“ + Konjugationen ----------
-  if (deck === 'grundlagen') {
-    return (
-      <div className="wechsel" key="grundlagen">
-        <Grundlagen kopf={schalter} lessonProgress={lessonProgress} addXp={addXp} vocab={vocab} />
       </div>
     )
   }
