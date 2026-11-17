@@ -9,8 +9,9 @@
  *      zwischen 9 und 20 Uhr (keiner wird nachts geweckt).
  *    – Wer an dem Tag schon gelernt hat, bekommt nichts.
  *
- * 2) Flamme in Gefahr (alle Konten): Wer gestern gelernt hat (Serie ≥ 1)
- *    und heute noch nicht, bekommt ab 19 Uhr eine Erinnerung – sonst ist
+ * 2) Flamme in Gefahr (alle Konten): Die Flamme hat einen Puffertag
+ *    (17.11.2026, wie bei Babbel). Wer VORGESTERN zuletzt gelernt hat, hat
+ *    heute die letzte Chance – ab 19 Uhr kommt eine Erinnerung, sonst ist
  *    die Serie um Mitternacht weg. Nach 22 Uhr kommt nichts mehr.
  *
  * Für alle gilt:
@@ -140,7 +141,7 @@ function welche(konto, stat, jetzt) {
   const serie = Number(stat?.serie) || 0
   if (
     serie >= 1 &&
-    stat?.letzter_tag === gestern(heute.tag) &&
+    stat?.letzter_tag === gestern(gestern(heute.tag)) &&
     erinnert.flamme !== heute.tag &&
     heute.stunde >= FLAMME_AB && heute.stunde < FLAMME_BIS
   ) {
@@ -193,12 +194,12 @@ function flammenText(serie) {
     titel: { de: 'Deine Flamme geht gleich aus 🔥', en: 'Your streak is about to go out 🔥' },
     text: serie > 1
       ? {
-          de: `${serie} Tage in Folge! Lern heute noch ein paar Minuten, sonst ist deine Serie um Mitternacht weg.`,
-          en: `${serie} days in a row! Learn for a few minutes today or your streak is gone at midnight.`,
+          de: `Deine Serie von ${serie} Tagen hält nur noch heute. Ein paar Minuten reichen – sonst ist sie um Mitternacht weg.`,
+          en: `Your ${serie}-day streak only lasts until tonight. A few minutes is enough – otherwise it's gone at midnight.`,
         }
       : {
-          de: 'Du hast gestern angefangen – lern heute kurz weiter, sonst geht deine Flamme um Mitternacht aus.',
-          en: 'You started yesterday – learn a little today or your flame goes out at midnight.',
+          de: 'Deine Flamme brennt nur noch heute. Lern kurz weiter, sonst geht sie um Mitternacht aus.',
+          en: 'Your flame only lasts until tonight. Learn a little or it goes out at midnight.',
         },
   }
 }

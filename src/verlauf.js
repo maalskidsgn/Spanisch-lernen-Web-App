@@ -77,9 +77,15 @@ export function serieAusVerlauf() {
     d.setDate(d.getDate() - n)
     return d.toLocaleDateString('sv-SE')
   }
-  const start = tage.has(tag(0)) ? 0 : tage.has(tag(1)) ? 1 : -1
+  // Ein Puffertag (17.11.2026): Einzelne ausgelassene Tage reißen die Serie
+  // nicht – erst zwei Tage am Stück. Gezählt werden nur echte Lerntage.
+  const start = tage.has(tag(0)) ? 0 : tage.has(tag(1)) ? 1 : tage.has(tag(2)) ? 2 : -1
   if (start < 0) return 0
   let n = 0
-  while (tage.has(tag(start + n))) n++
+  let i = start
+  for (;;) {
+    if (tage.has(tag(i))) { n++; i++ } else if (tage.has(tag(i + 1))) i++
+    else break
+  }
   return n
 }
