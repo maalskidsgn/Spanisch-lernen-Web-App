@@ -19426,3 +19426,9 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .bl-rein { border-radius: 16px; padding: 11px 18px; font-size: .92rem; box-shadow: 0 5px 0 var(--success-press); transition: transform .08s ease, box-shadow .08s ease; }
 .bl-rein:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 var(--success-press); }
 .bl-rein:disabled { border-radius: 16px; }
+
+/* E-Book-Leser in der App-Schrift (17.11.2026, Manuel: „soll einheitlich wirken“) –
+   die Serifenschrift aus dem Blinkist-Lesemodus ist raus. */
+.bl-kapitel h2, .bl-kapitel .bl-text { font-family: inherit; }
+.bl-kapitel h2 { font-weight: 900; font-size: 1.6rem; letter-spacing: -.01em; }
+.bl-kapitel .bl-text { font-size: 1.15rem; line-height: 1.65; font-weight: 600; }
