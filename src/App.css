@@ -18969,3 +18969,9 @@ body.liest-video .video-kopf {
 /* ===== Lektionsbereich: Reiter „Lektionen | Wiederholen“ (17.11.2026, Manuel) ===== */
 .lessons .lek-reiter { margin: 4px 0 18px; }
 .lessons .trainer.gl { background: none; }
+
+/* ===== Grundlagen-Runde: Karte gerade, Lautschrift-Schalter in der Karte (17.11.2026, Manuel) ===== */
+.training-stage.gl-runde .flashcard.karte-toon { rotate: none; }
+.gl-karten-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.gl-karten-kopf .gl-herkunft { margin: 0; }
+.laut-schalter.laut-kompakt { margin: 0; padding: 5px 11px; font-size: .8rem; flex: none; }

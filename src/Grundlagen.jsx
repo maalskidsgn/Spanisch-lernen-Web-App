@@ -420,10 +420,13 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
       <div className="training-stage gl-runde">
         <div className="lern-balken"><div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} /></div>
         <p className="training-progress">{tx('Regel {0} von {1}', nr + 1, runde.length)}</p>
-        {MIT_LAUT && <div className="laut-zeile laut-oben"><LautSchalter an={laut} onClick={lautUmschalten} /></div>}
 
         <div className="flashcard karte-toon gl-karte">
-          <p className="gl-herkunft">{karte.emoji} {karte.lektion}</p>
+          {/* Schalter in der Karte: so sieht man ihn immer, auch wenn man gescrollt hat (17.11.2026) */}
+          <div className="gl-karten-kopf">
+            <p className="gl-herkunft">{karte.emoji} {karte.lektion}</p>
+            {MIT_LAUT && <LautSchalter an={laut} onClick={lautUmschalten} className="laut-kompakt" />}
+          </div>
           {frage ? (
             <>
               <p className="gl-frage">{chips(frage.vorne, laut)}</p>
