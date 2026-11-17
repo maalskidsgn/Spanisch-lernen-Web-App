@@ -27,7 +27,11 @@ const monat = () => new Date().toISOString().slice(0, 7)
 /** Wer fragt? Nutzer-ID, sonst die IP (hinter Traefik aus X-Forwarded-For). */
 export function anfrager(req, nutzerId) {
   if (nutzerId) return 'u:' + nutzerId
-  const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || 'unbekannt'
+  // Die Adresse, die UNSER Proxy gesehen hat: X-Real-Ip bzw. der LETZTE Eintrag von
+  // X-Forwarded-For. Der erste Eintrag stammt vom Absender selbst – wer ihn fälscht,
+  // bekäme sonst mit jeder Anfrage eine neue „Adresse“ und damit unbegrenzte Aufrufe.
+  const kette = String(req.headers['x-forwarded-for'] || '').split(',').map((t) => t.trim()).filter(Boolean)
+  const ip = String(req.headers['x-real-ip'] || '').trim() || kette[kette.length - 1] || req.ip || 'unbekannt'
   return 'ip:' + ip
 }
 
