@@ -162,6 +162,7 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
       setAnzahl((n) => Math.max(n, i + 1))
       setAktiv({ i, anteil: 0 })
       let zuletzt = -1
+      const beginn = performance.now()
       const w = await spieleZeile(dialog[i].es, {
         stimme: stimmeImDialog(dialog, dialog[i].sprecher),
         tempo,
@@ -179,6 +180,21 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
       if (lauf.current !== token) return
       // Ein anderer Ton hat übernommen: Anzeige zurücksetzen, nicht weiterreden
       if (grund === 'unterbrochen') { setAktiv(null); setSpielt(false); return }
+      // Sicherung (17.11.2026, Manuel: „lädt direkt alle Sätze“): Ist eine
+      // Aufnahme kaputt oder blockiert, meldet sie sich sofort fertig – dann
+      // trotzdem so lange warten, wie man zum Lesen der Zeile braucht.
+      const lesezeit = (900 + String(dialog[i].es).length * 65) / tempo
+      const vergangen = performance.now() - beginn
+      if (vergangen < lesezeit * 0.6) {
+        const ende = beginn + lesezeit
+        while (performance.now() < ende) {
+          if (lauf.current !== token || !lebt.current) return
+          setAktiv({ i, anteil: Math.min(1, (performance.now() - beginn) / lesezeit) })
+          await new Promise((f) => setTimeout(f, 120))
+        }
+        if (lauf.current !== token) return
+        setAktiv({ i, anteil: 1 })
+      }
       if (nurEine) break
       await new Promise((f) => setTimeout(f, 520 / tempo))
     }
