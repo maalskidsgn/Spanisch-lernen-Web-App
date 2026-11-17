@@ -45,15 +45,21 @@ async function geraeteSetzen(nutzerId, liste) {
 }
 
 /** POST /api/push/anmelden – die App meldet ihre Kennung. */
-export async function anmelden(nutzer, { token, plattform, version, sprache }) {
+export async function anmelden(nutzer, { token, plattform, version, sprache, zone }) {
   if (typeof token !== 'string' || token.length < 20 || token.length > 4096) throw new PushFehler(400, 'Ungültige Kennung.')
   if (!['ios', 'android'].includes(plattform)) throw new PushFehler(400, 'Unbekannte Plattform.')
   const r = await fetch(`${AUTH()}/${nutzer.id}`, { headers: kopf() })
   const konto = r.ok ? await r.json() : {}
   const alt = (konto.app_metadata?.push_geraete ?? []).filter((g) => g.token !== token)
-  const neu = [{ token, plattform, version: String(version || '').slice(0, 20), sprache: sprache === 'en' ? 'en' : 'de', am: new Date().toISOString() }, ...alt].slice(0, MAX_GERAETE)
+  const neu = [{ token, plattform, version: String(version || '').slice(0, 20), sprache: sprache === 'en' ? 'en' : 'de', zone: gueltigeZone(zone), am: new Date().toISOString() }, ...alt].slice(0, MAX_GERAETE)
   await geraeteSetzen(nutzer.id, neu)
   return { ok: true }
+}
+
+/** Zeitzone der App (z. B. Europe/Berlin) – für Erinnerungen zur Ortszeit. */
+function gueltigeZone(zone) {
+  if (typeof zone !== 'string' || zone.length > 64) return undefined
+  try { new Date().toLocaleString('en-GB', { timeZone: zone }); return zone } catch { return undefined }
 }
 
 export async function alleKonten() {

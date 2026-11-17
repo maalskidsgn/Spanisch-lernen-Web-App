@@ -56,6 +56,8 @@ export async function pushEinrichten(nutzerId, oeffne) {
             plattform: plattform(),
             version: info.version || '',
             sprache: (localStorage.getItem('oberflaeche-sprache') || navigator.language || 'de').slice(0, 2),
+            // Zeitzone: Erinnerungen kommen zur Ortszeit (17.11.2026)
+            zone: Intl.DateTimeFormat().resolvedOptions().timeZone,
           }),
         })
       } catch { /* nächster Start versucht es wieder */ }
