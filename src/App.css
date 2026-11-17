@@ -19351,3 +19351,33 @@ body.liest-video .video-kopf {
 }
 .training-stage:not(.spiel-toon) .bewertung:hover { transform: none; background: color-mix(in srgb, var(--bf) 14%, #fff); }
 .training-stage:not(.spiel-toon) .bewertung:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--bk), inset 0 0 0 2.5px var(--bf); }
+
+/* ===== 17.11.2026 (Manuel): Knöpfe, Spiele, Galgen ===== */
+/* „Übersetzung zeigen“ im 3D-Toon-Stil */
+.training-stage .zeige-knopf {
+  border: 0;
+  border-radius: 18px;
+  padding: 15px 28px;
+  font: inherit;
+  font-size: 1.02rem;
+  font-weight: 900;
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 6px 0 var(--primary-press);
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease;
+}
+.training-stage .zeige-knopf:hover { filter: none; transform: none; }
+.training-stage .zeige-knopf:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--primary-press); }
+/* Galgenmännchen: die Videosuche-Regel .treffer schlug auf die grünen Tasten durch */
+.sp-taste.treffer, .sp-taste.treffer:disabled {
+  display: block; width: auto; padding: 0; gap: 0; border: 0; border-radius: 11px; text-align: center; cursor: default;
+}
+.sp-taste.treffer, .sp-taste.treffer * { color: #fff !important; }
+.sp-taste.treffer:hover { background: var(--sp-gruen); border: 0; }
+/* Wortsuche: gefundene Wörter in der Liste darunter grün */
+.spielwort-gefunden { background: #e7f8ee; box-shadow: inset 0 0 0 2px #a8e3c7; }
+/* Spiel-Abschluss in der Spielkarte: Bühne ohne doppelten Rand */
+.spiel-toon .runden-abschluss { max-width: 100%; }
+
+.training-stage .zeige-knopf { margin-top: 16px; }

@@ -39,6 +39,11 @@ const TX = {
     urteil_einfach: 'Mühelos',
     nochTexte: (n) => (n === 1 ? 'Ein Text wartet noch auf dich.' : `${n} Texte warten noch auf dich.`),
     alleGelesen: 'Alle fälligen Texte gelesen – der nächste kommt von selbst wieder.',
+    geschafft: 'Geschafft!',
+    xp: 'XP',
+    stufeWeiter: 'Wörter eine Stufe weiter',
+    nochmalSpielen: 'Nochmal spielen',
+    zurueckTrainer: 'Zurück zum Trainer',
   },
   en: {
     rundeGeschafft: 'Round complete!',
@@ -71,6 +76,11 @@ const TX = {
     urteil_einfach: 'Easily',
     nochTexte: (n) => (n === 1 ? 'One more text is waiting for you.' : `${n} more texts are waiting for you.`),
     alleGelesen: 'All due texts read – the next one comes back on its own.',
+    geschafft: 'Done!',
+    xp: 'XP',
+    stufeWeiter: 'words one level up',
+    nochmalSpielen: 'Play again',
+    zurueckTrainer: 'Back to the trainer',
   },
 }
 

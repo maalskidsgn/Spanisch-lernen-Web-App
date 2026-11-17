@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, createContext, useContext, Fragment } from 'react'
-import { Sockel } from './StartInseln.jsx'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 import { useTexte, vokabel } from './sprache.js'
 import SpielBild from './SpielBild.jsx'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { erfolgston, fehlerton } from './erfolgston.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare, Wortsuche,
@@ -166,7 +166,6 @@ function RundenWoerter({ woerter, gefunden }) {
 // Hier rücken die gespielten Wörter im Karteikasten eine Stufe vor –
 // wer sie im Spiel wiedererkannt hat, kann sie eben.
 function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
-  const t = useTexte()
   const nochmal = useContext(NochmalKontext)
   const [gemeldet, setGemeldet] = useState(false)
 
@@ -176,32 +175,20 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
     setGemeldet(true)
   }, [gemeldet, woerter, onGespielt])
 
-  // Toon-Abschluss (06.11., Entwurf A): Pokal auf der Trommel, Konfetti,
-  // XP und Aufstieg als Pillen, dazu „Nochmal“.
+  // Abschluss wie „Lektion geschafft“ (17.11.2026, Manuel: „moderner“)
   return (
-    <div className="flashcard done sf-toon">
-      <div className="confetti-burst" aria-hidden="true">
-        {Array.from({ length: 14 }, (_, i) => (
-          <span key={i} className="confetti" style={{ '--i': i }} />
-        ))}
-      </div>
-      <span className="sf-bild" aria-hidden="true">
-        <Sockel />
-        <Pokal />
-      </span>
-      <h2>{t('sp.geschafftFeier').replace(/\s*🎉/, '')}</h2>
-      <p>{text}</p>
-      <div className="sf-pillen">
-        <span className="sf-pille sf-xp">+{XP.SPIEL} XP</span>
-        {woerter.length > 0 && <span className="sf-pille sf-stufe">↑ {t('sp.stufeWeiter', { zahl: woerter.length })}</span>}
-      </div>
-      <div className="sf-knoepfe">
-        {nochmal && (
-          <button className="sf-nochmal" onClick={nochmal}>{t('st.nochmal')}</button>
-        )}
-        <button className="sf-zurueck" onClick={onClose}>{t('sp.zurueckZumTrainer')}</button>
-      </div>
-    </div>
+    <RundenAbschluss
+      titel={ra('geschafft')}
+      unter={text}
+      chips={[
+        { wert: '+' + XP.SPIEL, text: ra('xp'), xp: true },
+        ...(woerter.length > 0 ? [{ wert: '↑ ' + woerter.length, text: ra('stufeWeiter') }] : []),
+      ]}
+      knoepfe={[
+        nochmal && { text: ra('nochmalSpielen'), onClick: nochmal },
+        { text: ra('zurueckTrainer'), onClick: onClose, zweit: Boolean(nochmal) },
+      ]}
+    />
   )
 }
 
@@ -702,7 +689,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
       </button>
       <p className="spiel-hinweis spiel-hinweis-klein">{t('sp3.tippHinweis')}</p>
 
-      <RundenWoerter woerter={platziert} />
+      <RundenWoerter woerter={platziert} gefunden={gefunden} />
 
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
         Abbrechen

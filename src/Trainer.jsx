@@ -572,7 +572,7 @@ export default function Trainer({
                 </div>
               </div>
             ) : (
-              <button onClick={() => setRevealed(true)}>{t('trk.uebersetzungZeigen')}</button>
+              <button className="zeige-knopf" onClick={() => setRevealed(true)}>{t('trk.uebersetzungZeigen')}</button>
             )}
           </div>
         )}
