@@ -51,16 +51,66 @@ async function nutzerVon(token) {
   }
 }
 
-// Kostenbremse je Konto (17.11.2026, Manuel): Kein Konto soll mehr als rund 3 $
-// KI-Kosten im Monat verursachen – egal, wie sich die Nutzung zusammensetzt
-// (Listen, Verb-Tabellen, Übungen, Bücher …). Gezählt werden die tatsächlich
-// verbuchten Kosten (art 'kosten', Millionstel Dollar). Einstellbar: KI_BUDGET_USD.
-export const KI_BUDGET_MIKRO = Math.round(Number(process.env.KI_BUDGET_USD || 3) * 1e6)
+// ---------------------------------------------------------------
+//  Kostenbremsen (17.11.2026, Manuel: „so eine Summe darf nicht durch
+//  User oder Fremde kommen“)
+// ---------------------------------------------------------------
+// 1. Je Konto: höchstens KI_BUDGET_USD (Premium, 3 $) bzw. KI_BUDGET_GRATIS_USD
+//    (Gratis, 1 $) im Monat – egal, wie sich die Nutzung zusammensetzt.
+//    Gezählt werden die tatsächlich verbuchten Kosten (art 'kosten').
+// 2. Für die ganze App: höchstens KI_TAGESDECKEL_USD (3 $) am Tag und
+//    KI_MONATSDECKEL_USD (30 $) im Monat – über ALLE Konten und alle
+//    Aufrufe ohne Anmeldung zusammen. Ist der Deckel erreicht, pausieren
+//    die KI-Funktionen, statt weiter Geld zu kosten. Wächst die App, die
+//    Werte in Coolify anheben.
+const usd = (name, standard) => Math.round(Number(process.env[name] || standard) * 1e6)
+export const KI_BUDGET_MIKRO = usd('KI_BUDGET_USD', 3)
+const KI_BUDGET_GRATIS_MIKRO = usd('KI_BUDGET_GRATIS_USD', 1)
+const TAGESDECKEL_MIKRO = usd('KI_TAGESDECKEL_USD', 3)
+const MONATSDECKEL_MIKRO = usd('KI_MONATSDECKEL_USD', 30)
 
 export async function budgetErschoepft(token) {
   const id = await nutzerVon(token)
   if (!id) return false
-  return (await nutzungHeute(id, 'kosten')) >= KI_BUDGET_MIKRO
+  // dynamisch geladen: gespraech.js bindet seinerseits diese Datei ein
+  const { istPremium } = await import('./gespraech.js')
+  const grenze = (await istPremium(id).catch(() => false)) ? KI_BUDGET_MIKRO : KI_BUDGET_GRATIS_MIKRO
+  return (await nutzungHeute(id, 'kosten')) >= grenze
+}
+
+const lauf = { tag: '', heute: 0, monat: '', ohneKonto: 0, konten: 0, kontenStand: 0, gemeldet: '' }
+function neuerZeitraum() {
+  const jetzt = new Date().toISOString()
+  if (lauf.tag !== jetzt.slice(0, 10)) { lauf.tag = jetzt.slice(0, 10); lauf.heute = 0 }
+  if (lauf.monat !== jetzt.slice(0, 7)) { lauf.monat = jetzt.slice(0, 7); lauf.ohneKonto = 0; lauf.kontenStand = 0 }
+}
+
+/** Kosten aller Konten in diesem Monat – aus der Tabelle nutzung, alle 5 Minuten neu gelesen. */
+async function kostenAllerKonten() {
+  if (Date.now() - lauf.kontenStand < 5 * 60 * 1000) return lauf.konten
+  try {
+    const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/nutzung?select=anzahl&art=eq.kosten&tag=eq.${lauf.monat}-01`, {
+      headers: { apikey: process.env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`, Range: '0-9999' },
+    })
+    if (r.ok) {
+      lauf.konten = (await r.json()).reduce((summe, z) => summe + (z.anzahl ?? 0), 0)
+      lauf.kontenStand = Date.now()
+    }
+  } catch { /* Netz gezuckt – mit dem letzten Stand weiter */ }
+  return lauf.konten
+}
+
+/** 'tag' | 'monat', wenn der App-weite Deckel erreicht ist – sonst null. */
+export async function deckelErreicht() {
+  neuerZeitraum()
+  let grund = null
+  if (lauf.heute >= TAGESDECKEL_MIKRO) grund = 'tag'
+  else if ((await kostenAllerKonten()) + lauf.ohneKonto >= MONATSDECKEL_MIKRO) grund = 'monat'
+  if (grund && lauf.gemeldet !== lauf.tag + grund) {
+    lauf.gemeldet = lauf.tag + grund
+    console.error(`KI-KOSTENDECKEL erreicht (${grund}): KI-Funktionen pausieren. Heute ${(lauf.heute / 1e6).toFixed(2)} $, Monat ${((lauf.konten + lauf.ohneKonto) / 1e6).toFixed(2)} $.`)
+  }
+  return grund
 }
 
 async function verbucheKosten(modell, usage = {}) {
@@ -72,6 +122,11 @@ async function verbucheKosten(modell, usage = {}) {
   const ctx = kiKontext.getStore() ?? {}
   console.log(`KI ${ctx.bereich ?? '-'} ${modell} ein=${Math.round(ein)} aus=${usage.output_tokens ?? 0} ${(mikro / 10000).toFixed(3)} Cent`)
   const id = await nutzerVon(ctx.token)
+  // für den App-weiten Deckel: jeden Aufruf mitzählen, auch ohne Anmeldung
+  neuerZeitraum()
+  lauf.heute += mikro
+  if (id) lauf.konten += mikro
+  else lauf.ohneKonto += mikro
   if (!id || !mikro) return
   await addiereNutzung(id, 'kosten', mikro)
   await addiereNutzung(id, 'kosten:' + (ctx.bereich ?? 'sonst'), mikro)
@@ -112,9 +167,10 @@ function inhalt(c) {
  * @param {object} opt    { maxTokens, aufwand }
  */
 export async function kiChat(body, modell = HAIKU, opt = {}) {
-  if (!kiBereit()) throw new Error('Kein Anthropic-Schlüssel hinterlegt.')
   // Sicherheitsnetz für alle KI-Wege (auch die ohne Türsteher): Budget des Kontos erreicht?
   if (await budgetErschoepft((kiKontext.getStore() ?? {}).token)) throw new Error('KI-Kontingent des Kontos für diesen Monat erreicht.')
+  if (await deckelErreicht()) throw new Error('KI-Kontingent der App vorübergehend erreicht.')
+  if (!kiBereit()) throw new Error('Kein Anthropic-Schlüssel hinterlegt.')
   const system = body.messages.filter((m) => m.role === 'system').map((m) => inhalt(m.content)).join('\n\n')
   const messages = body.messages
     .filter((m) => m.role !== 'system')
