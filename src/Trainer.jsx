@@ -1,4 +1,5 @@
 import { leiterName } from './srs.js'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { pausierteSchluessel, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
 import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
@@ -486,26 +487,22 @@ export default function Trainer({
   // ---------- Trainings-Ansicht (Karteikarten) ----------
   if (queue !== null) {
     if (queue.length === 0) {
+      const gesamt = result.richtig + result.falsch
       return (
         <div className="trainer">
-          <div className="flashcard done sf-toon">
-            {/* Konfetti-Regen für die geschaffte Runde */}
-            <div className="confetti-burst" aria-hidden="true">
-              {Array.from({ length: 14 }, (_, i) => (
-                <span key={i} className="confetti" style={{ '--i': i }} />
-              ))}
-            </div>
-            <span className="sf-bild" aria-hidden="true">
-              <Sockel />
-              <Pokal />
-            </span>
-            <h2>{t('trk.rundeGeschafft').replace(/\s*🎉/, '')}</h2>
-            <p>
-              {t('st9.gewusstBilanz', { richtig: result.richtig, falsch: result.falsch })}
-            </p>
-            <div className="sf-pillen"><span className="sf-pille sf-xp">+{XP.RUNDE} Bonus-XP für die volle Runde!</span></div>
-            <div className="sf-knoepfe"><button className="sf-zurueck" onClick={() => setQueue(null)}>{t('trk.zurueckZurUebersicht')}</button></div>
-          </div>
+          <RundenAbschluss
+            quote={gesamt ? Math.round((result.richtig / gesamt) * 100) : 100}
+            titel={t('trk.rundeGeschafft').replace(/\s*🎉/, '')}
+            unter={ra('vokabeln')}
+            chips={[
+              { wert: `${result.richtig}/${gesamt}`, text: ra('gewusst') },
+              { wert: '+' + XP.RUNDE, text: ra('bonusXp'), xp: true },
+            ]}
+            knoepfe={[
+              { text: ra('naechsteRunde'), onClick: () => startTraining(art) },
+              { text: ra('zurueckVokabeln'), onClick: () => setQueue(null), zweit: true },
+            ]}
+          />
         </div>
       )
     }

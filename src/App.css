@@ -19286,3 +19286,23 @@ body.liest-video .video-kopf {
 .abschluss-seite .abschluss-knoepfe button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-press); }
 .abschluss-seite .abschluss-knoepfe button.btn-outline { background: var(--card); color: var(--navy); box-shadow: 0 5px 0 var(--line), inset 0 0 0 2px var(--line); }
 .abschluss-seite .abschluss-knoepfe button.btn-outline:active { box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
+
+/* ===== Runden-Abschluss (17.11.2026, Manuel): Vokabeln, Sätze, Wiederholen, Texte
+   im Stil von „Lektion geschafft“ ===== */
+.runden-abschluss { width: 100%; max-width: 560px; margin: 0 auto; text-align: center; }
+.runden-abschluss .abschluss-haken {
+  width: 112px; height: 112px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(255, 255, 255, .16);
+  box-shadow: inset 0 0 0 8px rgba(255, 255, 255, .3);
+  animation: abschluss-pop .45s cubic-bezier(.34, 1.5, .64, 1);
+}
+.runden-abschluss .abschluss-haken svg { width: 54px; height: 54px; }
+.runden-abschluss .abschluss-chip b { white-space: nowrap; }
+.abschluss-seite .abschluss-knoepfe button.abschluss-zweit { background: var(--card); color: var(--navy); box-shadow: 0 5px 0 var(--line), inset 0 0 0 2px var(--line); }
+.abschluss-seite .abschluss-knoepfe button.abschluss-zweit:active { box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
+@media (prefers-reduced-motion: reduce) { .runden-abschluss .abschluss-haken { animation: none; } }
