@@ -19160,3 +19160,6 @@ body.liest-video .video-kopf {
 /* Sprecher-Münzen ohne Glanzpunkt (17.11.2026, Manuel) */
 .dlg-muenze { background: var(--dlg-a); }
 .dlg-rechts .dlg-muenze, .dlg-reihe.rechts .dlg-muenze { background: var(--dlg-b); }
+
+/* Vokabel- und Satzkarten im Trainer stehen gerade (17.11.2026, Manuel) – wie die Grundlagen-Karte */
+.training-stage .flashcard.karte-toon { rotate: none; }
