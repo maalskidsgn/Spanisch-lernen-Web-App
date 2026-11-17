@@ -19172,3 +19172,32 @@ body.liest-video .video-kopf {
 .tab-wischen { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px 0 2px; font-size: .78rem; font-weight: 800; color: var(--muted); }
 .tab-wischen span { font-size: 1rem; color: var(--primary); }
 .info-tabelle-rahmen.ist-breit { border-right-style: dashed; }
+
+/* ===== Übungsgenerator + Übungsrunde (17.11.2026, Manuel) ===== */
+.ub-gen .ub-eigenes { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.ub-gen .sg-thema.gl-verb b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.ub-eigene { margin-top: 14px; }
+.ub-eigene small { display: block; margin: 0 0 6px 2px; font-size: .74rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.ub-eigene .engine-themen { margin-top: 0; flex-wrap: wrap; overflow: visible; }
+.gl-dazu { width: 100%; margin-top: 12px; min-height: 46px; border-radius: 14px; font-weight: 900; box-shadow: 0 4px 0 var(--primary-dark); }
+.ub-runde { position: relative; }
+.ub-runde .ub-karte { text-align: center; }
+.ub-kopf { margin: 0 0 4px; font-size: .78rem; font-weight: 800; color: var(--muted); }
+.lk-toon .flashcard.ub-karte > .flash-word.ub-frage { font-size: 1.3rem; line-height: 1.3; font-weight: 900; color: var(--navy); }
+.ub-kopf { text-align: center; }
+.ub-eingesetzt { color: var(--success-press, #1f9450); border-bottom: 3px solid var(--success, #2aae5f); padding: 0 4px; }
+.ub-urteil { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 16px; padding: 16px; border-radius: 20px; animation: fade-up .3s ease; text-align: center; }
+.ub-urteil.gut { background: color-mix(in srgb, var(--success, #2aae5f) 12%, #fff); }
+.ub-urteil.schlecht { background: color-mix(in srgb, var(--red, #ff4b4b) 10%, #fff); }
+.ub-urteil b { font-size: 1.05rem; }
+.ub-urteil.gut b { color: var(--success-press, #1f9450); }
+.ub-urteil.schlecht b { color: var(--red-press, #d33131); }
+.ub-loesung { font-size: 1.15rem; font-weight: 900; color: var(--navy); }
+.ub-loesung .laut-klein { display: block; font-size: .8em; font-style: italic; font-weight: 700; color: var(--primary); }
+.ub-warum { font-size: .95rem; font-weight: 600; color: var(--muted); line-height: 1.4; }
+.ub-weiter { width: 100%; max-width: 340px; margin-top: 6px; border: 0; border-radius: 16px; padding: 13px 18px; font: inherit; font-weight: 900; font-size: 1rem; color: #fff; cursor: pointer; background: var(--primary); box-shadow: 0 5px 0 var(--primary-press); }
+.ub-weiter:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--primary-press); }
+.ub-abbrechen { display: block; margin: 14px auto 0; }
+.ub-ergebnis { font-weight: 800; color: var(--navy); }
+.ub-ende-knoepfe { display: flex; flex-direction: column; gap: 10px; align-items: stretch; margin-top: 18px; }
+.ub-runde .quiz-option:disabled { cursor: default; }

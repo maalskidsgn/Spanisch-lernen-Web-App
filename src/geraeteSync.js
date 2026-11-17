@@ -27,6 +27,7 @@ export const SCHLUESSEL = [
   'blitz-rekord', // Bestwert der Blitzrunde
   'grundlagen-stand', // Grundlagen-Trainer: Wiederholstand je Regel (16.11.2026)
   'grundlagen-eigene', // gespeicherte Konjugationen aus dem Verb-Generator
+  'uebungen-eigene', // selbst erzeugte Übungssets aus dem Übungsgenerator (17.11.2026)
 ]
 
 // ---------------------------------------------------------------
@@ -61,6 +62,16 @@ const EIGENES_VEREINEN = {
     if (!Array.isArray(entfernt)) return lokal
     const da = new Set(entfernt.map((k) => k?.id))
     return [...entfernt, ...lokal.filter((k) => k?.id && !da.has(k.id))]
+  },
+  // Eigene Übungssets: alle von beiden Seiten, neueste zuerst, höchstens 20
+  'uebungen-eigene': (lokal, entfernt) => {
+    if (!Array.isArray(lokal)) return entfernt
+    if (!Array.isArray(entfernt)) return lokal
+    const da = new Set(entfernt.map((k) => k?.id))
+    const alle = [...entfernt, ...lokal.filter((k) => k?.id && !da.has(k.id))]
+    // Reihenfolge nur anfassen, wenn wirklich etwas dazukam – sonst schicken sich zwei Geräte die Liste ewig hin und her
+    if (alle.length === entfernt.length) return entfernt
+    return alle.sort((x, y) => (y.erstellt ?? 0) - (x.erstellt ?? 0)).slice(0, 20)
   },
 }
 
