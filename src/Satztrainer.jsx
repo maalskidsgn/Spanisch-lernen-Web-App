@@ -4,7 +4,7 @@ import { leiterName } from './srs.js'
 import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
 import { usePremium, TESTPHASE_ALLES_FREI } from './premium.js'
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Pokal } from './Games.jsx'
 import { Sockel } from './StartInseln.jsx'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS, wiederholReihenfolge } from './srs.js'
@@ -14,7 +14,7 @@ import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
 import { useTexte, sprache } from './sprache.js'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
@@ -65,6 +65,12 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   const [uebTab, setUebTab] = useUebTab() // 'ueben' | 'spielen'
   const [art, setArt] = useState('karten')
   const [queue, setQueue] = useState(null)
+
+  // Runde geschafft: derselbe Erfolgston wie nach einer Lektion (17.11.2026, Manuel)
+  const rundeGeschafft = queue !== null && queue.length === 0
+  useEffect(() => {
+    if (rundeGeschafft) lektionTon()
+  }, [rundeGeschafft])
   const [revealed, setRevealed] = useState(false)
   const [gewaehlt, setGewaehlt] = useState(null)
   const [result, setResult] = useState({ richtig: 0, falsch: 0 })
