@@ -19408,3 +19408,21 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .bl .bl-karte { border: 0; border-radius: 26px; box-shadow: 0 6px 0 var(--line); }
 .bl .bl-seite > .bl-kapitel { background: var(--card); border-radius: 26px; padding: 30px 32px; box-shadow: 0 6px 0 var(--line); }
 @media (max-width: 560px) { .bl .bl-seite > .bl-kapitel { padding: 22px 18px; } }
+
+/* ===== Buch: Wortkacheln im 3D-Toon-Stil mit sauberem Abstand (17.11.2026, Manuel) ===== */
+.bl-woerter ul { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px 12px; padding-bottom: 4px; }
+.bl-woerter li { min-width: 0; }
+.bl-wort {
+  box-sizing: border-box; min-width: 0; overflow-wrap: anywhere;
+  border-radius: 18px; background: var(--card);
+  box-shadow: inset 0 0 0 2px var(--line), 0 5px 0 var(--line);
+  transition: transform .08s ease, box-shadow .08s ease, background .15s ease;
+}
+.bl-wort:active { transform: translateY(4px); box-shadow: inset 0 0 0 2px var(--line), 0 1px 0 var(--line); }
+.bl-wort.drin { background: #1fb27a; box-shadow: 0 5px 0 #138a5f; }
+.bl-wort.drin b, .bl-wort.drin span, .bl-wort.drin i { color: #fff; }
+.bl-wort.drin .bl-wort-zeichen { background: #fff; color: #1fb27a; }
+.bl-wort.drin:active { transform: none; }
+.bl-rein { border-radius: 16px; padding: 11px 18px; font-size: .92rem; box-shadow: 0 5px 0 var(--success-press); transition: transform .08s ease, box-shadow .08s ease; }
+.bl-rein:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 var(--success-press); }
+.bl-rein:disabled { border-radius: 16px; }
