@@ -30,6 +30,7 @@ const KATEGORIE_ICONS = {
 // drei Gruppen zusammengefasst und je Gruppe auf MAX_JE_GRUPPE gekürzt.
 // "gefunden" (von Nutzern geholte Videos) erscheint nicht mehr.
 const MAX_JE_GRUPPE = 4
+const ALTE_EBOOKS = false // die 89 älteren E-Books (spanisch-lernen.com) – ausgeblendet seit 17.11.2026
 const GRUPPEN = [
   { wert: 'sprache', de: 'Spanisch lernen', en: 'Learn Spanish', kat: ['sprache'], icon: 'sprache' },
   { wert: 'koerper', de: 'Gesundheit & Sport', en: 'Health & sport', kat: ['gesundheit', 'sport', 'ernaehrung'], icon: 'gesundheit' },
@@ -382,7 +383,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
             songs: songAnzahl,
             // Die fertigen Zusammenfassungen plus die selbst erzeugten
             // Eigene Bücher + Bibliothek (+ die älteren E-Books, wo sie zu sehen sind)
-            ebooks: buecher.length + BIBLIOTHEK.length + (istPremium || TESTPHASE_ALLES_FREI ? ebookAnzahl ?? 0 : 0),
+            ebooks: buecher.length + BIBLIOTHEK.length + (ALTE_EBOOKS && (istPremium || TESTPHASE_ALLES_FREI) ? ebookAnzahl ?? 0 : 0),
             hoertexte: null,
           }[b.wert]
           return (
@@ -440,7 +441,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           </section>
 
           {/* Die 89 älteren E-Books (spanisch-lernen.com): nur Premium – gratis gibt es die 6 der Bibliothek */}
-          {(istPremium || TESTPHASE_ALLES_FREI) && <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />}
+          {/* Die 89 älteren E-Books sind ausgeblendet (17.11.2026, Manuel: „lieber weniger, dafür ausführlicher“).
+              Die Daten bleiben – zum Zurückholen ALTE_EBOOKS auf true setzen. */}
+          {ALTE_EBOOKS && (istPremium || TESTPHASE_ALLES_FREI) && <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />}
         </>
       )}
 

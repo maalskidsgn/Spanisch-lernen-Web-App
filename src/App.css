@@ -19399,3 +19399,12 @@ body.liest-video .video-kopf {
 
 /* Spiel-Abschluss: keine Spielgrafik über der Erfolgsmeldung (17.11.2026, Manuel) */
 .spiel-toon:has(.runden-abschluss) .sk-bild { display: none; }
+
+/* ===== E-Book-Leser im App-Stil (17.11.2026, Manuel) =====
+   Statt weißer Seite der normale App-Hintergrund; Übersicht und Kapitel
+   stehen in weißen Karten mit fester Kante wie alle anderen Bereiche. */
+body.lese-modus, body.lese-modus main { background: var(--bg); }
+.bl-leiste { background: var(--bg); box-shadow: 0 0 0 100vmax var(--bg); }
+.bl .bl-karte { border: 0; border-radius: 26px; box-shadow: 0 6px 0 var(--line); }
+.bl .bl-seite > .bl-kapitel { background: var(--card); border-radius: 26px; padding: 30px 32px; box-shadow: 0 6px 0 var(--line); }
+@media (max-width: 560px) { .bl .bl-seite > .bl-kapitel { padding: 22px 18px; } }
