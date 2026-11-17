@@ -587,7 +587,7 @@ export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A
       },
     ],
     response_format: { type: 'json_schema', json_schema: { name: 'buch', schema: buchSchema(ziel), strict: true } },
-  }, HAIKU, { maxTokens: 32000 })
+  }, HAIKU, { maxTokens: 20000 }) // mehr lehnt das SDK ohne Streaming ab
   const buch = JSON.parse(daten.choices[0].message.content)
   return { ...buch, niveau, mitText: Boolean(auszug) }
 }
