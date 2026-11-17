@@ -5,7 +5,7 @@ import { isDue, withSrsDefaults } from './srs.js'
 import { useTexte, vokabel } from './sprache.js'
 import SpielBild from './SpielBild.jsx'
 import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare, Wortsuche,
 // Blitzrunde, Galgenmännchen und Buchstabensalat.
@@ -174,6 +174,9 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
     onGespielt?.(woerter)
     setGemeldet(true)
   }, [gemeldet, woerter, onGespielt])
+
+  // Spiel geschafft: derselbe große Erfolgston wie nach einer Lektion (17.11.2026, Manuel)
+  useEffect(() => { lektionTon() }, [])
 
   // Abschluss wie „Lektion geschafft“ (17.11.2026, Manuel: „moderner“)
   return (
@@ -868,7 +871,10 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
     if (ende || geraten.includes(b)) return
     const neu = [...geraten, b]
     setGeraten(neu)
-    if (!zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)) {
+    const passt = zeichen.some((z) => istBuchstabe(z) && grundbuchstabe(z) === b)
+    // Richtiger Buchstabe: kurzer Erfolgston (17.11.2026, Manuel) – der Wort-Ton kommt über belohne()
+    if (passt && !zeichen.every((z) => !istBuchstabe(z) || neu.includes(grundbuchstabe(z)))) erfolgston()
+    if (!passt) {
       fehlerton()
       setWackelt(true)
       setTimeout(() => setWackelt(false), 380)
