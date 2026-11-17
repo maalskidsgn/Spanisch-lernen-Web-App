@@ -19445,3 +19445,45 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 }
 .bg-zeile-weg:hover { color: #c2334a; filter: none; }
 .bg-zeile-weg:active { transform: translateY(calc(-50% + 2px)); box-shadow: inset 0 0 0 2px var(--line), 0 1px 0 var(--line); }
+
+/* ===== E-Books, Entwurf A (17.11.2026, Manuel): Weiterlesen + Cover-Regal ===== */
+.wl-liste { display: grid; gap: 12px; }
+.wl-zeile { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 20px; background: var(--card); box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); }
+.wl-oeffnen { flex: 1; min-width: 0; display: flex; align-items: center; gap: 14px; padding: 0; margin: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.wl-oeffnen:hover { filter: none; }
+.wl-oeffnen .bg-cover-mini { width: 46px; }
+.wl-text { flex: 1; min-width: 0; display: grid; gap: 4px; }
+.wl-titel { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.wl-titel b { font-weight: 900; font-size: 1rem; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wl-titel .niveau-badge { flex: none; }
+.wl-info { font-size: .82rem; font-weight: 800; color: var(--muted); }
+.wl-balken { display: block; height: 8px; border-radius: 99px; background: color-mix(in srgb, var(--primary) 10%, var(--line)); overflow: hidden; }
+.wl-balken i { display: block; height: 100%; border-radius: 99px; background: var(--primary); }
+.wl-knopf { flex: none; border: 0; border-radius: 14px; padding: 10px 16px; font: inherit; font-weight: 900; font-size: .9rem; color: #fff; background: var(--primary); box-shadow: 0 4px 0 var(--primary-press); cursor: pointer; transition: transform .08s ease, box-shadow .08s ease; }
+.wl-knopf.wl-zweit { background: var(--card); color: var(--navy); box-shadow: inset 0 0 0 2px var(--line), 0 4px 0 var(--line); }
+.wl-knopf:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-press); }
+.wl-knopf.wl-zweit:active { box-shadow: inset 0 0 0 2px var(--line), 0 1px 0 var(--line); }
+.wl-weg { flex: none; display: grid; place-items: center; box-sizing: border-box; width: 30px; height: 30px; min-width: 0; padding: 0; margin: 0; border: 0; border-radius: 50%; font-size: .75rem; line-height: 1; color: var(--muted); background: var(--card); box-shadow: inset 0 0 0 2px var(--line), 0 3px 0 var(--line); cursor: pointer; }
+.wl-weg:hover { color: #c2334a; filter: none; }
+.wl-weg:active { transform: translateY(2px); box-shadow: inset 0 0 0 2px var(--line), 0 1px 0 var(--line); }
+@media (max-width: 520px) {
+  .wl-zeile { padding: 10px 12px; gap: 10px; }
+  .wl-knopf { padding: 9px 12px; font-size: .84rem; }
+}
+.br-regal { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 22px 16px; margin-top: 14px; }
+.br-buch { display: grid; gap: 8px; align-content: start; padding: 0; margin: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: pointer; box-shadow: none; }
+.br-buch:hover { filter: none; }
+.br-buch .bg-cover { transition: transform .12s ease, box-shadow .12s ease; }
+.br-buch:hover .bg-cover { transform: translateY(-3px); box-shadow: 0 8px 0 var(--ck); }
+.br-buch:active .bg-cover { transform: translateY(3px); box-shadow: 0 2px 0 var(--ck); }
+.br-buch .bg-cover b { font-size: .92rem; }
+.br-buch .bg-cover small { font-size: .7rem; }
+.br-unten { display: flex; align-items: center; gap: 8px; margin-top: 4px; min-height: 20px; }
+.br-balken { flex: 1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.br-balken i { display: block; height: 100%; background: var(--primary); }
+.br-titel { font-weight: 900; font-size: .9rem; line-height: 1.25; color: var(--navy); }
+@media (max-width: 520px) { .br-regal { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 18px 12px; } }
+/* Niveau-Kennzeichen im Regal und in „Weiterlesen“ im Textfluss statt in der Bildecke */
+.br-unten .niveau-badge, .wl-titel .niveau-badge { position: static; box-shadow: none; padding: 3px 8px; border-radius: 7px; }
+.niveau-B2 { background: #8b5cf6; }
+.niveau-C1 { background: #c2334a; }
