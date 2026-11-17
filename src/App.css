@@ -19246,3 +19246,43 @@ body.liest-video .video-kopf {
 .gl-gen .gl-gen-reiter { margin: 0 0 12px; }
 .gl-gen .gl-konj { margin-bottom: 0; }
 .gl-gen-unter { margin: 0 0 14px; color: var(--muted); font-weight: 700; font-size: .95rem; line-height: 1.45; }
+
+/* ===== „Lektion geschafft“ im Toon-Stil wie Davaigo (17.11.2026, Manuel) =====
+   Bühne als runde Karte mit fester 3D-Kante statt randloser Fläche,
+   Kacheln, Notiz und Knöpfe ebenfalls mit Kante statt weichem Schatten. */
+.abschluss-seite .abschluss-held {
+  margin: 0;
+  padding: 44px 20px 80px;
+  border-radius: 30px;
+  background: linear-gradient(170deg, #ff9b40 0%, #ff6c00 42%, #e05000 80%, #b83e00 100%);
+  box-shadow: 0 7px 0 #8f3300;
+}
+.abschluss-seite .abschluss-titel { font-size: 1.85rem; color: #fff; }
+.abschluss-seite .abschluss-lektion { opacity: .9; font-weight: 800; }
+.abschluss-seite .abschluss-ring .quote-zahl { align-items: baseline; align-content: center; flex-wrap: wrap; line-height: 1; }
+.abschluss-seite .abschluss-ring .quote-zahl i { display: inline; margin: 0; opacity: .85; }
+.abschluss-seite .abschluss-blatt { max-width: 480px; margin-top: -42px; }
+.abschluss-seite .abschluss-chip { max-width: 180px; border-radius: 20px; box-shadow: 0 6px 0 #e6dccf; }
+.abschluss-seite .abschluss-chip b { font-size: 1.4rem; }
+.abschluss-seite .abschluss-chip span { font-size: .8rem; font-weight: 800; }
+.abschluss-seite .abschluss-notiz { margin-top: 18px; text-align: left; border-radius: 20px; box-shadow: 0 5px 0 var(--line); }
+.abschluss-marke { display: block; font-size: 11.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
+.abschluss-seite .abschluss-notiz p { font-size: .95rem; font-weight: 600; color: var(--navy); }
+.abschluss-seite .abschluss-text { font-size: .95rem; font-weight: 700; }
+.abschluss-seite .abschluss-knoepfe { gap: 12px; }
+.abschluss-seite .abschluss-knoepfe button {
+  width: 100%;
+  border: 0;
+  border-radius: 18px;
+  padding: 15px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 6px 0 var(--primary-press);
+  cursor: pointer;
+}
+.abschluss-seite .abschluss-knoepfe button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-press); }
+.abschluss-seite .abschluss-knoepfe button.btn-outline { background: var(--card); color: var(--navy); box-shadow: 0 5px 0 var(--line), inset 0 0 0 2px var(--line); }
+.abschluss-seite .abschluss-knoepfe button.btn-outline:active { box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
