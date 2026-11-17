@@ -19381,3 +19381,13 @@ body.liest-video .video-kopf {
 .spiel-toon .runden-abschluss { max-width: 100%; }
 
 .training-stage .zeige-knopf { margin-top: 16px; }
+
+/* ===== Spiele: Erledigtes dunkelgrün im 3D-Toon-Stil (17.11.2026, Manuel) ===== */
+.sp-paar.richtig, .sp-paar.richtig:disabled,
+.sp-mkarte.gefunden {
+  background: var(--sp-gruen);
+  color: #fff;
+  opacity: 1;
+  box-shadow: 0 4px 0 var(--sp-gruen-kante);
+}
+.sp-paar.richtig *, .sp-mkarte.gefunden * { color: #fff; }
