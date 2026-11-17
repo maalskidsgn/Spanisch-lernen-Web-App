@@ -573,7 +573,7 @@ export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A
           'Du schreibst Buchzusammenfassungen im Stil von Blinkist für Spanischlernende. ' +
           `Jeder Absatz steht auf Spanisch und auf ${ziel}; die Fassung auf ${ziel} ist natürlich formuliert, nicht Wort für Wort. ` +
           'Genau 10 Kapitel: eine Einführung, acht Kernideen des Buches, ein Fazit. ' +
-          `Je Kapitel ${KAPITEL_LAENGE[niveau] ?? KAPITEL_LAENGE.A2} auf Spanisch. ` +
+          `Je Kapitel ${KAPITEL_LAENGE[niveau] ?? KAPITEL_LAENGE.A2} auf Spanisch – das ist eine Mindestlänge, kürzere Kapitel sind zu dünn. Lieber ein Beispiel mehr erzählen. ` +
           'Jedes Kapitel liest sich wie ein Blink bei Blinkist: die Idee erklären, ein konkretes Beispiel aus dem Buch, was man daraus fürs eigene Leben mitnimmt. ' +
           'Fasse in eigenen Worten zusammen, zitiere keine längeren Passagen aus dem Buch. ' +
           'Erfinde nichts: Kennst du das Buch nicht sicher und liegt kein Buchtext vor, setze bekannt=false, ' +
