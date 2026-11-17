@@ -19007,3 +19007,18 @@ body.liest-video .video-kopf {
 .lk-toon .pairs-grid .quiz-option.pair-gewaehlt .laut-klein { color: inherit; }
 /* Alle Antwortkarten der Lektionen: das Eindrücken weich statt sprunghaft */
 .lk-toon .quiz-option, .lk-toon .satz-baustein { transition: transform .09s ease, box-shadow .09s ease; }
+
+/* Wortpaare: auch gewählte und gelöste Karten im 3D-Toon-Stil – mit Kante statt flach (17.11.2026, Manuel) */
+.lk-toon .pairs-grid .quiz-option.pair-gewaehlt {
+  transform: translateY(3px) !important;
+  box-shadow: 0 3px 0 var(--primary-dark);
+}
+.lk-toon .pairs-grid .quiz-option.option-richtig,
+.lk-toon .pairs-grid .quiz-option.option-richtig:disabled {
+  transform: none;
+  background: #22bd82;
+  border-color: #22bd82;
+  color: #fff;
+  box-shadow: 0 6px 0 #138a5f;
+  opacity: 1;
+}
