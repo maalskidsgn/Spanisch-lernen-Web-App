@@ -16,7 +16,7 @@ const STANDARD = {
   liste: 20,
   saetze: 18,
   text: 22,
-  buch: 40,
+  buch: 90, // 10 ausführliche Kapitel (17.11.2026)
   ebook: 60,
   konjugation: 12,
   uebungen: 22,
