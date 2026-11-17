@@ -1,6 +1,7 @@
 import TabellenRahmen from './TabellenRahmen.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ZauberBild from './ZauberBild.jsx'
+import { UebungsGenerator, UebungsRunde, ladeRegelUebungen, uebungenText } from './Uebungen.jsx'
 import LadeKreis from './LadeKreis.jsx'
 import { LEKTIONEN } from './lektionen.js'
 import WISSEN_TABELLEN from './wissenTabellen.js'
@@ -373,6 +374,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
   const [offen, setOffen] = useState(null)
   const [listeOffen, setListeOffen] = useState(false)
   const [xpPopup, setXpPopup] = useState(null) // schwebende „+10 XP“-Anzeige
+  const [uebung, setUebung] = useState(null) // laufendes Übungsset { titel, aufgaben }
+  const [keinSet, setKeinSet] = useState(null)
   const [laut, lautUmschalten] = useLautschrift()
 
   // Stand vom Konto (anderes Gerät) übernehmen, sobald der Abgleich ihn bringt
@@ -417,6 +420,23 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
     setNr(nr + 1)
     setAntwort(null)
     setFrage(frageAus(runde[nr + 1]))
+  }
+
+  // ---------- Übungsset aus dem Übungsgenerator ----------
+  if (uebung) {
+    return <UebungsRunde key={uebung.id ?? uebung.titel} titel={uebung.titel} aufgaben={uebung.aufgaben} addXp={addXp} onEnde={() => setUebung(null)} />
+  }
+
+  // Regeln für den Übungsgenerator: zuerst die, die noch nicht sitzen, sonst die neuesten
+  const lektionsRegeln = alle.filter((k) => !String(k.id).startsWith('konj:'))
+  const schwache = lektionsRegeln.filter((k) => stand[k.id]?.am && (stand[k.id].intervall ?? 0) < 3)
+  const uebRegeln = (schwache.length ? schwache : [...lektionsRegeln].reverse()).slice(0, 6)
+
+  async function uebungenZu(k) {
+    setKeinSet(null)
+    const aufgaben = await ladeRegelUebungen(k.id).catch(() => null)
+    if (aufgaben) setUebung({ titel: k.titel, aufgaben })
+    else setKeinSet(k.id)
   }
 
   // ---------- Laufende Runde ----------
@@ -498,6 +518,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
 
       <Konjugator vocab={vocab} laut={laut} onGespeichert={() => setVersion((v) => v + 1)} />
 
+      <UebungsGenerator regeln={uebRegeln} schwach={schwache.length > 0} onStart={setUebung} />
+
       {/* Alle Grundlagen – aufklappbar wie „Alle deine Wörter“ im Vokabeltrainer */}
       <section className="bereich">
         <button className="liste-kopf" onClick={() => setListeOffen((o) => !o)} aria-expanded={listeOffen}>
@@ -533,6 +555,10 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
                         <div className="gl-detail">
                           <p className="info-text">{chips(k.text, laut)}</p>
                           <Tabelle tabelle={k.tabelle} laut={laut} />
+                          {!String(k.id).startsWith('konj:') && (
+                            <button type="button" className="btn gl-dazu" onClick={() => uebungenZu(k)}>{uebungenText().dazu}</button>
+                          )}
+                          {keinSet === k.id && <p className="schnell-fehler">{uebungenText().keinSet}</p>}
                         </div>
                       )}
                     </li>

@@ -17,6 +17,7 @@ const STANDARD = {
   buch: 30,
   ebook: 55,
   konjugation: 8,
+  uebungen: 18,
   uebersetzen: 3,
   vokabeln: 10,
   video: 10,

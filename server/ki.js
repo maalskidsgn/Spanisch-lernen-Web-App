@@ -12,7 +12,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { addiereNutzung } from './kontingent.js'
+import { addiereNutzung, nutzungHeute } from './kontingent.js'
 
 export const HAIKU = 'claude-haiku-5-5'
 export const SONNET = 'claude-sonnet-5-5'
@@ -49,6 +49,18 @@ async function nutzerVon(token) {
   } catch {
     return null
   }
+}
+
+// Kostenbremse je Konto (17.11.2026, Manuel): Kein Konto soll mehr als rund 3 $
+// KI-Kosten im Monat verursachen – egal, wie sich die Nutzung zusammensetzt
+// (Listen, Verb-Tabellen, Übungen, Bücher …). Gezählt werden die tatsächlich
+// verbuchten Kosten (art 'kosten', Millionstel Dollar). Einstellbar: KI_BUDGET_USD.
+export const KI_BUDGET_MIKRO = Math.round(Number(process.env.KI_BUDGET_USD || 3) * 1e6)
+
+export async function budgetErschoepft(token) {
+  const id = await nutzerVon(token)
+  if (!id) return false
+  return (await nutzungHeute(id, 'kosten')) >= KI_BUDGET_MIKRO
 }
 
 async function verbucheKosten(modell, usage = {}) {
@@ -101,6 +113,8 @@ function inhalt(c) {
  */
 export async function kiChat(body, modell = HAIKU, opt = {}) {
   if (!kiBereit()) throw new Error('Kein Anthropic-Schlüssel hinterlegt.')
+  // Sicherheitsnetz für alle KI-Wege (auch die ohne Türsteher): Budget des Kontos erreicht?
+  if (await budgetErschoepft((kiKontext.getStore() ?? {}).token)) throw new Error('KI-Kontingent des Kontos für diesen Monat erreicht.')
   const system = body.messages.filter((m) => m.role === 'system').map((m) => inhalt(m.content)).join('\n\n')
   const messages = body.messages
     .filter((m) => m.role !== 'system')

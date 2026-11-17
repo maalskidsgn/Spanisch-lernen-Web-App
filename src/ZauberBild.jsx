@@ -56,6 +56,24 @@ const BILDER = {
       <path d="M46 32Q54 28 63 32M46 39Q54 35 63 39M46 46Q54 42 58 44" stroke={F.hell} strokeWidth="2.6" fill="none" strokeLinecap="round" />
     </>
   ),
+  // Übungsgenerator (17.11.2026): Aufgabenblatt mit Häkchen, davor ein goldener Stern
+  uebungen: (
+    <>
+      <rect x="14" y="20" width="46" height="46" rx="9" fill={F.dunkel} />
+      <rect x="14" y="17" width="46" height="46" rx="9" fill="#fff" />
+      <rect x="28" y="12" width="18" height="10" rx="5" fill={F.haupt} />
+      <circle cx="24" cy="32" r="4.5" fill="#2aae5f" />
+      <path d="M21.8 32l1.7 1.8 3-3.4" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="32" y="29.5" width="22" height="5" rx="2.5" fill={F.hell} />
+      <circle cx="24" cy="43" r="4.5" fill="#2aae5f" />
+      <path d="M21.8 43l1.7 1.8 3-3.4" stroke="#fff" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <rect x="32" y="40.5" width="17" height="5" rx="2.5" fill={F.hell} />
+      <circle cx="24" cy="54" r="4.5" fill="none" stroke={F.haupt} strokeWidth="2" />
+      <rect x="32" y="51.5" width="20" height="5" rx="2.5" fill={F.haupt} opacity=".45" />
+      <path d="M61 42l3.5 7.6 8.3 1-6.1 5.7 1.6 8.2-7.3-4.1-7.3 4.1 1.6-8.2-6.1-5.7 8.3-1z" fill="#d19b00" transform="translate(0 2.5)" />
+      <path d="M61 42l3.5 7.6 8.3 1-6.1 5.7 1.6 8.2-7.3-4.1-7.3 4.1 1.6-8.2-6.1-5.7 8.3-1z" fill="#ffd34d" />
+    </>
+  ),
   // Verb-Generator (16.11.2026): Tabellenkarte mit Personen und Formen,
   // davor die goldene „Wechsel“-Münze – hier wird durchkonjugiert
   verben: (
