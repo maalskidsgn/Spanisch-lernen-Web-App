@@ -1,6 +1,5 @@
 import TabellenRahmen from './TabellenRahmen.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import ZauberBild from './ZauberBild.jsx'
 import { neueWoerterZurKarte } from './wissenVokabeln.js'
 import { UebungsGenerator, UebungsRunde, ladeRegelUebungen, uebungenText } from './Uebungen.jsx'
 import LadeKreis from './LadeKreis.jsx'
@@ -45,6 +44,7 @@ const XP_JE_KARTE = 10
 const ZIEL_ENDUNG = /(ar|er|ir|ír|arse|erse|irse)$/ // woran man Verben im Vokabeltrainer erkennt
 
 const EN = {
+  'Verbgenerator': 'Verb generator', 'Übungsgenerator': 'Exercise generator',
   'Regel {0} von {1}': 'Rule {0} of {1}',
   'Erinnerst du dich?': 'Do you remember?',
   'Nochmal': 'Again', 'Schwer': 'Hard', 'Gut': 'Good', 'Einfach': 'Easy',
@@ -263,13 +263,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
     <section className="bereich gl-konj">
       {/* Gleicher Aufbau wie Listen-, Satz- und Textgenerator (16.11.2026, Manuel) */}
       <div className="list-gen">
-        <div className="gen-kopf">
-          <ZauberBild art="verben" />
-          <div className="gen-text">
-            <h2>{tx('KI-Verbgenerator')}</h2>
-            <p>{tx('Alle wichtigen Zeiten eines Verbs als Tabelle.')}</p>
-          </div>
-        </div>
+        <p className="gl-gen-unter">{tx('Alle wichtigen Zeiten eines Verbs als Tabelle.')}</p>
 
         <GratisHinweis art="ki" />
 
@@ -379,6 +373,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
   const [listeOffen, setListeOffen] = useState(false)
   const [xpPopup, setXpPopup] = useState(null) // schwebende „+10 XP“-Anzeige
   const [uebung, setUebung] = useState(null) // laufendes Übungsset { titel, aufgaben }
+  const [gen, setGen] = useState('verben') // welcher Generator-Reiter offen ist
   const [keinSet, setKeinSet] = useState(null)
   // Beispielwörter der aufgeklappten Regel, die noch nicht im Vokabeltrainer stehen
   const [kartenWoerter, setKartenWoerter] = useState({ id: null, woerter: [], fertig: false })
@@ -538,9 +533,25 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
         </button>
       </div>
 
-      <Konjugator vocab={vocab} laut={laut} onGespeichert={() => setVersion((v) => v + 1)} />
-
-      <UebungsGenerator regeln={uebRegeln} schwach={schwache.length > 0} onStart={setUebung} />
+      {/* Beide Generatoren als Reiter nebeneinander, ohne Bild (17.11.2026, Manuel).
+          Der gerade nicht gezeigte bleibt eingehängt – eine geladene Tabelle geht
+          beim Umschalten nicht verloren. */}
+      <div className="gl-gen">
+        <div className="deck gl-gen-reiter" role="tablist">
+          <button type="button" role="tab" aria-selected={gen === 'verben'} className={gen === 'verben' ? 'deck-aktiv' : ''} onClick={() => setGen('verben')}>
+            {tx('Verbgenerator')}
+          </button>
+          <button type="button" role="tab" aria-selected={gen === 'uebungen'} className={gen === 'uebungen' ? 'deck-aktiv' : ''} onClick={() => setGen('uebungen')}>
+            {tx('Übungsgenerator')}
+          </button>
+        </div>
+        <div hidden={gen !== 'verben'}>
+          <Konjugator vocab={vocab} laut={laut} onGespeichert={() => setVersion((v) => v + 1)} />
+        </div>
+        <div hidden={gen !== 'uebungen'}>
+          <UebungsGenerator regeln={uebRegeln} schwach={schwache.length > 0} onStart={setUebung} />
+        </div>
+      </div>
 
       {/* Alle Grundlagen – aufklappbar wie „Alle deine Wörter“ im Vokabeltrainer */}
       <section className="bereich">

@@ -7,7 +7,6 @@
 //    gespeichert: Wiederholen kostet nichts.
 //  • Drei Aufgabenarten, die die App selbst prüft: Lücke, Auswahl, Satzbau.
 import { useEffect, useMemo, useState } from 'react'
-import ZauberBild from './ZauberBild.jsx'
 import LadeKreis from './LadeKreis.jsx'
 import GratisHinweis from './GratisHinweis.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
@@ -180,13 +179,7 @@ export function UebungsGenerator({ regeln = [], schwach = false, onStart }) {
   return (
     <section className="bereich gl-konj ub-gen">
       <div className="list-gen">
-        <div className="gen-kopf">
-          <ZauberBild art="uebungen" />
-          <div className="gen-text">
-            <h2>{T.titel}</h2>
-            <p>{T.unter}</p>
-          </div>
-        </div>
+        <p className="gl-gen-unter">{T.unter}</p>
 
         <GratisHinweis art="ki" />
 
