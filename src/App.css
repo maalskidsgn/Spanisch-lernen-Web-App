@@ -19391,3 +19391,8 @@ body.liest-video .video-kopf {
   box-shadow: 0 4px 0 var(--sp-gruen-kante);
 }
 .sp-paar.richtig *, .sp-mkarte.gefunden * { color: #fff; }
+
+/* Dialog-Bühne: rechter Name ohne Rest-Rahmen (17.11.2026, Manuel: „Tom sieht zerschossen aus“).
+   Die alte Regel .dlg-buehne .dlg-rechts .dlg-name war stärker als das Zurücksetzen. */
+.dlg-buehne .dlg-figur.dlg-rechts .dlg-name { background: none; box-shadow: none; padding: 0; transform: none; color: var(--navy); }
+.dlg-buehne .dlg-figur.dlg-rechts.spricht .dlg-name { color: var(--dlg-b-kante); }
