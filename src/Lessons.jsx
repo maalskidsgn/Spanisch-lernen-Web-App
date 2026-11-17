@@ -1,3 +1,4 @@
+import TabellenRahmen from './TabellenRahmen.jsx'
 import GratisHinweis from './GratisHinweis.jsx'
 import DialogSzene from './DialogSzene.jsx'
 import Grundlagen, { faelligeGrundlagen } from './Grundlagen.jsx'
@@ -1407,7 +1408,7 @@ function WissensKarte({ karten, nummer, istStation, onWeiter, lektionId }) {
         <p className="info-text">{mitChips(uebersetzt(tipp.text))}</p>
         {/* Lerntabelle (16.11.2026): der Tipp auf einen Blick – für Anfänger viel leichter als Fließtext */}
         {tabelle && (
-          <div className="info-tabelle-rahmen">
+          <TabellenRahmen>
             <table className="info-tabelle">
               <thead>
                 <tr>{tabelle.kopf.map((k) => <th key={k}>{k}</th>)}</tr>
@@ -1418,7 +1419,7 @@ function WissensKarte({ karten, nummer, istStation, onWeiter, lektionId }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TabellenRahmen>
         )}
       </div>
 
