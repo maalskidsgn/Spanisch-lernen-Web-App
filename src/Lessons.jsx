@@ -1185,7 +1185,13 @@ function LektionsPaare({ paare, onWeiter }) {
 
   function rechtsTipp(p) {
     if (!links || geloest.includes(p.es)) return
-    if (p.es === links.es) setGeloest((g) => [...g, p.es])
+    // Jedes Paar bekommt seinen Ton – wie jede andere Antwort (17.11.2026, Manuel)
+    if (p.es === links.es) {
+      erfolgston()
+      setGeloest((g) => [...g, p.es])
+    } else {
+      fehlerton()
+    }
     setLinks(null)
   }
 
