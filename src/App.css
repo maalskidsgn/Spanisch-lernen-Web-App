@@ -19396,3 +19396,6 @@ body.liest-video .video-kopf {
    Die alte Regel .dlg-buehne .dlg-rechts .dlg-name war stärker als das Zurücksetzen. */
 .dlg-buehne .dlg-figur.dlg-rechts .dlg-name { background: none; box-shadow: none; padding: 0; transform: none; color: var(--navy); }
 .dlg-buehne .dlg-figur.dlg-rechts.spricht .dlg-name { color: var(--dlg-b-kante); }
+
+/* Spiel-Abschluss: keine Spielgrafik über der Erfolgsmeldung (17.11.2026, Manuel) */
+.spiel-toon:has(.runden-abschluss) .sk-bild { display: none; }
