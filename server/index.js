@@ -3,6 +3,7 @@ import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdm
 import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
 import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben, verbMarke } from './konjugation.js'
 import { uebungenZurRegel, uebungenGemerkt, uebungenErzeugen } from './uebungen.js'
+import { ZIEL, SUCH_SPRACHE, audioSprachen, istZielsprache } from './suchsprache.js'
 import { appVersion } from './appVersion.js'
 import { createHash } from 'node:crypto'
 import { kiKontext, budgetErschoepft } from './ki.js'
@@ -663,13 +664,16 @@ app.get('/api/search', async (req, res) => {
 
     // Großzügig suchen: Einbettbarkeit, Länge und Niveau sieben kräftig aus
     const out = await runYtDlp([
-      `ytsearch25:${suchbegriff}`,
+      `ytsearch30:${suchbegriff}`,
       '--flat-playlist',
       '-J',
       '--no-warnings',
+      // Neutrale Oberflächensprache → Original-Titel statt englischer Übersetzungen (siehe suchsprache.js)
+      '--extractor-args',
+      SUCH_SPRACHE,
     ])
     const data = JSON.parse(out)
-    const alle = (data.entries || [])
+    const gefunden = (data.entries || [])
       .filter((e) => e.id && e.title)
       // Nach gewünschter Länge sieben; ohne Auswahl gilt nur die
       // Obergrenze des Niveaus, damit nichts Endloses dabei ist
@@ -688,6 +692,16 @@ app.get('/api/search', async (req, res) => {
         duration: e.duration || 0,
         thumbnail: `https://i.ytimg.com/vi/${e.id}/mqdefault.jpg`,
       }))
+
+    // Nur Videos in der Lernsprache (17.11.2026). Meldet YouTube die Tonsprache, entscheidet
+    // sie; sonst der Original-Titel. Titel, die nichts verraten (nur Namen), rücken nur nach,
+    // wenn sonst zu wenig übrig bliebe – englische nie.
+    const ton = await audioSprachen(gefunden.map((v) => v.videoId))
+    const urteil = gefunden.map((v) => (ton.has(v.videoId) ? ton.get(v.videoId).startsWith(ZIEL) : istZielsprache(v.title, uebersetzungGelang ? suchbegriff : '')))
+    let alle = gefunden.filter((_, i) => urteil[i] === true)
+    // Bei Songs stehen oft nur Namen im Titel – dort dürfen die Unklaren nachrücken
+    if (nurMusik && alle.length < 4) alle = [...alle, ...gefunden.filter((_, i) => urteil[i] === null)]
+    console.log(`[suche] „${suchbegriff}“: ${alle.length} von ${gefunden.length} Treffern in der Lernsprache (Tonsprache bekannt bei ${ton.size})`)
 
     // Alle parallel prüfen und nur einbettbare behalten
     const checks = await Promise.all(alle.map((v) => istEinbettbar(v.videoId)))
