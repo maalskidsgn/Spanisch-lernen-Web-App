@@ -19163,3 +19163,12 @@ body.liest-video .video-kopf {
 
 /* Vokabel- und Satzkarten im Trainer stehen gerade (17.11.2026, Manuel) – wie die Grundlagen-Karte */
 .training-stage .flashcard.karte-toon { rotate: none; }
+
+/* Lerntabellen: zu breit fürs Handy? Dann seitlich wischbar statt abgeschnitten (17.11.2026, Manuel) */
+.info-tabelle-rahmen { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.info-tabelle th { white-space: nowrap; }
+.training-stage.gl-runde { position: relative; }
+
+.tab-wischen { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 8px 0 2px; font-size: .78rem; font-weight: 800; color: var(--muted); }
+.tab-wischen span { font-size: 1rem; color: var(--primary); }
+.info-tabelle-rahmen.ist-breit { border-right-style: dashed; }
