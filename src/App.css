@@ -19022,3 +19022,141 @@ body.liest-video .video-kopf {
   box-shadow: 0 6px 0 #138a5f;
   opacity: 1;
 }
+
+/* ===== Dialog-Szene, Gestaltung 2 (17.11.2026, Manuel: „stilistisch besser“) =====
+   Sprecher als Toon-Münzen mit Anfangsbuchstaben, weiße Blasen mit farbiger Kante und
+   Münze daneben, eine einzige kompakte Steuerzeile. */
+.dlg-buehne {
+  grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 18px 20px 16px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 16%, #fff), color-mix(in srgb, var(--primary) 7%, #fff));
+  border-bottom: 0;
+}
+.dlg-buehne .dlg-figur { flex-direction: row; gap: 9px; align-items: center; }
+.dlg-buehne .dlg-rechts { flex-direction: row-reverse; }
+.dlg-muenze {
+  flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.25rem; font-weight: 900; color: #fff; line-height: 1;
+  background: radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--dlg-a) 62%, #fff) 0 18%, transparent 19%), var(--dlg-a);
+  box-shadow: 0 5px 0 var(--dlg-a-kante);
+  transition: transform .25s cubic-bezier(.34, 1.4, .64, 1), box-shadow .2s;
+}
+.dlg-rechts .dlg-muenze, .dlg-reihe.rechts .dlg-muenze {
+  background: radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--dlg-b) 60%, #fff) 0 18%, transparent 19%), var(--dlg-b);
+  box-shadow: 0 5px 0 var(--dlg-b-kante);
+}
+.dlg-figur.spricht .dlg-muenze { transform: translateY(-3px) scale(1.1); box-shadow: 0 7px 0 var(--dlg-a-kante), 0 0 0 5px color-mix(in srgb, var(--dlg-a) 22%, transparent); }
+.dlg-rechts.spricht .dlg-muenze { box-shadow: 0 7px 0 var(--dlg-b-kante), 0 0 0 5px color-mix(in srgb, var(--dlg-b) 24%, transparent); }
+.dlg-buehne .dlg-name,
+.dlg-buehne .dlg-figur.spricht .dlg-name,
+.dlg-buehne .dlg-rechts.spricht .dlg-name,
+.dlg-buehne .dlg-figur.du .dlg-name {
+  background: none; box-shadow: none; padding: 0; transform: none; color: var(--navy); font-size: 1rem; gap: 6px;
+}
+.dlg-buehne .dlg-figur.spricht .dlg-name { color: var(--dlg-a-kante); }
+.dlg-buehne .dlg-rechts.spricht .dlg-name { color: var(--dlg-b-kante); }
+.dlg-buehne .dlg-figur.du .dlg-name::after { content: none; }
+.dlg-buehne .dlg-figur.du .dlg-muenze { box-shadow: 0 5px 0 var(--dlg-b-kante), 0 0 0 4px #ffd34d; }
+.dlg-schild { justify-self: center; position: relative; padding: 4px 12px; border-radius: 99px; background: var(--card); box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 22%, #fff); font-size: .68rem; white-space: nowrap; }
+
+/* Steuerzeile: Abspielen breit, drei kompakte Schalter daneben */
+.dlg-leiste { flex-wrap: nowrap; align-items: stretch; gap: 8px; padding: 14px 16px 2px; }
+.dlg-leiste .dlg-play { flex: 1; justify-content: center; border-radius: 16px; padding: 11px 14px; font-size: .95rem; }
+.dlg-leiste .dlg-chip, .dlg-leiste .laut-schalter {
+  flex: none; margin: 0; border-radius: 14px; padding: 9px 12px; font-size: .84rem; gap: 6px;
+  background: var(--card); color: var(--muted);
+  box-shadow: inset 0 0 0 2px var(--line), 0 3px 0 var(--line);
+}
+.dlg-leiste .dlg-chip b, .dlg-leiste .laut-schalter b { font-weight: 900; color: var(--navy); background: none; padding: 0; font-size: .9rem; }
+.dlg-leiste .dlg-chip.an, .dlg-leiste .laut-schalter.an {
+  background: color-mix(in srgb, var(--primary) 12%, #fff); color: var(--primary-dark);
+  box-shadow: inset 0 0 0 2px var(--primary), 0 3px 0 var(--primary-dark);
+}
+.dlg-leiste .dlg-chip.an b, .dlg-leiste .laut-schalter.an b { color: var(--primary-dark); }
+.dlg-leiste button:active { transform: translateY(2px); }
+.dlg-szene.ist-rolle .dlg-leiste { justify-content: center; }
+@media (max-width: 560px) {
+  .dlg-leiste .dlg-chip, .dlg-leiste .laut-schalter { font-size: 0; gap: 0; padding: 9px 11px; min-width: 46px; justify-content: center; }
+  .dlg-leiste .dlg-chip b, .dlg-leiste .laut-schalter b { font-size: .88rem; }
+}
+
+/* Blasen: weiß, farbige Kante, Münze daneben */
+.dlg-chat { gap: 16px; padding: 18px 16px 8px; }
+.dlg-reihe { display: flex; align-items: flex-end; gap: 8px; }
+.dlg-reihe.rechts { flex-direction: row-reverse; }
+.dlg-muenze.klein { width: 32px; height: 32px; font-size: .92rem; box-shadow: 0 3px 0 var(--dlg-a-kante); margin-bottom: 5px; }
+.dlg-reihe.rechts .dlg-muenze.klein { box-shadow: 0 3px 0 var(--dlg-b-kante); }
+.dlg-reihe.aktiv .dlg-muenze.klein { transform: scale(1.14); }
+.dlg-reihe .dlg-zeile {
+  max-width: calc(100% - 44px); align-self: auto;
+  background: var(--card); padding: 12px 16px 13px;
+  border-radius: 22px 22px 22px 8px;
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--dlg-a) 26%, #fff), 0 5px 0 color-mix(in srgb, var(--dlg-a) 30%, #fff);
+}
+.dlg-reihe .dlg-zeile.rechts {
+  border-radius: 22px 22px 8px 22px; background: var(--card);
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--dlg-b) 30%, #fff), 0 5px 0 color-mix(in srgb, var(--dlg-b) 34%, #fff);
+}
+.dlg-reihe .dlg-zeile.aktiv {
+  scale: 1; background: color-mix(in srgb, var(--dlg-a) 9%, #fff);
+  box-shadow: inset 0 0 0 3px var(--dlg-a), 0 6px 0 var(--dlg-a-kante);
+}
+.dlg-reihe .dlg-zeile.rechts.aktiv {
+  background: color-mix(in srgb, var(--dlg-b) 10%, #fff);
+  box-shadow: inset 0 0 0 3px var(--dlg-b), 0 6px 0 var(--dlg-b-kante);
+}
+.dlg-reihe .dlg-zeile:active { transform: translateY(3px); }
+.dlg-reihe .dlg-wer { display: none; }
+.dlg-reihe .dlg-text { font-size: 1.2rem; }
+.dlg-reihe .dlg-de { border-top: 0; padding-top: 0; margin-top: 3px; font-size: .92rem; color: var(--muted); }
+.dlg-reihe .dlg-laut { font-size: .92rem; }
+.dlg-reihe .dlg-tippt { align-self: auto; margin-bottom: 5px; }
+
+/* Rollenspiel: Antworten wie die Wortpaar-Karten */
+.dlg-option {
+  background: color-mix(in srgb, var(--dlg-b) 6%, #fff);
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--dlg-b) 26%, #fff), 0 5px 0 color-mix(in srgb, var(--dlg-b) 30%, #fff);
+  border-radius: 20px; transition: transform .09s ease, box-shadow .09s ease;
+}
+.dlg-option:hover { box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--dlg-b) 55%, #fff), 0 5px 0 color-mix(in srgb, var(--dlg-b) 45%, #fff); }
+.dlg-option:active { transform: translateY(4px); box-shadow: inset 0 0 0 2.5px var(--dlg-b), 0 1px 0 var(--dlg-b-kante); }
+.dlg-frage { margin-top: 14px; }
+@media (max-width: 420px) {
+  .dlg-muenze { width: 40px; height: 40px; font-size: 1.1rem; }
+  .dlg-buehne .dlg-name { font-size: .92rem; }
+  .dlg-reihe .dlg-text { font-size: 1.12rem; }
+}
+
+/* Dialog-Szene, Feinschliff (17.11.2026, Manuel): Kopf ohne Welle/Farbband – clean;
+   zweiter Sprecher nicht mehr grün, sondern im dunklen Markenton. */
+.flashcard.dlg-szene {
+  --dlg-b: var(--navy);
+  --dlg-b-kante: color-mix(in srgb, var(--navy) 72%, #000);
+}
+.dlg-buehne { background: var(--card); padding: 18px 20px 14px; border-bottom: 2px solid var(--line); }
+.dlg-schild { background: color-mix(in srgb, var(--primary) 9%, #fff); box-shadow: none; color: var(--primary-dark); }
+.dlg-rechts .dlg-muenze, .dlg-reihe.rechts .dlg-muenze {
+  background: radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--navy) 55%, #fff) 0 18%, transparent 19%), var(--navy);
+}
+.dlg-reihe .dlg-zeile.rechts {
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--navy) 16%, #fff), 0 5px 0 color-mix(in srgb, var(--navy) 18%, #fff);
+}
+.dlg-reihe .dlg-zeile.rechts.aktiv {
+  background: color-mix(in srgb, var(--navy) 5%, #fff);
+  box-shadow: inset 0 0 0 3px var(--navy), 0 6px 0 var(--dlg-b-kante);
+}
+.dlg-tippt.rechts { background: color-mix(in srgb, var(--navy) 7%, #fff); }
+.dlg-buehne .dlg-rechts.spricht .dlg-name { color: var(--navy); }
+/* Knöpfe und Antworten in der Hauptfarbe statt Grün */
+.dlg-los { background: var(--primary); box-shadow: 0 5px 0 var(--primary-press); }
+.dlg-los:active { box-shadow: 0 1px 0 var(--primary-press); }
+.dlg-option {
+  background: color-mix(in srgb, var(--primary) 6%, #fff);
+  box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 24%, #fff), 0 5px 0 color-mix(in srgb, var(--primary) 30%, #fff);
+}
+.dlg-option:hover { box-shadow: inset 0 0 0 2.5px color-mix(in srgb, var(--primary) 50%, #fff), 0 5px 0 color-mix(in srgb, var(--primary) 42%, #fff); }
+.dlg-option:active { box-shadow: inset 0 0 0 2.5px var(--primary), 0 1px 0 var(--primary-dark); }
+.dlg-buehne .dlg-figur.du .dlg-muenze { box-shadow: 0 5px 0 var(--dlg-b-kante), 0 0 0 4px var(--gold, #ffc800); }
+.dlg-fortschritt i.fertig { background: var(--primary); opacity: .45; }
+/* Sprecher-Münzen ohne Glanzpunkt (17.11.2026, Manuel) */
+.dlg-muenze { background: var(--dlg-a); }
+.dlg-rechts .dlg-muenze, .dlg-reihe.rechts .dlg-muenze { background: var(--dlg-b); }
