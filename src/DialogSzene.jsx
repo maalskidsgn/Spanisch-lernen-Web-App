@@ -89,8 +89,8 @@ function woerter(text) {
 function Figur({ name, seite, spricht, du }) {
   return (
     <div className={'dlg-figur dlg-' + seite + (spricht ? ' spricht' : '') + (du ? ' du' : '')}>
-      {/* Ohne Gesichter (Manuel, 16.11.: „hässliche Smileys raus“) – nur Namensschild,
-          beim Sprechen farbig mit kleinen Schallwellen */}
+      {/* Münze mit Anfangsbuchstaben statt Gesicht (17.11.2026) – wer spricht, leuchtet */}
+      <span className="dlg-muenze" aria-hidden="true">{name[0]}</span>
       <b className="dlg-name">
         {name}
         <span className="dlg-wellen" aria-hidden="true"><i /><i /><i /></span>
@@ -112,6 +112,8 @@ function ZeilenText({ text, anteil = null }) {
 
 function Blase({ zeile, rechts, anteil, mitDe, laut, onTap }) {
   return (
+    <div className={'dlg-reihe' + (rechts ? ' rechts' : '') + (anteil != null ? ' aktiv' : '')}>
+    <span className="dlg-muenze klein" aria-hidden="true">{zeile.sprecher[0]}</span>
     <button
       type="button"
       className={'dlg-zeile' + (rechts ? ' rechts' : '') + (anteil != null ? ' aktiv' : '')}
@@ -122,6 +124,7 @@ function Blase({ zeile, rechts, anteil, mitDe, laut, onTap }) {
       
       {mitDe && <span className="dlg-de">{satz(zeile, 'es', 'de')}</span>}
     </button>
+    </div>
   )
 }
 
@@ -213,7 +216,8 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
 
   // Neue Blase ins Bild holen
   useEffect(() => {
-    const el = chatRef.current?.querySelector('.dlg-zeile:last-of-type')
+    const reihen = chatRef.current?.querySelectorAll('.dlg-reihe')
+    const el = reihen?.[reihen.length - 1]
     el?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' })
   }, [anzahl])
 
@@ -314,14 +318,16 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
           type="button"
           className={'dlg-chip' + (langsam ? ' an' : '')}
           aria-pressed={langsam}
+          title={T.langsam}
           onClick={() => { setLangsam(!langsam); merke('dialog-langsam', !langsam) }}
         >
-          🐢 {T.langsam}
+          <b aria-hidden="true">0,75×</b> {T.langsam}
         </button>
         <button
           type="button"
           className={'dlg-chip' + (mitDe ? ' an' : '')}
           aria-pressed={mitDe}
+          title={T.uebersetzung}
           onClick={() => { setMitDe(!mitDe); merke('dialog-uebersetzung', !mitDe) }}
         >
           <b className="dlg-flagge">{sprache() === 'en' ? 'EN' : 'DE'}</b> {T.uebersetzung}
@@ -335,8 +341,11 @@ export default function DialogSzene({ dialog, onWeiter, titel = '' }) {
           <div className="dlg-chat" ref={chatRef}>
             {dialog.slice(0, anzahl).map((zeile, i) => blase(zeile, i))}
             {!alleDa && (
-              <div className={'dlg-tippt' + (dialog[anzahl].sprecher !== a ? ' rechts' : '')}>
-                <i /><i /><i />
+              <div className={'dlg-reihe' + (dialog[anzahl].sprecher !== a ? ' rechts' : '')}>
+                <span className="dlg-muenze klein" aria-hidden="true">{dialog[anzahl].sprecher[0]}</span>
+                <div className={'dlg-tippt' + (dialog[anzahl].sprecher !== a ? ' rechts' : '')}>
+                  <i /><i /><i />
+                </div>
               </div>
             )}
           </div>
