@@ -226,7 +226,7 @@ export function BuchFormular({ onFertig }) {
       <p className="engine-text">{L.unter}</p>
 
       <ul className="engine-features">
-        <li><b>8</b> {L.vorteil1}</li>
+        <li><b>10</b> {L.vorteil1}</li>
         <li><b>{L1.toUpperCase()}</b> {L.vorteil2}</li>
         {LAUTSCHRIFT ? <li><b>Aa</b> {L.vorteilLaut}</li> : <li><b>↻</b> {L.vorteil3}</li>}
       </ul>
