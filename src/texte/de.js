@@ -1931,6 +1931,7 @@ export default {
 
   /* ---------------- Level, Profil, Installieren ---------------- */
   "ms.levelStufen": "Level-Stufen",
+  "ms.geheim": "Geheime Stufe",
   "ms.abLevel": "ab Level {zahl}",
   "ms.duBistHier": "Du bist hier",
   "lv.neuling": "Neuling",
@@ -1948,6 +1949,7 @@ export default {
   "lv.titan": "Titan",
   "lv.unsterblich": "Unsterblich",
   "lv.solEterno": "Sol Eterno",
+  "lv.supernova": "Supernova",
   "ik.zumStartbildschirmHinzufuegen": "Zum Startbildschirm hinzufügen",
   "ps9.seitHeute": "seit heute",
   "ps9.seitGestern": "seit gestern",

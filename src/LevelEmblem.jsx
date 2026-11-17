@@ -41,11 +41,11 @@ export default function LevelEmblem({ level, groesse = 48, klasse = '' }) {
 /** Emblem mit Titel und Level – so steht es in den Profilen. */
 export function LevelPlakette({ level }) {
   const t = useTexte()
-  const { farbe, sol } = levelStufe(level)
+  const { farbe, sol, geheim } = levelStufe(level)
   return (
     <div
-      className={'level-plakette' + (sol ? ' level-plakette-sol' : '')}
-      style={sol ? undefined : { '--plakette-ton': farbe }}
+      className={'level-plakette' + (sol ? ' level-plakette-sol' : '') + (geheim ? ' level-plakette-geheim' : '')}
+      style={sol || geheim ? undefined : { '--plakette-ton': farbe }}
     >
       <LevelEmblem level={level} groesse={56} />
       <span>

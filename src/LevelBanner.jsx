@@ -8,11 +8,12 @@ import { LEVEL_STUFEN } from './gamification.js'
  * Liegt als Ebene in .pf-banner (Zahnrad bleibt darüber).
  */
 
+const NOVA = { verlauf: ['#e2d9ff', '#c4b5ff', '#ffc2e0'], farbe: '#6d3fd6', funken: 3, symbol: 'stern' }
 const SOL = { verlauf: ['#fff3c9', '#ffd36e', '#ffa95c'], farbe: '#d98a00', funken: 3, symbol: 'sonne' }
 
 export function stufeFuer(level) {
   const s = [...LEVEL_STUFEN].reverse().find((x) => level >= x.ab) ?? LEVEL_STUFEN[0]
-  return s.sol ? { ...s, ...SOL } : s
+  return s.sol ? { ...s, ...SOL } : s.geheim ? { ...s, ...NOVA } : s
 }
 
 /** Farbe der Stufe als CSS-Variable – für Bildrahmen und Level-Pille. */

@@ -19487,3 +19487,15 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .br-unten .niveau-badge, .wl-titel .niveau-badge { position: static; box-shadow: none; padding: 3px 8px; border-radius: 7px; }
 .niveau-B2 { background: #8b5cf6; }
 .niveau-C1 { background: #c2334a; }
+
+/* ===== Geheime Stufe Supernova (17.11.2026, Manuel) ===== */
+.lvl-geheim { border-color: #8a6cf5; background: linear-gradient(160deg, #140a3d, #2b1a7a 55%, #5c1a5e); }
+.lvl-geheim.lvl-offen .level-emblem { opacity: 1; }
+.lvl-geheim b { background: linear-gradient(90deg, #ff9ec7, #ffe14d, #9fe7ff, #c9b8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lvl-geheim span, .lvl-geheim small { color: #e9e2ff; }
+.lvl-geheim-zu { border-style: dashed; border-color: #8a6cf5; background: #1d1150; }
+.lvl-geheim-zu b { color: #c9b8ff; letter-spacing: .1em; }
+.lvl-geheim-zu span, .lvl-geheim-zu small { color: #a99be0; }
+.level-plakette-geheim { background: linear-gradient(160deg, #140a3d, #2b1a7a 55%, #5c1a5e); }
+.level-plakette-geheim b { color: #ffe14d; }
+.level-plakette-geheim small { color: #e9e2ff; }
