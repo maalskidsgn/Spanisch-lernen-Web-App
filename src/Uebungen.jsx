@@ -6,6 +6,7 @@
 //  • Freie Themen erzeugt die KI (zählt als KI-Erstellung). Das Set wird
 //    gespeichert: Wiederholen kostet nichts.
 //  • Drei Aufgabenarten, die die App selbst prüft: Lücke, Auswahl, Satzbau.
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { useEffect, useMemo, useState } from 'react'
 import LadeKreis from './LadeKreis.jsx'
 import GratisHinweis from './GratisHinweis.jsx'
@@ -336,19 +337,20 @@ export function UebungsRunde({ titel, aufgaben, addXp, onEnde }) {
 
   if (fertig) {
     return (
-      <div className="lessons lk-toon ub-runde">
-        <div className="flashcard done sf-toon">
-          <div className="confetti-burst" aria-hidden="true">
-            {Array.from({ length: 14 }, (_, i) => <span key={i} className="confetti" style={{ '--i': i }} />)}
-          </div>
-          <h2>{T.fertig}</h2>
-          <p>{titel}</p>
-          <p className="ub-ergebnis">{T.ergebnis(richtige, aufgaben.length)}</p>
-          <div className="ub-ende-knoepfe">
-            <button type="button" className="btn-plain" onClick={neuStart}>{T.nochmal}</button>
-            <button type="button" onClick={onEnde}>{T.zurueck}</button>
-          </div>
-        </div>
+      <div className="lessons">
+        <RundenAbschluss
+          quote={Math.round((richtige / aufgaben.length) * 100)}
+          titel={T.fertig}
+          unter={titel}
+          chips={[
+            { wert: `${richtige}/${aufgaben.length}`, text: ra('ersterVersuch') },
+            { wert: '+' + richtige * XP_JE_AUFGABE, text: 'XP', xp: true },
+          ]}
+          knoepfe={[
+            { text: T.nochmal, onClick: neuStart },
+            { text: ra('zurueckWiederholen'), onClick: onEnde, zweit: true },
+          ]}
+        />
       </div>
     )
   }

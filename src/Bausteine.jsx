@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import {
   BAUSTEINE,
   FAMILIEN,
@@ -113,24 +114,17 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
     const eintrag = withSrsDefaults(stand[runde.baustein.id] ?? {})
     return (
       <div className="trainer">
-        <div className="flashcard done">
-          <div className="confetti-burst" aria-hidden="true">
-            {Array.from({ length: 14 }, (_, i) => (
-              <span key={i} className="confetti" style={{ '--i': i }} />
-            ))}
-          </div>
-          <h2>{ergebnis.falsch === 0 ? t('bs9.allesRichtig') : t('bs9.rundeGeschafft')}</h2>
-          <p>
-            {t('bs9.vonBei', { richtig: ergebnis.richtig, gesamt: runde.aufgaben.length, titel: uebersetzt(runde.baustein.titel) })}
-          </p>
-          <p className="gram-naechster">
-            {bewertung === 'nochmal'
-              ? t('bsm.derBausteinKommt')
-              : t('bs9.naechsteWiederholung', { termin: formatDue(eintrag) })}
-          </p>
-          <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
-          <button onClick={() => setRunde(null)}>{t('bs.zurueckZurUebersicht')}</button>
-        </div>
+        <RundenAbschluss
+          quote={Math.round((ergebnis.richtig / runde.aufgaben.length) * 100)}
+          titel={(ergebnis.falsch === 0 ? t('bs9.allesRichtig') : t('bs9.rundeGeschafft')).replace(/\s*🎉/, '')}
+          unter={uebersetzt(runde.baustein.titel)}
+          chips={[
+            { wert: `${ergebnis.richtig}/${runde.aufgaben.length}`, text: ra('richtig') },
+            { wert: '+' + XP.RUNDE, text: ra('bonusXp'), xp: true },
+          ]}
+          text={bewertung === 'nochmal' ? t('bsm.derBausteinKommt') : t('bs9.naechsteWiederholung', { termin: formatDue(eintrag) })}
+          knoepfe={[{ text: ra('zurueckGrammatik'), onClick: () => setRunde(null) }]}
+        />
       </div>
     )
   }

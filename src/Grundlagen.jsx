@@ -1,4 +1,5 @@
 import TabellenRahmen from './TabellenRahmen.jsx'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { neueWoerterZurKarte } from './wissenVokabeln.js'
 import { UebungsGenerator, UebungsRunde, ladeRegelUebungen, uebungenText } from './Uebungen.jsx'
@@ -374,6 +375,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
   const [xpPopup, setXpPopup] = useState(null) // schwebende „+10 XP“-Anzeige
   const [uebung, setUebung] = useState(null) // laufendes Übungsset { titel, aufgaben }
   const [gen, setGen] = useState('verben') // welcher Generator-Reiter offen ist
+  const [gewusst, setGewusst] = useState(0) // Karten dieser Runde, die nicht „Nochmal“ bekamen
+  const [ende, setEnde] = useState(null) // Abschluss der Runde { karten, gewusst }
   const [keinSet, setKeinSet] = useState(null)
   // Beispielwörter der aufgeklappten Regel, die noch nicht im Vokabeltrainer stehen
   const [kartenWoerter, setKartenWoerter] = useState({ id: null, woerter: [], fertig: false })
@@ -408,6 +411,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
     const r = faellig.slice(0, RUNDE)
     setRunde(r)
     setNr(0)
+    setGewusst(0)
+    setEnde(null)
     setAntwort(null)
     setFrage(frageAus(r[0]))
   }
@@ -429,14 +434,38 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
     // 10 XP je gelernter Karte – wie eine gewusste Vokabel (17.11.2026, Manuel)
     addXp?.(XP_JE_KARTE)
     setXpPopup({ key: Date.now() })
+    const g = gewusst + (wert !== 'nochmal' ? 1 : 0)
+    setGewusst(g)
     if (nr + 1 >= runde.length) {
       lektionTon() // Runde geschafft: Erfolgston wie nach einer Lektion (17.11.2026)
+      setEnde({ karten: runde.length, gewusst: g })
       setRunde(null)
       return
     }
     setNr(nr + 1)
     setAntwort(null)
     setFrage(frageAus(runde[nr + 1]))
+  }
+
+  // ---------- Abschluss einer Runde (17.11.2026, Manuel) ----------
+  if (ende) {
+    const weitere = faellig.length > 0
+    return (
+      <RundenAbschluss
+        quote={Math.round((ende.gewusst / ende.karten) * 100)}
+        titel={ra('rundeGeschafft')}
+        unter={ra('grundlagen')}
+        chips={[
+          { wert: `${ende.gewusst}/${ende.karten}`, text: ra('gewusst') },
+          { wert: '+' + ende.karten * XP_JE_KARTE, text: 'XP', xp: true },
+        ]}
+        text={weitere ? ra('nochRegeln', faellig.length) : ra('alleWiederholt')}
+        knoepfe={[
+          weitere && { text: ra('naechsteRunde'), onClick: starten },
+          { text: ra('zurueckWiederholen'), onClick: () => setEnde(null), zweit: weitere },
+        ]}
+      />
+    )
   }
 
   // ---------- Übungsset aus dem Übungsgenerator ----------
