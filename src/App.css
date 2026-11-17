@@ -19329,3 +19329,25 @@ body.liest-video .video-kopf {
 .training-stage .quiz-option.option-richtig { background: #1fb27a !important; color: #fff; box-shadow: 0 5px 0 #138a5f; animation: none; opacity: 1; }
 .training-stage .quiz-option.option-falsch { background: #ff5a6a !important; color: #fff; box-shadow: 0 5px 0 #c2334a; animation: none; }
 .training-stage .quiz-option.option-inaktiv { opacity: .55; }
+
+/* ===== Lernkurve: Kacheln umbrechen statt rechts hinauslaufen (17.11.2026, Manuel) ===== */
+.lk-chips { display: flex !important; flex-wrap: wrap; gap: 8px; }
+.lk-chips > .lk-chip,
+.lk-chips > .lk-chip:last-child:nth-child(odd) { flex: 1 1 165px; min-width: 0; grid-column: auto; }
+.lk-chip-name { white-space: nowrap; }
+
+/* ===== Satzkarte: Satz größer, Bewertung zum Reindrücken (17.11.2026, Manuel) ===== */
+.training-stage .satzkarte .flash-satz { font-size: 1.85rem; font-weight: 900; line-height: 1.3; }
+.training-stage .satzkarte .flash-translation { font-size: 1.35rem; line-height: 1.4; }
+@media (max-width: 560px) {
+  .training-stage .satzkarte .flash-satz { font-size: 1.45rem; }
+  .training-stage .satzkarte .flash-translation { font-size: 1.12rem; }
+}
+.training-stage:not(.spiel-toon) .bewertung {
+  border: 0;
+  background: color-mix(in srgb, var(--bf) 7%, #fff);
+  box-shadow: 0 5px 0 var(--bk), inset 0 0 0 2.5px var(--bf);
+  transition: transform .08s ease, box-shadow .08s ease, background .12s ease;
+}
+.training-stage:not(.spiel-toon) .bewertung:hover { transform: none; background: color-mix(in srgb, var(--bf) 14%, #fff); }
+.training-stage:not(.spiel-toon) .bewertung:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--bk), inset 0 0 0 2.5px var(--bf); }
