@@ -18965,3 +18965,7 @@ body.liest-video .video-kopf {
 .bg-niveau-zeile > span { font-weight: 800; font-size: .92rem; color: var(--navy); }
 .bg-einfach .bg-text-link { align-self: flex-start; margin: -2px 0 0; }
 .bg-einfach .engine-los { margin-top: 2px; }
+
+/* ===== Lektionsbereich: Reiter „Lektionen | Wiederholen“ (17.11.2026, Manuel) ===== */
+.lessons .lek-reiter { margin: 4px 0 18px; }
+.lessons .trainer.gl { background: none; }

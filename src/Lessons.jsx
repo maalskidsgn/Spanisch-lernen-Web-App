@@ -1,7 +1,8 @@
 import GratisHinweis from './GratisHinweis.jsx'
 import DialogSzene from './DialogSzene.jsx'
+import Grundlagen, { faelligeGrundlagen } from './Grundlagen.jsx'
 import WISSEN_TABELLEN from './wissenTabellen.js'
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment, useState, useEffect, useMemo } from 'react'
 import {
   MODULE,
   KURSFOLGE,
@@ -212,9 +213,24 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet, vocab = {} }) {
   const t = useTexte()
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
+  // Reiter der Übersicht (17.11.2026, Manuel): „Lektionen“ und „Wiederholen“ –
+  // der Grundlagen-Trainer wohnt jetzt hier statt im Vokabeltrainer.
+  const [bereich, setBereich] = useState('lektionen')
+  const [regelTakt, setRegelTakt] = useState(0)
+  useEffect(() => {
+    const neu = () => setRegelTakt((t) => t + 1)
+    window.addEventListener('grundlagen-geaendert', neu)
+    window.addEventListener('geraetedaten', neu)
+    return () => {
+      window.removeEventListener('grundlagen-geaendert', neu)
+      window.removeEventListener('geraetedaten', neu)
+    }
+  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const faelligeRegeln = useMemo(() => faelligeGrundlagen(lessonProgress).length, [lessonProgress, bereich, regelTakt])
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
   // Sonst baut "Noch einmal" am Ende den Lektions-Ablauf ueber das
   // Stations-Objekt – mit 226 Vorstell-Schritten statt 25 Aufgaben.
@@ -871,6 +887,40 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     return gesamt > 0 && f < gesamt
   })
 
+  const reiter = (
+    <div className="deck lek-reiter" role="tablist">
+      <button role="tab" aria-selected={bereich === 'lektionen'} className={bereich === 'lektionen' ? 'deck-aktiv' : ''} onClick={() => setBereich('lektionen')}>
+        {t('ls.reiterLektionen')}
+      </button>
+      <button role="tab" aria-selected={bereich === 'wiederholen'} className={bereich === 'wiederholen' ? 'deck-aktiv' : ''} onClick={() => setBereich('wiederholen')}>
+        {t('ls.reiterWiederholen')}
+        {faelligeRegeln > 0 && <span className="deck-zahl">{faelligeRegeln}</span>}
+      </button>
+    </div>
+  )
+
+  // ---------- Wiederholen: Grundlagen-Trainer, Verbgenerator, alle Regeln ----------
+  if (bereich === 'wiederholen') {
+    return (
+      <div className="lessons wechsel" key="wiederholen">
+        <Grundlagen
+          kopf={
+            <>
+              <h1 className="reise-titel">
+                {t('lek.titel1')} <span className="accent accent-strich">{t('ls.wiederholung')}</span>
+              </h1>
+              <p className="intro">{t('tr.introGrundlagen')}</p>
+              {reiter}
+            </>
+          }
+          lessonProgress={lessonProgress}
+          addXp={addXp}
+          vocab={vocab}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="lessons">
       <h1 className="reise-titel">
@@ -879,6 +929,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       <p className="intro">
 {t('ls.lerneSchrittFuer')}
       </p>
+
+      {reiter}
 
       <GratisHinweis art="lektionen" />
 

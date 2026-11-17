@@ -1944,6 +1944,7 @@ export default function App() {
             onKasse={() => setKasseOffen(true)}
             sofortStart={ersteLektion}
             onSofortGestartet={() => setErsteLektion(0)}
+            vocab={vocab}
           />
         </main>
       )}
