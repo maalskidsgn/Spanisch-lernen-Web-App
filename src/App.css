@@ -19306,3 +19306,26 @@ body.liest-video .video-kopf {
 .abschluss-seite .abschluss-knoepfe button.abschluss-zweit { background: var(--card); color: var(--navy); box-shadow: 0 5px 0 var(--line), inset 0 0 0 2px var(--line); }
 .abschluss-seite .abschluss-knoepfe button.abschluss-zweit:active { box-shadow: 0 1px 0 var(--line), inset 0 0 0 2px var(--line); }
 @media (prefers-reduced-motion: reduce) { .runden-abschluss .abschluss-haken { animation: none; } }
+
+/* ===== Trainer-Antworten zum Reindrücken (17.11.2026, Manuel) =====
+   Vokabel-, Satz- und Grundlagenrunden: gerade Karte, Antwortknöpfe mit
+   fester 3D-Kante wie in den Lektionen. Kein Hüpfen (pop-in) beim
+   Richtig/Falsch, kein Farbwechsel beim Drüberfahren. */
+.training-stage .flashcard.karte-toon { rotate: none; }
+.training-stage .quiz-option {
+  border: 0;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: 0 5px 0 #e6dccf, inset 0 0 0 2px #efe7dc;
+  transition: transform .08s ease, box-shadow .08s ease, background .12s ease;
+  animation: none;
+}
+.training-stage .quiz-options .quiz-option + .quiz-option,
+.training-stage .auswahl-fuenf .quiz-option + .quiz-option { margin-top: 2px; }
+@media (hover: hover) {
+  .training-stage .quiz-option:hover:not(:disabled) { background: var(--card); box-shadow: 0 5px 0 #e6dccf, inset 0 0 0 2px color-mix(in srgb, var(--primary) 45%, #efe7dc); }
+}
+.training-stage .quiz-option:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 #e6dccf, inset 0 0 0 2px #efe7dc; }
+.training-stage .quiz-option.option-richtig { background: #1fb27a !important; color: #fff; box-shadow: 0 5px 0 #138a5f; animation: none; opacity: 1; }
+.training-stage .quiz-option.option-falsch { background: #ff5a6a !important; color: #fff; box-shadow: 0 5px 0 #c2334a; animation: none; }
+.training-stage .quiz-option.option-inaktiv { opacity: .55; }
