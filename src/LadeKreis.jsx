@@ -2,28 +2,30 @@
 // „sodass man weiß, wie lange es noch dauert“) – KI-Listen, Sätze, Texte,
 // E-Books, Verb-Tabellen, YouTube-Videos, Suche.
 //
-// Der Server meldet keinen Fortschritt. Der Kreis schätzt deshalb: Er merkt
-// sich je Art, wie lange es zuletzt wirklich gedauert hat (gleitender
-// Mittelwert im Gerätespeicher), füllt sich bis dahin auf 90 % und kriecht
-// danach nur noch – er steht nie auf „fertig“, solange noch gewartet wird.
+// Der Server meldet keinen Fortschritt, der Kreis schätzt (17.11.2026
+// verlässlicher gemacht – Manuel wartete 12 s auf „gleich fertig“):
+//   – Er merkt sich je Art die letzten 8 echten Dauern und rechnet mit
+//     der langsamsten der üblichen (≈ 80 %-Wert), nicht mit dem Mittel.
+//   – Läuft es trotzdem länger, verlängert er die Schätzung sichtbar
+//     („noch ~6 s“) statt ewig „gleich fertig“ zu zeigen.
 import { useEffect, useRef, useState } from 'react'
 import { sprache } from './sprache.js'
 
-// Ausgangswerte in Sekunden, bis eigene Messungen da sind
+// Ausgangswerte in Sekunden, bis eigene Messungen da sind (eher großzügig)
 const STANDARD = {
-  liste: 9,
-  saetze: 9,
-  text: 14,
-  buch: 30,
-  ebook: 55,
-  konjugation: 8,
-  uebungen: 18,
-  uebersetzen: 3,
-  vokabeln: 10,
-  video: 10,
-  suche: 6,
+  liste: 20,
+  saetze: 18,
+  text: 22,
+  buch: 40,
+  ebook: 60,
+  konjugation: 12,
+  uebungen: 22,
+  uebersetzen: 4,
+  vokabeln: 16,
+  video: 12,
+  suche: 8,
 }
-const SPEICHER = 'lade-dauern'
+const SPEICHER = 'lade-dauern-2'
 
 function gemessen() {
   try {
@@ -34,16 +36,18 @@ function gemessen() {
 }
 
 function schaetzung(art) {
-  const standard = STANDARD[art] ?? 8
-  const wert = gemessen()[art]
-  // Ausreißer (Abbruch, hängendes Netz) dürfen die Schätzung nicht kippen
-  return wert ? Math.min(standard * 2.5, Math.max(standard * 0.4, wert)) : standard
+  const standard = STANDARD[art] ?? 12
+  const liste = (gemessen()[art] || []).filter((x) => Number.isFinite(x)).sort((a, b) => a - b)
+  if (liste.length < 2) return Math.max(standard, liste[0] ?? 0)
+  // 80 %-Wert der letzten Dauern, plus ein kleiner Puffer
+  const p80 = liste[Math.min(liste.length - 1, Math.floor(liste.length * 0.8))]
+  return Math.max(3, p80 * 1.1 + 1)
 }
 
 function merke(art, sekunden) {
   if (sekunden < 1 || sekunden > 300) return // sofortige Fehler und Hänger zählen nicht
   const alle = gemessen()
-  alle[art] = alle[art] ? alle[art] * 0.6 + sekunden * 0.4 : sekunden
+  alle[art] = [...(alle[art] || []), Math.round(sekunden * 10) / 10].slice(-8)
   try {
     localStorage.setItem(SPEICHER, JSON.stringify(alle))
   } catch { /* Speicher voll – dann eben ohne Lernen */ }
@@ -57,7 +61,7 @@ const UMFANG = 2 * Math.PI * RADIUS
  * @param {boolean} kurz – nur „~5 s“ statt „noch ~5 s“ (für schmale Knöpfe)
  */
 export default function LadeKreis({ art = 'liste', kurz = false }) {
-  const soll = useRef(schaetzung(art))
+  const grund = useRef(schaetzung(art))
   const [sek, setSek] = useState(0)
 
   useEffect(() => {
@@ -69,14 +73,14 @@ export default function LadeKreis({ art = 'liste', kurz = false }) {
     }
   }, [art])
 
-  const s = soll.current
-  const anteil = sek < s ? (0.9 * sek) / s : 0.9 + 0.09 * (1 - Math.exp(-(sek - s) / s))
-  const rest = Math.ceil(s - sek)
+  // Ist die Schätzung überschritten, wächst sie in Schritten mit – so zählt
+  // der Kreis immer etwas Ehrliches herunter, statt stehenzubleiben.
+  let s = grund.current
+  while (sek > s - 1) s = s + Math.max(4, s * 0.35)
+  const anteil = Math.min(0.97, sek / s)
+  const rest = Math.max(1, Math.ceil(s - sek))
   const en = sprache() === 'en'
-  const text =
-    rest > 0
-      ? kurz ? `~${rest} s` : en ? `about ${rest} s left` : `noch ~${rest} s`
-      : kurz ? '…' : en ? 'almost done' : 'gleich fertig'
+  const text = kurz ? `~${rest} s` : en ? `about ${rest} s left` : `noch ~${rest} s`
 
   return (
     <span className={'lade-kreis' + (kurz ? ' lade-kurz' : '')} role="status" aria-label={text}>

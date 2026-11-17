@@ -1,8 +1,9 @@
 import TabellenRahmen from './TabellenRahmen.jsx'
+import ZauberBild from './ZauberBild.jsx'
 import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { neueWoerterZurKarte } from './wissenVokabeln.js'
-import { UebungsGenerator, UebungsRunde, ladeRegelUebungen, uebungenText } from './Uebungen.jsx'
+import { UebungsRunde, ladeRegelUebungen, uebungenText } from './Uebungen.jsx'
 import LadeKreis from './LadeKreis.jsx'
 import { LEKTIONEN } from './lektionen.js'
 import WISSEN_TABELLEN from './wissenTabellen.js'
@@ -40,7 +41,17 @@ const hatLaut = () => false
 
 const SPEICHER = 'grundlagen-stand'
 const EIGENE = 'grundlagen-eigene'
-const RUNDE = 8
+// Verben erkennt man auch an der Übersetzung (17.11.2026, Manuel: „was für Bett?“ –
+// кровать endet auf -ать): Deutsche Nomen sind großgeschrieben, Nomen haben
+// einen Artikel, englische Verben beginnen gern mit „to“.
+function istVerbUebersetzung(uebersetzung) {
+  const t = String(uebersetzung || '').trim()
+  if (!t) return false
+  if (/^to\s/i.test(t)) return true
+  if (/^(der|die|das|ein|eine|the|a|an)\s/i.test(t)) return false
+  return t[0] === t[0].toLowerCase()
+}
+const RUNDE = 5 // 17.11.2026 (Manuel): 8 waren zu viel
 const XP_JE_KARTE = 10
 const ZIEL_ENDUNG = /(ar|er|ir|ír|arse|erse|irse)$/ // woran man Verben im Vokabeltrainer erkennt
 
@@ -63,7 +74,7 @@ const EN = {
   'Verb konjugieren': 'Conjugate a verb',
   'Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – in English or Spanish. You get all the important tenses as tables.',
   'z. B. {0}': 'e.g. {0}',
-  'KI-Verbgenerator': 'AI verb generator',
+  'KI-Verbgenerator': 'AI verb generator', 'KI-Konjugationsgenerator': 'AI conjugation generator',
   'Gut zu wissen: {0}': 'Good to know: {0}',
   '{0} Wörter in den Vokabeltrainer': 'Add {0} words to the vocab trainer',
   'Im Vokabeltrainer': 'In your vocab trainer',
@@ -214,7 +225,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
   // Verben aus dem eigenen Vokabeltrainer (die neuesten zuerst)
   const ausTrainer = useMemo(
     () => Object.entries(vocab)
-      .filter(([w]) => ZIEL_ENDUNG.test(w.trim()) && !w.includes(' '))
+      .filter(([w, e]) => ZIEL_ENDUNG.test(w.trim()) && !w.includes(' ') && istVerbUebersetzung(e?.translation))
       .sort((a, b) => (b[1]?.addedAt ?? 0) - (a[1]?.addedAt ?? 0))
       .slice(0, 8)
       .map(([w, e]) => ({ verb: w, name: String(e?.translation || '').split(/[,;(/]/)[0].trim() })),
@@ -264,7 +275,13 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
     <section className="bereich gl-konj">
       {/* Gleicher Aufbau wie Listen-, Satz- und Textgenerator (16.11.2026, Manuel) */}
       <div className="list-gen">
-        <p className="gl-gen-unter">{tx('Alle wichtigen Zeiten eines Verbs als Tabelle.')}</p>
+        <div className="gen-kopf">
+          <ZauberBild art="verben" />
+          <div className="gen-text">
+            <h2>{tx('KI-Konjugationsgenerator')}</h2>
+            <p>{tx('Alle wichtigen Zeiten eines Verbs als Tabelle.')}</p>
+          </div>
+        </div>
 
         <GratisHinweis art="ki" />
 
@@ -374,7 +391,6 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
   const [listeOffen, setListeOffen] = useState(false)
   const [xpPopup, setXpPopup] = useState(null) // schwebende „+10 XP“-Anzeige
   const [uebung, setUebung] = useState(null) // laufendes Übungsset { titel, aufgaben }
-  const [gen, setGen] = useState('verben') // welcher Generator-Reiter offen ist
   const [gewusst, setGewusst] = useState(0) // Karten dieser Runde, die nicht „Nochmal“ bekamen
   const [ende, setEnde] = useState(null) // Abschluss der Runde { karten, gewusst }
   const [keinSet, setKeinSet] = useState(null)
@@ -562,25 +578,9 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
         </button>
       </div>
 
-      {/* Beide Generatoren als Reiter nebeneinander, ohne Bild (17.11.2026, Manuel).
-          Der gerade nicht gezeigte bleibt eingehängt – eine geladene Tabelle geht
-          beim Umschalten nicht verloren. */}
-      <div className="gl-gen">
-        <div className="deck gl-gen-reiter" role="tablist">
-          <button type="button" role="tab" aria-selected={gen === 'verben'} className={gen === 'verben' ? 'deck-aktiv' : ''} onClick={() => setGen('verben')}>
-            {tx('Verbgenerator')}
-          </button>
-          <button type="button" role="tab" aria-selected={gen === 'uebungen'} className={gen === 'uebungen' ? 'deck-aktiv' : ''} onClick={() => setGen('uebungen')}>
-            {tx('Übungsgenerator')}
-          </button>
-        </div>
-        <div hidden={gen !== 'verben'}>
-          <Konjugator vocab={vocab} laut={laut} onGespeichert={() => setVersion((v) => v + 1)} />
-        </div>
-        <div hidden={gen !== 'uebungen'}>
-          <UebungsGenerator regeln={uebRegeln} schwach={schwache.length > 0} onStart={setUebung} />
-        </div>
-      </div>
+      {/* Nur der Konjugationsgenerator (17.11.2026, Manuel) – der Übungsgenerator
+          ist ausgeblendet, sein Code bleibt für später. */}
+      <Konjugator vocab={vocab} laut={laut} onGespeichert={() => setVersion((v) => v + 1)} />
 
       {/* Alle Grundlagen – aufklappbar wie „Alle deine Wörter“ im Vokabeltrainer */}
       <section className="bereich">

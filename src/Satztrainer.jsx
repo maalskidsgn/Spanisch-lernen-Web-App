@@ -376,7 +376,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 </div>
               </div>
             ) : (
-              <button onClick={() => setRevealed(true)}>{t('st.uebersetzungZeigen')}</button>
+              <button className="zeige-knopf" onClick={() => setRevealed(true)}>{t('st.uebersetzungZeigen')}</button>
             )}
           </div>
         )}
