@@ -377,10 +377,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       <div className="deck" role="tablist">
         {BEREICHE.map((b) => {
           const zahl = {
-            videos: bibliothek?.length ?? null,
+            // Was man wirklich sieht (17.11.2026): eigene Videos + die kuratierte Auswahl
+            videos: bibliothek ? savedVideos.length + gruppiere(bibliothek).reduce((n, g) => n + g.videos.length, 0) : null,
             songs: songAnzahl,
             // Die fertigen Zusammenfassungen plus die selbst erzeugten
-            ebooks: ebookAnzahl == null ? null : ebookAnzahl + buecher.length,
+            // Eigene Bücher + Bibliothek (+ die älteren E-Books, wo sie zu sehen sind)
+            ebooks: buecher.length + BIBLIOTHEK.length + (istPremium || TESTPHASE_ALLES_FREI ? ebookAnzahl ?? 0 : 0),
             hoertexte: null,
           }[b.wert]
           return (
