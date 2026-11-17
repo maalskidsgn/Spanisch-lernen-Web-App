@@ -63,7 +63,7 @@ const EN = {
   'Runde abbrechen': 'Stop round',
   'Regeln fällig': 'rules due',
   'Grundlagen wiederholen': 'Review the basics',
-  'Alles aus „Gut zu wissen“ deiner Lektionen – genau dann wieder, wenn du es zu vergessen drohst.': 'Everything from “Good to know” in your lessons – right when you’re about to forget it.',
+  'Alle Lernkarten aus deinen Lektionen – zum langfristigen Wiederholen, genau dann, wenn du sie zu vergessen drohst.': 'All flashcards from your lessons – for long-term review, right when you’re about to forget them.',
   '{0} Regeln üben': 'Practise {0} rules',
   'Alles wiederholt': 'All reviewed',
   'Alle deine Grundlagen': 'All your basics',
@@ -571,7 +571,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVo
         </div>
         <div className="gl-held-text">
           <h2>{tx('Grundlagen wiederholen')}</h2>
-          <p>{tx('Alles aus „Gut zu wissen“ deiner Lektionen – genau dann wieder, wenn du es zu vergessen drohst.')}</p>
+          <p>{tx('Alle Lernkarten aus deinen Lektionen – zum langfristigen Wiederholen, genau dann, wenn du sie zu vergessen drohst.')}</p>
         </div>
         <button className="btn gl-los" disabled={!faellig.length} onClick={starten}>
           {faellig.length ? tx('{0} Regeln üben', Math.min(RUNDE, faellig.length)) : tx('Alles wiederholt')}
