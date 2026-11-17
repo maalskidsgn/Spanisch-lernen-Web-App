@@ -18,7 +18,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
 import UebTabs, { useUebTab } from './UebTabs.jsx'
@@ -121,6 +121,12 @@ export default function Trainer({
   const [sichtbar, setSichtbar] = useState(30)
   const [filter, setFilter] = useState('faellig') // 'alle' | 'faellig' | 'gewusst' | Stufen-Nummer
   const [queue, setQueue] = useState(null) // Wörter der laufenden Übungsrunde (null = keine Runde)
+
+  // Runde geschafft: derselbe Erfolgston wie nach einer Lektion (17.11.2026, Manuel)
+  const rundeGeschafft = queue !== null && queue.length === 0
+  useEffect(() => {
+    if (rundeGeschafft) lektionTon()
+  }, [rundeGeschafft])
   const [revealed, setRevealed] = useState(false) // Übersetzung schon aufgedeckt?
   const [result, setResult] = useState({ richtig: 0, falsch: 0 })
   const [xpPopup, setXpPopup] = useState(null) // schwebende "+10 XP"-Anzeige

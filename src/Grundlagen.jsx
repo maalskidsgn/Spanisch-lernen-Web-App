@@ -4,7 +4,7 @@ import LadeKreis from './LadeKreis.jsx'
 import { LEKTIONEN } from './lektionen.js'
 import WISSEN_TABELLEN from './wissenTabellen.js'
 import { sprache } from './sprache.js'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 import { newEntry, review, vorschau, isDue, withSrsDefaults } from './srs.js'
 import { API_URL } from './api.js'
 import { loginKopf, useKontingent, kontingentLeer, holeKontingent } from './limits.js'
@@ -402,7 +402,11 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
     const neu = { ...lies(SPEICHER, stand), [karte.id]: { ...review(eintrag(stand, karte.id), wert), am: Date.now() } }
     setStand(neu)
     schreib(SPEICHER, neu)
-    if (nr + 1 >= runde.length) { setRunde(null); return }
+    if (nr + 1 >= runde.length) {
+      lektionTon() // Runde geschafft: Erfolgston wie nach einer Lektion (17.11.2026)
+      setRunde(null)
+      return
+    }
     setNr(nr + 1)
     setAntwort(null)
     setFrage(frageAus(runde[nr + 1]))
