@@ -183,12 +183,29 @@ function LevelLeiste({ xp }) {
           <li
             key={s.ab}
             ref={i === stelle ? aktuell : null}
-            className={'lvl-karte' + (i === stelle ? ' lvl-aktuell' : i > stelle ? ' lvl-offen' : ' lvl-geschafft') + (s.sol ? ' lvl-sol' : '')}
+            className={'lvl-karte' + (i === stelle ? ' lvl-aktuell' : i > stelle ? ' lvl-offen' : ' lvl-geschafft') + (s.sol ? ' lvl-sol' : '') + (s.geheim ? (i > stelle ? ' lvl-geheim-zu' : ' lvl-sol lvl-geheim') : '')}
           >
-            <LevelEmblem level={s.ab} groesse={64} />
-            <b>{levelName(s.ab)}</b>
-            <span>{t('ms.abLevel', { zahl: s.ab })}</span>
-            <small>{xpForLevel(s.ab).toLocaleString(gebiet())} XP</small>
+            {s.geheim && i > stelle ? (
+              <>
+                {/* Geheime Stufe: Emblem und Name bleiben verborgen, bis man sie erreicht */}
+                <svg className="lvl-geheim-bild" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+                  <circle cx="32" cy="35" r="24" fill="#140a3d" />
+                  <circle cx="32" cy="32" r="24" fill="#2b1a7a" />
+                  <circle cx="32" cy="32" r="24" fill="none" stroke="#8a6cf5" strokeWidth="2" strokeDasharray="2 5" strokeLinecap="round" />
+                  <text x="32" y="41" textAnchor="middle" fontSize="26" fontWeight="900" fill="#e9e2ff">?</text>
+                </svg>
+                <b>???</b>
+                <span>{t('ms.geheim')}</span>
+                <small>???</small>
+              </>
+            ) : (
+              <>
+                <LevelEmblem level={s.ab} groesse={64} />
+                <b>{levelName(s.ab)}</b>
+                <span>{t('ms.abLevel', { zahl: s.ab })}</span>
+                <small>{xpForLevel(s.ab).toLocaleString(gebiet())} XP</small>
+              </>
+            )}
             {i === stelle && <em>{t('ms.duBistHier')}</em>}
           </li>
         ))}

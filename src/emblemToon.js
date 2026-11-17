@@ -10,7 +10,7 @@ const STUFEN = [
   [1, 'Neuling', 'keim'], [3, 'Anfänger', 'blatt'], [5, 'Entdecker', 'kompass'], [8, 'Lerner', 'buch'],
   [12, 'Kenner', 'stern'], [16, 'Könner', 'blitz'], [20, 'Profi', 'haken'], [25, 'Experte', 'diamant'],
   [30, 'Meister', 'krone'], [40, 'Großmeister', 'grosseKrone'], [50, 'Legende', 'fluegel'], [60, 'Mythos', 'komet'],
-  [70, 'Titan', 'berg'], [85, 'Unsterblich', 'unendlich'], [100, 'SOL', 'sol'],
+  [70, 'Titan', 'berg'], [85, 'Unsterblich', 'unendlich'], [100, 'SOL', 'sol'], [142, 'NOVA', 'nova'],
 ]
 const FLAECHE = {
   blatt: 'M19.5 4C10 4 5 9 5 15c0 1.9.5 3.4 1.4 4.5C8 14.5 11 11.3 15 9c-3 3-5.8 6.3-6.9 11.2 1 .3 2 .5 3 .5 6.5 0 9.4-6 8.4-16.7z',
@@ -113,6 +113,7 @@ const strahlen = (a, b, kante, z = 16, ra = 50, ri = 35, cy = 50, dauer = 0) => 
 
 function emblem(i, symbol, F) {
   if (symbol === 'sol') return sol(F)
+  if (symbol === 'nova') return nova()
   const [hell, haupt, kante] = F[i]
   let hinten = '', koerper = '', vorne = '', sy = 50
   if (i < 4) { // Toon-Münze
@@ -159,6 +160,40 @@ function sol(F) {
     FUNKE(50, 51, 2.2, '#fff', '#e8a400') + FUNKE(88, 16, 1.1) + FUNKE(12, 82, .9) + FUNKE(90, 84, .8) + FUNKE(10, 18, .8)
 }
 
+
+// ---------- Geheime Stufe: Supernova (ab 1 Mio. XP, 17.11.2026) ----------
+// Mehr als Sol: kosmischer Kern, zwei gegenläufige Strahlenkränze in
+// Regenbogenfarben, doppelte Flügel (Kristall + Gold), Umlaufbahn mit
+// kreisendem Planeten, Edelstein-Krone und ein Funkenregen.
+function nova() {
+  const regen = ['#ff5c8a', '#ffb02e', '#ffe14d', '#4ccb7f', '#3fa6d8', '#8a6cf5']
+  const zacken = (z, ra, ri, farben, dauer, rueck = false) => {
+    const t = []
+    for (let i = 0; i < z; i++) {
+      const w = (k) => (-90 + k * 180 / z) * Math.PI / 180
+      const p = (k, r) => `${(50 + r * Math.cos(w(k))).toFixed(1)},${(50 + r * Math.sin(w(k))).toFixed(1)}`
+      t.push(`<polygon points="50,50 ${p(2 * i - 1, ri)} ${p(2 * i, ra)} ${p(2 * i + 1, ri)}" fill="${farben[i % farben.length]}"/>`)
+    }
+    return `<g>${t.join('')}<animateTransform attributeName="transform" type="rotate" from="${rueck ? 360 : 0} 50 50" to="${rueck ? 0 : 360} 50 50" dur="${dauer}s" repeatCount="indefinite"/></g>`
+  }
+  const aura = `<circle cx="50" cy="50" r="46" fill="#8a6cf5" opacity=".5"><animate attributeName="r" values="40;56;40" dur="2.2s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/><animate attributeName="opacity" values=".55;0;.55" dur="2.2s" repeatCount="indefinite"/></circle>` +
+    `<circle cx="50" cy="50" r="46" fill="#ff5c8a" opacity=".35"><animate attributeName="r" values="44;60;44" dur="2.2s" begin="-1.1s" repeatCount="indefinite"/><animate attributeName="opacity" values=".4;0;.4" dur="2.2s" begin="-1.1s" repeatCount="indefinite"/></circle>`
+  const kraenze = `<g transform="translate(0 4)">${zacken(24, 57, 36, ['#3b1d8f'], 18)}</g>` + zacken(24, 57, 36, regen, 18) + zacken(12, 44, 32, ['#fff7d6', '#ffe14d'], 11, true)
+  const fluegelPaar = fluegel('#e9e2ff', '#5f43c9', 1.28) + fluegel('#fff3b0', '#e0a800', 1.08)
+  const kern = `<circle cx="50" cy="56" r="26" fill="#140a3d"/><circle cx="50" cy="51" r="26" fill="#2b1a7a"/><circle cx="50" cy="51" r="20" fill="#4b2fd1"/><circle cx="50" cy="51" r="13" fill="#7b4dff"/>` +
+    // Galaxie: kleine Sterne im Kern
+    [[40, 43, 1.1], [60, 45, .9], [44, 60, .8], [58, 58, 1], [52, 38, .7], [36, 53, .7]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff"><animate attributeName="opacity" values=".3;1;.3" dur="${(1.4 + r).toFixed(1)}s" repeatCount="indefinite"/></circle>`).join('') +
+    `<circle cx="50" cy="51" r="26" fill="none" stroke="#ffe14d" stroke-width="3"/><circle cx="50" cy="51" r="22.5" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="1.5 4" opacity=".8"/>`
+  const st = stern(8, 15, 7, 50, 51)
+  const kristall = `<polygon points="${nach(st, 2.5)}" fill="#b8357c" stroke="#b8357c" stroke-width="2" stroke-linejoin="round"/><polygon points="${st}" fill="#ffd3ea" stroke="#ffd3ea" stroke-width="2" stroke-linejoin="round"/>` +
+    `<circle cx="50" cy="51" r="5" fill="#fff"><animate attributeName="r" values="4;6.5;4" dur="1.6s" repeatCount="indefinite"/></circle>`
+  const bahn = `<g transform="rotate(-18 50 52)"><ellipse cx="50" cy="52" rx="49" ry="14" fill="none" stroke="#ffe14d" stroke-width="2.4"/>` +
+    `<circle r="4.2" fill="#5ab8ff" stroke="#fff" stroke-width="1.4"><animateMotion dur="3.2s" repeatCount="indefinite" path="M1,52 a49,14 0 1,0 98,0 a49,14 0 1,0 -98,0"/></circle>` +
+    `<circle r="2.6" fill="#ff5c8a"><animateMotion dur="3.2s" begin="-1.6s" repeatCount="indefinite" path="M1,52 a49,14 0 1,0 98,0 a49,14 0 1,0 -98,0"/></circle></g>`
+  const kroneOben = krone(-9) + `<circle cx="50" cy="-3" r="3.4" fill="#fff"><animate attributeName="opacity" values=".4;1;.4" dur="1.2s" repeatCount="indefinite"/></circle>`
+  const funken = FUNKE(50, 51, 2, '#fff', '#b8357c') + FUNKE(90, 12, 1.2, '#fff', '#8a6cf5') + FUNKE(10, 14, 1, '#ffe14d') + FUNKE(94, 86, .9, '#ff9ec7', '#b8357c') + FUNKE(6, 84, .9, '#9fe7ff', '#2a6fc4') + FUNKE(80, 98, .7) + FUNKE(22, 98, .7, '#fff', '#5f43c9')
+  return aura + kraenze + fluegelPaar + bahn + kern + glanzstrich('M31 40 A20 20 0 0 1 41 31') + lichtstreif('<circle cx="50" cy="51" r="26"/>', 2.4, .8) + kristall + kroneOben + funken
+}
 
 // Metall je Stufe: Kenner/Könner Bronze, Profi Silber, Experte/Meister/Großmeister Gold
 const metallVon = (i) => METALL[i <= 5 ? 'bronze' : i === 6 ? 'silber' : 'gold']
