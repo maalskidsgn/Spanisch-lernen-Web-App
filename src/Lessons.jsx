@@ -453,7 +453,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
 
           {lektion.kulturnotiz && (
             <div className="abschluss-notiz">
-              <span className="start-marke">{t('ls.gutZuWissen')}</span>
+              <span className="abschluss-marke">{t('ls.gutZuWissen')}</span>
               <p>{uebersetzt(lektion.kulturnotiz)}</p>
             </div>
           )}
