@@ -112,7 +112,9 @@ function dateString(daysAgo = 0) {
 export function serieAufraeumen(progress) {
   if (!progress || !(progress.streak > 0)) return progress
   const zuletzt = progress.lastActive
-  if (zuletzt === dateString(0) || zuletzt === dateString(1)) return progress
+  // Ein Puffertag (17.11.2026, Manuel – wie bei Babbel): Erst wer ZWEI Tage
+  // nacheinander auslässt, verliert die Flamme.
+  if (zuletzt === dateString(0) || zuletzt === dateString(1) || zuletzt === dateString(2)) return progress
   return { ...progress, streak: 0 }
 }
 
@@ -126,7 +128,8 @@ export function applyXp(progress, amount) {
   const isNewDay = progress.lastActive !== today
   let streak = progress.streak || 0
   if (isNewDay) {
-    streak = progress.lastActive === dateString(1) ? streak + 1 : 1
+    // gestern ODER vorgestern gelernt → die Serie läuft weiter (ein Tag Luft)
+    streak = progress.lastActive === dateString(1) || progress.lastActive === dateString(2) ? streak + 1 : 1
   }
   return {
     xp: (Number.isFinite(progress.xp) ? progress.xp : 0) + amount,
