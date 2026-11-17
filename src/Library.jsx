@@ -55,7 +55,7 @@ import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
 import { Kopf } from './MediathekUI.jsx'
-import { BuchFormular, BuchZeilen, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
+import { BuchFormular, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch, WeiterlesenListe, BibliothekRegal } from './Buecher.jsx'
 import { sprache, useTexte } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -431,13 +431,13 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           {buecher.length > 0 && (
             <section className="bereich">
               <Kopf symbol={<IconLesezeichen groesse={19} />} titel={t('yt.eigeneBuecher')} text={t('yt.eigeneBuecherText')} zahl={buecher.length} />
-              <BuchZeilen buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
+              <WeiterlesenListe buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
             </section>
           )}
           <section className="bereich">
             <Kopf symbol={<IconBuch groesse={19} />} titel={t('yt.bibliothek')} text={t('yt.bibliothekText')} zahl={BIBLIOTHEK.length} />
             <NiveauFilter buecher={BIBLIOTHEK} wert={buchNiveau} onWert={setBuchNiveau} />
-            <BuchZeilen buecher={buchNiveau === 'alle' ? BIBLIOTHEK : BIBLIOTHEK.filter((b) => b.niveau === buchNiveau)} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
+            <BibliothekRegal buecher={buchNiveau === 'alle' ? BIBLIOTHEK : BIBLIOTHEK.filter((b) => b.niveau === buchNiveau)} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
           </section>
 
           {/* Die 89 älteren E-Books (spanisch-lernen.com): nur Premium – gratis gibt es die 6 der Bibliothek */}

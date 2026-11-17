@@ -50,6 +50,11 @@ const T = {
     unter: `Tippe einen Buchtitel ein – die KI schreibt dir das Buch in 10 Kapiteln auf ${LERN_DE} und Deutsch.`,
     frage: 'Buchtitel, z. B. „Ikigai“',
     erstellen: 'E-Book erstellen',
+    weiterLesen: 'Weiter',
+    lesen: 'Lesen',
+    gelesen: 'Fertig gelesen ✓',
+    kapitelVon: (k, n, r) => `Kapitel ${k} von ${n} · noch ${r} Min.`,
+    neuBuch: (n, m) => `Neu · ${n} Kapitel · ${m} Min.`,
     ideen: 'Ideen – antippen und dann erstellen',
     klassiker: 'Klassiker',
     eigenes: 'Oder ein anderes Buch',
@@ -94,6 +99,11 @@ const T = {
     unter: `Type a book title – the AI writes the book for you in 10 chapters in ${LERN_EN} and English.`,
     frage: 'Book title, e.g. “Ikigai”',
     erstellen: 'Create e-book',
+    weiterLesen: 'Continue',
+    lesen: 'Read',
+    gelesen: 'Finished ✓',
+    kapitelVon: (k, n, r) => `Chapter ${k} of ${n} · ${r} min left`,
+    neuBuch: (n, m) => `New · ${n} chapters · ${m} min`,
     ideen: 'Ideas – tap one, then create',
     klassiker: 'Classics',
     eigenes: 'Or another book',
@@ -313,6 +323,102 @@ export function BuchCover({ buch, klein = false, mini = false }) {
   )
 }
 
+
+// ---- Lesestand je Buch (17.11.2026, Entwurf A) ----
+// Merkt sich das zuletzt gelesene Kapitel – für „Kapitel 3 von 10“ in der
+// Liste und damit ein Buch dort weitergeht, wo man aufgehört hat.
+const STAND = 'buch-stand'
+function alleStaende() {
+  try { return JSON.parse(localStorage.getItem(STAND)) || {} } catch { return {} }
+}
+export function lesestand(id) {
+  return id ? alleStaende()[id] || null : null
+}
+function merkeStand(id, nr, gesamt) {
+  if (!id) return
+  const alle = alleStaende()
+  const alt = alle[id]
+  alle[id] = { nr: Math.min(Math.max(nr, 0), gesamt - 1), gesamt, fertig: nr >= gesamt || Boolean(alt?.fertig), am: Date.now() }
+  try { localStorage.setItem(STAND, JSON.stringify(alle)) } catch { /* ohne Speicher eben ohne Stand */ }
+  window.dispatchEvent(new Event('buch-stand'))
+}
+function useStandTakt() {
+  const [, setTakt] = useState(0)
+  useEffect(() => {
+    const neu = () => setTakt((t) => t + 1)
+    window.addEventListener('buch-stand', neu)
+    window.addEventListener('focus', neu)
+    return () => { window.removeEventListener('buch-stand', neu); window.removeEventListener('focus', neu) }
+  }, [])
+}
+const anzeigeTitel = (b, en) => (en ? b.titel_en : b.titel_de) || b.titel_de || b.titel
+
+// Eigene Bücher: Zeilen mit Cover, Fortschritt und „Weiter“-Knopf
+export function WeiterlesenListe({ buecher, onOeffnen, onLoeschen }) {
+  useTexte()
+  useStandTakt()
+  const L = txt()
+  const en = sprache() === 'en'
+  return (
+    <div className="wl-liste">
+      {buecher.map((b) => {
+        const gesamt = b.kapitelZahl ?? b.kapitel?.length ?? 1
+        const s = lesestand(b.id)
+        const anteil = s?.fertig ? 1 : s ? Math.min(1, (s.nr + 1) / gesamt) : 0
+        const minuten = b.minuten ?? leseMinuten(alsKapitelBuch(b))
+        const rest = Math.max(1, Math.round(minuten * (1 - anteil)))
+        const info = s?.fertig ? L.gelesen : s ? L.kapitelVon(Math.min(s.nr + 1, gesamt), gesamt, rest) : L.neuBuch(gesamt, minuten)
+        return (
+          <div key={b.id} className="wl-zeile">
+            <button type="button" className="wl-oeffnen" onClick={() => onOeffnen(b)}>
+              <BuchCover buch={{ titel: b.titel, autor: b.autor }} mini />
+              <span className="wl-text">
+                <span className="wl-titel">
+                  <b>{anzeigeTitel(b, en)}</b>
+                  {b.niveau && <span className={'niveau-badge niveau-' + b.niveau}>{b.niveau}</span>}
+                </span>
+                <span className="wl-info">{info}</span>
+                <span className="wl-balken" aria-hidden="true"><i style={{ width: anteil * 100 + '%' }} /></span>
+              </span>
+            </button>
+            <button type="button" className={'wl-knopf' + (s && !s.fertig ? '' : ' wl-zweit')} onClick={() => onOeffnen(b)}>
+              {s && !s.fertig ? L.weiterLesen : L.lesen}
+            </button>
+            {onLoeschen && (
+              <button type="button" className="wl-weg" title={L.loeschen} aria-label={L.loeschen} onClick={() => onLoeschen(b.id)}>✕</button>
+            )}
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// Bibliothek als Regal: große Cover, darunter Niveau und Titel
+export function BibliothekRegal({ buecher, onOeffnen }) {
+  useTexte()
+  useStandTakt()
+  const en = sprache() === 'en'
+  return (
+    <div className="br-regal">
+      {buecher.map((b) => {
+        const s = lesestand(b.id)
+        const anteil = s?.fertig ? 1 : s ? Math.min(1, (s.nr + 1) / (s.gesamt || 1)) : 0
+        return (
+          <button key={b.id} type="button" className="br-buch" onClick={() => onOeffnen(b)}>
+            <BuchCover buch={{ titel: b.titel, autor: b.autor }} />
+            <span className="br-unten">
+              {b.niveau && <span className={'niveau-badge niveau-' + b.niveau}>{b.niveau}</span>}
+              {anteil > 0 && <span className="br-balken" aria-hidden="true"><i style={{ width: anteil * 100 + '%' }} /></span>}
+            </span>
+            <b className="br-titel">{anzeigeTitel(b, en)}</b>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 // Bücher als Zeilen – dieselben Bausteine wie die Video-Zeilen der Mediathek
 // (video-zeile / zeile-bild / zeile-text / zeile-play), damit beide Bereiche
 // gleich aufgebaut sind (Manuel, 10.11.2026).
@@ -406,7 +512,12 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
   const buch = alsKapitelBuch(roh)
   const kapitel = buch.kapitel
   const kannLaut = Boolean(LAUTSCHRIFT) && buch.niveau === 'A1'
-  const [nr, setNr] = useState(-1) // -1 Übersicht · 0…n-1 Kapitel · n Abschluss
+  const standId = roh?.id || roh?.slug || buch.titel
+  // Dort weiterlesen, wo man aufgehört hat (17.11.2026)
+  const [nr, setNr] = useState(() => {
+    const st = lesestand(standId)
+    return st && !st.fertig && st.nr > 0 && st.nr < kapitel.length ? st.nr : -1
+  }) // -1 Übersicht · 0…n-1 Kapitel · n Abschluss
   const [ansicht, setAnsicht] = useState('lern') // 'lern' | 'beide' | 'de'
   const [laut, setLaut] = useState(kannLaut)
   const [wort, setWort] = useState(null)
@@ -424,6 +535,8 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
     return () => document.body.classList.remove('liest-buch', 'lese-modus')
   }, [])
   useEffect(() => { window.scrollTo({ top: 0 }) }, [nr])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (nr >= 0) merkeStand(standId, nr, kapitel.length) }, [nr])
 
   function feiere(menge) {
     addXp?.(menge)
