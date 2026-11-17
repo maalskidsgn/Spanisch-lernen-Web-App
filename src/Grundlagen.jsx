@@ -1,6 +1,7 @@
 import TabellenRahmen from './TabellenRahmen.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ZauberBild from './ZauberBild.jsx'
+import { neueWoerterZurKarte } from './wissenVokabeln.js'
 import { UebungsGenerator, UebungsRunde, ladeRegelUebungen, uebungenText } from './Uebungen.jsx'
 import LadeKreis from './LadeKreis.jsx'
 import { LEKTIONEN } from './lektionen.js'
@@ -62,6 +63,9 @@ const EN = {
   'Tippe ein Verb ein – auf Deutsch oder Spanisch. Du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – in English or Spanish. You get all the important tenses as tables.',
   'z. B. {0}': 'e.g. {0}',
   'KI-Verbgenerator': 'AI verb generator',
+  'Gut zu wissen: {0}': 'Good to know: {0}',
+  '{0} Wörter in den Vokabeltrainer': 'Add {0} words to the vocab trainer',
+  'Im Vokabeltrainer': 'In your vocab trainer',
   'Verb-Tabellen': 'verb tables',
   'Alle wichtigen Zeiten eines Verbs als Tabelle.': 'All the important tenses of a verb as tables.',
   'Verb aus deinem Trainer wählen': 'Pick a verb from your trainer',
@@ -362,7 +366,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
  *  Grundlagen-Trainer
  * ------------------------------------------------------------------ */
 
-export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
+export default function Grundlagen({ kopf, lessonProgress, addXp, vocab, onAddVocab }) {
   const [version, setVersion] = useState(0) // neu zählen, wenn eine Konjugation gespeichert wurde
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const alle = useMemo(() => grundlagenKarten(lessonProgress), [lessonProgress, version])
@@ -376,6 +380,24 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
   const [xpPopup, setXpPopup] = useState(null) // schwebende „+10 XP“-Anzeige
   const [uebung, setUebung] = useState(null) // laufendes Übungsset { titel, aufgaben }
   const [keinSet, setKeinSet] = useState(null)
+  // Beispielwörter der aufgeklappten Regel, die noch nicht im Vokabeltrainer stehen
+  const [kartenWoerter, setKartenWoerter] = useState({ id: null, woerter: [], fertig: false })
+  useEffect(() => {
+    if (!offen || String(offen).startsWith('konj:')) return
+    let aktuell = true
+    neueWoerterZurKarte(offen, vocab).then((woerter) => {
+      if (aktuell) setKartenWoerter((alt) => ({ id: offen, woerter, fertig: alt.id === offen && alt.fertig }))
+    })
+    return () => { aktuell = false }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offen])
+
+  function woerterInTrainer(k) {
+    if (!kartenWoerter.woerter.length) return
+    const quelle = tx('Gut zu wissen: {0}', k.lektion)
+    onAddVocab?.(kartenWoerter.woerter.map((w) => ({ ...w, quelle })))
+    setKartenWoerter({ id: k.id, woerter: [], fertig: true })
+  }
   const [laut, lautUmschalten] = useLautschrift()
 
   // Stand vom Konto (anderes Gerät) übernehmen, sobald der Abgleich ihn bringt
@@ -559,6 +581,13 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
                             <button type="button" className="btn gl-dazu" onClick={() => uebungenZu(k)}>{uebungenText().dazu}</button>
                           )}
                           {keinSet === k.id && <p className="schnell-fehler">{uebungenText().keinSet}</p>}
+                          {onAddVocab && kartenWoerter.id === k.id && kartenWoerter.woerter.length > 0 && (
+                            <button type="button" className="btn-plain gl-woerter" onClick={() => woerterInTrainer(k)}>
+                              + {tx('{0} Wörter in den Vokabeltrainer', kartenWoerter.woerter.length)}
+                              <small>{kartenWoerter.woerter.slice(0, 4).map((w) => w.wort).join(' · ')}{kartenWoerter.woerter.length > 4 ? ' …' : ''}</small>
+                            </button>
+                          )}
+                          {kartenWoerter.id === k.id && kartenWoerter.fertig && <p className="gl-woerter-ok">✓ {tx('Im Vokabeltrainer')}</p>}
                         </div>
                       )}
                     </li>

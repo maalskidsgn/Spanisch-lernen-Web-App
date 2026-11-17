@@ -214,7 +214,7 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet, vocab = {} }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet, vocab = {}, onAddVocab }) {
   const t = useTexte()
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   // Reiter der Übersicht (17.11.2026, Manuel): „Lektionen“ und „Wiederholen“ –
@@ -917,6 +917,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
           lessonProgress={lessonProgress}
           addXp={addXp}
           vocab={vocab}
+          onAddVocab={onAddVocab}
         />
       </div>
     )

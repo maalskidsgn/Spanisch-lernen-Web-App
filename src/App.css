@@ -19235,3 +19235,8 @@ body.liest-video .video-kopf {
 .lk-toon .flashcard > .hoeren-knopf:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--primary-press), 0 0 0 8px color-mix(in srgb, var(--primary) 12%, transparent); }
 .lk-toon .flashcard:has(> .hoeren-knopf) > .lesson-hint + * { margin-top: 22px; }
 .lk-toon .flashcard:has(> .hoeren-knopf) > .hoeren-knopf + * { margin-top: 30px; }
+
+/* Beispielwörter einer Regel in den Vokabeltrainer (17.11.2026) */
+.gl-woerter { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; margin-top: 10px; padding: 11px 14px; border-radius: 14px; text-align: left; font-weight: 900; color: var(--primary-dark); background: color-mix(in srgb, var(--primary) 7%, var(--card)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 22%, #fff); }
+.gl-woerter small { font-weight: 700; font-size: .8rem; color: var(--muted); }
+.gl-woerter-ok { margin: 10px 2px 0; font-weight: 800; color: var(--success-press, #1f9450); }
