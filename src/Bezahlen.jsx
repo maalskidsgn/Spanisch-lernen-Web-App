@@ -92,7 +92,7 @@ const AUSSEHEN = {
 // Sprache einfrieren, die beim Laden gerade eingestellt war.
 // Seit 09.11.2026 (Entwurf A): Vorteile mit den echten Gratis-Grenzen
 // aus limits.js / premium.js daneben.
-const KASSEN_TEXTE = {
+export const KASSEN_TEXTE = {
   de: {
     marke: 'Habloo Premium',
     titel1: 'Spanisch lernen',
