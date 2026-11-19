@@ -1,6 +1,7 @@
 import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
 import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
+import { neueKontenStarten } from './neueKonten.js'
 import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben, verbMarke } from './konjugation.js'
 import { uebungenZurRegel, uebungenGemerkt, uebungenErzeugen } from './uebungen.js'
 import { ZIEL, SUCH_SPRACHE, audioSprachen, istZielsprache } from './suchsprache.js'
@@ -1374,6 +1375,7 @@ app.get('/api/push/erinnerungen', async (req, res) => {
   }
 })
 erinnerungenStarten()
+neueKontenStarten()
 app.post('/api/push/senden', async (req, res) => {
   if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
   try {
