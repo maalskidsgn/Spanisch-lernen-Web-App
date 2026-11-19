@@ -836,7 +836,8 @@ function VideoEngine({ wert, onWert, onSuche, bilder = [], gesperrt = false }) {
   
         <div className="engine-themen">
           {ENGINE_THEMEN.map(([wert, schluessel]) => (
-            <button key={wert} type="button" onClick={() => { onWert(wert); onSuche(wert) }}>
+            // Suchbegriff in der Sprache der App (19.11.: EN-Nutzer sahen sonst „Reisen“ im Feld)
+            <button key={wert} type="button" onClick={() => { const begriff = t(schluessel); onWert(begriff); onSuche(begriff) }}>
               {t(schluessel)}
             </button>
           ))}
