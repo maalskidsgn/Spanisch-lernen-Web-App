@@ -19499,3 +19499,13 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .level-plakette-geheim { background: linear-gradient(160deg, #140a3d, #2b1a7a 55%, #5c1a5e); }
 .level-plakette-geheim b { color: #ffe14d; }
 .level-plakette-geheim small { color: #e9e2ff; }
+
+/* ===== App-Kasse im Design Entwurf A (18.11.2026, Manuel) ===== */
+.kn.kn-a { max-width: 560px; text-align: left; }
+.kn-a .ka-held { margin-bottom: 14px; }
+.kn-a .ka-karte { display: grid; gap: 16px; }
+.kn-a .kassen-tarife { margin: 0; }
+.kn-a .kn-kaufen { width: 100%; margin-top: 4px; border: 0; border-radius: 18px; padding: 16px; font: inherit; font-size: 1.05rem; font-weight: 900; color: #fff; background: var(--primary); box-shadow: 0 6px 0 var(--primary-press); cursor: pointer; }
+.kn-a .kn-kaufen:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-press); }
+.kn-a .kn-wieder { display: block; margin: 4px auto 0; }
+.kn-a .kn-klein, .kn-a .kn-rechtliches { text-align: center; }

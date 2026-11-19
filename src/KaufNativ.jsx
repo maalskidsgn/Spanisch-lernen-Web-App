@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import Logo from './Logo.jsx'
 import PremiumDanke from './PremiumDanke.jsx'
+import { KASSEN_TEXTE } from './Bezahlen.jsx'
+import BILDER from './kassenBilder.js'
 import {
   ladeAngebote, kaufe, stelleWiederHer, warteAufFreischaltung, plattform,
 } from './kauf.js'
-import { useTexte } from './sprache.js'
+import { useTexte, sprache } from './sprache.js'
 
 /**
  * Die Kasse in der App – Apple App Store oder Google Play.
@@ -14,7 +16,11 @@ import { useTexte } from './sprache.js'
  * Rechnungsadresse. Der Store fragt das alles selbst ab, sobald man
  * auf den Knopf tippt. Was bleibt, ist die Auswahl.
  */
+// Store-Pakete heißen z. B. „$rc_annual“ oder „…lifetime“ – daraus die Tarifart wie in der Web-Kasse
+const artVon = (id = '') => (/annual|year|jahr/i.test(id) ? 'jahr' : /lifetime/i.test(id) ? 'lifetime' : 'monat')
+
 export default function KaufNativ({ onFertig, onAbbrechen }) {
+  const KT = KASSEN_TEXTE[sprache() === 'en' ? 'en' : 'de']
   const t = useTexte()
   const [angebote, setAngebote] = useState(null) // null = lädt
   const [gewaehlt, setGewaehlt] = useState('')
@@ -106,31 +112,68 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
         <span className="kassen-sicher">über {laden}</span>
       </header>
 
-      <div className="kn">
-        <h1 className="kn-titel">{t('kn.hablooPremium')}</h1>
-        <p className="kn-unter">{t('kn2.alleLektionenDer')}</p>
+      <div className="kn kn-a">
+        {/* Entwurf A wie die Web-Kasse (18.11.2026, Manuel): Pokal-Bühne,
+            Tarifkarten und die goldene Schatzkammer „Das schaltest du frei“ */}
+        <div className="ka-held">
+          <div className="ka-held-text">
+            <span className="ka-eyebrow">{KT.marke}</span>
+            <h1 className="kassen-titel">{KT.titel1} <em>{KT.titel2}</em></h1>
+            <p className="ka-lead">{KT.lead}</p>
+          </div>
+          <div className="ka-pokal" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.pokal + BILDER.buehne }} />
+        </div>
 
+        <div className="ka-karte">
         {angebote === null ? (
           <p className="kn-laedt">{t('kn.angeboteWerdenGeladen')}</p>
         ) : angebote.length === 0 ? (
           <p className="kn-laedt">{t('kn2.geradeSindKeine')}</p>
         ) : (
           <>
-            <div className="kn-tarife" role="radiogroup" aria-label={t('kn.tarifWaehlen')}>
-              {angebote.map((a) => (
-                <button
-                  key={a.id}
-                  role="radio"
-                  aria-checked={gewaehlt === a.id}
-                  className={'kn-tarif' + (gewaehlt === a.id ? ' ist-aktiv' : '')}
-                  onClick={() => setGewaehlt(a.id)}
-                  disabled={Boolean(laeuft)}
-                >
-                  <span className="kn-tarif-name">{a.name}</span>
-                  <span className="kn-tarif-preis">{a.preisText}</span>
-                  <span className="kn-tarif-zeit">{a.zeitraum}</span>
-                </button>
-              ))}
+            <div className="kassen-tarife" role="radiogroup" aria-label={t('kn.tarifWaehlen')}>
+              {angebote.map((a) => {
+                const art = artVon(a.id)
+                const marke = art === 'jahr' ? (sprache() === 'en' ? 'Popular' : 'Beliebt') : art === 'lifetime' ? (sprache() === 'en' ? 'Forever' : 'Für immer') : ''
+                return (
+                  <button
+                    key={a.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={gewaehlt === a.id}
+                    className={'kassen-tarif tarif-' + art + (gewaehlt === a.id ? ' ist-aktiv' : '')}
+                    onClick={() => setGewaehlt(a.id)}
+                    disabled={Boolean(laeuft)}
+                  >
+                    {marke && <span className="kassen-tarif-marke">{marke}</span>}
+                    <span className="kassen-tarif-name">{a.name}</span>
+                    <b>{a.preisText}</b>
+                    <span className="kassen-tarif-unter">{a.zeitraum}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="ka-schatz">
+              <span className="ka-strahlen" aria-hidden="true" />
+              <div className="ka-schatz-kopf">
+                <span aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.krone }} />
+                <b>{KT.freiTitel}</b>
+                <span className="ka-pill">{KT.sofort}</span>
+              </div>
+              <ul className="ka-inseln">
+                {KT.vorteile.map(([icon, titel, prem, gratis], n) => (
+                  <li key={titel} className={'ka-insel' + (KT.vorteile.length === 5 && n > 2 ? ' ka-breit' : '')}>
+                    <span className="ka-haken" aria-hidden="true" dangerouslySetInnerHTML={{ __html: BILDER.haken }} />
+                    <span className="ka-bild" aria-hidden="true" dangerouslySetInnerHTML={{ __html: '<span class="ka-halo"></span>' + BILDER.icons[icon] + (n % 2 ? BILDER.trommel2 : BILDER.trommel1) }} />
+                    <span className="ka-txt">
+                      <b>{titel}</b>
+                      <span className="ka-prem">{prem}</span>
+                      <small>{KT.gratis}: {gratis}</small>
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <button className="kn-kaufen" onClick={kaufen} disabled={Boolean(laeuft) || !gewaehlt}>
@@ -145,6 +188,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
             </button>
           </>
         )}
+        </div>
 
         {ursache && (
           <details className="kn-klein">
