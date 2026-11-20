@@ -19509,3 +19509,6 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .kn-a .kn-kaufen:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-press); }
 .kn-a .kn-wieder { display: block; margin: 4px auto 0; }
 .kn-a .kn-klein, .kn-a .kn-rechtliches { text-align: center; }
+
+/* Einführung: X und Fortschritt unter die iPhone-Statusleiste (20.11.2026, Manuel) */
+.ef { padding-top: calc(12px + env(safe-area-inset-top)); }
