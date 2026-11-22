@@ -17,6 +17,7 @@
  */
 
 import { erfasseStoreKauf } from './partner.js'
+import { meldeNeuesAbo } from './aboMeldung.js'
 import { createClient } from '@supabase/supabase-js'
 
 /**
@@ -221,6 +222,15 @@ export async function verarbeiteKauf(nachricht) {
       { onConflict: 'nutzer_id' }
     )
   if (error) throw new Error('Konnte das Abo nicht speichern: ' + error.message)
+
+  // Glückwunsch-Mail an lernen@ – nur beim ersten Kauf, nicht bei Verlängerungen
+  if (e.type === 'INITIAL_PURCHASE' || e.type === 'NON_RENEWING_PURCHASE') {
+    meldeNeuesAbo({
+      nutzerId, tarif: tarifVon(e.product_id), quelle,
+      betrag: e.price_in_purchased_currency ?? e.price, waehrung: e.currency || (e.price_in_purchased_currency == null ? 'USD' : 'EUR'),
+      test: e.environment === 'SANDBOX', land: e.country_code,
+    })
+  }
 
   return { typ: e.type, nutzerId, tarif: tarifVon(e.product_id), getan: 'aktiv' }
 }

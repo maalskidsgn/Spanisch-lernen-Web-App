@@ -14,6 +14,7 @@
 // Signatur, dass die Meldung wirklich von Stripe stammt.
 
 import { erfasseRechnung } from './partner.js'
+import { meldeNeuesAbo } from './aboMeldung.js'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
@@ -328,11 +329,20 @@ export async function verarbeiteMeldung(ereignis) {
         externId: d.payment_intent || d.id,
         lifetime: true,
       })
+      meldeNeuesAbo({ nutzerId, tarif: 'lifetime', quelle: 'stripe', betrag: (d.amount_total ?? 0) / 100, waehrung: d.currency, test: d.livemode === false })
       return { erledigt: true, nutzerId, status: 'lifetime' }
     }
 
     // Abo endgültig beendet
     case 'invoice.paid': {
+      // Erste bezahlte Rechnung eines neuen Web-Abos → Glückwunsch-Mail
+      if (d.billing_reason === 'subscription_create') {
+        const meta = d.subscription_details?.metadata || d.parent?.subscription_details?.metadata || {}
+        if (!meta.app || meta.app === APP_KENNUNG) {
+          const zeitraum = d.lines?.data?.[0]?.price?.recurring?.interval || d.lines?.data?.[0]?.plan?.interval
+          meldeNeuesAbo({ nutzerId: meta.nutzer_id, tarif: zeitraum === 'year' ? 'jaehrlich' : 'monatlich', quelle: 'stripe', betrag: (d.amount_paid ?? 0) / 100, waehrung: d.currency, test: d.livemode === false })
+        }
+      }
       return erfasseRechnung(client(), d)
     }
 
