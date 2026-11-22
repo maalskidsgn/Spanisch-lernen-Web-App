@@ -19512,3 +19512,21 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 
 /* Einführung: X und Fortschritt unter die iPhone-Statusleiste (20.11.2026, Manuel) */
 .ef { padding-top: calc(12px + env(safe-area-inset-top)); }
+
+/* ===== Kurz-Einführung (ENTWURF 22.11.2026) ===== */
+.efk { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding-bottom: calc(24px + env(safe-area-inset-bottom)); }
+.efk-kopf { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; gap: 10px; }
+.efk-punkte { display: flex; justify-content: center; gap: 7px; }
+.efk-punkte span { width: 8px; height: 8px; border-radius: 99px; background: var(--line); transition: width .25s, background .25s; }
+.efk-punkte span.war { background: color-mix(in srgb, var(--primary) 45%, var(--line)); }
+.efk-punkte span.an { width: 24px; background: var(--primary); }
+.efk-ton { width: 40px; height: 40px; border-radius: 14px; border: 2px solid var(--line); background: var(--card); color: var(--muted); display: grid; place-items: center; box-shadow: 0 3px 0 var(--line); cursor: pointer; padding: 0; }
+.efk-ton.an { color: var(--primary); }
+.efk-ton:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+.efk .ef-kopf { flex: 1; justify-content: center; margin: 10px 0 18px; }
+.efk-titel { margin: 2px 0 0; font-size: 1.7rem; line-height: 1.2; color: var(--navy); text-align: center; text-wrap: balance; animation: ef-rein .35s ease both; }
+.efk-chips { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.efk-chips li { background: var(--card); border: 2px solid var(--line); border-radius: 99px; padding: 7px 13px; font-weight: 800; font-size: .9rem; color: var(--navy); box-shadow: 0 3px 0 var(--line); animation: ef-rein .35s ease both; }
+.efk-chips li:nth-child(2) { animation-delay: .08s; } .efk-chips li:nth-child(3) { animation-delay: .16s; }
+.efk-unten { display: flex; flex-direction: column; gap: 10px; }
+.efk-gross { font-size: 1.12rem; padding: 17px 18px; }

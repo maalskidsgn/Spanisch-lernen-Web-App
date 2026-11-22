@@ -87,6 +87,7 @@ import { geschenkWoerter, geschenkSaetze, geschenkText, woerterInSprache, saetze
 import StartGeschenk from './StartGeschenk.jsx'
 import Einrichtung from './Einrichtung.jsx'
 import Einfuehrung from './Einfuehrung.jsx'
+import EinfuehrungKurz from './EinfuehrungKurz.jsx'
 import {
   XP,
   loadProgress,
@@ -1468,11 +1469,15 @@ export default function App() {
   // Startgeschenk und dann Lektion 1 (Reihenfolge 16.11., Manuel).
   // 'neu' = dieser Ablauf (auch ?einfuehrung zum Testen), 'rundgang' = aus
   // dem Leitfaden erneut angesehen → danach zurück zum Start.
+  // ENTWURF Kurz-Einführung (22.11.2026): ?einfuehrung=kurz zeigt sie statt der langen Tour
+  const [einfuehrungKurz] = useState(() => { try { return new URLSearchParams(window.location.search).get('einfuehrung') === 'kurz' } catch { return false } })
+  const einfuehrungZielRef = useRef('lektion')
   const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
     try { return new URLSearchParams(window.location.search).has('einfuehrung') ? 'neu' : false } catch { return false }
   })
-  function einfuehrungZu() {
+  function einfuehrungZu(ziel) {
     const warNeu = einfuehrungOffen === 'neu'
+    einfuehrungZielRef.current = ziel === 'erkunden' ? 'erkunden' : 'lektion'
     setEinfuehrungOffen(false)
     try {
       if (nutzer) localStorage.setItem('einfuehrung:' + nutzer.id, 'fertig')
@@ -1482,7 +1487,7 @@ export default function App() {
     if (warNeu) {
       einrichtungRef.current = true
       setEinrichtung(true) // die Animation mit dem Startgeschenk
-    } else setView('start')
+    } else if (einfuehrungKurz && ziel === 'lektion') { setView('lektionen'); setErsteLektion(Date.now()) } else setView('start')
   }
   useEffect(() => {
     if (!nutzer) return
@@ -1506,6 +1511,7 @@ export default function App() {
     } catch { /* egal */ }
     // Nach der Einrichtung direkt in die erste Lektion (Einführung lief davor)
     if (trainer) setView('trainer')
+    else if (einfuehrungKurz && einfuehrungZielRef.current === 'erkunden') setView('start')
     else {
       setView('lektionen')
       setErsteLektion(Date.now())
@@ -1589,14 +1595,14 @@ export default function App() {
     return (
       <>
         <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
-        <Einfuehrung
+        {einfuehrungKurz ? <EinfuehrungKurz onFertig={einfuehrungZu} /> : <Einfuehrung
           onFertig={einfuehrungZu}
           rundgang={einfuehrungOffen === 'rundgang'}
           onAddVocab={addVocabWords}
           addXp={addXp}
           vocab={vocab}
           navLabels={{ start: t('nav.start'), lektionen: t('nav.lektionen'), trainer: t('nav.trainer'), mediathek: t('nav.youtube'), profil: t('nav.profil') }}
-        />
+        />}
       </>
     )
   }
