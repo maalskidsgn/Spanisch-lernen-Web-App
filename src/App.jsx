@@ -370,6 +370,18 @@ export default function App() {
     })
   }, [nutzer?.id])
 
+  // Link aus der Erinnerungs-Mail (?ziel=lektionen, 22.11.2026): direkt in die nächste offene Lektion
+  useEffect(() => {
+    if (!nutzer?.id) return
+    try {
+      const u = new URL(window.location.href)
+      if (u.searchParams.get('ziel') !== 'lektionen') return
+      u.searchParams.delete('ziel'); window.history.replaceState(null, '', u)
+      setView('lektionen')
+      setErsteLektion(Date.now())
+    } catch { /* egal */ }
+  }, [nutzer?.id])
+
   // Das Onboarding laeuft genau EINMAL, und zwar je Konto. Der
   // Schluessel traegt die Nutzerkennung: Wer sich auf demselben
   // Geraet mit einem zweiten Konto anmeldet, ist ein neuer Mensch und

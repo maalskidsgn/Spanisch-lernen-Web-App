@@ -28,6 +28,7 @@
  * mit X-Push-Schluessel.
  */
 import { alleKonten, senden, apnsBereit, fcmBereit } from './push.js'
+import { erinnerungsMail, erinnerungMailBereit } from './erinnerungMail.js'
 
 const TEXTE = {
   t1: {
@@ -119,7 +120,7 @@ async function vermerken(konto, neu) {
   })
 }
 
-const erreichbar = (konto) => konto.app_metadata.push_geraete.some(
+const erreichbar = (konto) => (konto.app_metadata?.push_geraete ?? []).some(
   (g) => (g.plattform === 'ios' && apnsBereit()) || (g.plattform === 'android' && fcmBereit()),
 )
 
@@ -155,7 +156,11 @@ function welche(konto, stat, jetzt) {
  * jetzt: für Tests ein anderer Zeitpunkt.
  */
 export async function erinnerungenPruefen({ probe = false, jetzt = Date.now() } = {}) {
-  const konten = (await alleKonten()).filter((k) => k.app_metadata?.push_geraete?.length)
+  // Push, wenn ein Gerät erreichbar ist – sonst Mail (22.11.2026), nie beides
+  const pushAn = apnsBereit() || fcmBereit()
+  const mailAn = erinnerungMailBereit()
+  const kanal = (k) => (pushAn && erreichbar(k) ? 'push' : mailAn && k.email && !k.app_metadata?.erinnerung_mail_aus ? 'mail' : null)
+  const konten = (await alleKonten()).filter((k) => kanal(k))
   const stats = await statistik(konten.map((k) => k.id))
   const faellig = []
   for (const k of konten) {
@@ -168,7 +173,7 @@ export async function erinnerungenPruefen({ probe = false, jetzt = Date.now() } 
     const { konto, art, tag } = f
     // „Heute gelernt“ auch aus der Statistik, falls xp_tage hinterherhängt
     const schon = gelernt.has(konto.id) || stats.get(konto.id)?.letzter_tag === tag
-    ergebnis.liste.push({ id: konto.id.slice(0, 8), art, schonGelernt: schon })
+    ergebnis.liste.push({ id: konto.id.slice(0, 8), art, kanal: kanal(konto), schonGelernt: schon })
     if (probe) continue
     if (schon) {
       ergebnis.schonGelernt++
@@ -178,10 +183,16 @@ export async function erinnerungenPruefen({ probe = false, jetzt = Date.now() } 
     }
     // Nur vermerken, wenn das Gerät überhaupt erreichbar ist – sonst käme
     // die Erinnerung nie, sobald die zweite Plattform eingerichtet ist.
-    if (!erreichbar(konto)) continue
+    const weg = kanal(konto)
+    if (!weg) continue
     const t = art === 'flamme' ? flammenText(f.serie) : TEXTE[art]
-    const r = await senden({ titel: t.titel, text: t.text, link: '/lektionen', ziel: { nutzer: [konto.id] } }, [konto])
-    ergebnis.gesendet += r.gesendet
+    if (weg === 'push') {
+      const r = await senden({ titel: t.titel, text: t.text, link: '/lektionen', ziel: { nutzer: [konto.id] } }, [konto])
+      ergebnis.gesendet += r.gesendet
+    } else {
+      // Mail: der Text ohne Emoji im Betreff wirkt seriöser – Titel bleibt aber gleich
+      if (await erinnerungsMail(konto, t)) { ergebnis.gesendet++; ergebnis.mails = (ergebnis.mails || 0) + 1 }
+    }
     // Auch ohne Erfolg vermerken: lieber eine Erinnerung zu wenig als dieselbe alle 15 Minuten
     const vermerk = art === 'flamme' ? { flamme: tag, zuletzt: tag } : { [art]: new Date(jetzt).toISOString(), zuletzt: tag }
     await vermerken(konto, vermerk).catch(() => {})
@@ -209,7 +220,7 @@ let laeuft = false
 export function erinnerungenStarten() {
   if (process.env.ERINNERUNGEN_AUS === '1') return
   const runde = async () => {
-    if (laeuft || !(apnsBereit() || fcmBereit())) return
+    if (laeuft || !(apnsBereit() || fcmBereit() || erinnerungMailBereit())) return
     laeuft = true
     try {
       const r = await erinnerungenPruefen()

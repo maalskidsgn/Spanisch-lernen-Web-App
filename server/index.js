@@ -1,6 +1,7 @@
 import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
 import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
+import { abmeldeZeichen } from './erinnerungMail.js'
 import { neueKontenStarten } from './neueKonten.js'
 import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben, verbMarke } from './konjugation.js'
 import { uebungenZurRegel, uebungenGemerkt, uebungenErzeugen } from './uebungen.js'
@@ -1366,6 +1367,24 @@ app.get('/api/app/version', (req, res) => {
 })
 app.post('/api/push/anmelden', sprechRoute((nutzer, body) => pushAnmelden(nutzer, body)))
 // Erinnerungen Tag 1/Tag 3: Probelauf ohne Versand (15.11.2026)
+// Abmelde-Link aus den Erinnerungs-Mails (22.11.2026)
+app.get('/api/erinnerungen/abmelden', async (req, res) => {
+  const id = String(req.query.id || ''), z = String(req.query.z || '')
+  const seite = (titel, text) => res.type('html').send(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${titel}</title><body style="font-family:-apple-system,Segoe UI,Roboto,sans-serif;background:#f7f5f9;display:grid;place-items:center;min-height:90vh;margin:0;padding:16px"><div style="background:#fff;border-radius:20px;padding:32px;max-width:420px;text-align:center;border:1px solid #eee"><h1 style="font-size:20px;color:#1d1b33">${titel}</h1><p style="color:#7b7386;line-height:1.6">${text}</p></div>`)
+  if (!/^[0-9a-f-]{36}$/i.test(id) || z !== abmeldeZeichen(id)) return seite('Link ungültig', 'Dieser Abmelde-Link stimmt nicht.')
+  try {
+    const r = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users/${id}`, {
+      method: 'PUT',
+      headers: { apikey: process.env.SUPABASE_SERVICE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ app_metadata: { erinnerung_mail_aus: new Date().toISOString() } }),
+    })
+    if (!r.ok) throw new Error(String(r.status))
+    seite('Abgemeldet', 'Du bekommst keine Erinnerungen mehr per Mail. / You will no longer receive reminder emails.')
+  } catch {
+    seite('Das hat nicht geklappt', 'Bitte versuch es später noch einmal.')
+  }
+})
+
 app.get('/api/push/erinnerungen', async (req, res) => {
   if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
   try {
