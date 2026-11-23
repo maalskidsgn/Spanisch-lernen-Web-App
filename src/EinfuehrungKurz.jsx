@@ -1,300 +1,52 @@
-// Kurz-Einführung – ENTWURF 2 (22.11.2026, Manuel): 5 Schritte, die nicht
-// nur erzählen, sondern VORSPIELEN, wie die App funktioniert:
-//   1. Lektion   – lernen, wiederholen, Grundlagen; alles wandert in den Trainer
-//   2. Trainer   – Vokabeln, Sätze, Texte; KI-Listen nach eigenen Interessen
-//   3. Sprechen  – Gespräch mit dem KI-Sprachpartner
-//   4. Mediathek – YouTube, Songs, E-Books; Wort antippen = übersetzt
-//   5. Spiele & Freunde – XP-Duell mit Freunden
-// Danach: „Lektion 1 starten“ oder „Frei erkunden“.
+// Kurz-Einführung im Stil „A · Fokus“ (23.11.2026, Manuel hat aus drei
+// Entwürfen A gewählt): je Schritt EIN bewegtes Bild, EINE Überschrift,
+// EIN Satz – der Nutzer soll nicht erschlagen werden, nur Funktion und
+// Mehrwert erkennen.
+//   1. Lektion   – Wortkarte dreht sich, „in deinen Trainer“
+//   2. Trainer   – Vokabel/Satz/Text fächern auf
+//   3. Sprechen  – zwei Sprechblasen + pulsierendes Mikro
+//   4. Mediathek – Video, Wort im Untertitel wird übersetzt
+//   5. Freunde   – XP-Duell
+// Danach „Lektion 1 starten“ oder „Erst mal umschauen“.
 //
-// Jede Bühne ist eine kleine, selbst laufende Nachbildung der App (Takt-
-// Zähler + CSS-Übergänge). Stimme je Schritt aus public/einfuehrung/
-// <app>-<schritt>.<de|en>.mp3 (ElevenLabs eleven_v4: DE Julia, EN Jessica).
-//
+// Stimme je Schritt: public/einfuehrung/<app>-<schritt>.<de|en>.mp3
+// (ElevenLabs eleven_v4: DE Julia, EN Jessica). Ton-Schalter oben.
 // Ansehen: ?einfuehrung=kurz – Sprache erzwingen mit &sprache=de|en.
 
 import { useEffect, useRef, useState } from 'react'
-import Logo from './Logo.jsx'
 import { lektionTon } from './erfolgston.js'
 import { sprache } from './sprache.js'
 
 const TX = {
-  de: {
-    weiter: "Weiter", zurueck: "Zurück", ueberspringen: "Überspringen", lektion: "Lektion 1 starten", erkunden: "Frei erkunden", tonAn: "Stimme an", tonAus: "Stimme aus",
-    trainer: "Trainer", imTrainer: "Im Trainer", reiter: ["Vokabeln", "Sätze", "Texte"], wusste: "Wusste ich", interesse: "Was interessiert dich?", kiBaut: "Die KI baut deine Liste …",
-    imGespraech: "Im Gespräch", media: ["YouTube", "Songs", "E-Books"], kapitel: "Kapitel", du: "Du", duell: "Duell der Woche", vorne: "Du liegst vorne!", einladen: "Freunde einladen",
-  },
-  en: {
-    weiter: "Next", zurueck: "Back", ueberspringen: "Skip", lektion: "Start lesson 1", erkunden: "Explore on my own", tonAn: "Voice on", tonAus: "Voice off",
-    trainer: "Trainer", imTrainer: "In your trainer", reiter: ["Words", "Sentences", "Texts"], wusste: "I knew it", interesse: "What are you into?", kiBaut: "The AI is building your list …",
-    imGespraech: "In a call", media: ["YouTube", "Songs", "E-books"], kapitel: "chapters", du: "You", duell: "Duel of the week", vorne: "You’re in the lead!", einladen: "Invite friends",
-  },
+  de: { weiter: "Weiter", ueberspringen: "Überspringen", lektion: "Lektion 1 starten", erkunden: "Erst mal umschauen", tonAn: "Stimme an", tonAus: "Stimme aus",
+    inTrainer: "in deinen Trainer", vokabel: "VOKABEL", satz: "SATZ", text: "TEXT", du: "Du", duell: "Duell der Woche · Spiele bringen XP" },
+  en: { weiter: "Next", ueberspringen: "Skip", lektion: "Start lesson 1", erkunden: "Look around first", tonAn: "Voice on", tonAus: "Voice off",
+    inTrainer: "into your trainer", vokabel: "WORD", satz: "SENTENCE", text: "TEXT", du: "You", duell: "Duel of the week · games earn XP" },
 }
 
 const APP_KEY = "habloo"
-const SCHRITTE = [
-  { id: "lektion",
-    de: { titel: "Lektionen, die hängen bleiben", text: "Willkommen bei Habloo! In kurzen Lektionen lernst du Wörter, Sätze und die Grundlagen – und wiederholst alles direkt. Was du lernst, wandert automatisch in deinen Trainer." },
-    en: { titel: "Lessons that stick", text: "Welcome to Habloo! In short lessons you learn words, sentences and the basics – and review everything right away. Everything you learn goes straight into your trainer." } },
-  { id: "trainer",
-    de: { titel: "Dein Trainer – mit deinen Interessen", text: "Im Trainer wiederholst du alles genau dann, wenn du es sonst vergessen würdest: Vokabeln, Sätze und ganze Texte. Und mit der KI lernst du mit deinen eigenen Interessen – zum Beispiel Fußball." },
-    en: { titel: "Your trainer – with your interests", text: "Your trainer brings everything back right before you’d forget it: words, sentences and whole texts. And with the AI you learn with your own interests – football, for example." } },
-  { id: "sprechen",
-    de: { titel: "Sprich mit Habla", text: "Dann wird gesprochen! Habla ist dein KI-Gesprächspartner. Mit ihm führst du echte Gespräche auf Spanisch – ganz ohne Hemmungen." },
-    en: { titel: "Talk with Habla", text: "Then it’s time to talk! Habla is your AI conversation partner. Have real conversations in Spanish – no pressure at all." } },
-  { id: "mediathek",
-    de: { titel: "Lebe in der Sprache", text: "In der Mediathek lernst du mit dem, was dich wirklich interessiert: YouTube-Videos, Songs und E-Books. Tipp ein Wort an – schon ist es übersetzt." },
-    en: { titel: "Live the language", text: "In the media library you learn with what really interests you: YouTube videos, songs and e-books. Tap a word – and it’s translated instantly." } },
-  { id: "freunde",
-    de: { titel: "Spiel mit Freunden", text: "Zwischendurch spielst du Spiele – und mit Freunden macht alles mehr Spaß. Lade sie ein und tretet gegeneinander an: Wer sammelt mehr XP und spricht zuerst fließend Spanisch?" },
-    en: { titel: "Play with friends", text: "In between you play games – and everything’s more fun with friends. Invite them and compete: who collects more XP and speaks fluent Spanish first?" } },
-  { id: "los",
-    de: { titel: "Bereit?", text: "Jetzt bist du dran! Starte direkt mit Lektion eins – oder schau dich erst in Ruhe um." },
-    en: { titel: "Ready?", text: "Now it’s your turn! Jump straight into lesson one – or take a look around first." } },
-]
 const DATEN = {
-  lektion: {
-    titel: { de: "Lektion 1 · Begrüßung", en: "Lesson 1 · Greetings" },
-    wort: "hola", laut: null, bed: { de: "Hallo", en: "Hello" },
-    frage: { de: "Was heißt „gracias“?", en: "What does “gracias” mean?" },
-    optionen: [{ de: "bitte", en: "please" }, { de: "danke", en: "thank you", ok: true }, { de: "tschüss", en: "bye" }],
-    chips: ["hola", "gracias", { de: "Grundlage: Artikel", en: "Basics: articles" }],
-  },
-  trainer: {
-    inhalt: [
-      { ziel: "gracias", de: "danke", en: "thank you" },
-      { ziel: "¿Dónde está la playa?", de: "Wo ist der Strand?", en: "Where is the beach?" },
-      { ziel: "Mi día en Madrid", de: "Mein Tag in Madrid", en: "My day in Madrid" },
-    ],
-    interessen: [{ de: "⚽ Fußball", en: "⚽ Football" }, { de: "🍳 Kochen", en: "🍳 Cooking" }, { de: "✈️ Reisen", en: "✈️ Travel" }],
-    liste: [["el gol", "das Tor", "goal"], ["el partido", "das Spiel", "match"], ["el equipo", "die Mannschaft", "team"]],
-  },
-  partner: { de: "Habla · KI-Gesprächspartner", en: "Habla · AI conversation partner" },
-  gespraech: [
-    ["ki", "¡Hola! ¿Qué tal tu día?"],
-    ["du", "¡Muy bien! Hoy jugué al fútbol."],
-    ["ki", "¡Genial! ¿Con quién jugaste?", { de: "Tipp: „jugué“ = ich habe gespielt", en: "Tip: “jugué” = I played" }],
-    ["du", "Con mis amigos. ⚽"],
-  ],
-  media: {
-    satz: ["Me", "gusta", "mucho", "la", "música"], tipp: 4, bed: { de: "die Musik", en: "music" },
-    buch: { de: "Ein Tag in Madrid", en: "A day in Madrid" },
-    buchSatz: ["Hoy", "es", "un", "día", "bonito", "en", "Madrid."], buchTipp: 4, buchBed: { de: "schön", en: "beautiful" },
-  },
-  freunde: {
-    name: { de: "Lena", en: "Emma" }, gegner: 330,
-    kacheln: ["hola", { de: "danke", en: "thanks" }, "agua", { de: "Hallo", en: "Hello" }, "gracias", { de: "Wasser", en: "water" }],
-  },
+  wort: "hola", laut: null, bed: { de: "Hallo", en: "Hello" },
+  karten: ["gracias", "¿Dónde está la playa?", "Mi día en Madrid"],
+  chat: ["¡Hola! ¿Qué tal tu día?", "¡Muy bien, gracias!"],
+  satz: ["Me", "gusta", "la música"], satzBed: { de: "die Musik", en: "music" },
+  freund: { de: "Lena", en: "Emma" }, los: "¡Vamos!",
+}
+const TEXTE = {
+  lektion: { de: { titel: "Lernen in kleinen Lektionen", satz: "Alles, was du lernst, landet automatisch im Trainer." }, en: { titel: "Learn in bite-sized lessons", satz: "Everything you learn goes straight into your trainer." } },
+  trainer: { de: { titel: "Wiederholen, was dich interessiert", satz: "Vokabeln, Sätze und Texte – die KI baut sie dir zu deinen Themen." }, en: { titel: "Review what you care about", satz: "Words, sentences and texts – the AI builds them around your interests." } },
+  sprechen: { de: { titel: "Sprich mit Habla", satz: "Echte Gespräche mit der KI – ohne Hemmungen, jederzeit." }, en: { titel: "Talk with Habla", satz: "Real conversations with the AI – no pressure, any time." } },
+  mediathek: { de: { titel: "Videos, Songs & E-Books", satz: "Ein Wort antippen – schon ist es übersetzt." }, en: { titel: "Videos, songs & e-books", satz: "Tap a word – and it’s translated instantly." } },
+  freunde: { de: { titel: "Gemeinsam schneller", satz: "Lade Freunde ein, spielt und sammelt um die Wette XP." }, en: { titel: "Faster together", satz: "Invite friends, play games and race each other for XP." } },
+  los: { de: { titel: "Bereit?", satz: "Deine erste Lektion dauert nur 3 Minuten." }, en: { titel: "Ready?", satz: "Your first lesson takes just 3 minutes." } },
 }
 
 
-/* ------------------------------------------------------------------ *
- *  Takt: zählt 0 … ende hoch (alle ms), hält kurz und beginnt von vorn
- * ------------------------------------------------------------------ */
-function useTakt(ende, ms = 850, pause = 2600) {
-  const [t, setT] = useState(0)
-  useEffect(() => {
-    let id
-    const tick = (n) => {
-      id = setTimeout(() => {
-        if (n >= ende) { setT(0); tick(0) } else { setT(n + 1); tick(n + 1) }
-      }, n >= ende ? pause : ms)
-    }
-    tick(0)
-    return () => clearTimeout(id)
-  }, [ende, ms, pause])
-  return t
+const SCHRITTE = ['lektion', 'trainer', 'sprechen', 'mediathek', 'freunde', 'los']
+
+function Pfeil() {
+  return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7" /></svg>
 }
-
-const Finger = ({ an, style }) => <span className={'efs-finger' + (an ? ' an' : '')} style={style} aria-hidden="true">👆</span>
-
-/* ---------------- 1. Lektion ---------------- */
-function BuehneLektion({ sp }) {
-  const t = useTakt(11)
-  const L = DATEN.lektion
-  const offen = t >= 2
-  const quiz = t >= 4
-  const gewaehlt = t >= 6
-  const fliegt = t >= 8
-  return (
-    <div className="efs efs-lektion">
-      <div className="efs-leiste"><span>✕</span><i><b style={{ width: Math.min(100, 12 + t * 8) + '%' }} /></i></div>
-      <small className="efs-marke">{L.titel[sp]}</small>
-      {!quiz ? (
-        <div className={'efs-wortkarte' + (offen ? ' offen' : '')}>
-          <b>{L.wort}</b>
-          {L.laut && <em>{L.laut[sp]}</em>}
-          <span>{offen ? L.bed[sp] : '?'}</span>
-          <Finger an={t === 1} style={{ right: 22, bottom: 8 }} />
-        </div>
-      ) : (
-        <div className="efs-quiz">
-          <p>{L.frage[sp]}</p>
-          {L.optionen.map((o, i) => (
-            <span key={i} className={'efs-option' + (gewaehlt && o.ok ? ' richtig' : '')}>
-              {o[sp]}
-              {o.ok && <Finger an={t === 5} style={{ right: 10, top: 6 }} />}
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="efs-flug">
-        {L.chips.map((c, i) => (
-          <span key={i} className={'efs-chip' + (fliegt ? ' fliegt' : '')} style={{ animationDelay: i * 200 + 'ms' }}>{typeof c === 'string' ? c : c[sp]}</span>
-        ))}
-      </div>
-      <div className={'efs-ablage' + (t >= 10 ? ' voll' : '')}>
-        <span className="efs-ablage-bild">🧠</span>
-        <b>{TX[sp].trainer}</b>
-        <span className="efs-zahl">{t >= 10 ? '+3' : '+0'}</span>
-      </div>
-    </div>
-  )
-}
-
-/* ---------------- 2. Trainer ---------------- */
-function BuehneTrainer({ sp }) {
-  const t = useTakt(13)
-  const T = DATEN.trainer
-  const reiter = t < 3 ? 0 : t < 5 ? 1 : t < 7 ? 2 : 0
-  const ki = t >= 8
-  return (
-    <div className="efs efs-trainer">
-      <div className="efs-reiter">
-        {TX[sp].reiter.map((r, i) => <span key={r} className={i === reiter && !ki ? 'an' : ''}>{r}</span>)}
-      </div>
-      {!ki ? (
-        <div className="efs-karte-trainer" key={reiter}>
-          <b>{T.inhalt[reiter].ziel}</b>
-          {t % 2 === 0 ? <span className="efs-zu">?</span> : <span className="efs-loesung">{T.inhalt[reiter][sp]}</span>}
-          <div className="efs-bewerten"><i className={t % 2 === 1 ? 'druck' : ''}>{TX[sp].wusste}</i></div>
-        </div>
-      ) : (
-        <div className="efs-ki">
-          <p className="efs-ki-frage">{TX[sp].interesse}</p>
-          <div className="efs-interessen">
-            {T.interessen.map((x, i) => (
-              <span key={i} className={i === 0 && t >= 9 ? 'an' : ''}>{x[sp]}{i === 0 && <Finger an={t === 8} style={{ right: -6, top: 8 }} />}</span>
-            ))}
-          </div>
-          {t >= 10 && (
-            <ul className="efs-liste">
-              {T.liste.map((w, i) => (
-                <li key={w[0]} style={{ animationDelay: i * 220 + 'ms' }}><b>{w[0]}</b><span>{sp === 'en' ? w[2] : w[1]}</span></li>
-              ))}
-            </ul>
-          )}
-          {t === 9 && <p className="efs-zauber">✨ {TX[sp].kiBaut}</p>}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ---------------- 3. Sprechen ---------------- */
-function BuehneSprechen({ sp }) {
-  const t = useTakt(9, 1100)
-  const G = DATEN.gespraech
-  return (
-    <div className="efs efs-sprechen">
-      <div className="efs-anruf">
-        <span className={'efs-ava' + (t % 2 === 0 ? ' spricht' : '')}><Logo /></span>
-        <div>
-          <b>{DATEN.partner[sp]}</b>
-          <small>{TX[sp].imGespraech} · 0:{String(4 + t * 3).padStart(2, '0')}</small>
-        </div>
-      </div>
-      <div className="efs-blasen">
-        {G.slice(0, Math.min(G.length, 1 + Math.floor(t / 2))).map((z, i) => (
-          <p key={i} className={'efs-blase ' + z[0]}>
-            {z[1]}
-            {z[2] && <small>{z[2][sp]}</small>}
-          </p>
-        ))}
-      </div>
-      <div className="efs-welle" aria-hidden="true">
-        {Array.from({ length: 14 }, (_, i) => <i key={i} style={{ animationDelay: i * 70 + 'ms' }} />)}
-        <span className="efs-mikro">🎙️</span>
-      </div>
-    </div>
-  )
-}
-
-/* ---------------- 4. Mediathek ---------------- */
-function BuehneMediathek({ sp }) {
-  const t = useTakt(11)
-  const M = DATEN.media
-  const buch = t >= 7
-  return (
-    <div className="efs efs-media">
-      <div className="efs-reiter klein">
-        {TX[sp].media.map((r, i) => <span key={r} className={(buch ? i === 2 : i === 0) ? 'an' : ''}>{r}</span>)}
-      </div>
-      {!buch ? (
-        <div className="efs-video">
-          <div className="efs-bild"><span>▶</span><i style={{ width: 10 + t * 9 + '%' }} /></div>
-          <p className="efs-untertitel">
-            {M.satz.map((w, i) => (
-              <span key={i} className={i === M.tipp && t >= 3 ? 'an' : ''}>
-                {w}{i === M.tipp && <Finger an={t === 2} style={{ left: '40%', top: 18 }} />}
-              </span>
-            ))}
-          </p>
-          {t >= 3 && (
-            <div className="efs-pop">
-              <b>{M.satz[M.tipp]}</b> = {M.bed[sp]}
-              <span className={t >= 5 ? 'drin' : ''}>{t >= 5 ? '✓ ' + TX[sp].imTrainer : '+ ' + TX[sp].trainer}</span>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="efs-buch">
-          <div className="efs-cover"><span>📖</span><b>{M.buch[sp]}</b><small>A2 · 10 {TX[sp].kapitel}</small></div>
-          <p className="efs-seite">{M.buchSatz.map((w, i) => <span key={i} className={i === M.buchTipp && t >= 9 ? 'an' : ''}>{w} </span>)}</p>
-          {t >= 9 && <div className="efs-pop klein"><b>{M.buchSatz[M.buchTipp]}</b> = {M.buchBed[sp]}</div>}
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* ---------------- 5. Spiele & Freunde ---------------- */
-function BuehneFreunde({ sp }) {
-  const t = useTakt(12)
-  const F = DATEN.freunde
-  const kacheln = F.kacheln
-  const paar = t >= 3
-  const xp = 280 + (t >= 5 ? 40 : 0) + (t >= 7 ? 40 : 0)
-  const duVorne = xp > F.gegner
-  const liste = [{ n: F.name[sp], xp: F.gegner, ich: false }, { n: TX[sp].du, xp, ich: true }].sort((a, b) => b.xp - a.xp)
-  return (
-    <div className="efs efs-freunde">
-      <div className="efs-memory">
-        {kacheln.map((k, i) => {
-          const auf = (t >= 1 && i === 0) || (t >= 2 && i === 3) || (paar && (i === 0 || i === 3))
-          return <span key={i} className={(auf ? 'auf' : '') + (paar && (i === 0 || i === 3) ? ' paar' : '')}>{auf ? (k[sp] ?? k) : ''}</span>
-        })}
-        {t >= 4 && <b className="efs-xp-flug">+40 XP</b>}
-      </div>
-      <div className="efs-rang">
-        <small>🏆 {TX[sp].duell}</small>
-        {liste.map((p, i) => (
-          <div key={p.n} className={'efs-platz' + (p.ich ? ' ich' : '')} style={{ order: i }}>
-            <span className="efs-nr">{i + 1}</span>
-            <span className="efs-ini">{p.n[0]}</span>
-            <b>{p.n}</b>
-            <span className="efs-punkte">{p.xp} XP</span>
-          </div>
-        ))}
-        {duVorne && t >= 8 && <p className="efs-jubel">🎉 {TX[sp].vorne}</p>}
-        {t >= 10 && <span className="efs-einladen">＋ {TX[sp].einladen}</span>}
-      </div>
-    </div>
-  )
-}
-
-const BUEHNEN = { lektion: BuehneLektion, trainer: BuehneTrainer, sprechen: BuehneSprechen, mediathek: BuehneMediathek, freunde: BuehneFreunde }
-
 function Lautsprecher({ an }) {
   return an ? (
     <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" /><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" /></svg>
@@ -303,18 +55,61 @@ function Lautsprecher({ an }) {
   )
 }
 
+/* Die fünf Bilder – reine CSS-Bewegung, je ein Gedanke */
+function Bild({ id, sp }) {
+  const D = DATEN
+  if (id === 'lektion') return (
+    <div className="efa-bild efa-spalte">
+      <div className="efa-flip"><div className="efa-dreh">
+        <div className="efa-vorne"><b>{D.wort}</b>{D.laut && <em>{D.laut[sp]}</em>}</div>
+        <div className="efa-hinten"><b>{D.bed[sp]}</b></div>
+      </div></div>
+      <span className="efa-pille"><Pfeil /> {TX[sp].inTrainer}</span>
+    </div>
+  )
+  if (id === 'trainer') return (
+    <div className="efa-bild efa-faecher">
+      <div className="efa-karte efa-f1"><small>{TX[sp].vokabel}</small><b>{D.karten[0]}</b></div>
+      <div className="efa-karte efa-f3"><small>{TX[sp].text}</small><b className="klein">{D.karten[2]}</b></div>
+      <div className="efa-karte efa-f2 efa-voll"><small>{TX[sp].satz}</small><b className="klein">{D.karten[1]}</b></div>
+    </div>
+  )
+  if (id === 'sprechen') return (
+    <div className="efa-bild efa-spalte efa-chat">
+      <p className="efa-blase efa-b1">{D.chat[0]}</p>
+      <p className="efa-blase efa-b2 du">{D.chat[1]}</p>
+      <span className="efa-mikro"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg></span>
+    </div>
+  )
+  if (id === 'mediathek') return (
+    <div className="efa-bild efa-spalte efa-media">
+      <div className="efa-video"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg></span><i /></div>
+      <div className="efa-untertitel">
+        {D.satz.map((w, i) => <span key={i} className={i === D.satz.length - 1 ? 'efa-wort' : ''}>{w}</span>)}
+        <span className="efa-tipp">{D.satzBed[sp]}</span>
+      </div>
+    </div>
+  )
+  if (id === 'freunde') return (
+    <div className="efa-bild efa-spalte efa-duell">
+      <div className="efa-zeile"><span className="efa-ava">{TX[sp].du}</span><div className="efa-bahn"><i className="efa-x1" /></div></div>
+      <div className="efa-zeile"><span className="efa-ava dunkel">{D.freund[sp][0]}</span><div className="efa-bahn"><i className="efa-x2 dunkel" /></div></div>
+      <small>{TX[sp].duell}</small>
+    </div>
+  )
+  return <div className="efa-bild efa-ende"><span>{D.los}</span></div>
+}
+
 /** @param {(ziel: 'lektion'|'erkunden') => void} props.onFertig */
 export default function EinfuehrungKurz({ onFertig }) {
-  // Zum Testen: &sprache=de|en erzwingt die Sprache der Einführung
-  const sp = (() => {
+  const [sp] = useState(() => {
     try { const s = new URLSearchParams(window.location.search).get('sprache'); if (s === 'de' || s === 'en') return s } catch { /* egal */ }
     return sprache() === 'en' ? 'en' : 'de'
-  })()
-  const [spFest] = useState(sp)
-  const tx = TX[spFest]
+  })
+  const tx = TX[sp]
   const [nr, setNr] = useState(0)
-  const schritt = SCHRITTE[nr]
-  const letzter = nr === SCHRITTE.length - 1
+  const id = SCHRITTE[nr]
+  const ende = nr === SCHRITTE.length - 1
   const [ton, setTon] = useState(() => { try { return localStorage.getItem('ef-ton') !== 'aus' } catch { return true } })
   const audio = useRef(null)
 
@@ -325,14 +120,14 @@ export default function EinfuehrungKurz({ onFertig }) {
 
   const spiele = () => {
     audio.current?.pause()
-    const a = new Audio(`/einfuehrung/${APP_KEY}-${schritt.id}.${spFest}.mp3`)
+    const a = new Audio(`/einfuehrung/${APP_KEY}-${id}.${sp}.mp3`)
     audio.current = a
     a.play().catch(() => {})
   }
   useEffect(() => {
     window.scrollTo(0, 0)
     if (ton) spiele(); else audio.current?.pause()
-    if (letzter) lektionTon()
+    if (ende) lektionTon()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nr])
 
@@ -343,46 +138,33 @@ export default function EinfuehrungKurz({ onFertig }) {
     if (neu) spiele(); else audio.current?.pause()
   }
 
-  const Buehne = BUEHNEN[schritt.id]
-  const text = schritt[spFest]
-
+  const text = TEXTE[id][sp]
   return (
-    <div className="ef efk efk2">
-      <div className="efk-kopf">
-        <button className="btn-plain" onClick={() => onFertig('erkunden')} aria-label={tx.ueberspringen}>✕</button>
-        <div className="efk-punkte" aria-hidden="true">
-          {SCHRITTE.map((s, i) => <span key={s.id} className={i === nr ? 'an' : i < nr ? 'war' : ''} />)}
+    <div className="efa">
+      <div className="efa-kopf">
+        <div className="efa-striche" aria-hidden="true">
+          {SCHRITTE.slice(0, 5).map((s, i) => <span key={s} className={i <= Math.min(nr, 4) ? 'an' : ''} />)}
         </div>
-        <button className={'efk-ton' + (ton ? ' an' : '')} onClick={tonUmschalten} aria-label={ton ? tx.tonAus : tx.tonAn}><Lautsprecher an={ton} /></button>
+        <button className={'efa-ton' + (ton ? ' an' : '')} onClick={tonUmschalten} aria-label={ton ? tx.tonAus : tx.tonAn}><Lautsprecher an={ton} /></button>
+        {!ende && <button className="efa-leise" onClick={() => setNr(SCHRITTE.length - 1)}>{tx.ueberspringen}</button>}
       </div>
 
-      <div className="efk2-mitte" key={'s' + nr}>
-        {!letzter && <small className="efk2-nr">{nr + 1} / {SCHRITTE.length - 1}</small>}
-        <h1 className="efk-titel">{text.titel}</h1>
-        {Buehne ? <div className="efk2-buehne"><Buehne sp={spFest} /></div> : (
-          <div className="efk2-ende"><span className="efk2-pokal">🚀</span></div>
-        )}
-        <div className="ef-coach efk2-coach">
-          <span className="ef-coach-bild" aria-hidden="true"><Logo /></span>
-          <p className="ef-coach-blase">
-            {text.text.split(' ').map((w, i) => <span key={i} style={{ animationDelay: 120 + i * 28 + 'ms' }}>{w} </span>)}
-          </p>
+      <div className="efa-mitte" key={id}>
+        <Bild id={id} sp={sp} />
+        <div className="efa-text">
+          <h1>{text.titel}</h1>
+          <p>{text.satz}</p>
         </div>
       </div>
 
-      <div className="efk-unten">
-        {!letzter ? (
-          <>
-            <button className="ef-knopf" onClick={() => setNr(nr + 1)}>{tx.weiter}</button>
-            {nr > 0 ? <button className="ef-leise" onClick={() => setNr(nr - 1)}>{tx.zurueck}</button> : <button className="ef-leise" onClick={() => onFertig('erkunden')}>{tx.ueberspringen}</button>}
-          </>
-        ) : (
-          <>
-            <button className="ef-knopf efk-gross" onClick={() => onFertig('lektion')}>{tx.lektion}</button>
-            <button className="ef-knopf ef-knopf-hell" onClick={() => onFertig('erkunden')}>{tx.erkunden}</button>
-          </>
-        )}
-      </div>
+      {!ende ? (
+        <button className="efa-knopf" onClick={() => setNr(nr + 1)}>{tx.weiter}</button>
+      ) : (
+        <div className="efa-zwei">
+          <button className="efa-knopf" onClick={() => onFertig('lektion')}>{tx.lektion}</button>
+          <button className="efa-leise efa-gross" onClick={() => onFertig('erkunden')}>{tx.erkunden}</button>
+        </div>
+      )}
     </div>
   )
 }
