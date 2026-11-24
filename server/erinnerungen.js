@@ -160,10 +160,10 @@ export async function erinnerungenPruefen({ probe = false, jetzt = Date.now() } 
   const pushAn = apnsBereit() || fcmBereit()
   const mailAn = erinnerungMailBereit()
   // Apples versteckte Adressen (…@privaterelay.appleid.com) nehmen Mails nur von bei Apple
-  // eingetragenen Absendern an – sonst kommt „unauthorized sender“ zurück (24.11.2026).
-  // Bis der Absender dort eingetragen ist, gehen an diese Adressen keine Mails; danach
-  // in Coolify APPLE_RELAY_OK=1 setzen.
-  const relayGesperrt = (mail) => /@privaterelay\.appleid\.com$/i.test(mail) && process.env.APPLE_RELAY_OK !== '1'
+  // eingetragenen Absendern an. Seit 24.11.2026 sind habloo.de, davaigo.de und die beiden
+  // lernen@-Adressen dort eingetragen (Apple-Entwicklerkonto → Services → Sign in with Apple
+  // for Email Communication). Notbremse, falls doch wieder Mails zurückkommen: APPLE_RELAY_GESPERRT=1.
+  const relayGesperrt = (mail) => /@privaterelay\.appleid\.com$/i.test(mail) && process.env.APPLE_RELAY_GESPERRT === '1'
   const kanal = (k) => (pushAn && erreichbar(k) ? 'push' : mailAn && k.email && !relayGesperrt(k.email) && !k.app_metadata?.erinnerung_mail_aus ? 'mail' : null)
   const konten = (await alleKonten()).filter((k) => kanal(k))
   const stats = await statistik(konten.map((k) => k.id))
