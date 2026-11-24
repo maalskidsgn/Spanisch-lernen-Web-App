@@ -125,6 +125,9 @@ export async function berichtDaten(montag) {
     sprech: { gespraeche: sprech.length, minuten: Math.round(sprechMin), nutzer: new Set(sprech.map((g) => g.nutzer_id)).size },
     ki: { monat, listen: summe('ki'), schnell: summe('schnell'), buecher: summe('buch'), videos: summe('video'), kosten },
     gesamt: echt.length, ausgeschlossen: konten.length - echt.length,
+    // Stand am Ende der Berichtswoche (Sonntagabend) und eine Woche davor
+    gesamtEnde: echt.filter((k) => berlin(k.created_at) <= tage[6]).length,
+    gesamtVor: echt.filter((k) => berlin(k.created_at) < tage[0]).length,
   }
 }
 
@@ -181,6 +184,12 @@ export function berichtHtml(d, test = false) {
   <div style="font-size:26px;line-height:1.2;font-weight:800;color:#1d1b33;margin-top:6px">${datum(d.montag)} – ${datum(d.sonntag, true)}</div>
   <div style="font-size:15px;line-height:1.6;color:#6d6779;margin-top:10px">${satz}</div>
 </td></tr>
+<tr><td style="padding:6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="background:#ffe9d6;border-radius:20px;padding:22px 24px">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+    <td valign="middle"><div style="font-size:13px;font-weight:700;color:${F.tief}">Konten insgesamt</div><div style="font-size:44px;line-height:1.05;font-weight:800;color:#1d1b33;margin-top:2px">${zahl(d.gesamtEnde)}</div></td>
+    <td valign="middle" align="right"><span style="display:inline-block;background:#ffffff;color:${F.tief};border-radius:99px;padding:6px 14px;font-size:14px;font-weight:800">+${zahl(d.gesamtEnde - d.gesamtVor)} in dieser Woche</span><div style="font-size:12px;font-weight:600;color:#6d6779;margin-top:8px">Vorwoche: ${zahl(d.gesamtVor)}${d.gesamt !== d.gesamtEnde ? ` · heute: ${zahl(d.gesamt)}` : ''}</div></td>
+  </tr></table>
+</td></tr></table></td></tr>
 <tr><td><table role="presentation" width="100%" cellpadding="0" cellspacing="0">
   <tr>${kachel(zahl(d.neu), 'Neue Konten', pfeil(d.neu, d.neuVor))}${kachel(zahl(d.aktiv), 'Aktive Lerner', pfeil(d.aktiv, d.aktivVor))}</tr>
   <tr>${kachel(zahl(d.lektionen), 'Lektionen abgeschlossen', pfeil(d.lektionen, d.lektionenVor))}${kachel(zahl(d.abosNeu), 'Neue Abos', `<span style="font-size:12px;color:#8a8497;font-weight:600">${zahl(d.abosAktiv)} laufen insgesamt</span>`)}</tr>
@@ -200,7 +209,7 @@ ${karte('KI und Sprach-Trainer', `<table role="presentation" width="100%" cellpa
   ${klein('Gespräche diese Woche', zahl(d.sprech.gespraeche))}${klein('Sprech-Minuten', zahl(d.sprech.minuten))}${klein('Nutzer im Gespräch', zahl(d.sprech.nutzer))}</tr><tr>
   ${klein('KI-Listen im Monat', zahl(d.ki.listen))}${klein('E-Books · Videos', zahl(d.ki.buecher) + ' · ' + zahl(d.ki.videos))}${klein('KI-Kosten im Monat', d.ki.kosten.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $')}</tr></table>`)}
 <tr><td align="center" style="padding:18px 16px 0;font-size:12px;line-height:1.7;color:#a59fb0">
-  ${zahl(d.gesamt)} Konten insgesamt · ${d.ausgeschlossen} eigene und Test-Konten sind herausgerechnet.<br>Wochen laufen von Montag bis Sonntag, deutsche Zeit. Der Bericht kommt jeden Montagmorgen.
+  ${d.ausgeschlossen} eigene und Test-Konten sind herausgerechnet.<br>Wochen laufen von Montag bis Sonntag, deutsche Zeit. Der Bericht kommt jeden Montagmorgen.
 </td></tr>
 </table></td></tr></table></body></html>`
 }
@@ -209,8 +218,8 @@ export async function wochenberichtSenden({ montag = vorwochenMontag(), test = f
   const d = await berichtDaten(montag)
   const ok = await schicke({
     an: process.env.WOCHENBERICHT_AN || process.env.SMTP_USER,
-    betreff: `${test ? '[Test] ' : ''}${APP}-Wochenbericht ${datum(d.montag)} – ${datum(d.sonntag)}: ${d.neu} neue Konten, ${d.aktiv} aktiv`,
-    text: `${APP}-Wochenbericht ${d.montag} bis ${d.sonntag}\n\nNeue Konten: ${d.neu} (Vorwoche ${d.neuVor})\nAktive Lerner: ${d.aktiv} (Vorwoche ${d.aktivVor})\nLektionen: ${d.lektionen} (Vorwoche ${d.lektionenVor})\nNeue Abos: ${d.abosNeu}, laufend ${d.abosAktiv}\nVon den Neuen gelernt: ${d.trichter.gelernt}, Lektion geschafft: ${d.trichter.lektion}, an 2. Tag wieder da: ${d.trichter.wieder}\n`,
+    betreff: `${test ? '[Test] ' : ''}${APP}-Wochenbericht ${datum(d.montag)} – ${datum(d.sonntag)}: ${d.gesamtEnde} Konten (+${d.neu}), ${d.aktiv} aktiv`,
+    text: `${APP}-Wochenbericht ${d.montag} bis ${d.sonntag}\n\nKonten insgesamt: ${d.gesamtEnde}\nNeue Konten: ${d.neu} (Vorwoche ${d.neuVor})\nAktive Lerner: ${d.aktiv} (Vorwoche ${d.aktivVor})\nLektionen: ${d.lektionen} (Vorwoche ${d.lektionenVor})\nNeue Abos: ${d.abosNeu}, laufend ${d.abosAktiv}\nVon den Neuen gelernt: ${d.trichter.gelernt}, Lektion geschafft: ${d.trichter.lektion}, an 2. Tag wieder da: ${d.trichter.wieder}\n`,
     html: berichtHtml(d, test),
   })
   return { ok, daten: d }
