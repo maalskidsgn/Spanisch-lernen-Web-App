@@ -19760,3 +19760,50 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .efn-insel { width: 112px; } .efn-saeule.links .efn-insel { width: 94px; }
 .efn-insel > b { color: var(--primary-press); text-shadow: 0 1px 0 rgba(255,255,255,.5); font-size: 1.35rem; top: 9%; }
 .efn-spieler.du { top: 34px; } .efn-podest.getauscht .efn-spieler.freund { top: 34px; }
+
+/* ===== Premium-Pause zwischen Lektionen (24.11.2026, Manuel) – per Server schaltbar ===== */
+.pp { position: fixed; inset: 0; z-index: 4000; overflow-y: auto; color: var(--navy);
+  background: radial-gradient(90% 46% at 50% 0%, color-mix(in srgb, #ffc531 26%, transparent), transparent 72%), var(--bg); animation: pp-auf .35s ease both; }
+@keyframes pp-auf { from { opacity: 0 } }
+.pp * { box-sizing: border-box; }
+.pp-innen { max-width: 480px; min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; padding: calc(16px + env(safe-area-inset-top)) 26px calc(24px + env(safe-area-inset-bottom)); }
+.pp-kopf { display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
+.pp-marke { font-weight: 900; font-size: .76rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.pp-uhr { position: relative; width: 36px; height: 36px; display: grid; place-items: center; }
+.pp-uhr svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+.pp-uhr circle { fill: none; stroke-width: 4; }
+.pp-uhr-grund { stroke: color-mix(in srgb, var(--navy) 10%, transparent); }
+.pp-uhr-lauf { stroke: var(--primary); stroke-linecap: round; stroke-dasharray: 94.2; transition: stroke-dashoffset 1s linear; }
+.pp-uhr b { position: relative; font-size: .85rem; font-weight: 900; }
+.pp-uhr.frei b { color: #3aa676; }
+.pp-mitte { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 10px 0 22px; }
+.pp .ka-pokal.pp-pokal { display: grid !important; margin: 0; animation: pp-schweb 3.2s ease-in-out infinite; }
+@keyframes pp-schweb { 50% { transform: translateY(-6px) } }
+.pp-text { text-align: center; display: flex; flex-direction: column; gap: 8px; }
+.pp-text h1 { margin: 0; font-size: 1.9rem; line-height: 1.1; font-weight: 900; letter-spacing: -.4px; text-wrap: balance; color: var(--navy); }
+.pp-text p { margin: 0; font-size: 1.02rem; line-height: 1.5; font-weight: 600; color: var(--muted); text-wrap: balance; }
+.pp-karte { width: 100%; min-height: 104px; display: flex; align-items: center; gap: 14px; background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 14px 18px; box-shadow: 0 6px 0 var(--line); animation: pp-rein .45s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes pp-rein { from { opacity: 0; transform: translateX(22px) } }
+.pp-bild { flex: none; width: 86px; margin: 0 !important; }
+.pp-vorteil { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pp-vorteil b { font-size: 1.12rem; font-weight: 900; }
+.pp-prem { display: inline-flex; align-items: center; gap: 5px; font-weight: 900; color: #b97a00; }
+.pp-prem i { display: inline-flex; } .pp-prem svg { width: 18px; height: auto; display: block; }
+.pp-vorteil small { font-weight: 700; font-size: .84rem; color: var(--muted); }
+.pp-punkte { display: flex; gap: 6px; }
+.pp-punkte span { width: 7px; height: 7px; border-radius: 99px; background: color-mix(in srgb, var(--navy) 14%, transparent); transition: all .3s; }
+.pp-punkte span.an { width: 20px; background: var(--primary); }
+.pp-fuss { display: flex; flex-direction: column; gap: 10px; }
+.pp-knopf { width: 100%; height: 58px; border: 0; border-radius: 18px; background: linear-gradient(180deg, #ffd24d, #ffb800); color: #3b2a00; font: inherit; font-weight: 900; font-size: 1.1rem; box-shadow: 0 5px 0 #d99700; cursor: pointer; transition: transform .12s, box-shadow .12s; }
+.pp-knopf:active { transform: translateY(3px); box-shadow: 0 2px 0 #d99700; }
+.pp-weiter { width: 100%; height: 54px; border: 2px solid var(--line); border-radius: 18px; background: var(--card); color: var(--navy); font: inherit; font-weight: 900; font-size: 1.02rem; box-shadow: 0 4px 0 var(--line); cursor: pointer; transition: all .2s; }
+.pp-weiter:disabled { color: var(--muted); background: transparent; box-shadow: none; cursor: default; }
+.pp-weiter:not(:disabled) { border-color: var(--primary); color: var(--primary); box-shadow: 0 4px 0 var(--primary-press); animation: pp-frei .4s ease; }
+@keyframes pp-frei { 40% { transform: scale(1.04) } }
+.pp-knopf:focus-visible, .pp-weiter:focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
+@media (min-width: 900px) {
+  .pp { display: grid; place-items: center; background: color-mix(in srgb, var(--primary) 7%, var(--bg)); }
+  .pp-innen { width: 460px; min-height: 0; height: min(800px, calc(100vh - 56px)); border-radius: 40px; border: 2px solid var(--line); padding: 26px 30px 30px;
+    background: radial-gradient(90% 46% at 50% 0%, color-mix(in srgb, #ffc531 26%, transparent), transparent 72%), var(--bg); box-shadow: 0 8px 0 var(--line), 0 40px 80px -30px color-mix(in srgb, var(--navy) 35%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .pp * { animation: none !important; transition: none !important; } }

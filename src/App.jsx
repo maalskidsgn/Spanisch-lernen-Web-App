@@ -88,6 +88,8 @@ import StartGeschenk from './StartGeschenk.jsx'
 import Einrichtung from './Einrichtung.jsx'
 import Einfuehrung from './Einfuehrung.jsx'
 import EinfuehrungKurz from './EinfuehrungKurz.jsx'
+import PremiumPause from './PremiumPause.jsx'
+import { pauseGezeigt } from './pause.js'
 import {
   XP,
   loadProgress,
@@ -1484,6 +1486,9 @@ export default function App() {
   // ENTWURF Kurz-Einführung (22.11.2026): ?einfuehrung=kurz zeigt sie statt der langen Tour
   const [einfuehrungKurz] = useState(() => { try { return new URLSearchParams(window.location.search).get('einfuehrung') === 'kurz' } catch { return false } })
   const einfuehrungZielRef = useRef('lektion')
+  // Premium-Pause (pause.js): pause = Funktion, die danach die Lektion startet; ?werbung zeigt sie zur Ansicht
+  const [pause, setPause] = useState(null)
+  const [pauseVorschau, setPauseVorschau] = useState(() => { try { return new URLSearchParams(window.location.search).has('werbung') } catch { return false } })
   const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
     try { return new URLSearchParams(window.location.search).has('einfuehrung') ? 'neu' : false } catch { return false }
   })
@@ -1603,6 +1608,10 @@ export default function App() {
   // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
   // Steht VOR dem Zugangs-Tor: Mit ?einfuehrung lässt sie sich auch ohne
   // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
+  if (pauseVorschau) {
+    const zu = () => { setPauseVorschau(false); try { const u = new URL(window.location.href); u.searchParams.delete('werbung'); window.history.replaceState(null, '', u) } catch { /* egal */ } }
+    return <PremiumPause onWeiter={zu} onKasse={zu} />
+  }
   if (einfuehrungOffen && !nutzerLaedt) {
     return (
       <>
@@ -1793,6 +1802,12 @@ export default function App() {
         </div>
       )}
 
+      {pause && (
+        <PremiumPause
+          onWeiter={() => { pauseGezeigt(); const weiter = pause; setPause(null); weiter() }}
+          onKasse={() => { pauseGezeigt(); setPause(null); setKasseOffen(true) }}
+        />
+      )}
       <header className="topbar">
         {/* Klick aufs Logo führt immer zum Start */}
         <button className="logo" onClick={() => setView('start')}>
@@ -1977,6 +1992,7 @@ export default function App() {
             addXp={addXp}
             onLessonComplete={lektionGeschafft}
             onKasse={() => setKasseOffen(true)}
+            onPause={(weiter) => setPause(() => weiter)}
             sofortStart={ersteLektion}
             onSofortGestartet={() => setErsteLektion(0)}
             vocab={vocab}

@@ -1361,6 +1361,13 @@ app.get('/api/sprechen/gespraech/:id', sprechRoute(sprechGespraech))
 app.post('/api/sprechen/gespraech/:id/loeschen', sprechRoute(sprechLoesche))
 app.post('/api/sprechen/suche', sprechRoute(sprechSuche))
 // Push-Benachrichtigungen & Mindestversion der Store-Apps (14.11.2026)
+// Premium-Pause zwischen Lektionen (24.11.2026): Schalter ohne neues App-Paket.
+// Coolify: PAUSE_AN=1 schaltet ein, PAUSE_JEDE (Lektionen, Vorgabe 2), PAUSE_SEKUNDEN (Vorgabe 10)
+app.get('/api/app/pause', (req, res) => {
+  res.set('Cache-Control', 'no-store')
+  res.json({ an: process.env.PAUSE_AN === '1', jede: Number(process.env.PAUSE_JEDE) || 2, sekunden: Number(process.env.PAUSE_SEKUNDEN) || 10 })
+})
+
 app.get('/api/app/version', (req, res) => {
   res.set('Cache-Control', 'no-store')
   res.json(appVersion(req.query.plattform))

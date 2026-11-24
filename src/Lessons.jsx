@@ -46,6 +46,7 @@ import {
 import { useTexte, vokabel, satz, text as uebersetzt, sprache } from './sprache.js'
 import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
 import { usePremium, LEKTIONEN_SPERRE, TESTPHASE_ALLES_FREI } from './premium.js'
+import { lektionGezaehlt, pauseFaellig } from './pause.js'
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
 /** Tabellenzelle: „*hola* – Hallo“ → Wort-Chip und darunter klein die Bedeutung. */
@@ -214,7 +215,7 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet, vocab = {}, onAddVocab }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, onPause, sofortStart, onSofortGestartet, vocab = {}, onAddVocab }) {
   const t = useTexte()
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   // Reiter der Übersicht (17.11.2026, Manuel): „Lektionen“ und „Wiederholen“ –
@@ -317,6 +318,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       onKasse?.()
       return
     }
+    // Premium-Pause für Gratis-Nutzer (pause.js) – danach geht es hier weiter
+    if (onPause && pauseFaellig(premium || TESTPHASE_ALLES_FREI)) {
+      onPause(() => starten(l, station))
+      return
+    }
     vorladen(l) // alle Aufnahmen der Lektion schon mal holen
     setLaufendeStation(station)
     // Szene, Station oder gewoehnliche Lektion – drei Bauplaene, ein
@@ -358,6 +364,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       merkeEinheit('lektion') // zaehlt als Lektion
       merkeGelernt('lektionen')
       onLessonComplete(lektion)
+      lektionGezaehlt() // für die Premium-Pause (pause.js)
       setFertig(true)
       return
     }
