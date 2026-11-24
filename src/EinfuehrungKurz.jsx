@@ -97,10 +97,13 @@ const TAKTE = { lektion: 13, trainer: 14, sprechen: 11, mediathek: 14, freunde: 
 const MS = 800
 
 /** Zählt 0 … ende hoch, hält am Ende kurz und beginnt von vorn. */
-function useTakt(ende, aktiv) {
+function useTakt(ende, aktiv, schritt) {
   const [t, setT] = useState(0)
   const [runden, setRunden] = useState(0)
   useEffect(() => {
+    // Neuer Schritt: Takt und Runden von vorn – sonst war der Fortschrittsstrich sofort voll (24.11.)
+    setT(0)
+    setRunden(0)
     if (!aktiv) return
     let id
     const tick = (n) => {
@@ -110,7 +113,7 @@ function useTakt(ende, aktiv) {
     }
     tick(0)
     return () => clearTimeout(id)
-  }, [ende, aktiv])
+  }, [ende, aktiv, schritt])
   return [t, runden]
 }
 
@@ -381,7 +384,7 @@ export default function EinfuehrungKurz({ onFertig }) {
   const [nr, setNr] = useState(0)
   const id = SCHRITTE[nr]
   const ende = id === 'los'
-  const [t, runden] = useTakt(TAKTE[id] ?? 1, !ende)
+  const [t, runden] = useTakt(TAKTE[id] ?? 1, !ende, id)
   const [ton, setTon] = useState(() => { try { return localStorage.getItem('ef-ton') !== 'aus' } catch { return true } })
   const audio = useRef(null)
 
