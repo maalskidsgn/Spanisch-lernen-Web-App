@@ -6,6 +6,8 @@
 
 import { useEffect, useState } from 'react'
 import { sprache } from './sprache.js'
+import PremiumPause from './PremiumPause.jsx'
+import { einheitGezaehlt, pauseFaellig, pauseGezeigt } from './pause.js'
 
 const TX = {
   de: {
@@ -114,9 +116,30 @@ function ZaehlZahl({ bis }) {
  * quote: 0–100 für den Ring (null = Haken statt Ring)
  * chips: [{ wert, text, xp? }] · knoepfe: [{ text, onClick, zweit? } | false]
  */
-export default function RundenAbschluss({ quote = null, titel, unter, chips = [], text, knoepfe = [] }) {
+export default function RundenAbschluss({ quote = null, titel, unter, chips = [], text, knoepfe = [], vorschauPause = false }) {
+  // Premium-Pause (pause.js, 24.11.2026): Jede abgeschlossene Runde zählt wie eine
+  // Lektion. Ist die Pause dran, kommt sie beim Verlassen dieses Bildschirms –
+  // danach geht es dorthin, wohin der Knopf führt.
+  const [pause, setPause] = useState(null)
+  useEffect(() => { if (!vorschauPause) einheitGezaehlt() }, [vorschauPause])
+  function klick(aktion) {
+    let premium = false
+    try { premium = localStorage.getItem('premium-stand') === 'ja' } catch { /* dann gratis */ }
+    if (vorschauPause || pauseFaellig(premium)) setPause(() => aktion)
+    else aktion?.()
+  }
+  function zurKasse() {
+    window.history.pushState({ kasse: true }, '', '/kasse')
+    window.dispatchEvent(new PopStateEvent('popstate', { state: { kasse: true } }))
+  }
   return (
     <div className="abschluss-seite runden-abschluss">
+      {pause && (
+        <PremiumPause
+          onWeiter={() => { pauseGezeigt(); const weiter = pause; setPause(null); weiter?.() }}
+          onKasse={() => { pauseGezeigt(); setPause(null); zurKasse() }}
+        />
+      )}
       <div className="abschluss-held">
         <div className="konfetti-regen" aria-hidden="true">
           {Array.from({ length: 22 }, (_, i) => (
@@ -154,7 +177,7 @@ export default function RundenAbschluss({ quote = null, titel, unter, chips = []
         {text && <p className="abschluss-text">{text}</p>}
         <div className="abschluss-knoepfe">
           {knoepfe.filter(Boolean).map((k, i) => (
-            <button key={i} type="button" className={k.zweit ? 'abschluss-zweit' : ''} onClick={k.onClick}>
+            <button key={i} type="button" className={k.zweit ? 'abschluss-zweit' : ''} onClick={() => klick(k.onClick)}>
               {k.text}
             </button>
           ))}

@@ -89,6 +89,7 @@ import Einrichtung from './Einrichtung.jsx'
 import Einfuehrung from './Einfuehrung.jsx'
 import EinfuehrungKurz from './EinfuehrungKurz.jsx'
 import PremiumPause from './PremiumPause.jsx'
+import RundenAbschluss from './RundenAbschluss.jsx'
 import { pauseGezeigt } from './pause.js'
 import {
   XP,
@@ -1483,12 +1484,13 @@ export default function App() {
   // Startgeschenk und dann Lektion 1 (Reihenfolge 16.11., Manuel).
   // 'neu' = dieser Ablauf (auch ?einfuehrung zum Testen), 'rundgang' = aus
   // dem Leitfaden erneut angesehen → danach zurück zum Start.
-  // ENTWURF Kurz-Einführung (22.11.2026): ?einfuehrung=kurz zeigt sie statt der langen Tour
-  const [einfuehrungKurz] = useState(() => { try { return new URLSearchParams(window.location.search).get('einfuehrung') === 'kurz' } catch { return false } })
+  // Kurz-Einführung: seit 24.11.2026 (von Manuel abgesegnet) die Einführung für alle Neuen.
+  // Die lange Tour gibt es weiter als „Rundgang“ im Profil.
+  const einfuehrungKurz = true
   const einfuehrungZielRef = useRef('lektion')
   // Premium-Pause (pause.js): pause = Funktion, die danach die Lektion startet; ?werbung zeigt sie zur Ansicht
   const [pause, setPause] = useState(null)
-  const [pauseVorschau, setPauseVorschau] = useState(() => { try { return new URLSearchParams(window.location.search).has('werbung') } catch { return false } })
+  const [pauseVorschau, setPauseVorschau] = useState(() => { try { const p = new URLSearchParams(window.location.search); return p.has('werbung') ? p.get('werbung') || 'ja' : false } catch { return false } })
   const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
     try { return new URLSearchParams(window.location.search).has('einfuehrung') ? 'neu' : false } catch { return false }
   })
@@ -1610,13 +1612,15 @@ export default function App() {
   // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
   if (pauseVorschau) {
     const zu = () => { setPauseVorschau(false); try { const u = new URL(window.location.href); u.searchParams.delete('werbung'); window.history.replaceState(null, '', u) } catch { /* egal */ } }
+    // ?werbung=runde: ganzer Ablauf zum Ansehen – Rundenende, dann die Pause, dann weiter
+    if (pauseVorschau === 'runde') return <RundenAbschluss vorschauPause quote={80} titel="Runde geschafft!" chips={[{ wert: '8 / 10', text: 'gewusst' }, { wert: '+40', text: 'XP', xp: true }]} knoepfe={[{ text: 'Nächste Runde', onClick: zu }, { text: 'Zurück', zweit: true, onClick: zu }]} />
     return <PremiumPause onWeiter={zu} onKasse={zu} />
   }
   if (einfuehrungOffen && !nutzerLaedt) {
     return (
       <>
         <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
-        {einfuehrungKurz ? <EinfuehrungKurz onFertig={einfuehrungZu} /> : <Einfuehrung
+        {einfuehrungKurz && einfuehrungOffen !== 'rundgang' ? <EinfuehrungKurz onFertig={einfuehrungZu} /> : <Einfuehrung
           onFertig={einfuehrungZu}
           rundgang={einfuehrungOffen === 'rundgang'}
           onAddVocab={addVocabWords}

@@ -26,10 +26,12 @@ export default function PremiumPause({ onWeiter, onKasse }) {
   const [nr, setNr] = useState(0)
 
   useEffect(() => {
+    // Menüleiste ausblenden – aber nur wieder einblenden, wenn sie vorher zu sehen war
+    const warAus = document.body.classList.contains('lektion-laeuft')
     document.body.classList.add('lektion-laeuft')
     const uhr = setInterval(() => setRest((r) => Math.max(0, r - 1)), 1000)
     const wechsel = setInterval(() => setNr((n) => (n + 1) % vorteile.length), 2500)
-    return () => { clearInterval(uhr); clearInterval(wechsel); document.body.classList.remove('lektion-laeuft') }
+    return () => { clearInterval(uhr); clearInterval(wechsel); if (!warAus) document.body.classList.remove('lektion-laeuft') }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

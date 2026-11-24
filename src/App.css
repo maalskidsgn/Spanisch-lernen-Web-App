@@ -19765,6 +19765,7 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .pp { position: fixed; inset: 0; z-index: 4000; overflow-y: auto; color: var(--navy);
   background: radial-gradient(90% 46% at 50% 0%, color-mix(in srgb, #ffc531 26%, transparent), transparent 72%), var(--bg); animation: pp-auf .35s ease both; }
 @keyframes pp-auf { from { opacity: 0 } }
+.pp { text-align: left; }
 .pp * { box-sizing: border-box; }
 .pp-innen { max-width: 480px; min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; padding: calc(16px + env(safe-area-inset-top)) 26px calc(24px + env(safe-area-inset-bottom)); }
 .pp-kopf { display: flex; align-items: center; justify-content: space-between; min-height: 40px; }
