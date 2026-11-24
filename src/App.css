@@ -19782,7 +19782,7 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .pp-text { text-align: center; display: flex; flex-direction: column; gap: 8px; }
 .pp-text h1 { margin: 0; font-size: 1.9rem; line-height: 1.1; font-weight: 900; letter-spacing: -.4px; text-wrap: balance; color: var(--navy); }
 .pp-text p { margin: 0; font-size: 1.02rem; line-height: 1.5; font-weight: 600; color: var(--muted); text-wrap: balance; }
-.pp-karte { width: 100%; min-height: 104px; display: flex; align-items: center; gap: 14px; background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 14px 18px; box-shadow: 0 6px 0 var(--line); animation: pp-rein .45s cubic-bezier(.2,.8,.2,1) both; }
+.pp-karte { width: 100%; min-height: 122px; display: flex; align-items: center; gap: 14px; background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 14px 18px; box-shadow: 0 6px 0 var(--line); animation: pp-rein .45s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes pp-rein { from { opacity: 0; transform: translateX(22px) } }
 .pp-bild { flex: none; width: 86px; margin: 0 !important; }
 .pp-vorteil { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
