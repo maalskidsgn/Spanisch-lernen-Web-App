@@ -2,7 +2,7 @@ import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
 import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
 import { abmeldeZeichen } from './erinnerungMail.js'
-import { neueKontenStarten } from './neueKonten.js'
+import { wochenberichtStarten } from './wochenbericht.js'
 import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben, verbMarke } from './konjugation.js'
 import { uebungenZurRegel, uebungenGemerkt, uebungenErzeugen } from './uebungen.js'
 import { ZIEL, SUCH_SPRACHE, audioSprachen, istZielsprache } from './suchsprache.js'
@@ -1394,7 +1394,7 @@ app.get('/api/push/erinnerungen', async (req, res) => {
   }
 })
 erinnerungenStarten()
-neueKontenStarten()
+wochenberichtStarten() // ersetzt die Mail je Anmeldung (24.11.2026)
 app.post('/api/push/senden', async (req, res) => {
   if (!pushAdminErlaubt(req.headers['x-push-schluessel'])) return res.status(403).json({ error: 'Nicht erlaubt.' })
   try {
