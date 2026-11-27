@@ -353,10 +353,11 @@ export function Bildnis({ name, bild, klasse = '' }) {
 /** Die Serie eines Mitspielers: Flamme und Tage. */
 function Serie({ serie, klasse }) {
   const t = useTexte()
-  if (serie === undefined) return null
+  // Ohne laufende Serie zeigen wir nichts – eine Liste voller Nullen wirkt tot.
+  if (!(serie > 0)) return null
   return (
     <span className={klasse} title={t('hm.tageGelernt', { zahl: serie })}>
-      <Flamme an={serie > 0} groesse={14} />
+      <Flamme an groesse={14} />
       {serie}
     </span>
   )

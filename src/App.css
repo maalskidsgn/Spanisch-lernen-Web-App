@@ -13049,6 +13049,10 @@ button.rang-saeule:active { transform: none; box-shadow: none; }
   padding: 14px 8px;
   background: var(--card);
 }
+/* Ohne laufende Serie fehlt das Flammen-Feld – XP gesamt nimmt dann die ganze Zeile. */
+.ps-zahlen.ohne-serie > div:first-child {
+  grid-column: 1 / -1;
+}
 .ps-zahlen dd {
   margin: 0;
   font-size: 1.15rem;
